@@ -162,19 +162,27 @@ export function buildUserInstructionSlashCommands(
 }
 
 const FALLBACK_PROVIDER_MODELS: Record<string, string[]> = {
-	cline: [CLINE_DEFAULT_MODEL_ID],
-	anthropic: ["claude-sonnet-4-6"],
-	"openai-native": ["gpt-5.5"],
-	openrouter: ["anthropic/claude-sonnet-4.6"],
-	gemini: ["gemini-3-pro-latest"],
+	"openai-native": [
+		"free/deepseek-v4.1-flash",
+		"free/deepseek-v4-flash-0731",
+		"free/deepseek-v4-pro-0813",
+		"free/glm-5.3-flashx",
+		"free/glm-5.3-flash",
+		"free/glm-5.3",
+		"free/gemini-3.8-flash",
+		"free/qwen-3.8-max",
+		"free/gpt-6-luna",
+		"free/mimo-v2.6-pro",
+		"free/jev-1.13",
+	],
+	cline: ["free/deepseek-v4.1-flash"],
+	induscode: ["free/deepseek-v4.1-flash"],
 };
 
 const FALLBACK_PROVIDER_REASONING_MODELS: Record<string, string[]> = {
-	cline: [CLINE_DEFAULT_MODEL_ID],
-	anthropic: ["claude-sonnet-4-6"],
-	"openai-native": ["gpt-5.5"],
-	openrouter: ["anthropic/claude-sonnet-4.6"],
-	gemini: ["gemini-3-pro-latest"],
+	"openai-native": ["free/deepseek-v4.1-flash", "free/deepseek-v4-pro-0813"],
+	cline: ["free/deepseek-v4.1-flash", "free/deepseek-v4-pro-0813"],
+	induscode: ["free/deepseek-v4.1-flash", "free/deepseek-v4-pro-0813"],
 };
 
 type ReasoningEffort = NonNullable<ChatSessionConfig["reasoningEffort"]>;
@@ -579,7 +587,7 @@ function ChatInputBarImpl({
 			toast({
 				title: "Add a message to go with your attachments",
 				description:
-					"Describe what you want Cline to do with the attached files before sending.",
+					"Describe what you want IndusCode to do with the attached files before sending.",
 			});
 			return;
 		}
@@ -783,7 +791,7 @@ function ChatInputBarImpl({
 			variant: "destructive",
 			title: "Speech input failed",
 			description: isMicrophoneError
-				? "Check the microphone permission for Cline and try again."
+				? "Check the microphone permission for IndusCode and try again."
 				: message,
 		});
 	}, []);
@@ -1371,7 +1379,7 @@ function ChatInputBarImpl({
 												? "Agent is working... submit to queue another message, or Enter to send the first message from the queue"
 												: "Agent is working... submit to queue another message"
 											: executionTarget === "cloud"
-												? "Describe what Cline should do in this repository."
+												? "Describe what IndusCode should do in this repository."
 												: variant === "welcome"
 													? "Ask to make changes, @mention files, reference #PRs, or run /commands."
 													: "Enter your question or type / for commands or @ for context"
@@ -1402,8 +1410,9 @@ function ChatInputBarImpl({
 									onClick={onAbort}
 									title="Stop the agent (Esc)"
 									type="button"
+									className="size-7 shrink-0 transition-all duration-150 flex items-center justify-center bg-foreground text-background hover:bg-destructive hover:text-destructive-foreground active:scale-95"
 								>
-									<CircleStop className="size-3" />
+									<CircleStop className="size-4 shrink-0" />
 								</AgentComposerStopButton>
 							)}
 							{/* The mic button only appears once a voice model is
@@ -1444,8 +1453,14 @@ function ChatInputBarImpl({
 											: "Send (Enter)"
 									}
 									type="button"
+									className={cn(
+										"size-7 shrink-0 transition-all duration-150 flex items-center justify-center",
+										canSend
+											? "bg-primary text-primary-foreground shadow-sm hover:opacity-90 active:scale-95 cursor-pointer"
+											: "bg-muted/70 text-muted-foreground/50 border border-border/40 cursor-not-allowed opacity-100 hover:opacity-100",
+									)}
 								>
-									<ArrowUp className="size-3" />
+									<ArrowUp className="size-4 shrink-0" strokeWidth={2.5} />
 								</AgentComposerSendButton>
 							)}
 						</AgentComposerActions>
@@ -1869,8 +1884,7 @@ const ModelSelector = memo(function ModelSelector({
 		// otherwise loading the catalog silently changes the session's model.
 		if (
 			model &&
-			(normalizedProvider === resolvedProvider ||
-				modelsForProvider.includes(model)) &&
+			(modelsForProvider.length === 0 || modelsForProvider.includes(model)) &&
 			(!includeCloudModels ||
 				!autoCorrectModel ||
 				modelsForProvider.includes(model))
@@ -1965,18 +1979,13 @@ const ModelSelector = memo(function ModelSelector({
 					...(payload.providerModelDetails ?? {}),
 				}));
 				setReasoningCapabilitySource("catalog");
-				setEnabledProviderIds((current) => {
+				setEnabledProviderIds(() => {
 					const nextProviderIds = new Set(payload.enabledProviderIds);
 					if (
 						normalizedProvider &&
 						(!includeCloudModels || !autoCorrectModel)
 					) {
 						nextProviderIds.add(normalizedProvider);
-					}
-					for (const providerId of current) {
-						if (!includeCloudModels && providerId in payload.providerModels) {
-							nextProviderIds.add(providerId);
-						}
 					}
 					return Array.from(nextProviderIds);
 				});
@@ -2168,24 +2177,38 @@ const ModelSelector = memo(function ModelSelector({
 	);
 	// The picker only lists providers with saved settings, so it is also the
 	// natural place to reach the rest of the catalog.
-	const providerOptions = useMemo(
-		() => [
-			...providers.map((value) => ({
-				label: providerNames[value]?.trim() || value,
-				value,
-			})),
-			...(onOpenModelSettings
-				? [
-						{
-							icon: <Plus className="size-3 shrink-0 text-muted-foreground" />,
-							label: "Set up another provider",
-							value: ADD_PROVIDER_OPTION_VALUE,
-						},
-					]
-				: []),
-		],
-		[onOpenModelSettings, providerNames, providers],
-	);
+	const providerOptions = useMemo(() => {
+		const seenLabels = new Set<string>();
+		const result: Array<{
+			icon?: React.ReactNode;
+			label: string;
+			value: string;
+		}> = [];
+		for (const value of providers) {
+			const label = providerNames[value]?.trim() || value;
+			if (label === "IndusCode") {
+				if (seenLabels.has("IndusCode")) continue;
+				seenLabels.add("IndusCode");
+				const preferredValue = providers.includes("openai-native")
+					? "openai-native"
+					: value;
+				result.push({ label: "IndusCode", value: preferredValue });
+				continue;
+			}
+			if (!seenLabels.has(label)) {
+				seenLabels.add(label);
+				result.push({ label, value });
+			}
+		}
+		if (onOpenModelSettings) {
+			result.push({
+				icon: <Plus className="size-3 shrink-0 text-muted-foreground" />,
+				label: "Set up another provider",
+				value: ADD_PROVIDER_OPTION_VALUE,
+			});
+		}
+		return result;
+	}, [onOpenModelSettings, providerNames, providers]);
 	const selectedModelLabel =
 		visibleModelPicker.options.find((option) => option.value === resolvedModel)
 			?.label ?? resolvedModel;

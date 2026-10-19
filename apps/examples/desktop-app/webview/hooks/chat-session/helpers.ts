@@ -12,6 +12,7 @@ import type {
 import { isGitHubRepositoryUrl } from "@/lib/cloud-repositories";
 import { normalizeProviderId } from "@/lib/provider-id";
 import type { SessionHistoryStatus } from "@/lib/session-history";
+import { readProviderCatalogSnapshot } from "@/lib/provider-model-catalog";
 import { OAUTH_MANAGED_PROVIDERS } from "./constants";
 
 type RpcMessageLike = {
@@ -262,6 +263,11 @@ export function resolveCredentialError(
 	if (config.apiKey.trim().length > 0) {
 		return null;
 	}
+	// Fall back to snapshot credentials if in-memory config is still updating
+	const snapshot = readProviderCatalogSnapshot();
+	if (snapshot?.credentials[providerId]?.apiKey?.trim()) {
+		return null;
+	}
 	return `Missing API key for provider "${config.provider}". Add credentials in Settings, or switch providers.`;
 }
 
@@ -281,13 +287,13 @@ export function resolveCredentialFailureHint(
 	if (cli) {
 		return `Sign in again with the \`${cli.command}\` CLI in a terminal, then try again.`;
 	}
-	if (normalizeProviderId(providerId) === "cline") {
-		return "Sign in to Cline again in Settings → Account, then try again.";
+	if (normalizeProviderId(providerId) === "cline" || normalizeProviderId(providerId) === "induscode") {
+		return "Please configure your AI API Key in Admin Setup (http://localhost:3000/admin) or in Settings → Providers.";
 	}
 	if (!providerAuth) {
 		return "Sign in again using your provider's authentication method, then try again.";
 	}
-	return "Check your model connection in Settings → Providers (or sign in with Cline), then try again.";
+	return "Check your model connection in Settings → Providers, then try again.";
 }
 
 /**
@@ -313,8 +319,8 @@ export function resolveCredentialFailureAction(
 	providerId: string,
 	auth?: ProviderAuthInfo,
 ): { label: string; target: "account" | "models" } | null {
-	if (normalizeProviderId(providerId) === "cline") {
-		return { label: "Sign in to Cline", target: "account" };
+	if (normalizeProviderId(providerId) === "cline" || normalizeProviderId(providerId) === "induscode") {
+		return { label: "Configure AI Provider", target: "models" };
 	}
 	const providerAuth = matchingProviderAuth(providerId, auth);
 	if (!providerAuth || providerAuth.localCli) {

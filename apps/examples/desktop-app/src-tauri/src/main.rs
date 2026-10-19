@@ -558,8 +558,15 @@ fn spawn_desktop_backend_process(context: &AppContext) -> Result<Child, String> 
         if let Some(bundle_dir) = bundle_path.parent() {
             command.current_dir(bundle_dir);
         }
+        let home = std::env::var("HOME")
+            .or_else(|_| std::env::var("USERPROFILE"))
+            .unwrap_or_default();
+        let indus_dir = PathBuf::from(&home).join(".induscode");
+        let indus_data_dir = indus_dir.join("data");
         command
             .env("BUN_BE_BUN", "1")
+            .env("CLINE_DIR", &indus_dir)
+            .env("CLINE_DATA_DIR", &indus_data_dir)
             .env("CLINE_DESKTOP_WORKSPACE_ROOT", &context.workspace_root)
             .env(
                 "CLINE_REMOTE_HELPER_DIRECTORY",
@@ -728,22 +735,30 @@ fn non_empty_env(name: &str) -> Option<String> {
 /// same precedence here means the "Open MCP settings" window action opens the
 /// exact file the runtime reads (cline/cline#14152).
 fn resolve_mcp_settings_path() -> Result<PathBuf, String> {
-    if let Some(explicit) = non_empty_env("CLINE_MCP_SETTINGS_PATH") {
+    if let Some(explicit) = non_empty_env("INDUSCODE_MCP_SETTINGS_PATH").or_else(|| non_empty_env("CLINE_MCP_SETTINGS_PATH")) {
         return Ok(PathBuf::from(explicit));
     }
-    let data_dir = if let Some(data_dir) = non_empty_env("CLINE_DATA_DIR") {
+    let data_dir = if let Some(data_dir) = non_empty_env("INDUSCODE_DATA_DIR").or_else(|| non_empty_env("CLINE_DATA_DIR")) {
         PathBuf::from(data_dir)
-    } else if let Some(cline_dir) = non_empty_env("CLINE_DIR") {
-        PathBuf::from(cline_dir).join("data")
+    } else if let Some(dir) = non_empty_env("INDUSCODE_DIR").or_else(|| non_empty_env("CLINE_DIR")) {
+        PathBuf::from(dir).join("data")
     } else {
         // USERPROFILE is the Windows equivalent of HOME (and what the sidecar's
         // homedir() resolves there); HOME is usually unset on Windows.
         let home = std::env::var("HOME")
             .or_else(|_| std::env::var("USERPROFILE"))
             .map_err(|_| "neither HOME nor USERPROFILE is set".to_string())?;
-        PathBuf::from(home).join(".cline").join("data")
+        PathBuf::from(home).join(".induscode").join("data")
     };
-    Ok(data_dir.join("settings").join("cline_mcp_settings.json"))
+    let indus_path = data_dir.join("settings").join("induscode_mcp_settings.json");
+    if indus_path.exists() {
+        return Ok(indus_path);
+    }
+    let cline_path = data_dir.join("settings").join("cline_mcp_settings.json");
+    if cline_path.exists() {
+        return Ok(cline_path);
+    }
+    Ok(indus_path)
 }
 
 fn open_path_with_default_app(path: &Path) -> Result<(), String> {
@@ -1016,90 +1031,10 @@ fn handle_check_for_updates_menu(app: &tauri::AppHandle) {
     }
 }
 
-/// Icon ids accepted by `set_app_icon`; kept in sync with APP_ICONS in
-/// webview/lib/app-icon.ts. Every id has a matching bundled resource at
-/// icons/app/<id>.png, plus a macOS variant at icons/app/macos/<id>.png with
-/// the transparent margin the Dock expects (artwork fills ~80% of the canvas).
-const APP_ICONS: [&str; 4] = ["classic", "midnight", "hologram", "chip"];
-
-#[cfg(target_os = "macos")]
-const APP_ICON_RESOURCE_DIR: &str = "icons/app/macos";
-#[cfg(target_os = "windows")]
-const APP_ICON_RESOURCE_DIR: &str = "icons/app";
-
-#[cfg(any(target_os = "macos", target_os = "windows"))]
-fn resolve_app_icon(app: &tauri::AppHandle, icon: &str) -> Result<PathBuf, String> {
-    let icon_path = app
-        .path()
-        .resolve(
-            format!("{APP_ICON_RESOURCE_DIR}/{icon}.png"),
-            tauri::path::BaseDirectory::Resource,
-        )
-        .map_err(|e| format!("failed resolving app icon resource: {e}"))?;
-    if !icon_path.exists() {
-        return Err(format!(
-            "app icon resource missing: {}",
-            icon_path.display()
-        ));
-    }
-    Ok(icon_path)
-}
-
 #[tauri::command]
-async fn set_app_icon(app: tauri::AppHandle, icon: String) -> Result<bool, String> {
-    if !APP_ICONS.contains(&icon.as_str()) {
-        return Err(format!("unknown app icon: {icon}"));
-    }
-    #[cfg(target_os = "macos")]
-    {
-        // Every choice uses a resource because AppKit does not support restoring
-        // the bundled icon by passing a nil application icon.
-        let icon_path = resolve_app_icon(&app, &icon)?;
-        let (result_tx, result_rx) = tokio::sync::oneshot::channel();
-        app.run_on_main_thread(move || {
-            use objc2::{AllocAnyThread, MainThreadMarker};
-            use objc2_app_kit::{NSApplication, NSImage};
-            use objc2_foundation::NSString;
-
-            let result: Result<(), String> = (|| {
-                let mtm = MainThreadMarker::new()
-                    .ok_or_else(|| "app icon update did not run on the main thread".to_string())?;
-                let ns_app = NSApplication::sharedApplication(mtm);
-                let image = NSImage::initWithContentsOfFile(
-                    NSImage::alloc(),
-                    &NSString::from_str(&icon_path.to_string_lossy()),
-                )
-                .ok_or_else(|| format!("failed loading app icon image: {}", icon_path.display()))?;
-                // SAFETY: called on the main thread with a valid, non-nil image.
-                unsafe { ns_app.setApplicationIconImage(Some(&image)) };
-                Ok(())
-            })();
-            let _ = result_tx.send(result);
-        })
-        .map_err(|e| format!("failed switching app icon: {e}"))?;
-        result_rx
-            .await
-            .map_err(|_| "app icon update ended before AppKit completed".to_string())??;
-        Ok(true)
-    }
-    #[cfg(target_os = "windows")]
-    {
-        let icon_path = resolve_app_icon(&app, &icon)?;
-        let image = tauri::image::Image::from_path(&icon_path)
-            .map_err(|e| format!("failed loading app icon image: {e}"))?;
-        let window = app
-            .get_webview_window(MAIN_WINDOW_LABEL)
-            .ok_or_else(|| "main window is unavailable".to_string())?;
-        window
-            .set_icon(image)
-            .map_err(|e| format!("failed switching taskbar icon: {e}"))?;
-        Ok(true)
-    }
-    #[cfg(not(any(target_os = "macos", target_os = "windows")))]
-    {
-        let _ = app;
-        Ok(false)
-    }
+async fn set_app_icon(_app: tauri::AppHandle, _icon: String) -> Result<bool, String> {
+    // App icon changing is disabled so IndusCode permanently retains its official brand icon.
+    Ok(true)
 }
 
 #[tauri::command]

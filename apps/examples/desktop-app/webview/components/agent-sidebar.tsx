@@ -297,7 +297,7 @@ export function AgentSidebar({
 	const { user, activeOrganization } = useAccount();
 	const { displayName, email } = user || {};
 	const username = displayName?.split(" ")?.[0] || email?.split("@")?.[0];
-	const accountName = username?.trim() || "Cline Desktop";
+	const accountName = username?.trim() || "IndusCode Desktop";
 	const accountScope = user
 		? (activeOrganization?.name ?? "Personal")
 		: undefined;
@@ -385,7 +385,7 @@ export function AgentSidebar({
 				error:
 					error instanceof Error
 						? error.message
-						: "Unable to read Cline Hub status.",
+						: "Unable to read IndusCode Hub status.",
 				url: null,
 			});
 		}
@@ -423,12 +423,15 @@ export function AgentSidebar({
 		setView("sessions");
 		closeMobileSidebar();
 	}, [closeMobileSidebar, setView]);
-	// The gear is a shortcut to the General settings page rather than a
-	// resume-last-section toggle.
+	// Toggle settings when already on General, otherwise navigate to General
 	const openSettings = useCallback(() => {
-		onSettingsSectionChange("General");
+		if (view === "settings" && settingsSection === "General") {
+			setView("chat");
+		} else {
+			onSettingsSectionChange("General");
+		}
 		closeMobileSidebar();
-	}, [closeMobileSidebar, onSettingsSectionChange]);
+	}, [closeMobileSidebar, onSettingsSectionChange, setView, settingsSection, view]);
 	const openSettingsSection = useCallback(
 		(section: SettingsSection) => {
 			onSettingsSectionChange(section);
@@ -838,7 +841,7 @@ export function AgentSidebar({
 						>
 							<HoverCardTrigger asChild>
 								<button
-									aria-label="Cline home"
+									aria-label="IndusCode home"
 									className={cn(
 										"flex size-8 shrink-0 items-center justify-center rounded-md text-sidebar-foreground hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring",
 										isCollapsed && "size-9",
@@ -879,12 +882,12 @@ export function AgentSidebar({
 											)}
 										/>
 										<span className="font-medium">
-											Cline Hub @{hubPort(hubStatus?.url ?? null) ?? "unknown"}
+											IndusCode Hub @{hubPort(hubStatus?.url ?? null) ?? "unknown"}
 										</span>
 									</div>
 									{hubStatus && !hubStatus.connected && (
 										<p className="mt-1 text-[11px] text-destructive">
-											{hubStatus.error ?? "Cline Hub is not connected."}
+											{hubStatus.error ?? "IndusCode Hub is not connected."}
 										</p>
 									)}
 								</div>
@@ -958,7 +961,7 @@ export function AgentSidebar({
 									"bg-surface-hover-lighter text-sidebar-foreground",
 							)}
 							onClick={() => openSettingsSection("Customize")}
-							title="Customize Cline with plugins, rules, and more"
+							title="Customize IndusCode with plugins, rules, and more"
 							type="button"
 							variant="sidebarItem"
 						>
@@ -996,11 +999,23 @@ export function AgentSidebar({
 					<div className="mt-2 flex min-h-0 flex-1 flex-col items-start gap-1 px-1.5">
 						<AppUpdateIndicator className="mx-auto size-9" />
 						{view === "settings" ? (
-							<SettingsSectionNavigation
-								activeSection={settingsSection}
-								collapsed
-								onSelect={openSettingsSection}
-							/>
+							<>
+								<Button
+									aria-label="Back to Chat"
+									className="size-9 justify-center px-0 text-primary hover:bg-primary/10"
+									onClick={() => setView("chat")}
+									title="Back to Chat"
+									type="button"
+									variant="sidebar"
+								>
+									<ArrowLeft className="size-4" />
+								</Button>
+								<SettingsSectionNavigation
+									activeSection={settingsSection}
+									collapsed
+									onSelect={openSettingsSection}
+								/>
+							</>
 						) : null}
 						<Button
 							aria-label="Expand sidebar"
@@ -1014,7 +1029,17 @@ export function AgentSidebar({
 						</Button>
 					</div>
 				) : view === "settings" ? (
-					<div className="mt-5 min-h-0 flex-1 px-3">
+					<div className="mt-4 flex min-h-0 flex-1 flex-col px-3">
+						<Button
+							className="mb-3 w-full justify-start gap-2 bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20 font-medium"
+							onClick={() => setView("chat")}
+							size="sm"
+							type="button"
+							variant="outline"
+						>
+							<ArrowLeft className="size-4 shrink-0" />
+							<span className="truncate">Back to Chat</span>
+						</Button>
 						<SettingsSectionNavigation
 							activeSection={settingsSection}
 							collapsed={false}

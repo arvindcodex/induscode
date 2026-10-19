@@ -768,13 +768,13 @@ export function McpServersContent({
 				<PageHeader
 					description={
 						hasSettingsFile
-							? "Editing this list updates cline_mcp_settings.json."
+							? "Editing this list updates induscode_mcp_settings.json."
 							: "No MCP settings file found yet. Add a server to create it."
 					}
 					title="MCP Servers"
 					meta={
 						<>
-							<CommandBadge>cline config mcp</CommandBadge>
+							<CommandBadge>induscode config mcp</CommandBadge>
 							<span className="rounded-md border border-border bg-background px-2 py-0.5 text-xs text-muted-foreground">
 								From settings file
 							</span>
@@ -786,7 +786,7 @@ export function McpServersContent({
 				<div className="mb-4 flex items-center justify-between gap-3">
 					<p className="text-sm text-muted-foreground">
 						{hasSettingsFile
-							? "Editing this list updates cline_mcp_settings.json."
+							? "Editing this list updates induscode_mcp_settings.json."
 							: "No MCP settings file found yet. Add a server to create it."}
 					</p>
 					<div className="flex shrink-0 items-center gap-2">
@@ -838,7 +838,7 @@ export function McpServersContent({
 								? "Update the MCP server stored in "
 								: "The server is saved to "}
 							<code className="font-mono">
-								{settingsPath || "cline_mcp_settings.json"}
+								{settingsPath || "induscode_mcp_settings.json"}
 							</code>
 							.
 						</DialogDescription>

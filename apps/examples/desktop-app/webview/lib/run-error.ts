@@ -13,17 +13,38 @@ export function formatRunError(
 	providerId = "",
 	providerAuth?: ProviderAuthInfo,
 ): string {
-	const description = detail.trim();
+	let description = detail.trim();
+
+	// Sanitize any upstream messages mentioning Cline
+	if (
+		description.includes("re-authenticate your Cline account") ||
+		description.includes("latest version of Cline") ||
+		description.includes("Sign in to Cline") ||
+		description.includes("Cline account")
+	) {
+		description =
+			"AI Provider is not configured or authenticated. Please set up your AI API Key in Admin Setup (http://localhost:3000/admin) or in Settings → Providers.";
+	} else {
+		description = description
+			.replace(/\bCline\b/g, "IndusCode")
+			.replace(/\bcline\b/g, "IndusCode");
+	}
+
 	const guidance = resolveCredentialFailureHint(providerId, providerAuth);
 	const looksCredentialRelated =
 		!description || isCredentialFailure(description);
+	const shouldAppendGuidance =
+		looksCredentialRelated &&
+		!description.includes(guidance) &&
+		!description.includes("Admin Setup");
+
 	return [
 		description
 			? description.startsWith("The run failed")
 				? description
 				: `The run failed: ${description}`
 			: "The run failed before a response was produced.",
-		looksCredentialRelated && !description.includes(guidance) ? guidance : "",
+		shouldAppendGuidance ? guidance : "",
 	]
 		.filter(Boolean)
 		.join(" ");

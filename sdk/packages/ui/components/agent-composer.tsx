@@ -162,9 +162,10 @@ export const AgentComposerStopButton = forwardRef<
 			{...props}
 			ref={ref}
 			className={clsx(
+				"inline-flex size-7 shrink-0 items-center justify-center transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cline-ui-focus-ring",
 				variant === "welcome"
-					? "bg-cline-ui-foreground p-1.5 text-cline-ui-background hover:bg-cline-ui-destructive rounded-cline-ui-md"
-					: "bg-cline-ui-foreground p-1.5 text-cline-ui-background hover:bg-cline-ui-destructive rounded-full",
+					? "bg-cline-ui-foreground p-1 text-cline-ui-background hover:bg-cline-ui-destructive hover:text-cline-ui-destructive-foreground rounded-cline-ui-md active:scale-95"
+					: "bg-cline-ui-foreground p-1 text-cline-ui-background hover:bg-cline-ui-destructive hover:text-cline-ui-destructive-foreground rounded-full active:scale-95",
 				className,
 			)}
 		/>
@@ -187,9 +188,10 @@ export const AgentComposerSendButton = forwardRef<
 			{...props}
 			ref={ref}
 			className={clsx(
+				"inline-flex size-7 shrink-0 items-center justify-center transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cline-ui-focus-ring disabled:cursor-not-allowed",
 				variant === "welcome"
-					? "p-1.5 disabled:cursor-not-allowed disabled:opacity-50 rounded-cline-ui-md bg-[linear-gradient(145deg,var(--primary-emphasis),var(--primary))] text-white shadow-sm hover:brightness-110"
-					: "p-1.5 disabled:cursor-not-allowed disabled:opacity-50 rounded-full bg-cline-ui-primary text-cline-ui-background hover:bg-cline-ui-primary/80",
+					? "rounded-cline-ui-md bg-cline-ui-primary text-cline-ui-primary-foreground shadow-sm hover:opacity-90 active:scale-95 disabled:bg-cline-ui-muted/60 disabled:text-cline-ui-muted-foreground/40 disabled:shadow-none disabled:active:scale-100"
+					: "rounded-full bg-cline-ui-primary text-cline-ui-primary-foreground shadow-sm hover:opacity-90 active:scale-95 disabled:bg-cline-ui-muted/60 disabled:text-cline-ui-muted-foreground/40 disabled:shadow-none disabled:active:scale-100",
 				className,
 			)}
 		/>

@@ -78,7 +78,7 @@ export function toolApprovalDir(): string {
 function kanbanDataRoot(): string {
 	return (
 		process.env.CLINE_KANBAN_DATA_DIR?.trim() ||
-		join(homedir(), ".cline", "apps", "kanban")
+		join(process.env.CLINE_DIR || join(homedir(), ".induscode"), "apps", "kanban")
 	);
 }
 

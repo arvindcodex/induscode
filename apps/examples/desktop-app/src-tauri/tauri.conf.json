@@ -1,8 +1,8 @@
 {
 	"$schema": "https://schema.tauri.app/config/2",
-	"productName": "Cline",
+	"productName": "IndusCode",
 	"version": "0.0.48",
-	"identifier": "bot.cline.app",
+	"identifier": "bot.induscode.desktop",
 	"build": {
 		"beforeDevCommand": "bun run build:runtime && bun run dev:web",
 		"devUrl": "http://localhost:3125",
@@ -21,7 +21,7 @@
 		"windows": [
 			{
 				"label": "main",
-				"title": "Cline",
+				"title": "IndusCode",
 				"width": 1500,
 				"height": 980,
 				"resizable": true,
@@ -36,10 +36,10 @@
 	},
 	"bundle": {
 		"active": true,
-		"targets": "all",
+		"targets": ["app"],
 		"category": "DeveloperTool",
-		"shortDescription": "Cline AI coding agent",
-		"longDescription": "Cline is an AI coding agent. It reads your code, edits files, runs commands, and works through tasks with you in any project on your machine.",
+		"shortDescription": "IndusCode AI coding agent",
+		"longDescription": "IndusCode is an AI coding agent. It reads your code, edits files, runs commands, and works through tasks with you in any project on your machine.",
 		"homepage": "https://cline.bot",
 		"externalBin": ["bin/cline-cli"],
 		"resources": [

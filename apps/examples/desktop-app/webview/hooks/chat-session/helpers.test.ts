@@ -201,9 +201,9 @@ describe("resolveCredentialFailureHint", () => {
 		).toMatch(/`opencode` CLI/);
 	});
 
-	it("points Cline at signing in again from Settings → Account", () => {
+	it("points Cline at configuring AI provider in Admin Setup or Settings → Providers", () => {
 		expect(resolveCredentialFailureHint("cline")).toBe(
-			"Sign in to Cline again in Settings → Account, then try again.",
+			"Please configure your AI API Key in Admin Setup (http://localhost:3000/admin) or in Settings → Providers.",
 		);
 	});
 
@@ -252,10 +252,10 @@ describe("resolveCredentialFailureAction", () => {
 		).toBeNull();
 	});
 
-	it("sends Cline to the Account page and other providers to Models", () => {
+	it("sends Cline to configure AI provider in Models", () => {
 		expect(resolveCredentialFailureAction("cline")).toEqual({
-			label: "Sign in to Cline",
-			target: "account",
+			label: "Configure AI Provider",
+			target: "models",
 		});
 		expect(
 			resolveCredentialFailureAction("anthropic", { providerId: "anthropic" }),

@@ -1,0 +1,70 @@
+name: Build Windows EXE
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - master
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    name: Build Windows Installer (.exe)
+    runs-on: windows-latest
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.4.2"
+
+      # Pre-seed Bun cache for Linux remote CLI runtimes required by build-desktop-runtime.ts
+      - name: Seed Bun cache with Linux remote CLI runtimes
+        run: |
+          BUN_VERSION="$(bun --version)"
+          CACHE_DIR="${RUNNER_TEMP//\\//}/bun-install-cache"
+          mkdir -p "$CACHE_DIR"
+          for target in linux-x64-baseline linux-aarch64; do
+            dest="$CACHE_DIR/bun-$target-v$BUN_VERSION"
+            work="$(mktemp -d)"
+            (cd "$work" && npm pack "@oven/bun-$target@$BUN_VERSION" --silent >/dev/null && tar -xzf ./*.tgz package/bin/bun)
+            mv "$work/package/bin/bun" "$dest"
+            echo "seeded $dest"
+          done
+          echo "BUN_INSTALL_CACHE_DIR=${CACHE_DIR}" >> "$GITHUB_ENV"
+
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install project dependencies
+        run: bun install
+
+      - name: Build SDK packages
+        run: bun run build:sdk
+
+      - name: Build Windows Desktop App (NSIS Installer)
+        working-directory: apps/examples/desktop-app
+        run: bunx tauri build --bundles nsis
+
+      - name: Package Windows Artifacts
+        working-directory: apps/examples/desktop-app
+        run: bun run scripts/package-desktop.ts --platform windows --skip-build
+
+      - name: Upload Windows EXE as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: IndusCode-Windows-Setup-x64
+          path: |
+            apps/examples/desktop-app/dist/desktop/*.exe
+            apps/examples/desktop-app/src-tauri/target/release/bundle/nsis/*.exe
+          if-no-files-found: warn

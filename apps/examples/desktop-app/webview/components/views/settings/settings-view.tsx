@@ -1,5 +1,5 @@
 import { Switch } from "@cline/ui";
-import { Download, Minus, Plus, RotateCcw } from "lucide-react";
+import { ArrowLeft, Download, Minus, Plus, RotateCcw, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,15 +19,6 @@ import {
 	setStoredAppFontSize,
 	subscribeToAppFontSize,
 } from "@/lib/app-font-size";
-import {
-	APP_ICONS,
-	type AppIconId,
-	appIconAssetPath,
-	appIconSurface,
-	DEFAULT_APP_ICON,
-	readStoredAppIcon,
-	setStoredAppIcon,
-} from "@/lib/app-icon";
 import { desktopClient } from "@/lib/desktop-client";
 import { resetOnboarding } from "@/lib/onboarding";
 import {
@@ -107,11 +98,15 @@ export function SettingsView({
 	onNavigateSection,
 	onOpenSession,
 	onExportDiagnostics,
+	onClose,
+	isChatRunning,
 }: {
 	section: SettingsSection;
 	onExportDiagnostics: () => void;
 	onNavigateSection: (section: SettingsSection) => void;
 	onOpenSession?: (sessionId: string) => void | Promise<void>;
+	onClose?: () => void;
+	isChatRunning?: boolean;
 }) {
 	const activeNav = section;
 	const [marketplaceInitialFilter, setMarketplaceInitialFilter] =
@@ -645,7 +640,42 @@ export function SettingsView({
 		);
 
 	return (
-		<div className="cline-settings-content h-full overflow-hidden bg-background">
+		<div className="cline-settings-content flex h-full flex-col overflow-hidden bg-background">
+			{onClose ? (
+				<div className="flex h-12 shrink-0 items-center justify-between border-b border-border/70 bg-background/95 px-6 backdrop-blur-sm">
+					<div className="flex items-center gap-3">
+						<Button
+							className="h-8 gap-2 px-3 text-xs font-medium"
+							onClick={onClose}
+							size="sm"
+							type="button"
+							variant="outline"
+						>
+							<ArrowLeft className="size-3.5" />
+							<span>Back to Chat</span>
+						</Button>
+						{isChatRunning ? (
+							<div className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-medium text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+								<span className="relative flex size-2">
+									<span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+									<span className="relative inline-flex size-2 rounded-full bg-emerald-500"></span>
+								</span>
+								<span>Agent is running in background</span>
+							</div>
+						) : null}
+					</div>
+					<Button
+						aria-label="Close settings"
+						className="size-8 p-0 text-muted-foreground hover:text-foreground"
+						onClick={onClose}
+						size="sm"
+						type="button"
+						variant="ghost"
+					>
+						<X className="size-4" />
+					</Button>
+				</div>
+			) : null}
 			<div className="h-full min-h-0 overflow-hidden">{content}</div>
 		</div>
 	);
@@ -682,15 +712,6 @@ function GeneralSettingsContent({
 		if (typeof window === "undefined") return DEFAULT_APP_FONT_SIZE;
 		return readStoredAppFontSize();
 	});
-	const [appIcon, setAppIcon] = useState<AppIconId>(() => {
-		if (typeof window === "undefined") return DEFAULT_APP_ICON;
-		return readStoredAppIcon();
-	});
-	const [appIconLocation, setAppIconLocation] = useState<
-		"Dock" | "Taskbar" | "desktop"
-	>("desktop");
-	const [appIconError, setAppIconError] = useState<string | null>(null);
-	const appIconRequestRef = useRef(0);
 	const [telemetryOptOut, setTelemetryOptOut] = useState(false);
 	const [telemetryLoading, setTelemetryLoading] = useState(true);
 	const [telemetrySaving, setTelemetrySaving] = useState(false);
@@ -700,7 +721,6 @@ function GeneralSettingsContent({
 	const [autoUpdateSaving, setAutoUpdateSaving] = useState(false);
 	const [autoUpdateError, setAutoUpdateError] = useState<string | null>(null);
 
-	useEffect(() => setAppIconLocation(appIconSurface(navigator.userAgent)), []);
 	useEffect(() => subscribeToAppFontSize(setFontSize), []);
 
 	const loadGlobalSettings = useCallback(async () => {
@@ -788,24 +808,6 @@ function GeneralSettingsContent({
 
 	const updateFontSize = ([nextFontSize]: number[]) => {
 		updateFontSizePreference(nextFontSize);
-	};
-
-	const updateAppIcon = async (nextIcon: AppIconId) => {
-		const requestId = ++appIconRequestRef.current;
-		const previousIcon = appIcon;
-		setAppIcon(nextIcon);
-		setAppIconError(null);
-		try {
-			await setStoredAppIcon(nextIcon);
-		} catch (error) {
-			// A newer selection supersedes this request; rolling back now
-			// would clobber it.
-			if (appIconRequestRef.current !== requestId) {
-				return;
-			}
-			setAppIcon(previousIcon);
-			setAppIconError(error instanceof Error ? error.message : String(error));
-		}
 	};
 
 	// resetOnboarding dispatches ONBOARDING_RESET_EVENT, which the app shell
@@ -910,61 +912,13 @@ function GeneralSettingsContent({
 						))}
 					</div>
 				</div>
-				<div className="flex items-center justify-between gap-5 border-b py-4 max-[720px]:flex-col max-[720px]:items-stretch">
-					<div className="flex flex-col gap-1">
-						<p className="text-base font-semibold text-foreground">App icon</p>
-						<p className="text-sm text-muted-foreground">
-							Pick the icon Cline shows in the {appIconLocation}.
-						</p>
-						{appIconError ? (
-							<p className="mt-2 text-xs text-destructive" role="alert">
-								Failed to change app icon: {appIconError}
-							</p>
-						) : null}
-					</div>
-					<div className="flex shrink-0 items-start gap-2.5">
-						{APP_ICONS.map((icon) => (
-							<button
-								aria-label={icon.label}
-								aria-pressed={appIcon === icon.id}
-								className="group flex flex-col items-center gap-2"
-								key={icon.id}
-								onClick={() => void updateAppIcon(icon.id)}
-								type="button"
-							>
-								<img
-									alt=""
-									className={cn(
-										"size-14 rounded-2xl transition-transform group-hover:scale-105",
-										appIcon === icon.id &&
-											"ring-2 ring-ring ring-offset-2 ring-offset-background",
-									)}
-									draggable={false}
-									height={112}
-									src={appIconAssetPath(icon.id)}
-									width={112}
-								/>
-								<span
-									className={cn(
-										"text-xs",
-										appIcon === icon.id
-											? "font-medium text-foreground"
-											: "text-muted-foreground",
-									)}
-								>
-									{icon.label}
-								</span>
-							</button>
-						))}
-					</div>
-				</div>
 				<div className="flex py-4 items-center justify-between gap-5 border-b max-[720px]:flex-col max-[720px]:items-stretch max-[720px]:py-4">
 					<div className="flex flex-col gap-1">
 						<p className="text-base font-semibold text-foreground">
 							Keep CLI up to date
 						</p>
 						<p className="text-sm text-muted-foreground">
-							Automatically update the cline terminal command, which shares your
+							Automatically update the induscode terminal command, which shares your
 							sessions and settings with this app. The app itself updates
 							separately.
 						</p>
@@ -985,7 +939,7 @@ function GeneralSettingsContent({
 					<div className="flex flex-col gap-1">
 						<p className="text-base font-semibold text-foreground">Telemetry</p>
 						<p className="text-sm text-muted-foreground">
-							Enable error and usage reports to help improve Cline.
+							Enable error and usage reports to help improve IndusCode.
 						</p>
 						{telemetryError ? (
 							<p className="mt-2 text-xs text-destructive" role="alert">
@@ -1006,7 +960,7 @@ function GeneralSettingsContent({
 							New user experience
 						</p>
 						<p className="text-sm text-muted-foreground">
-							Replay the first-run experience new users see when they open Cline
+							Replay the first-run experience new users see when they open IndusCode
 							for the first time.
 						</p>
 					</div>

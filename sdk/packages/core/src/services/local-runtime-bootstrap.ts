@@ -173,8 +173,8 @@ function resolveBootstrapSystemPrompt(
 		return config.systemPrompt;
 	}
 
-	return buildClineSystemPrompt({
-		ide: "Terminal Shell",
+	const base = buildClineSystemPrompt({
+		ide: "IndusCode IDE",
 		workspaceRoot: workspaceInfo.rootPath,
 		workspaceName: workspaceInfo.hint,
 		metadata: workspaceMetadata,
@@ -183,6 +183,11 @@ function resolveBootstrapSystemPrompt(
 		providerId: config.providerId,
 		platform: process.platform || "unknown",
 	});
+
+	return base
+		.replace(/\bYou are Cline\b/g, "You are IndusCode")
+		.replace(/\bI'm Cline\b/g, "I'm IndusCode")
+		.replace(/\bCline\b/g, "IndusCode");
 }
 
 function buildProviderConfig(

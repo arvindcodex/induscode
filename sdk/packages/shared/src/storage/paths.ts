@@ -86,6 +86,7 @@ export function resolveChatWorkspacePath(): string {
 }
 
 export const CLINE_MCP_SETTINGS_FILE_NAME = "cline_mcp_settings.json";
+export const INDUSCODE_MCP_SETTINGS_FILE_NAME = "induscode_mcp_settings.json";
 export const CLINE_CONNECTOR_SETTINGS_FILE_NAME = "settings.json";
 
 function resolveDefaultHomeDir(): string {
@@ -159,15 +160,15 @@ export function resolveClineDir(): string {
 	if (CLINE_DIR) {
 		return CLINE_DIR;
 	}
-	const envDir = process.env.CLINE_DIR?.trim();
+	const envDir = (process.env.INDUSCODE_DIR || process.env.CLINE_DIR)?.trim();
 	if (envDir) {
 		return envDir;
 	}
-	return join(HOME_DIR, ".cline");
+	return join(HOME_DIR, ".induscode");
 }
 
 export function resolveDocumentsClineDirectoryPath(): string {
-	return join(HOME_DIR, "Documents", "Cline");
+	return join(HOME_DIR, "Documents", "IndusCode");
 }
 
 type DocumentsExtensionName =
@@ -445,11 +446,25 @@ export function resolveGlobalSettingsPath(): string {
 }
 
 export function resolveMcpSettingsPath(): string {
-	const explicitPath = process.env.CLINE_MCP_SETTINGS_PATH?.trim();
+	const explicitPath = (
+		process.env.INDUSCODE_MCP_SETTINGS_PATH || process.env.CLINE_MCP_SETTINGS_PATH
+	)?.trim();
 	if (explicitPath) {
 		return explicitPath;
 	}
-	return join(resolveClineDataDir(), "settings", CLINE_MCP_SETTINGS_FILE_NAME);
+	const dataDir = resolveClineDataDir();
+	const indusPath = join(dataDir, "settings", INDUSCODE_MCP_SETTINGS_FILE_NAME);
+	if (existsSync(indusPath)) {
+		return indusPath;
+	}
+	const clinePath = join(dataDir, "settings", CLINE_MCP_SETTINGS_FILE_NAME);
+	if (existsSync(clinePath)) {
+		return clinePath;
+	}
+	if (process.env.CLINE_DIR?.includes(".cline") && !process.env.INDUSCODE_DIR) {
+		return clinePath;
+	}
+	return indusPath;
 }
 
 function dedupePaths(paths: ReadonlyArray<string>): string[] {

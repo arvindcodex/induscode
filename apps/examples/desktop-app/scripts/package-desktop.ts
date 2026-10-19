@@ -15,7 +15,7 @@ const BOOLEAN_FLAGS = new Set(["--allow-unsigned-mac", "--skip-build"]);
 const VALUE_FLAGS = new Set(["--platform", "--target"]);
 const VALID_FLAGS = [...BOOLEAN_FLAGS, ...VALUE_FLAGS];
 
-const APP_NAME = "Cline";
+const APP_NAME = "IndusCode";
 const APP_ROOT = path.resolve(import.meta.dir, "..");
 const BUNDLE_ROOT = path.join(
 	APP_ROOT,
@@ -192,6 +192,8 @@ const copyArtifact = (source: string, outputName: string): string => {
 };
 
 const signUnsignedMacApp = async (appPath: string): Promise<void> => {
+	await $`chmod -R u+w ${appPath}`;
+	await $`xattr -cr ${appPath}`;
 	await $`codesign --force --deep --sign - ${appPath}`;
 	await $`codesign --verify --deep --strict --verbose=2 ${appPath}`;
 	await $`xattr -cr ${appPath}`;
@@ -232,13 +234,15 @@ const collectMacArtifacts = async (
 	await $`ditto -c -k --keepParent ${appPath} ${zipPath}`;
 
 	const artifacts = [zipPath];
-	if (!suffix) {
-		for (const dmgPath of walkFiles(path.join(BUNDLE_ROOT, "dmg")).filter(
-			(file) => file.endsWith(".dmg"),
-		)) {
-			artifacts.push(copyArtifact(dmgPath, path.basename(dmgPath)));
-		}
-	}
+	const dmgFolder = path.join(BUNDLE_ROOT, "dmg");
+	mkdirSync(dmgFolder, { recursive: true });
+	const dmgTarget = path.join(
+		dmgFolder,
+		`${sanitizeName(APP_NAME)}_${version}_${arch}.dmg`,
+	);
+	rmSync(dmgTarget, { force: true });
+	await $`hdiutil create -volname ${APP_NAME} -srcfolder ${appPath} -ov -format UDZO ${dmgTarget}`;
+	artifacts.push(copyArtifact(dmgTarget, path.basename(dmgTarget)));
 
 	return artifacts;
 };

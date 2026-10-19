@@ -61,16 +61,16 @@ function UpdateRow() {
 		checking || status.state === "checking" || status.state === "downloading";
 	const description =
 		status.state === "ready"
-			? `Version ${status.version} is downloaded and will be used the next time Cline starts.`
+			? `Version ${status.version} is downloaded and will be used the next time IndusCode starts.`
 			: status.state === "downloading"
 				? `Downloading version ${status.version ?? ""}…`
 				: status.state === "error" && status.error
 					? `The last check failed: ${status.error}`
 					: checkResult === "up-to-date"
-						? "You're up to date. Cline also checks on its own shortly after launch and every two hours."
+						? "You're up to date. IndusCode also checks on its own shortly after launch and every two hours."
 						: checkResult === "unavailable"
 							? "Update checks are only available in the desktop app."
-							: "Cline checks for updates shortly after launch and every two hours, and installs them when it restarts.";
+							: "IndusCode checks for updates shortly after launch and every two hours, and installs them when it restarts.";
 
 	return (
 		<div className="flex items-center justify-between gap-5 border-b py-4 max-[720px]:flex-col max-[720px]:items-stretch">

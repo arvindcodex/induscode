@@ -42,11 +42,16 @@ export function parseModelSelectionStorage(
 		};
 
 		if ("lastProvider" in shaped || "lastModelByProvider" in shaped) {
+			const rawProvider =
+				typeof shaped.lastProvider === "string"
+					? shaped.lastProvider.trim()
+					: "";
+			const lastProvider =
+				rawProvider === "cline" || rawProvider === "induscode"
+					? ""
+					: rawProvider;
 			return {
-				lastProvider:
-					typeof shaped.lastProvider === "string"
-						? shaped.lastProvider.trim()
-						: "",
+				lastProvider,
 				lastModelByProvider: sanitizeStringRecord(shaped.lastModelByProvider),
 			};
 		}

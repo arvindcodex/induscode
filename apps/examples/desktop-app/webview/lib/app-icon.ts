@@ -16,7 +16,7 @@ export const APP_ICONS = [
 
 export type AppIconId = (typeof APP_ICONS)[number]["id"];
 
-export const DEFAULT_APP_ICON: AppIconId = "midnight";
+export const DEFAULT_APP_ICON: AppIconId = "classic";
 
 const RETIRED_APP_ICON_MIGRATIONS = {
 	sunrise: "hologram",
@@ -49,57 +49,33 @@ export function appIconSurface(
 }
 
 export function readStoredAppIcon(): AppIconId {
-	try {
-		const stored = window.localStorage.getItem(APP_ICON_STORAGE_KEY);
-		if (isRetiredAppIconId(stored)) {
-			const migrated = RETIRED_APP_ICON_MIGRATIONS[stored];
-			window.localStorage.setItem(APP_ICON_STORAGE_KEY, migrated);
-			return migrated;
-		}
-		return isAppIconId(stored) ? stored : DEFAULT_APP_ICON;
-	} catch {
-		return DEFAULT_APP_ICON;
-	}
+	return DEFAULT_APP_ICON;
 }
 
-function applyFavicon(icon: AppIconId): void {
+function applyFavicon(_icon: AppIconId): void {
 	let link = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
 	if (!link) {
 		link = document.createElement("link");
 		link.rel = "icon";
 		document.head.appendChild(link);
 	}
-	link.href = appIconAssetPath(icon);
+	link.href = "/icon.png";
 }
 
 /**
- * Applies the icon to whatever this runtime can control: the Dock or taskbar
- * icon in the Tauri shell (native `set_app_icon` command, best-effort) and
- * the favicon in browser dev mode so the choice is still visible there.
+ * App icon changing is disabled so IndusCode permanently keeps its official icon.
  */
-export async function applyAppIcon(icon: AppIconId): Promise<void> {
-	if (isTauriAvailable()) {
-		await desktopClient.invoke("set_app_icon", { icon });
-	}
-	applyFavicon(icon);
+export async function applyAppIcon(_icon: AppIconId): Promise<void> {
+	applyFavicon(DEFAULT_APP_ICON);
 }
 
-export async function setStoredAppIcon(icon: AppIconId): Promise<void> {
-	await applyAppIcon(icon);
-	try {
-		window.localStorage.setItem(APP_ICON_STORAGE_KEY, icon);
-	} catch {
-		// Selection falls back to default next launch; applying still works.
-	}
+export async function setStoredAppIcon(_icon: AppIconId): Promise<void> {
+	// No-op
 }
 
 /**
- * Re-applies the persisted choice on launch. The native app icon reverts to
- * the bundled icon on every restart, so the app shell calls this once at boot.
+ * Re-applies the official icon on launch.
  */
 export async function syncAppIcon(): Promise<void> {
-	const icon = readStoredAppIcon();
-	if (icon !== DEFAULT_APP_ICON) {
-		await applyAppIcon(icon);
-	}
+	applyFavicon(DEFAULT_APP_ICON);
 }

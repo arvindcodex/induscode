@@ -136,6 +136,12 @@ export function AccountProvider({ children }: { children: React.ReactNode }) {
 		// be a hydration mismatch.
 		setUser((current) => current ?? readCachedAccountUser());
 		void refreshAccount();
+
+		const handleFocus = () => {
+			void refreshAccount();
+		};
+		window.addEventListener("focus", handleFocus);
+		return () => window.removeEventListener("focus", handleFocus);
 	}, [refreshAccount]);
 
 	const value = useMemo<AccountContextValue>(() => {

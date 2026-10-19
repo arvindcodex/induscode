@@ -14,6 +14,7 @@ import {
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ClineLogo } from "@/components/cline-logo";
 import { ImportSessionsDialog } from "@/components/import-sessions-dialog";
+import { IndusRobotHero } from "@/components/indus-robot-hero";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
@@ -52,13 +53,14 @@ import {
 } from "@/lib/session-import";
 import { cn } from "@/lib/utils";
 
-const CREATE_ACCOUNT_URL = "https://app.cline.bot";
+const CREATE_ACCOUNT_URL =
+	process.env.NEXT_PUBLIC_INDUSCODE_LOGIN_URL || "http://localhost:3000/login";
 const CLINE_PASS_SUBSCRIBE_URL =
 	"https://app.cline.bot/onboarding/individual-plan";
 
 const CLINE_SIGN_IN_BENEFITS = [
 	"Regular free model promotions",
-	"Subscribe to ClinePass for generous usage across the best open weights models like DeepSeek, Kimi, and GLM",
+	"Subscribe to IndusPass for generous usage across the best open weights models like DeepSeek, Kimi, and GLM",
 	"No API key needed",
 ];
 
@@ -299,12 +301,12 @@ function WelcomeStep({ onContinue }: { onContinue: () => void }) {
 		<OnboardingContent surface="transparent">
 			<div className="flex flex-col items-center py-4 text-center">
 				<div className="w-full">
-					<AgentWelcomeHero variant="bot-only" />
+					<IndusRobotHero />
 				</div>
-				<h1 className="mt-5 text-4xl font-semibold text-foreground">Cline</h1>
+				<h1 className="mt-5 text-4xl font-semibold text-foreground">IndusCode</h1>
 				<p className="mt-2 text-lg text-foreground">Build software your way</p>
 				<p className="mt-6 text-md text-muted-foreground">
-					Cline is an AI coding agent. It reads your code, edits files, runs
+					IndusCode is an AI coding agent. It reads your code, edits files, runs
 					commands, and works through tasks with you — in any project on your
 					machine.
 				</p>
@@ -384,7 +386,7 @@ function ConnectStep({
 				// A typed not-authenticated result means the sidecar found no
 				// usable credential after the save — the key did not stick.
 				if (isClineAccountNotAuthenticatedResult(verified)) {
-					throw new Error("no Cline account credentials were found");
+					throw new Error("no IndusCode account credentials were found");
 				}
 			} catch (verifyError) {
 				// Roll back the persisted key so an unusable credential does
@@ -504,10 +506,10 @@ function ConnectStep({
 					<ArrowLeft className="size-4" />
 				</IconButton>
 				<h1 className="mt-6 text-2xl font-semibold tracking-tight text-foreground">
-					Set up Cline
+					Set up IndusCode
 				</h1>
 				<p className="mt-4 text-sm text-muted-foreground">
-					Choose how Cline connects to models. You can add more providers
+					Choose how IndusCode connects to models. You can add more providers
 					anytime in Settings.
 				</p>
 			</div>
@@ -516,7 +518,7 @@ function ConnectStep({
 				<SetupOptionCard
 					id="cline"
 					onSelect={() => setSelectedMethod("cline")}
-					selectLabel="Sign in with Cline"
+					selectLabel="Sign in with IndusCode"
 					selected={selectedMethod === "cline"}
 				>
 					<SetupOptionHeader
@@ -542,7 +544,7 @@ function ConnectStep({
 							</ul>
 						}
 						icon={<ClineLogo className="size-5" />}
-						title="Sign in with Cline"
+						title="Sign in with IndusCode"
 					/>
 					{user ? (
 						<div className="mt-6 flex flex-wrap items-center justify-end gap-6">
@@ -566,40 +568,40 @@ function ConnectStep({
 							</Button>
 						</div>
 					) : (
-						<div className="mt-8 ml-12 flex flex-wrap items-center gap-1 max-[720px]:ml-0">
+						<div className="mt-8 ml-12 flex flex-wrap items-center gap-2 max-[720px]:ml-0">
 							<Button
-								disabled={clineBusy}
-								onClick={() => void signInWithCline()}
+								onClick={() => {
+									void openExternalUrl(CREATE_ACCOUNT_URL);
+									void refreshAccount();
+								}}
 								size="md"
 								tone="accent"
 								type="button"
 								variant="fill"
 							>
-								{signingIn && <Loader2 className="size-4 animate-spin" />}
-								{signingIn ? "Waiting for browser..." : "Sign in"}
+								Sign in with Email
 							</Button>
-							{signingIn ? (
-								<Button
-									disabled={cancelling}
-									onClick={() => void cancelSignInWithCline()}
-									size="md"
-									tone="neutral"
-									type="button"
-									variant="ghost"
-								>
-									Cancel
-								</Button>
-							) : (
-								<Button
-									onClick={() => void openExternalUrl(CREATE_ACCOUNT_URL)}
-									size="md"
-									tone="neutral"
-									type="button"
-									variant="ghost"
-								>
-									Sign up
-								</Button>
-							)}
+							<Button
+								onClick={() => {
+									void openExternalUrl(CREATE_ACCOUNT_URL);
+									void refreshAccount();
+								}}
+								size="md"
+								tone="neutral"
+								type="button"
+								variant="ghost"
+							>
+								Sign up
+							</Button>
+							<Button
+								onClick={() => void refreshAccount()}
+								size="md"
+								tone="neutral"
+								type="button"
+								variant="outline"
+							>
+								Check Status
+							</Button>
 						</div>
 					)}
 					{!user && signingIn && deviceUserCode ? (
@@ -633,7 +635,7 @@ function ConnectStep({
 								type="button"
 								variant="ghost"
 							>
-								Use a Cline API key
+								Use an IndusCode API key
 								<ChevronDown aria-hidden="true" className="size-3.5" />
 							</Button>
 							<ExpandablePanel
@@ -644,7 +646,7 @@ function ConnectStep({
 								<div className="flex flex-col gap-2 pt-3 ml-2 max-[720px]:ml-0">
 									<div className="flex flex-wrap items-center gap-2">
 										<Input
-											aria-label="Cline API key"
+											aria-label="IndusCode API key"
 											autoComplete="off"
 											className="min-w-52 flex-1 bg-background"
 											disabled={clineKeySaving}
@@ -661,7 +663,7 @@ function ConnectStep({
 													void connectWithClineApiKey();
 												}
 											}}
-											placeholder="Cline API key"
+											placeholder="IndusCode API key"
 											type="password"
 											value={clineApiKey}
 										/>
@@ -926,8 +928,8 @@ function ImportHistoryStep({
 				</h1>
 				<p className="mt-3 text-md text-muted-foreground">
 					{imported
-						? "Your sessions are in Cline's history now. You can import more anytime from the Sessions page."
-						: `Cline found ${found.count} session${found.count === 1 ? "" : "s"} from ${toolList} on this machine. Import them to keep your past conversations — and continue them here.`}
+						? "Your sessions are in IndusCode's history now. You can import more anytime from the Sessions page."
+						: `IndusCode found ${found.count} session${found.count === 1 ? "" : "s"} from ${toolList} on this machine. Import them to keep your past conversations — and continue them here.`}
 				</p>
 				{imported ? (
 					<Button
@@ -1026,7 +1028,7 @@ function ClineModelsSummary() {
 			) : null}
 			<div className="flex flex-wrap items-center justify-between gap-3">
 				<div className="min-w-0 flex-1">
-					<h2 className="text-sm font-semibold text-foreground">ClinePass</h2>
+					<h2 className="text-sm font-semibold text-foreground">IndusPass</h2>
 					<p className="mt-1 text-xs text-muted-foreground">
 						Generous usage across the best open weights models like DeepSeek,
 						Kimi, and GLM.
@@ -1039,7 +1041,7 @@ function ClineModelsSummary() {
 					type="button"
 					variant="surface"
 				>
-					Get ClinePass
+					Get IndusPass
 					<ExternalLink className="size-3.5" />
 				</Button>
 			</div>
@@ -1064,7 +1066,7 @@ function DoneStep({
 				<p className="mt-3 text-md text-muted-foreground">
 					{connection?.kind === "provider"
 						? `${connection.providerName} is connected.`
-						: "Your Cline account is connected."}
+						: "Your IndusCode account is connected."}
 				</p>
 				{connection?.kind === "cline" ? <ClineModelsSummary /> : null}
 				<Button

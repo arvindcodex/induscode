@@ -104,6 +104,34 @@ html[data-windows-custom-titlebar] [data-slot="toast-viewport"] {
 	.cline-view-enter {
 		animation: none;
 	}
+	.dashboard-ripple-pulse {
+		display: none !important;
+	}
+}
+
+/* Interactive Dashboard Background Effect */
+@keyframes dashboard-ripple-expand {
+	0% {
+		transform: translate(-50%, -50%) scale(0.06);
+		opacity: 0.95;
+	}
+	40% {
+		opacity: 0.7;
+	}
+	100% {
+		transform: translate(-50%, -50%) scale(1);
+		opacity: 0;
+	}
+}
+
+.dashboard-ripple-pulse {
+	animation: dashboard-ripple-expand 750ms cubic-bezier(0.12, 0.82, 0.35, 1) forwards;
+	will-change: transform, opacity;
+}
+
+/* Ensure background spotlight & grid shine through conversation layout */
+[data-slot="sidebar-inset"] .bg-cline-ui-background {
+	background-color: transparent !important;
 }
 
 /*

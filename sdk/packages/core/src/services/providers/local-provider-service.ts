@@ -182,6 +182,9 @@ async function resolveProviderModelMap(
 		LlmsModels.getModelsForProvider(providerId),
 		LlmsModels.getModelOverridesForProvider(providerId),
 	]);
+	if (providerId === "openai-native" || providerId === "induscode") {
+		return registeredModels;
+	}
 	// All shared-catalog providers refresh when their model list is loaded.
 	// The catalog cache deduplicates concurrent loads across providers; the
 	// initial listLocalProviders snapshot remains entirely network-free.
@@ -988,7 +991,10 @@ export async function listLocalProviders(
 						? state.providers[storageProviderId]?.settings
 						: undefined;
 				const persistedSettings = manager.getProviderSettings(id);
-				const name = info?.name ?? titleCaseFromId(id);
+				const name =
+					id === "cline" || id === "openai-native" || id === "induscode"
+						? "IndusCode"
+						: (info?.name ?? titleCaseFromId(id));
 				const capabilities = resolveProviderCapabilities(
 					info?.capabilities,
 					persistedSettings?.capabilities,

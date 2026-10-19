@@ -9,7 +9,7 @@ function resolveGlobalHookLogPath(): string {
 	if (envPath) return envPath;
 	const dataDir =
 		process.env.CLINE_DATA_DIR?.trim() ||
-		join(process.env.HOME ?? process.env.USERPROFILE ?? "", ".cline", "data");
+		join(process.env.HOME ?? process.env.USERPROFILE ?? "", ".induscode", "data");
 	return join(dataDir, "logs", "hooks.jsonl");
 }
 

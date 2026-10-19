@@ -125,9 +125,17 @@ export function buildProviderModelCatalog(
 	return {
 		providers,
 		enabledProviderIds: providerEntries
-			.filter(
-				({ provider, modelIds }) => provider.enabled && modelIds.length > 0,
-			)
+			.filter(({ provider, modelIds }) => {
+				const isIndusCode =
+					provider.id === "openai-native" ||
+					provider.id === "cline" ||
+					provider.id === "induscode";
+				if (isIndusCode) {
+					return provider.enabled && modelIds.length > 0;
+				}
+				// Other providers (custom models or forwarders) only appear if user actually configured them
+				return provider.configured && provider.enabled && modelIds.length > 0;
+			})
 			.map(({ provider }) => provider.id),
 		providerModels: Object.fromEntries(
 			providerEntries.map(({ provider, modelIds }) => [provider.id, modelIds]),
@@ -139,7 +147,14 @@ export function buildProviderModelCatalog(
 			]),
 		),
 		providerNames: Object.fromEntries(
-			providers.map((provider) => [provider.id, provider.name]),
+			providers.map((provider) => [
+				provider.id,
+				provider.id === "cline" ||
+				provider.id === "openai-native" ||
+				provider.id === "induscode"
+					? "IndusCode"
+					: provider.name,
+			]),
 		),
 		providerReasoningModels: Object.fromEntries(
 			providerEntries.map(({ provider, reasoningModelIds }) => [
@@ -339,16 +354,16 @@ export async function loadProviderModelCatalog(options?: {
 		// the account-scoped cloud response determines which models are offered.
 		return buildProviderModelCatalog(
 			Object.entries({
-				cline: "Cline Usage-Billing",
-				"cline-pass": "ClinePass",
-				"cline-cloud": "ClineFree",
+				cline: "IndusCode Usage-Billing",
+				"cline-pass": "IndusPass",
+				"cline-cloud": "IndusFree",
 			}).map(([id, name]) => ({
 				id,
 				name,
 				enabled: true,
 				models: null,
 				color: "",
-				letter: "C",
+				letter: "I",
 				modelList: models
 					.filter((model) => model.catalogId === id)
 					.map((model) => ({ ...details.get(model.id), ...model })),

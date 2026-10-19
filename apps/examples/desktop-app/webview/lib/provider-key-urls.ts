@@ -17,12 +17,13 @@ const PROVIDER_API_KEY_URLS: Record<string, string> = {
 	cerebras: "https://cloud.cerebras.ai",
 	fireworks: "https://app.fireworks.ai/settings/users/api-keys",
 	together: "https://api.together.ai/settings/api-keys",
-	cline: "https://app.cline.bot",
+	cline: process.env.NEXT_PUBLIC_INDUSCODE_LOGIN_URL || "http://localhost:3000/login",
 	wandb: "https://wandb.ai/settings",
 };
 
-/** Cline account dashboard, where Cline API keys are created and managed. */
-export const CLINE_DASHBOARD_URL = "https://app.cline.bot";
+/** Account dashboard and login URL for IndusCode. */
+export const CLINE_DASHBOARD_URL =
+	process.env.NEXT_PUBLIC_INDUSCODE_LOGIN_URL || "http://localhost:3000/login";
 
 /**
  * Resolve the "get an API key" URL for a provider, preferring the catalog's

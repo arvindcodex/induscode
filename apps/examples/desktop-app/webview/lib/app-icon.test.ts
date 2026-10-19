@@ -30,19 +30,9 @@ afterEach(() => {
 });
 
 describe("app icon", () => {
-	it("defaults to the bundled midnight icon and validates stored values", () => {
-		expect(DEFAULT_APP_ICON).toBe("midnight");
-		expect(readStoredAppIcon()).toBe(DEFAULT_APP_ICON);
-		window.localStorage.setItem(APP_ICON_STORAGE_KEY, "bogus");
-		expect(readStoredAppIcon()).toBe(DEFAULT_APP_ICON);
-		window.localStorage.setItem(APP_ICON_STORAGE_KEY, "toString");
-		expect(readStoredAppIcon()).toBe(DEFAULT_APP_ICON);
-		expect(isAppIconId("midnight")).toBe(true);
-		expect(isAppIconId("hologram")).toBe(true);
-		expect(isAppIconId("chip")).toBe(true);
-		expect(isAppIconId("steel")).toBe(false);
-		expect(isAppIconId("sunrise")).toBe(false);
-		expect(isAppIconId("bogus")).toBe(false);
+	it("defaults to the classic brand icon", () => {
+		expect(DEFAULT_APP_ICON).toBe("classic");
+		expect(readStoredAppIcon()).toBe("classic");
 	});
 
 	it.each([
@@ -53,60 +43,12 @@ describe("app icon", () => {
 		expect(appIconSurface(userAgent)).toBe(surface);
 	});
 
-	it.each([
-		["sunrise", "hologram"],
-		["steel", "midnight"],
-	])("migrates the retired %s preference to %s", (retired, replacement) => {
-		window.localStorage.setItem(APP_ICON_STORAGE_KEY, retired);
-
-		expect(readStoredAppIcon()).toBe(replacement);
-		expect(window.localStorage.getItem(APP_ICON_STORAGE_KEY)).toBe(replacement);
-	});
-
-	it("persists the choice and swaps the favicon in browser mode", async () => {
-		await setStoredAppIcon("classic");
-		expect(window.localStorage.getItem(APP_ICON_STORAGE_KEY)).toBe("classic");
+	it("keeps the official favicon on sync", async () => {
+		await syncAppIcon();
 		expect(
 			document
 				.querySelector<HTMLLinkElement>('link[rel="icon"]')
 				?.getAttribute("href"),
-		).toBe(appIconAssetPath("classic"));
-		expect(invoke).not.toHaveBeenCalled();
-	});
-
-	it("routes through the native command in the Tauri shell", async () => {
-		isTauriAvailable.mockReturnValue(true);
-		invoke.mockResolvedValue(true);
-		await setStoredAppIcon("midnight");
-		expect(invoke).toHaveBeenCalledWith("set_app_icon", { icon: "midnight" });
-	});
-
-	it("does not persist a native selection that fails to apply", async () => {
-		isTauriAvailable.mockReturnValue(true);
-		invoke.mockRejectedValue(new Error("native update failed"));
-
-		await expect(setStoredAppIcon("classic")).rejects.toThrow(
-			"native update failed",
-		);
-		expect(window.localStorage.getItem(APP_ICON_STORAGE_KEY)).toBeNull();
-	});
-
-	it("leaves the favicon unchanged when native application fails", async () => {
-		isTauriAvailable.mockReturnValue(true);
-		invoke.mockRejectedValue(new Error("native update failed"));
-
-		await expect(setStoredAppIcon("classic")).rejects.toThrow();
-		expect(document.querySelector('link[rel="icon"]')).toBeNull();
-	});
-
-	it("re-applies only non-bundled choices at boot", async () => {
-		isTauriAvailable.mockReturnValue(true);
-		invoke.mockResolvedValue(true);
-		await syncAppIcon();
-		expect(invoke).not.toHaveBeenCalled();
-
-		window.localStorage.setItem(APP_ICON_STORAGE_KEY, "classic");
-		await syncAppIcon();
-		expect(invoke).toHaveBeenCalledWith("set_app_icon", { icon: "classic" });
+		).toBe("/icon.png");
 	});
 });

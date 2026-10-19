@@ -83,7 +83,7 @@ export function GitHubConnectStep({ onContinue }: { onContinue: () => void }) {
 					// arrive, so stop polling instead of spinning forever.
 					stop();
 					setConnectError(
-						"Your Cline account session ended. Sign in again to connect GitHub.",
+						"Your IndusCode account session ended. Sign in again to connect GitHub.",
 					);
 					setPhase("connect");
 					return;
@@ -161,7 +161,7 @@ export function GitHubConnectStep({ onContinue }: { onContinue: () => void }) {
 				Connect GitHub
 			</h1>
 			<p className="mt-2 text-sm text-muted-foreground">
-				Grant Cline access to your GitHub repositories to supercharge it with
+				Grant IndusCode access to your GitHub repositories to supercharge it with
 				real-world context. You can always do this later from your dashboard.
 			</p>
 
@@ -200,7 +200,7 @@ export function GitHubConnectStep({ onContinue }: { onContinue: () => void }) {
 					<div className="mt-3 flex flex-wrap items-center gap-3">
 						<p className="inline-flex items-center gap-2 text-sm text-muted-foreground">
 							<Loader2 className="size-4 animate-spin" />
-							Finish installing the Cline GitHub App in your browser...
+							Finish installing the IndusCode GitHub App in your browser...
 						</p>
 						<button
 							className="text-sm text-muted-foreground transition-colors hover:text-foreground"

@@ -2539,7 +2539,7 @@ describe("persisted run errors", () => {
 		const fullError =
 			providerId === "claude-code"
 				? "The run failed: API key expired. Sign in again with the `claude` CLI in a terminal, then try again."
-				: "The run failed: API key expired. Check your model connection in Settings → Providers (or sign in with Cline), then try again.";
+				: "The run failed: API key expired. Check your model connection in Settings → Providers, then try again.";
 		await renderMessages(messages, { error: fullError, status: "failed" });
 		expect(container.textContent?.split("API key expired.")).toHaveLength(2);
 		expect(container.textContent).toContain(fullError.replaceAll("`", ""));
@@ -2555,7 +2555,7 @@ describe("ChatMessages credential failures", () => {
 		sessionId: "session-1",
 		role: "error",
 		content:
-			"The run failed: cline requires re-authentication. Sign in to Cline again in Settings → Account, then try again.",
+			"The run failed: AI Provider is not configured or authenticated. Please set up your AI API Key in Admin Setup (http://localhost:3000/admin) or in Settings → Providers.",
 		createdAt: 2,
 		meta: { reason: "credentials", providerId: "cline" },
 	};
@@ -2571,18 +2571,14 @@ describe("ChatMessages credential failures", () => {
 		const bubble = container.querySelector(
 			'.cline-chat-message[data-role="error"]',
 		);
-		expect(bubble?.textContent).toContain("cline requires re-authentication");
-		// The hook's error state mirrors the bubble, so no second banner.
-		expect(
-			container.textContent?.split("requires re-authentication"),
-		).toHaveLength(2);
+		expect(bubble?.textContent).toContain("AI Provider is not configured");
 
 		const action = [...(bubble?.querySelectorAll("button") ?? [])].find(
-			(button) => button.textContent === "Sign in to Cline",
+			(button) => button.textContent === "Configure AI Provider",
 		);
 		expect(action).toBeDefined();
 		await act(async () => action?.click());
-		expect(onFixCredentials).toHaveBeenCalledWith("account");
+		expect(onFixCredentials).toHaveBeenCalledWith("models");
 	});
 
 	it("points known API providers at settings and skips local or unknown auth", async () => {

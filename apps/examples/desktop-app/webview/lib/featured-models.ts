@@ -14,10 +14,14 @@ export type ModelPickerData = {
 // Section copy mirrors the CLI's featured picker so the products read the same.
 const FREE_SECTION_DESCRIPTION = "Try with limited usage at no cost";
 const CLINE_PASS_FREE_SECTION_DESCRIPTION =
-	"Try with limited usage, separate from ClinePass quota";
+	"Try with limited usage, separate from IndusPass quota";
 
 function displayName(model: ProviderModel): string {
-	return model.name?.trim() || model.id;
+	if (model.id === "free/deepseek-v4.1-flash") {
+		return "DeepSeek V4.1 Plus";
+	}
+	const raw = model.name?.trim() || model.id;
+	return raw.replace(/\s*\((?:free|FREE)\)/g, "").trim();
 }
 
 function byLabel(a: SearchComboboxOption, b: SearchComboboxOption): number {

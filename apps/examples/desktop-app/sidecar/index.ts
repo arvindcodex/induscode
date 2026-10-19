@@ -1,4 +1,5 @@
 import { homedir } from "node:os";
+import { join } from "node:path";
 import {
 	checkManagedHubBuildMismatch,
 	createClineTelemetryServiceConfig,
@@ -15,6 +16,7 @@ import {
 	ensureLoopbackProxyBypass,
 	setClineClientIdentity,
 } from "@cline/shared";
+import { setClineDir } from "@cline/shared/storage";
 import { prewarmWorkspaceMetadata } from "./chat-session";
 import { adoptDesktopCliRuntime, ensureHubWithDesktopCli } from "./cli-runtime";
 import { DESKTOP_CLIENT_CONTEXT } from "./client-context";
@@ -30,6 +32,15 @@ import { configurePluginBootstrap } from "./plugin-bootstrap";
 import { resolveWorkspaceRoot } from "./paths";
 import { startServer } from "./server";
 import { BunRuntime, SIDECAR_HOST, SIDECAR_MODE, SIDECAR_PORT } from "./types";
+
+const defaultIndusDir = process.env.CLINE_DIR?.trim() || join(homedir(), ".induscode");
+if (!process.env.CLINE_DIR) {
+	process.env.CLINE_DIR = defaultIndusDir;
+}
+if (!process.env.CLINE_DATA_DIR) {
+	process.env.CLINE_DATA_DIR = join(defaultIndusDir, "data");
+}
+setClineDir(defaultIndusDir);
 
 const SHUTDOWN_TIMEOUT_MS = 5_000;
 let activeObservability:

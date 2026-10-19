@@ -55,16 +55,32 @@ const CLIENT_MANAGED_MCP_HEADERS = new Set([
 	"mcp-session-id",
 ]);
 
+function expandEnvVars(value: string): string {
+	return value.replace(/\$\{([^}]+)\}|\$([A-Za-z0-9_]+)/g, (_, var1, var2) => {
+		const varName = var1 || var2;
+		return process.env[varName] ?? "";
+	});
+}
+
 function resolveConfiguredMcpHeaders(input: {
 	headers?: Record<string, string>;
 	oauthProvider?: OAuthClientProvider;
 	restrictConfiguredHeadersToOrigin?: boolean;
 }): Record<string, string> | undefined {
-	if (!input.headers || !input.restrictConfiguredHeadersToOrigin) {
-		return input.headers;
+	if (!input.headers) {
+		return undefined;
 	}
 
-	const entries = Object.entries(input.headers).filter(([name]) => {
+	const expandedHeaders: Record<string, string> = {};
+	for (const [key, val] of Object.entries(input.headers)) {
+		expandedHeaders[key] = expandEnvVars(val);
+	}
+
+	if (!input.restrictConfiguredHeadersToOrigin) {
+		return expandedHeaders;
+	}
+
+	const entries = Object.entries(expandedHeaders).filter(([name]) => {
 		const normalized = name.toLowerCase();
 		if (CLIENT_MANAGED_MCP_HEADERS.has(normalized)) {
 			return false;
@@ -211,7 +227,7 @@ function toErrorMessage(error: unknown): string {
 
 function createOAuthClientMetadata(redirectUrl: string): OAuthClientMetadata {
 	return {
-		client_name: "Cline",
+		client_name: "IndusCode",
 		redirect_uris: [redirectUrl],
 		grant_types: ["authorization_code", "refresh_token"],
 		response_types: ["code"],

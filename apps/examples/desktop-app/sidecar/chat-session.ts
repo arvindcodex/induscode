@@ -857,12 +857,9 @@ export function hasProviderChanged(
 }
 
 async function resolveSystemPrompt(config: JsonRecord): Promise<string> {
-	const cwd = String(
-		config.cwd ?? config.workspaceRoot ?? config.workspace_root ?? "",
-	).trim();
-	if (!cwd) {
-		return String(config.systemPrompt ?? config.system_prompt ?? "").trim();
-	}
+	const cwd =
+		String(config.cwd ?? config.workspaceRoot ?? config.workspace_root ?? "").trim() ||
+		process.cwd();
 	const providerId = String(config.provider ?? config.providerId ?? "").trim();
 	const mode = resolveDesktopSessionMode(config);
 	const metadata = await consumeWorkspaceMetadata(cwd);
@@ -870,8 +867,8 @@ async function resolveSystemPrompt(config: JsonRecord): Promise<string> {
 		typeof config.rules === "string" && config.rules.trim().length > 0
 			? config.rules
 			: undefined;
-	return buildClineSystemPrompt({
-		ide: "Terminal Shell",
+	const prompt = buildClineSystemPrompt({
+		ide: "IndusCode IDE",
 		workspaceRoot: cwd,
 		workspaceName: basename(cwd),
 		metadata,
@@ -888,6 +885,11 @@ async function resolveSystemPrompt(config: JsonRecord): Promise<string> {
 					: undefined,
 		platform: process.platform || "unknown",
 	});
+
+	return prompt
+		.replace(/\bYou are Cline\b/g, "You are IndusCode")
+		.replace(/\bI'm Cline\b/g, "I'm IndusCode")
+		.replace(/\bCline\b/g, "IndusCode");
 }
 
 function resolveToolPolicies(
@@ -966,10 +968,35 @@ function readExplicitSystemPrompt(config: JsonRecord): string {
 async function withRemoteProviderCredentials(
 	config: JsonRecord,
 ): Promise<JsonRecord> {
-	const providerId = String(config.provider ?? config.providerId ?? "").trim();
+	let providerId = String(config.provider ?? config.providerId ?? "").trim();
 	if (!providerId) return config;
 
 	const manager = new ProviderSettingsManager();
+	const stored = manager.read();
+
+	// If provider is cline or induscode, automatically route to the active configured AI provider (e.g. openrouter, anthropic, openai)
+	if (providerId === "cline" || providerId === "induscode" || !providerId) {
+		const lastUsed = stored.lastUsedProvider;
+		if (
+			lastUsed &&
+			lastUsed !== "cline" &&
+			lastUsed !== "induscode" &&
+			stored.providers[lastUsed]?.settings?.apiKey
+		) {
+			providerId = lastUsed;
+		} else {
+			const activeProviderId = Object.keys(stored.providers).find((id) => {
+				if (id === "cline" || id === "induscode" || id === "cline-pass") return false;
+				const p = stored.providers[id];
+				const key = p?.settings?.apiKey || (p as any)?.apiKey;
+				return typeof key === "string" && key.trim().length > 0;
+			});
+			if (activeProviderId) {
+				providerId = activeProviderId;
+			}
+		}
+	}
+
 	const settings = manager.getProviderSettings(providerId);
 	if (!settings) return config;
 	const modelId = String(
@@ -1010,24 +1037,30 @@ async function withRemoteProviderCredentials(
 		oauth?.apiKey ||
 		resolveProviderApiKeyFromSettings(manager, providerId) ||
 		String(storedConfig.apiKey ?? "").trim();
+
+	if ((providerId === "cline" || providerId === "induscode") && !apiKey) {
+		throw new Error(
+			"No AI API Key is configured yet. Please open Admin Setup (http://localhost:3000/admin) or Settings → Providers to enter your API key (e.g. OpenRouter, OpenAI, Anthropic, Gemini).",
+		);
+	}
+
 	const providerConfig = {
 		...storedConfig,
 		...explicitProviderConfig,
 		providerId,
-		...(modelId ? { modelId } : {}),
+		...(modelId ? { modelId, model: modelId } : {}),
 		...(apiKey ? { apiKey, accessToken: apiKey } : {}),
 	};
 	delete providerConfig.refreshToken;
 
 	return {
 		...config,
+		provider: providerId,
+		providerId,
+		...(modelId ? { model: modelId, modelId } : {}),
 		...(apiKey ? { apiKey } : {}),
-		...(!config.baseUrl && storedConfig.baseUrl
-			? { baseUrl: storedConfig.baseUrl }
-			: {}),
-		...(!config.headers && storedConfig.headers
-			? { headers: storedConfig.headers }
-			: {}),
+		baseUrl: config.baseUrl || storedConfig.baseUrl || (settings as any).baseUrl,
+		headers: config.headers || storedConfig.headers || (settings as any).headers,
 		providerConfig,
 	};
 }
@@ -1056,10 +1089,7 @@ async function handleStart(
 		readEnvironmentId(request.config),
 	);
 	const manager = binding.sessionManager;
-	const config =
-		binding.kind === "ssh"
-			? await withRemoteProviderCredentials(request.config)
-			: request.config;
+	const config = await withRemoteProviderCredentials(request.config);
 	// Workspace discovery must happen where the files live. Local desktop
 	// sessions keep the eager prompt path; SSH sessions leave a blank prompt for
 	// the remote Hub's LocalRuntimeHost bootstrap to compose from remote metadata.
@@ -1128,7 +1158,7 @@ async function handleStart(
 	ctx.logger?.log("Desktop chat session started", { sessionId });
 	const session = createLiveSession(
 		{
-			...request.config,
+			...config,
 			cwd,
 			workspaceRoot,
 			environmentId: binding.environmentId,
@@ -1313,13 +1343,8 @@ async function rebuildSessionForProviderChange(
 ): Promise<void> {
 	const manager = binding.sessionManager;
 	const effectivePreviousConfig =
-		binding.kind === "ssh"
-			? await withRemoteProviderCredentials(previousConfig)
-			: previousConfig;
-	const effectiveNextConfig =
-		binding.kind === "ssh"
-			? await withRemoteProviderCredentials(nextConfig)
-			: nextConfig;
+		await withRemoteProviderCredentials(previousConfig);
+	const effectiveNextConfig = await withRemoteProviderCredentials(nextConfig);
 	const [messages, compactionState, previousSystemPrompt, nextSystemPrompt] =
 		await Promise.all([
 			manager.readMessages(sessionId),
@@ -1719,13 +1744,16 @@ async function handleSend(
 	if (!delivery && session?.busy) {
 		delivery = "queue";
 	}
-	const nextConfig = request.config
+	const rawNextConfig = request.config
 		? mergeSessionConfig(session?.config ?? {}, request.config)
 		: session?.config;
+	const nextConfig = rawNextConfig
+		? await withRemoteProviderCredentials(rawNextConfig)
+		: undefined;
 	const providerChanged = Boolean(
 		session &&
-			request.config &&
-			hasProviderChanged(session.config, request.config),
+			nextConfig &&
+			hasProviderChanged(session.config, nextConfig),
 	);
 	if (providerChanged && session?.busy) {
 		throw new Error("Cannot switch providers while a turn is running");
@@ -1759,11 +1787,7 @@ async function handleSend(
 				session.attachedViaHub ||
 				shouldUpdateSessionConnection(session.config, nextConfig)
 			) {
-				const connectionUpdate = buildSessionConnectionUpdate(
-					binding.kind === "ssh"
-						? await withRemoteProviderCredentials(nextConfig)
-						: nextConfig,
-				);
+				const connectionUpdate = buildSessionConnectionUpdate(nextConfig);
 				try {
 					await manager.updateSessionConnection(sessionId, connectionUpdate);
 				} catch (error) {
@@ -2139,10 +2163,7 @@ async function handleForkUnlocked(
 			request.config?.cwd ||
 			"",
 	};
-	const forkConfig =
-		binding.kind === "ssh"
-			? await withRemoteProviderCredentials(baseForkConfig)
-			: baseForkConfig;
+	const forkConfig = await withRemoteProviderCredentials(baseForkConfig);
 	const checkpointMetadata =
 		sourceMetadata?.checkpoint !== undefined
 			? { checkpoints: sourceMetadata.checkpoint }
@@ -2319,10 +2340,7 @@ async function handleRestoreCheckpoint(
 		readEnvironmentId(requestedConfig),
 	);
 	const manager = binding.sessionManager;
-	const config =
-		binding.kind === "ssh"
-			? await withRemoteProviderCredentials(requestedConfig)
-			: requestedConfig;
+	const config = await withRemoteProviderCredentials(requestedConfig);
 	return withWorkspaceRestoreLock(ctx, cwd, async () => {
 		// Updated once restore() returns; read lazily by the mistake-limit prompt.
 		let restoredSessionId = sourceSessionId;

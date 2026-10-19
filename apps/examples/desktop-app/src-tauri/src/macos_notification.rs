@@ -6,7 +6,7 @@ use std::sync::OnceLock;
 use tauri::AppHandle;
 
 const DEV_APP_DIRECTORY: &str = "notification-identity";
-const DEV_BUNDLE_NAME: &str = "Cline.app";
+const DEV_BUNDLE_NAME: &str = "IndusCode.app";
 const LAUNCH_SERVICES_REGISTER: &str = "/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister";
 
 static CONFIGURATION: OnceLock<Result<(), String>> = OnceLock::new();

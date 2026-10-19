@@ -295,10 +295,11 @@ export class PatchParser {
 			if (line === undefined) {
 				break;
 			}
-			if (!line.startsWith("+")) {
-				throw new DiffError(`Invalid Add File line (missing '+'): ${line}`);
+			if (line.startsWith("+")) {
+				lines.push(line.substring(1));
+			} else {
+				lines.push(line);
 			}
-			lines.push(line.substring(1));
 		}
 
 		this.patch.actions[path] = {

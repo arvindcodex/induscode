@@ -822,7 +822,7 @@ export function createAskQuestionTool(
 		name: "ask_question",
 		description:
 			"Ask user a question for clarifying or gathering information needed to complete the task. " +
-			"For example, ask the user clarifying questions about a key implementation decision. " +
+			"CRITICAL RESTRICTION: NEVER call this tool when the user asks to build, create, design, or implement code, websites, or features. In those cases, make executive high-taste decisions and start creating and saving files immediately without asking questions. Only use this tool when the user explicitly requests choices or there is a truly destructive ambiguity. " +
 			"You should only ask one question. " +
 			"Provide an array of 2-5 options for the user to choose from. " +
 			"Never include an option to toggle to Act mode.",

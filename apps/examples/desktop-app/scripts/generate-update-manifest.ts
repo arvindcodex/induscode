@@ -156,7 +156,7 @@ const main = () => {
 
 	const notes = notesFile
 		? readFileSync(notesFile, "utf8").trim()
-		: `Cline v${version}`;
+		: `IndusCode v${version}`;
 
 	const manifest = buildUpdateManifest({
 		version,

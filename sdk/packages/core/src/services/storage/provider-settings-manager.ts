@@ -166,7 +166,31 @@ export class ProviderSettingsManager {
 
 		try {
 			const raw = readFileSync(this.filePath, "utf8");
-			const parsed = JSON.parse(raw) as unknown;
+			let parsed = JSON.parse(raw) as any;
+			if (
+				parsed &&
+				typeof parsed === "object" &&
+				parsed.providers &&
+				typeof parsed.providers === "object"
+			) {
+				for (const [key, val] of Object.entries(
+					parsed.providers as Record<string, any>,
+				)) {
+					if (val && typeof val === "object" && !val.settings) {
+						parsed.providers[key] = {
+							settings: {
+								provider: val.provider || val.id || key,
+								...(val.apiKey ? { apiKey: val.apiKey } : {}),
+								...(val.auth ? { auth: val.auth } : {}),
+								...(val.baseUrl ? { baseUrl: val.baseUrl } : {}),
+								...(val.model ? { model: val.model } : {}),
+							},
+							updatedAt: val.updatedAt || new Date().toISOString(),
+							tokenSource: val.tokenSource || "manual",
+						};
+					}
+				}
+			}
 			const result = StoredProviderSettingsSchema.safeParse(parsed);
 			if (result.success) {
 				registerConfiguredProvidersFromSettings(result.data);

@@ -479,6 +479,92 @@ const VERCEL_ONLY_CLINE_MODEL_IDS: readonly string[] = [
 	"meta/muse-spark-1.2-contributor",
 ];
 
+const APINEX_FREE_MODELS: Record<string, ModelInfo> = {
+	"free/glm-5.3-flashx": {
+		id: "free/glm-5.3-flashx",
+		name: "GLM 5.3 FlashX",
+		contextWindow: 1_048_576,
+		maxTokens: 8192,
+		capabilities: ["streaming", "tools"],
+	},
+	"free/glm-5.3": {
+		id: "free/glm-5.3",
+		name: "GLM 5.3",
+		contextWindow: 1_048_576,
+		maxTokens: 8192,
+		capabilities: ["streaming", "tools"],
+	},
+	"free/gemini-3.8-flash": {
+		id: "free/gemini-3.8-flash",
+		name: "Gemini 3.8 Flash",
+		contextWindow: 1_048_576,
+		maxTokens: 8192,
+		capabilities: ["streaming", "tools", "images"],
+	},
+	"free/qwen-3.8-max": {
+		id: "free/qwen-3.8-max",
+		name: "Qwen 3.8 MAX",
+		contextWindow: 1_048_576,
+		maxTokens: 8192,
+		capabilities: ["streaming", "tools"],
+	},
+	"free/deepseek-v4.1-flash": {
+		id: "free/deepseek-v4.1-flash",
+		name: "DeepSeek V4.1 Plus",
+		contextWindow: 1_048_576,
+		maxTokens: 8192,
+		capabilities: ["streaming", "tools"],
+	},
+	"free/deepseek-v4-flash-0731": {
+		id: "free/deepseek-v4-flash-0731",
+		name: "DeepSeek V4 Flash",
+		contextWindow: 1_048_576,
+		maxTokens: 8192,
+		capabilities: ["streaming", "tools"],
+	},
+	"free/deepseek-v4-pro-0813": {
+		id: "free/deepseek-v4-pro-0813",
+		name: "DeepSeek V4 Pro",
+		contextWindow: 1_048_576,
+		maxTokens: 8192,
+		capabilities: ["streaming", "tools", "reasoning"],
+	},
+	"free/gpt-6-luna": {
+		id: "free/gpt-6-luna",
+		name: "GPT 6 Luna",
+		contextWindow: 1_048_576,
+		maxTokens: 8192,
+		capabilities: ["streaming", "tools"],
+	},
+	"free/glm-5.3-flash": {
+		id: "free/glm-5.3-flash",
+		name: "GLM-5.3 Flash",
+		contextWindow: 1_048_576,
+		maxTokens: 8192,
+		capabilities: ["streaming", "tools"],
+	},
+	"free/mimo-v2.6-pro": {
+		id: "free/mimo-v2.6-pro",
+		name: "Mimo V2.6 Pro",
+		contextWindow: 1_048_576,
+		maxTokens: 8192,
+		capabilities: ["streaming", "tools"],
+	},
+	"free/jev-1.13": {
+		id: "free/jev-1.13",
+		name: "Jev 1.13",
+		contextWindow: 65_536,
+		maxTokens: 8192,
+		capabilities: ["streaming", "tools"],
+	},
+};
+
+function buildOpenAINativeModels(): Record<string, ModelInfo> {
+	return {
+		...APINEX_FREE_MODELS,
+	};
+}
+
 function buildElevenLabsModels(): Record<string, ModelInfo> {
 	return {
 		scribe_v2: {
@@ -1140,15 +1226,15 @@ const OPENAI_COMPATIBLE_SPEC_OVERRIDES: BuiltinSpecOverride[] = [
 const BUILTIN_SPEC_OVERRIDES: BuiltinSpecOverride[] = [
 	{
 		id: "openai-native",
-		name: "OpenAI",
-		description: "Creator of GPT and ChatGPT",
+		name: "IndusCode",
+		description: "IndusCode AI models",
 		family: "openai",
 		modelToolCapabilities: OPENAI_NATIVE_MODEL_TOOL_CAPABILITIES,
 		capabilities: ["reasoning"],
-		modelsProviderId: "openai-native",
-		defaultModelId: "gpt-5.4",
+		defaultModelId: "free/deepseek-v4.1-flash",
+		modelsFactory: buildOpenAINativeModels,
 		apiKeyEnv: ["OPENAI_API_KEY"],
-		defaults: { baseUrl: "https://api.openai.com/v1" },
+		defaults: { baseUrl: "https://api.apinex.bond/v1" },
 	},
 	{
 		id: "openai-codex",

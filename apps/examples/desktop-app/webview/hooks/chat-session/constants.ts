@@ -27,8 +27,8 @@ export const DEFAULT_CHAT_CONFIG: ChatSessionConfig = {
 	workspaceRoot: "",
 	cwd: "",
 	environmentId: LOCAL_WORKSPACE_ENVIRONMENT_ID,
-	provider: "cline",
-	model: CLINE_DEFAULT_MODEL_ID,
+	provider: "openai-native",
+	model: "free/deepseek-v4.1-flash",
 	apiKey: process.env.CLINE_API_KEY || "",
 	mode: "act",
 	systemPrompt: undefined,
@@ -48,13 +48,19 @@ export function getInitialChatConfig(
 	const selection = readModelSelectionStorageFromWindow();
 	const workspaceSelection = readWorkspaceSelectionFromWindow(environmentId);
 	const rememberedProvider = normalizeProviderId(selection.lastProvider);
-	const rememberedModelForProvider = rememberedProvider
-		? (selection.lastModelByProvider[rememberedProvider] ??
+	const validRememberedProvider =
+		rememberedProvider &&
+		rememberedProvider !== "cline" &&
+		rememberedProvider !== "induscode"
+			? rememberedProvider
+			: undefined;
+	const rememberedModelForProvider = validRememberedProvider
+		? (selection.lastModelByProvider[validRememberedProvider] ??
 			selection.lastModelByProvider[selection.lastProvider.trim()])
 		: undefined;
 	const rememberedModelForDefaultProvider =
 		selection.lastModelByProvider[DEFAULT_CHAT_CONFIG.provider];
-	const provider = rememberedProvider || DEFAULT_CHAT_CONFIG.provider;
+	const provider = validRememberedProvider || DEFAULT_CHAT_CONFIG.provider;
 	const model =
 		rememberedModelForProvider ||
 		(provider === DEFAULT_CHAT_CONFIG.provider

@@ -4,9 +4,11 @@ import {
 	existsSync,
 	mkdirSync,
 	readdirSync,
+	readFileSync,
 	realpathSync,
 	rmSync,
 	statSync,
+	writeFileSync,
 } from "node:fs";
 import { homedir } from "node:os";
 import {
@@ -21,6 +23,7 @@ import {
 import { isDeepStrictEqual, promisify } from "node:util";
 import type {
 	ClineAccountActionRequest,
+	ClineAccountUsageTransaction,
 	CoreSettingsSnapshot,
 	ProviderCapability,
 	ProviderClient,
@@ -2771,10 +2774,259 @@ export async function handleCommand(
 		return { opened: true };
 	}
 
+async function getLocalUsageTransactions(
+	userId = "indus_user",
+): Promise<ClineAccountUsageTransaction[]> {
+	const transactions: ClineAccountUsageTransaction[] = [];
+	const seenIds = new Set<string>();
+	const seenSessionIds = new Set<string>();
+
+	const candidateRoots = [
+		resolveClineDir(),
+		join(homedir(), ".induscode"),
+		join(homedir(), ".cline"),
+	];
+
+	for (const root of candidateRoots) {
+		const sessionsDir = join(root, "data", "sessions");
+		if (!existsSync(sessionsDir)) continue;
+
+		try {
+			const entries = readdirSync(sessionsDir, { withFileTypes: true });
+			for (const entry of entries) {
+				if (!entry.isDirectory()) continue;
+				const sessionId = entry.name;
+				const sessionFolder = join(sessionsDir, sessionId);
+				const msgFile = join(sessionFolder, `${sessionId}.messages.json`);
+				const sessFile = join(sessionFolder, `${sessionId}.json`);
+
+				let sessionData: any = null;
+				if (existsSync(sessFile)) {
+					try {
+						sessionData = JSON.parse(readFileSync(sessFile, "utf-8"));
+					} catch {}
+				}
+
+				let sessionHasTurns = false;
+				if (existsSync(msgFile)) {
+					try {
+						const msgContent = JSON.parse(readFileSync(msgFile, "utf-8"));
+						const messages = Array.isArray(msgContent)
+							? msgContent
+							: Array.isArray(msgContent?.messages)
+								? msgContent.messages
+								: [];
+
+						for (let i = 0; i < messages.length; i++) {
+							const msg = messages[i];
+							const metrics = msg.metrics || msg.meta;
+							const inTokens = Number(metrics?.inputTokens) || 0;
+							const outTokens = Number(metrics?.outputTokens) || 0;
+							const cost = Number(metrics?.cost ?? metrics?.totalCost) || 0;
+
+							if (inTokens > 0 || outTokens > 0 || cost > 0) {
+								const turnId = String(msg.id || `${sessionId}_turn_${i}`);
+								if (seenIds.has(turnId)) continue;
+								seenIds.add(turnId);
+								sessionHasTurns = true;
+								seenSessionIds.add(sessionId);
+
+								const rawModel =
+									msg.modelInfo?.id ||
+									msg.model ||
+									sessionData?.model ||
+									sessionData?.metadata?.model ||
+									"free/deepseek-v4.1-flash";
+								const rawProvider =
+									msg.modelInfo?.provider ||
+									msg.provider ||
+									sessionData?.provider ||
+									sessionData?.metadata?.provider ||
+									"openai-native";
+
+								const ts = msg.ts
+									? new Date(msg.ts).toISOString()
+									: sessionData?.started_at || new Date().toISOString();
+
+								transactions.push({
+									id: turnId,
+									generationId: turnId,
+									aiModelName: rawModel,
+									aiInferenceProviderName: rawProvider,
+									aiModelTypeName: "chat",
+									promptTokens: inTokens,
+									completionTokens: outTokens,
+									totalTokens: inTokens + outTokens,
+									costUsd: cost,
+									creditsUsed: Math.round(cost * 1_000_000),
+									createdAt: ts,
+									organizationId: "",
+									userId,
+									metadata: {
+										additionalProp1: sessionId,
+										additionalProp2: "",
+										additionalProp3: "",
+									},
+								});
+							}
+						}
+					} catch {}
+				}
+
+				// If no individual turns were found but session has usage metrics
+				if (!sessionHasTurns && sessionData && !seenSessionIds.has(sessionId)) {
+					const usage =
+						sessionData.metadata?.usage || sessionData.metadata?.aggregateUsage;
+					const inTokens = Number(usage?.inputTokens) || 0;
+					const outTokens = Number(usage?.outputTokens) || 0;
+					const cost = Number(usage?.totalCost) || 0;
+
+					if (inTokens > 0 || outTokens > 0 || cost > 0) {
+						if (!seenIds.has(sessionId)) {
+							seenIds.add(sessionId);
+							seenSessionIds.add(sessionId);
+							transactions.push({
+								id: sessionId,
+								generationId: sessionId,
+								aiModelName:
+									sessionData.model ||
+									sessionData.metadata?.model ||
+									"free/deepseek-v4.1-flash",
+								aiInferenceProviderName:
+									sessionData.provider ||
+									sessionData.metadata?.provider ||
+									"openai-native",
+								aiModelTypeName: "chat",
+								promptTokens: inTokens,
+								completionTokens: outTokens,
+								totalTokens: inTokens + outTokens,
+								costUsd: cost,
+								creditsUsed: Math.round(cost * 1_000_000),
+								createdAt: sessionData.started_at || new Date().toISOString(),
+								organizationId: "",
+								userId,
+								metadata: {
+									additionalProp1: sessionId,
+									additionalProp2: "",
+									additionalProp3: "",
+								},
+							});
+						}
+					}
+				}
+			}
+		} catch {}
+	}
+
+	// Also check sessions.db if available
+	for (const root of candidateRoots) {
+		const dbPath = join(root, "data", "db", "sessions.db");
+		if (!existsSync(dbPath)) continue;
+		try {
+			// @ts-ignore
+			const sqliteModule = await import("bun:sqlite").catch(() => null);
+			if (sqliteModule?.Database) {
+				const db = new sqliteModule.Database(dbPath, { readonly: true });
+				const rows: any[] = db
+					.query(
+						"SELECT session_id, provider, model, started_at, metadata_json FROM sessions ORDER BY started_at DESC LIMIT 50",
+					)
+					.all();
+				for (const r of rows) {
+					if (!r.session_id || seenSessionIds.has(r.session_id) || seenIds.has(r.session_id)) continue;
+					try {
+						const meta = JSON.parse(r.metadata_json || "{}");
+						const usage = meta.usage || meta.aggregateUsage;
+						const inTokens = Number(usage?.inputTokens) || 0;
+						const outTokens = Number(usage?.outputTokens) || 0;
+						const cost = Number(usage?.totalCost) || 0;
+						if (inTokens > 0 || outTokens > 0 || cost > 0) {
+							seenIds.add(r.session_id);
+							seenSessionIds.add(r.session_id);
+							transactions.push({
+								id: r.session_id,
+								generationId: r.session_id,
+								aiModelName: r.model || meta.model || "free/deepseek-v4.1-flash",
+								aiInferenceProviderName: r.provider || meta.provider || "openai-native",
+								aiModelTypeName: "chat",
+								promptTokens: inTokens,
+								completionTokens: outTokens,
+								totalTokens: inTokens + outTokens,
+								costUsd: cost,
+								creditsUsed: Math.round(cost * 1_000_000),
+								createdAt: r.started_at || new Date().toISOString(),
+								organizationId: "",
+								userId,
+								metadata: {
+									additionalProp1: r.session_id,
+									additionalProp2: "",
+									additionalProp3: "",
+								},
+							});
+						}
+					} catch {}
+				}
+				db.close();
+			}
+		} catch {}
+	}
+
+	transactions.sort(
+		(a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+	);
+
+	return transactions;
+}
+
 	// ── Cline account ──────────────────────────────────────────────────
 	if (command === "cline_account") {
 		const operation = String(args?.operation ?? "").trim();
 		if (!operation) throw new Error("operation is required");
+
+		// Check local website synced auth from IndusCode website login
+		const authFile = join(resolveClineDir(), "data", "settings", "auth.json");
+		if (existsSync(authFile)) {
+			try {
+				const authData = JSON.parse(readFileSync(authFile, "utf-8"));
+				if (authData?.authenticated && authData?.user?.email) {
+					if (operation === "fetchMe") {
+						return {
+							id: authData.user.id || "indus_user",
+							email: authData.user.email,
+							displayName:
+								authData.user.displayName || authData.user.email.split("@")[0],
+							organizations: [],
+							createdAt: authData.updatedAt || new Date().toISOString(),
+						};
+					}
+					if (operation === "fetchBalance") {
+						return { balance: 100_000_000, currency: "USD" };
+					}
+					if (
+						operation === "fetchUserOrganizations" ||
+						operation === "fetchOrganizations"
+					) {
+						return [];
+					}
+					if (operation === "fetchOrganizationBalance") {
+						return { balance: 0 };
+					}
+					if (
+						operation === "fetchUsageTransactions" ||
+						operation === "fetchOrganizationUsageTransactions"
+					) {
+						return await getLocalUsageTransactions(authData.user.id);
+					}
+					if (operation === "fetchPaymentTransactions") {
+						return [];
+					}
+					if (operation === "switchAccount") {
+						return { success: true };
+					}
+				}
+			} catch {}
+		}
+
 		const manager = new ProviderSettingsManager();
 		// Signed out is an expected state, not a command failure: resolve the
 		// token up front and return a typed result the webview can act on
@@ -2782,6 +3034,12 @@ export async function handleCommand(
 		// would be captured as error telemetry and shown raw to the user.
 		const authToken = await resolveFreshClineAuthToken(manager, ctx);
 		if (!authToken) {
+			if (
+				operation === "fetchUsageTransactions" ||
+				operation === "fetchOrganizationUsageTransactions"
+			) {
+				return await getLocalUsageTransactions();
+			}
 			// Backstop for credentials that go away without a settings write —
 			// an expired or server-revoked token. Explicit sign-out is handled
 			// at its source in `save_provider_settings`; this catches the rest
@@ -2795,10 +3053,21 @@ export async function handleCommand(
 				settings?.baseUrl?.trim() || getClineEnvironmentConfig().apiBaseUrl,
 			getAuthToken: async () => authToken,
 		});
-		const result = await executeClineAccountAction(
-			args as ClineAccountActionRequest,
-			accountService,
-		);
+		let result: unknown;
+		try {
+			result = await executeClineAccountAction(
+				args as ClineAccountActionRequest,
+				accountService,
+			);
+		} catch (err) {
+			if (
+				operation === "fetchUsageTransactions" ||
+				operation === "fetchOrganizationUsageTransactions"
+			) {
+				return await getLocalUsageTransactions();
+			}
+			throw err;
+		}
 		if (operation === "switchAccount") {
 			await resetCloudSessionManager(ctx);
 			// The sidebar must re-scope immediately (personal ⇄ org), not on
@@ -2806,6 +3075,13 @@ export async function handleCommand(
 			broadcastEvent(ctx, "cloud_sessions_changed", {});
 		}
 		syncAccountContextFromResult(ctx, manager, operation, result);
+		if (
+			(operation === "fetchUsageTransactions" ||
+				operation === "fetchOrganizationUsageTransactions") &&
+			(!Array.isArray(result) || result.length === 0)
+		) {
+			return await getLocalUsageTransactions();
+		}
 		return result;
 	}
 
@@ -2886,7 +3162,7 @@ export async function handleCommand(
 	if (command === "list_provider_catalog") {
 		const manager = new ProviderSettingsManager();
 		await ensureCustomProvidersLoaded(manager);
-		return await listLocalProviders(manager, { isClinePassEnabled: true });
+		return await listLocalProviders(manager, { isClinePassEnabled: false });
 	}
 	if (command === "list_transcription_models") {
 		const manager = new ProviderSettingsManager();
@@ -3096,6 +3372,19 @@ export async function handleCommand(
 		// authoritative signal — it fires the moment credentials are cleared
 		// rather than waiting for the next account fetch.
 		if (saved.providerId === "cline" || saved.providerId === "cline-pass") {
+			const settings = manager.getProviderSettings(saved.providerId);
+			if (!settings?.auth?.accessToken && !settings?.apiKey) {
+				const authFile = join(resolveClineDir(), "data", "settings", "auth.json");
+				if (existsSync(authFile)) {
+					try {
+						writeFileSync(
+							authFile,
+							JSON.stringify({ authenticated: false, user: null }, null, 2),
+							"utf8",
+						);
+					} catch {}
+				}
+			}
 			syncAccountContextFromSettings(ctx, manager);
 		}
 		return saved;

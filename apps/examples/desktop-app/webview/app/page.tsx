@@ -17,6 +17,7 @@ import {
 } from "react";
 import { AgentHeader } from "@/components/agent-header";
 import { AgentSidebar } from "@/components/agent-sidebar";
+import { InteractiveDashboardBackground } from "@/components/interactive-dashboard-background";
 import { HubUpdateRequiredDialog } from "@/components/hub-update-required-dialog";
 import { SessionCommandBar } from "@/components/session-command-bar";
 import {
@@ -57,6 +58,7 @@ import { getInitialChatConfig } from "@/hooks/chat-session/constants";
 import type { ProcessContext } from "@/hooks/chat-session/types";
 import { checkForUpdateAndNotify, useAppUpdate } from "@/hooks/use-app-update";
 import { useChatSession } from "@/hooks/use-chat-session";
+import { useRemoteAgentListener } from "@/hooks/use-remote-agent-listener";
 import { usePendingAttachments } from "@/hooks/use-pending-attachments";
 import { usePromptDraft } from "@/hooks/use-prompt-draft";
 import { useSessionAgents } from "@/hooks/use-session-agents";
@@ -731,6 +733,11 @@ export default function Home() {
 				})
 			: null;
 	const handleHome = useCallback(() => {
+		if (view === "settings" || view === "sessions") {
+			navigateWith({ view: "chat" });
+			requestPromptInputFocus();
+			return;
+		}
 		if (activeThread?.historySession || activeThread?.hasStarted) {
 			selectEnvironmentDraft(activeEnvironmentId);
 			requestPromptInputFocus();
@@ -738,7 +745,7 @@ export default function Home() {
 		}
 		navigateWith({ view: "chat" });
 		requestPromptInputFocus();
-	}, [activeThread, activeEnvironmentId, selectEnvironmentDraft, navigateWith]);
+	}, [view, activeThread, activeEnvironmentId, selectEnvironmentDraft, navigateWith]);
 	const handleViewChange = useCallback(
 		(nextView: DesktopAppView) => {
 			navigateWith({ view: nextView });
@@ -765,6 +772,11 @@ export default function Home() {
 			if (showOnboarding) {
 				return;
 			}
+			if (event.key === "Escape" && view === "settings") {
+				event.preventDefault();
+				handleViewChange("chat");
+				return;
+			}
 			if (!(event.metaKey || event.ctrlKey) || event.altKey || event.shiftKey) {
 				return;
 			}
@@ -776,12 +788,12 @@ export default function Home() {
 				setCommandBarOpen((current) => !current);
 			} else if (event.key === ",") {
 				event.preventDefault();
-				handleViewChange("settings");
+				handleViewChange(view === "settings" ? "chat" : "settings");
 			}
 		};
 		window.addEventListener("keydown", handleKeyDown);
 		return () => window.removeEventListener("keydown", handleKeyDown);
-	}, [handleNewThread, handleViewChange, showOnboarding]);
+	}, [handleNewThread, handleViewChange, showOnboarding, view]);
 	const handleThreadStarted = useCallback(
 		(threadId: string, sessionId?: string) => {
 			dispatchApp({ type: "thread-started", threadId, sessionId });
@@ -945,10 +957,11 @@ export default function Home() {
 							/>
 							<SidebarRail />
 						</Sidebar>
-						<SidebarInset className="min-h-0 min-w-0 overflow-hidden">
+						<SidebarInset className="relative min-h-0 min-w-0 overflow-hidden">
+							<InteractiveDashboardBackground />
 							<SidebarTrigger className="absolute left-20 top-0 z-40 md:hidden" />
 							<WindowTitleBar />
-							<div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
+							<div className="relative z-10 flex min-h-0 flex-1 flex-col overflow-hidden">
 								{view === "sessions" ? (
 									<SessionsView
 										activeSessionId={activeHistorySessionId}
@@ -958,7 +971,6 @@ export default function Home() {
 									<div
 										aria-hidden={view === "settings" ? true : undefined}
 										className="flex min-h-0 flex-1 flex-col"
-										inert={view === "settings" ? true : undefined}
 									>
 										<ChatThreadPane
 											key={`${activeThread.id}:${activeThread.environmentId}`}
@@ -1025,6 +1037,8 @@ export default function Home() {
 								{view === "settings" ? (
 									<div className="absolute inset-0 z-30 bg-background text-foreground">
 										<SettingsView
+											isChatRunning={Boolean(activeThread?.hasStarted)}
+											onClose={() => navigateWith({ view: "chat" })}
 											onExportDiagnostics={() => setExportDiagnosticsOpen(true)}
 											onNavigateSection={handleSettingsSectionChange}
 											onOpenSession={handleOpenSessionById}
@@ -1198,6 +1212,7 @@ function ChatThreadPane({
 		abort,
 		hydrateSession,
 	} = useChatSession(environmentId);
+
 	// Bind the runtime session to the thread so deleting it elsewhere (e.g.
 	// the sidebar) can close this pane even when it was not opened from history.
 	useEffect(() => {
@@ -1238,6 +1253,15 @@ function ChatThreadPane({
 		environmentId === LOCAL_WORKSPACE_ENVIRONMENT_ID;
 	const { user: accountUser, activeOrganization } = useAccount();
 	const accountUserId = accountUser?.id ?? null;
+
+	// Listen for remote prompts from mobile app and auto-inject into active desktop session
+	useRemoteAgentListener({
+		sendPrompt,
+		messages,
+		status,
+		error,
+		userEmail: accountUser?.email,
+	});
 	const openGitHubConnect = useCallback(
 		async (fallbackUrl: string) => {
 			if (activeOrganization) {

@@ -762,10 +762,31 @@ export class AgentRuntime {
 	}
 
 	private getCompletionReminderMessages(): string[] {
-		return [
+		const reminders: string[] = [
 			this.getCompletionToolReminderMessage(),
 			this.config.completionPolicy?.completionGuard?.(),
 		].filter((message): message is string => Boolean(message));
+
+		// Autonomous check: if the last assistant message announced unexecuted next steps without invoking tools
+		const lastMsg = this.state.messages[this.state.messages.length - 1];
+		if (lastMsg && lastMsg.role === "assistant") {
+			const text = textFromMessage(lastMsg).trim();
+			const unexecutedPatterns = [
+				/\bnow\s+let\s+me\b/i,
+				/\bnext\s+i\s+will\b/i,
+				/\blet\s+me\s+(read|create|update|install|run|check|fix|implement|setup|add|build|test|start)\b/i,
+				/\bi\s+will\s+now\b/i,
+				/\bi'll\s+now\b/i,
+				/\blet's\s+now\b/i,
+			];
+			if (unexecutedPatterns.some((pattern) => pattern.test(text))) {
+				reminders.push(
+					`[SYSTEM] Autonomous execution reminder: You announced your next step in text, but you did not invoke any tool in this message. Rule #1 is: NEVER stop halfway or end a message with "Now let me..." without calling the tool. Please proceed immediately and call the required tool now.`
+				);
+			}
+		}
+
+		return reminders;
 	}
 
 	private async addUserReminderMessage(

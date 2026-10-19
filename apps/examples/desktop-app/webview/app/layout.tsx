@@ -7,8 +7,8 @@ import { HUB_THEME_BOOTSTRAP_SCRIPT } from "@/lib/theme";
 import "./globals.css";
 
 export const metadata: Metadata = {
-	title: "Cline",
-	description: "Build software with Cline.",
+	title: "IndusCode",
+	description: "Build software with IndusCode.",
 	icons: {
 		icon: [
 			{
@@ -20,8 +20,8 @@ export const metadata: Metadata = {
 				media: "(prefers-color-scheme: dark)",
 			},
 			{
-				url: "/icon.svg",
-				type: "image/svg+xml",
+				url: "/icon.png",
+				type: "image/png",
 			},
 		],
 		apple: "/icon.png",

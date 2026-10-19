@@ -156,6 +156,29 @@ describe("createApplyPatchExecutor", () => {
 		);
 	});
 
+	it("adds new files even when lines are not prefixed with +", async () => {
+		const filePath = path.join(tempDir, "unprefixed.txt");
+		const execute = createApplyPatchExecutor();
+
+		await execute(
+			{
+				input: [
+					"*** Begin Patch",
+					"*** Add File: unprefixed.txt",
+					"hello world",
+					"second line",
+					"*** End Patch",
+				].join("\n"),
+			},
+			tempDir,
+			{} as never,
+		);
+
+		await expect(fs.readFile(filePath, "utf-8")).resolves.toBe(
+			["hello world", "second line"].join(os.EOL),
+		);
+	});
+
 	it("preserves CRLF line endings when updating a CRLF file", async () => {
 		const filePath = path.join(tempDir, "note.txt");
 		await fs.writeFile(filePath, "alpha\r\nbeta\r\ngamma", "utf-8");

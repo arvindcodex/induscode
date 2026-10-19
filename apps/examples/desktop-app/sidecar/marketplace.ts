@@ -23,10 +23,12 @@ import {
 	type MarketplaceActionResult,
 	type MarketplaceEntryInput,
 	parseMcpInstallArgs,
+	resolveDefaultMcpSettingsPath,
 	resolveSkillsConfigSearchPaths,
 	resolveWorkflowsConfigSearchPaths,
 	uninstallMarketplaceEntry as uninstallCoreMarketplaceEntry,
 	uninstallPlugin as uninstallLocalPlugin,
+	updateMcpSettingsFileSync,
 } from "@cline/core";
 import {
 	discoverPluginModulePaths,
@@ -113,7 +115,47 @@ export async function fetchMarketplaceCatalog(
 			`Failed to fetch marketplace catalog: ${response.status} ${response.statusText}`.trim(),
 		);
 	}
-	return response.json();
+	const text = await response.text();
+	const sanitizedText = text
+		.replace(/cline mcp install/gi, "induscode mcp install")
+		.replace(/cline plugin install/gi, "induscode plugin install")
+		.replace(/cline skill add/gi, "induscode skill add")
+		.replace(/Connect Cline to/gi, "Connect IndusCode to")
+		.replace(/through Cline/gi, "through IndusCode")
+		.replace(/ClineCore/g, "IndusCodeCore")
+		.replace(/\bCline\b/g, "IndusCode");
+	let catalog: unknown;
+	try {
+		catalog = JSON.parse(sanitizedText);
+	} catch {
+		catalog = {};
+	}
+
+	const patchEntry = (item: any) => {
+		if (item?.id === "supabase" && item.type === "mcp") {
+			// Use OAuth flow — no PAT required from users.
+			// The Supabase MCP server at mcp.supabase.com supports OAuth 2.0.
+			// IndusCode will show an "Authenticate" button that opens the
+			// Supabase login page in the browser and handles tokens automatically.
+			item.description =
+				"Manage data in Supabase databases. Authenticate once with your Supabase account — no tokens needed.";
+			item.install = item.install || {};
+			// Remove any env requirement so install proceeds without PAT prompt
+			delete item.install.env;
+		}
+	};
+
+	if (Array.isArray(catalog)) {
+		catalog.forEach(patchEntry);
+	} else if (
+		catalog &&
+		typeof catalog === "object" &&
+		Array.isArray((catalog as any).entries)
+	) {
+		(catalog as any).entries.forEach(patchEntry);
+	}
+
+	return catalog;
 }
 
 function isPrimitiveType(value: unknown): value is MarketplacePrimitiveType {
@@ -805,14 +847,14 @@ async function installSkill(
 	}
 	if (!isGlobalSkillInstalled(entry)) {
 		throw new Error(
-			`Skill install completed, but ${entry.name ?? entry.id} was not found in Cline's global skills directories.`,
+			`Skill install completed, but ${entry.name ?? entry.id} was not found in IndusCode's global skills directories.`,
 		);
 	}
 	return {
 		id: entry.id,
 		type: entry.type,
 		status: "installed",
-		message: `Installed ${entry.name ?? entry.id} globally for Cline.`,
+		message: `Installed ${entry.name ?? entry.id} globally for IndusCode.`,
 		output,
 	};
 }
@@ -875,16 +917,56 @@ export async function installMarketplaceEntry(
 	const entry = readInstallInput(args);
 	const spawnCommand = options.spawnCommand ?? defaultSpawnCommand;
 	if (entry.type === "mcp") {
+		const rawArgs = [...(entry.install.args ?? [])];
+		// For Supabase MCP: do NOT inject a hardcoded Authorization header.
+		// mcp.supabase.com supports OAuth 2.0 — IndusCode handles the auth
+		// flow via the built-in OAuth connector ("Authenticate" button in UI).
+		// If a user has explicitly provided SUPABASE_ACCESS_TOKEN in env,
+		// honor it as an opt-in override.
+		if (
+			entry.id === "supabase" &&
+			process.env.SUPABASE_ACCESS_TOKEN?.trim() &&
+			!rawArgs.some((arg) => arg.includes("--header"))
+		) {
+			rawArgs.push(
+				"--header",
+				`Authorization: Bearer ${process.env.SUPABASE_ACCESS_TOKEN.trim()}`,
+			);
+		}
 		// Register the server in-process; this only writes MCP settings, so
 		// there is no reason to depend on a `cline` binary being on PATH.
-		const result = installMcpServer(
-			parseMcpInstallArgs(entry.install.args ?? []),
-		);
+		const installOptions = parseMcpInstallArgs(rawArgs);
+		const result = installMcpServer(installOptions);
+
+		// For OAuth-based MCP servers (those without a pre-supplied auth header),
+		// start with disabled:true so the toggle is OFF by default.
+		// The IDE will turn it ON automatically after the user completes
+		// the OAuth "Connect" flow (authorizationRequired → authorized).
+		const needsOAuth =
+			entry.id === "supabase" &&
+			!rawArgs.some((a) => a.includes("--header"));
+		if (needsOAuth) {
+			try {
+				const settingsPath =
+					installOptions.settingsPath ?? resolveDefaultMcpSettingsPath();
+				updateMcpSettingsFileSync(settingsPath, (settings) => {
+					const servers = settings.mcpServers as
+						| Record<string, Record<string, unknown>>
+						| undefined;
+					if (servers?.[entry.id]) {
+						servers[entry.id].disabled = true;
+					}
+				});
+			} catch {
+				// Best-effort: if the patch fails the user can still toggle manually.
+			}
+		}
+
 		return {
 			id: entry.id,
 			type: entry.type,
 			status: "installed",
-			message: `Installed ${entry.name ?? entry.id}.`,
+			message: `Installed ${entry.name ?? entry.id}.${needsOAuth ? " Click Connect to authenticate with your Supabase account." : ""}`,
 			details: result as unknown as JsonRecord,
 			output:
 				result.warnings.length > 0 ? result.warnings.join("\n") : undefined,

@@ -210,13 +210,13 @@ export function HubUpdateRequiredDialog() {
 			<AlertDialog open>
 				<AlertDialogContent>
 					<AlertDialogHeader>
-						<AlertDialogTitle>Cline Hub update required</AlertDialogTitle>
+						<AlertDialogTitle>IndusCode Hub update required</AlertDialogTitle>
 						<AlertDialogDescription>
-							Cline needs a newer Cline Hub, but the running one is still
+							IndusCode needs a newer IndusCode Hub, but the running one is still
 							serving {describeOutdatedHubSessions(mismatch)}.
 						</AlertDialogDescription>
 						<AlertDialogDescription>
-							Update Now stops that Hub and interrupts its sessions. Quit Cline
+							Update Now stops that Hub and interrupts its sessions. Quit IndusCode
 							closes this app and leaves the Hub running, so you can update
 							later.
 						</AlertDialogDescription>
@@ -232,7 +232,7 @@ export function HubUpdateRequiredDialog() {
 								void handleQuit();
 							}}
 						>
-							Quit Cline
+							Quit IndusCode
 						</AlertDialogCancel>
 						<AlertDialogAction
 							disabled={phase !== "idle"}
@@ -277,13 +277,13 @@ export function HubUpdateRequiredDialog() {
 		>
 			<AlertDialogContent>
 				<AlertDialogHeader>
-					<AlertDialogTitle>Cline Hub was updated</AlertDialogTitle>
+					<AlertDialogTitle>IndusCode Hub was updated</AlertDialogTitle>
 					<AlertDialogDescription>
-						Another Cline installation updated the shared Cline Hub
+						Another IndusCode installation updated the shared IndusCode Hub
 						{mismatch?.hubCoreVersion
 							? ` (core ${mismatch.hubCoreVersion})`
 							: ""}
-						, and it no longer matches this app. Update and restart Cline to
+						, and it no longer matches this app. Update and restart IndusCode to
 						stay in sync with the running Hub.
 					</AlertDialogDescription>
 					{updateHint ? (

@@ -770,7 +770,7 @@ class SdkUrlMcpClient implements McpServerClient {
 		let client: Client | undefined;
 		try {
 			client = new Client({
-				name: this.options.clientName?.trim() || "@cline/core",
+				name: this.options.clientName?.trim() || "@induscode/core",
 				version: this.options.clientVersion?.trim() || "0.0.0",
 			});
 			const transport = createMcpSdkTransport({

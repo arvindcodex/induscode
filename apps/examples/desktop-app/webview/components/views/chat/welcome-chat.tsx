@@ -12,6 +12,7 @@ import { Cloud } from "lucide-react";
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AgendaTaskReviewDialog } from "@/components/agenda-task-review-dialog";
+import { IndusRobotHero } from "@/components/indus-robot-hero";
 import { useAccount } from "@/contexts/account-context";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { isAgendaTaskExpired, useAgendaTasks } from "@/hooks/use-agenda-tasks";
@@ -40,6 +41,8 @@ import { WelcomeWorkspaceControls } from "./welcome-workspace-controls";
 // Used only until the API's connectUrl arrives (or when it is blank), so a
 // staging/local build still points at its own dashboard.
 const FALLBACK_CONNECT_URL = `${getClineEnvironmentConfig().appBaseUrl}/dashboard/integrations`;
+const INDUSCODE_LOGIN_URL =
+	process.env.NEXT_PUBLIC_INDUSCODE_LOGIN_URL || "http://localhost:3000/login";
 const CLOUD_SETUP_POLL_INTERVAL_MS = 6_000;
 
 type CloudSetupState = {
@@ -462,7 +465,7 @@ export function WelcomeScreen({
 			welcomeHeader={
 				<div className="cline-view-enter">
 					<h1 className="sr-only">What would you like to build?</h1>
-					<AgentWelcomeHero />
+					<IndusRobotHero />
 
 					<div className="mt-11 flex min-w-0 items-center gap-2">
 						{environmentSelector}
@@ -480,7 +483,7 @@ export function WelcomeScreen({
 							onPickWorkspaceDirectory={pickWorkspaceDirectory}
 							onRefreshWorkspaces={refreshWorkspaces}
 							onRepoUrlChange={onRepoUrlChange}
-							onSignIn={signIn}
+							onSignIn={() => void openExternalUrl(INDUSCODE_LOGIN_URL)}
 							onSelectChat={selectChat}
 							onSwitchGitBranch={onSwitchGitBranch}
 							onSwitchWorkspace={switchWorkspace}
@@ -513,7 +516,7 @@ export function WelcomeScreen({
 									: openExternalUrl(cloudSetup.connectUrl))
 							}
 							onRefresh={() => void checkCloudSetup()}
-							onSignIn={() => void signIn()}
+							onSignIn={() => void openExternalUrl(INDUSCODE_LOGIN_URL)}
 							signingIn={signingIn}
 							variant={cloudOnboardingVariant}
 						/>

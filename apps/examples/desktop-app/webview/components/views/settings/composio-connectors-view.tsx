@@ -47,7 +47,8 @@ import { cn } from "@/lib/utils";
 
 /** Shared connector browser for Customize and Marketplace. */
 
-const CREATE_ACCOUNT_URL = "https://app.cline.bot";
+const CREATE_ACCOUNT_URL =
+	process.env.NEXT_PUBLIC_INDUSCODE_LOGIN_URL || "http://localhost:3000/login";
 
 /** How many catalog entries to show before asking the user to search. */
 const CATALOG_PREVIEW_COUNT = 24;
@@ -570,7 +571,7 @@ export function ComposioConnectorsView({
 				<div className="grid gap-4">
 					<div className="flex items-center justify-between gap-3">
 						<p className="text-sm text-muted-foreground">
-							Connect your accounts to give Cline tools for your favorite apps.
+							Connect your accounts to give IndusCode tools for your favorite apps.
 							Tools become available in new sessions.
 						</p>
 						<Button
@@ -638,7 +639,7 @@ export function ComposioConnectorsView({
 						<div className="rounded-lg border border-dashed bg-card p-6 text-center text-sm text-muted-foreground">
 							{trimmedInstalledQuery
 								? `No installed connectors match "${installedQuery.trim()}".`
-								: "No connectors installed. Install a connector below or ask Cline about it in a task."}
+								: "No connectors installed. Install a connector below or ask IndusCode about it in a task."}
 						</div>
 					)}
 				</section>
@@ -710,7 +711,7 @@ export function ComposioConnectorsView({
 				<div className="flex flex-wrap items-center justify-between gap-3">
 					<p className="text-sm text-muted-foreground">
 						<Badge className="mr-1">Beta</Badge>Connect your accounts to give
-						Cline tools for your favorite apps. Tools will become available in
+						IndusCode tools for your favorite apps. Tools will become available in
 						new sessions.
 					</p>
 					{searchQuery === undefined ? (
@@ -804,12 +805,12 @@ function ConnectorsUnavailable({
 					<h2 className="text-lg font-semibold text-foreground">
 						{signedIn
 							? "Connectors aren't enabled for your account yet"
-							: "Sign in to Cline to use connectors"}
+							: "Sign in to IndusCode to use connectors"}
 					</h2>
 					<p className="text-sm text-muted-foreground">
 						{signedIn
-							? "Connectors are rolling out in beta. Once your Cline account has access, Gmail, Slack, GitHub, and hundreds of other apps will show up here with one-click install."
-							: "Connectors give Cline tools for Gmail, Slack, GitHub, and hundreds of other apps with a quick sign-in to each, no API keys. They require a Cline account."}
+							? "Connectors are rolling out in beta. Once your IndusCode account has access, Gmail, Slack, GitHub, and hundreds of other apps will show up here with one-click install."
+							: "Connectors give IndusCode tools for Gmail, Slack, GitHub, and hundreds of other apps with a quick sign-in to each, no API keys. They require an IndusCode account."}
 					</p>
 				</div>
 				{signedIn ? (

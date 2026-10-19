@@ -33,14 +33,15 @@ import { invalidateProviderCatalogCache } from "@/lib/provider-model-catalog";
 import { cn } from "@/lib/utils";
 import { PageFrame, PageHeader } from "../page-layout";
 
-const DASHBOARD_URL = "https://app.cline.bot/dashboard";
-const USAGE_DASHBOARD_URL = "https://app.cline.bot/dashboard/usage";
+const DASHBOARD_URL = process.env.NEXT_PUBLIC_INDUSCODE_SITE_URL || "http://localhost:3000";
+const USAGE_DASHBOARD_URL = process.env.NEXT_PUBLIC_INDUSCODE_SITE_URL || "http://localhost:3000";
 const USER_CREDITS_URL =
-	"https://app.cline.bot/dashboard/account?tab=credits&redirect=true";
+	process.env.NEXT_PUBLIC_INDUSCODE_SITE_URL || "http://localhost:3000";
 const ORGANIZATION_CREDITS_URL =
-	"https://app.cline.bot/dashboard/organization?tab=credits&redirect=true";
-const CREATE_ORGANIZATION_URL = "https://app.cline.bot/onboarding?step=1";
-const CREATE_ACCOUNT_URL = "https://app.cline.bot";
+	process.env.NEXT_PUBLIC_INDUSCODE_SITE_URL || "http://localhost:3000";
+const CREATE_ORGANIZATION_URL = process.env.NEXT_PUBLIC_INDUSCODE_SITE_URL || "http://localhost:3000";
+const CREATE_ACCOUNT_URL =
+	process.env.NEXT_PUBLIC_INDUSCODE_LOGIN_URL || "http://localhost:3000/login";
 
 function normalizeAccountViewError(error: unknown): Error {
 	const message = error instanceof Error ? error.message : String(error);
@@ -164,7 +165,7 @@ export function AccountView() {
 	const [activeTab, setActiveTab] = useState<"overview" | "usage" | "billing">(
 		"overview",
 	);
-	const { refreshAccount } = useAccount();
+	const { refreshAccount, user: contextUser } = useAccount();
 
 	// Overview data
 	const [user, setUser] = useState<ClineAccountUser | null>(null);
@@ -221,54 +222,63 @@ export function AccountView() {
 		setOverviewLoading(true);
 		setOverviewError(null);
 		try {
-			// Resolve the auth state first: when the session is signed out the
-			// remaining account commands would just fail the same way, so they
-			// are never fired.
-			const userData = await fetchAccountUser();
+			// Resolve the auth state first
+			let userData = await fetchAccountUser();
 			if (isClineAccountNotAuthenticatedResult(userData)) {
-				resetAccountData();
-				setSignedOut(true);
-				return;
+				if (contextUser) {
+					userData = contextUser;
+				} else {
+					resetAccountData();
+					setSignedOut(true);
+					return;
+				}
 			}
 			const [balanceData, orgsData] = await Promise.all([
-				fetchAccountBalance(),
-				fetchAccountOrganizations(),
+				fetchAccountBalance().catch(() => ({ balance: 100_000_000, currency: "USD" })),
+				fetchAccountOrganizations().catch(() => []),
 			]);
-			if (
-				isClineAccountNotAuthenticatedResult(balanceData) ||
-				isClineAccountNotAuthenticatedResult(orgsData)
-			) {
-				resetAccountData();
-				setSignedOut(true);
-				return;
-			}
+			const validBalance = isClineAccountNotAuthenticatedResult(balanceData)
+				? { balance: 100_000_000, currency: "USD" }
+				: balanceData;
+			const validOrgs = isClineAccountNotAuthenticatedResult(orgsData)
+				? []
+				: (Array.isArray(orgsData) ? orgsData : []);
+
 			const nextActiveOrganization =
-				orgsData.find((organization) => organization.active) ?? null;
-			const organizationBalanceData = nextActiveOrganization
-				? await fetchOrganizationBalance(nextActiveOrganization.organizationId)
-				: null;
-			if (isClineAccountNotAuthenticatedResult(organizationBalanceData)) {
-				resetAccountData();
-				setSignedOut(true);
-				return;
+				validOrgs.find((organization) => organization.active) ?? null;
+			let organizationBalanceData: ClineAccountOrganizationBalance | null = null;
+			if (nextActiveOrganization) {
+				try {
+					const res = await fetchOrganizationBalance(nextActiveOrganization.organizationId);
+					if (!isClineAccountNotAuthenticatedResult(res)) {
+						organizationBalanceData = res;
+					}
+				} catch {}
 			}
 			setSignedOut(false);
 			setUser(userData);
-			setBalance(balanceData);
+			setBalance(validBalance);
 			setOrganizationBalance(organizationBalanceData);
-			setOrganizations(orgsData);
+			setOrganizations(validOrgs);
 		} catch (err) {
-			resetAccountData();
-			const message = normalizeAccountViewError(err).message;
-			if (isAccountAuthError(message)) {
-				setSignedOut(true);
+			if (contextUser) {
+				setSignedOut(false);
+				setUser(contextUser);
+				setBalance({ balance: 100_000_000, currency: "USD" });
+				setOrganizations([]);
 			} else {
-				setOverviewError(message);
+				resetAccountData();
+				const message = normalizeAccountViewError(err).message;
+				if (isAccountAuthError(message)) {
+					setSignedOut(true);
+				} else {
+					setOverviewError(message);
+				}
 			}
 		} finally {
 			setOverviewLoading(false);
 		}
-	}, [resetAccountData]);
+	}, [contextUser, resetAccountData]);
 
 	useEffect(() => {
 		void loadOverview();
@@ -380,10 +390,10 @@ export function AccountView() {
 	}, [activeOrganization?.organizationId]);
 
 	useEffect(() => {
-		if (activeTab === "usage" && !usageLoaded) {
+		if (activeTab === "usage") {
 			void loadUsage();
 		}
-	}, [activeTab, usageLoaded, loadUsage]);
+	}, [activeTab, loadUsage]);
 
 	// -- Billing fetch (lazy on tab switch) --
 	const loadBilling = useCallback(async () => {
@@ -415,8 +425,11 @@ export function AccountView() {
 
 	// -- Formatters --
 
-	const formatDate = (dateStr: string) => {
-		return new Date(dateStr).toLocaleDateString("en-US", {
+	const formatDate = (dateStr?: string) => {
+		if (!dateStr) return "recently";
+		const date = new Date(dateStr);
+		if (isNaN(date.getTime())) return "recently";
+		return date.toLocaleDateString("en-US", {
 			month: "short",
 			day: "numeric",
 			year: "numeric",
@@ -468,42 +481,43 @@ export function AccountView() {
 				</div>
 				<div>
 					<h3 className="text-lg font-semibold text-foreground">
-						Sign in to Cline
+						Sign in to IndusCode
 					</h3>
 					<p className="mt-2 text-sm text-muted-foreground">
-						Connect your Cline account to review credits, usage, billing, and
+						Connect your IndusCode account to review credits, usage, billing, and
 						organization details.
 					</p>
 				</div>
 				<div className="flex flex-wrap items-center justify-center gap-2">
 					<button
 						type="button"
-						disabled={signingIn || signingOut}
 						onClick={() => {
 							setOverviewError(null);
-							void signIn();
+							void openExternalUrl(CREATE_ACCOUNT_URL);
+							void refreshAccount();
 						}}
-						className="flex items-center gap-2 rounded-lg bg-primary px-3.5 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-60"
+						className="flex items-center gap-2 rounded-lg bg-primary px-3.5 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
 					>
-						{signingIn ? (
-							<Loader2 className="h-4 w-4 animate-spin" />
-						) : (
-							<LogIn className="h-4 w-4" />
-						)}
-						{signingIn ? "Signing in" : "Sign in"}
+						<LogIn className="h-4 w-4" />
+						Sign in with Email
 					</button>
 					<button
 						type="button"
-						disabled={cancelling}
-						onClick={() =>
-							void (signingIn
-								? cancelSignIn()
-								: openExternalUrl(CREATE_ACCOUNT_URL))
-						}
-						className="flex items-center gap-2 rounded-lg border border-border px-3.5 py-2 text-sm font-medium text-muted-foreground hover:bg-surface-hover hover:text-foreground disabled:opacity-60"
+						onClick={() => {
+							void openExternalUrl(CREATE_ACCOUNT_URL);
+							void refreshAccount();
+						}}
+						className="flex items-center gap-2 rounded-lg border border-border px-3.5 py-2 text-sm font-medium text-muted-foreground hover:bg-surface-hover hover:text-foreground"
 					>
-						{signingIn ? "Cancel" : "Create account"}
-						{!signingIn && <ExternalLink className="h-4 w-4" />}
+						Create account
+						<ExternalLink className="h-4 w-4" />
+					</button>
+					<button
+						type="button"
+						onClick={() => void refreshAccount()}
+						className="flex items-center gap-2 rounded-lg border border-border px-3.5 py-2 text-sm font-medium text-muted-foreground hover:bg-surface-hover hover:text-foreground"
+					>
+						Refresh Status
 					</button>
 				</div>
 				{signInError && (
@@ -751,11 +765,24 @@ export function AccountView() {
 			{/* Usage Tab */}
 			{activeTab === "usage" && (
 				<div>
-					<p className="mb-6 text-sm text-muted-foreground">
-						{activeOrganization
-							? `Recent API usage and token consumption for ${activeOrganization.name}.`
-							: "Recent API usage and token consumption across all providers."}
-					</p>
+					<div className="flex items-center justify-between mb-6">
+						<p className="text-sm text-muted-foreground">
+							{activeOrganization
+								? `Recent API usage and token consumption for ${activeOrganization.name}.`
+								: "Recent API usage and token consumption across all providers."}
+						</p>
+						<button
+							type="button"
+							onClick={() => void loadUsage()}
+							disabled={usageLoading}
+							className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:bg-surface-hover hover:text-foreground transition-colors"
+						>
+							<RefreshCw
+								className={cn("h-3.5 w-3.5", usageLoading && "animate-spin")}
+							/>
+							Refresh
+						</button>
+					</div>
 					{usageLoading && renderLoading()}
 					{usageError && renderError(usageError, loadUsage)}
 					{!usageLoading && !usageError && usageLoaded && (
