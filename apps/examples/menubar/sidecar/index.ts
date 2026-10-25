@@ -9,14 +9,14 @@ import {
 	ProviderSettingsManager,
 	stopLocalHubServerGracefully,
 	toHubStatusUrl,
-} from "@cline/core";
+} from "@induscode/core";
 import {
 	claimHubDaemonProcess,
 	ensureLoopbackProxyBypass,
 	type HubUINotifyPayload,
 	isBunEmbeddedModulePath,
 	type SessionRecord,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { configureMenubarConnectorCliLaunch } from "./connector-cli-launch";
 
 interface TrackedClient {
@@ -92,7 +92,7 @@ function isBundledDaemonEntryInvocation(): boolean {
 		(normalizedEntryArg.endsWith("/entry.js") ||
 			normalizedEntryArg.endsWith("/entry.ts"));
 	return (
-		process.argv.includes("--cline-hub-daemon") ||
+		process.argv.includes("--induscode-hub-daemon") ||
 		isBunEmbeddedEntry ||
 		normalizedEntryArg.endsWith("/daemon-entry.js") ||
 		normalizedEntryArg.endsWith("/daemon-entry.ts") ||
@@ -239,8 +239,8 @@ function formatClientLabel(clientType: string | undefined): string {
 	if (!normalized || normalized === "unknown") {
 		return "Client";
 	}
-	if (normalized.includes("cline")) {
-		return "Cline";
+	if (normalized.includes("induscode")) {
+		return "IndusCode";
 	}
 	return normalized
 		.split(/[-_\s]+/)
@@ -272,8 +272,8 @@ function summarizeClient(client: TrackedClient): {
 	) {
 		return {
 			key: "code-app",
-			label: "Cline Desktop",
-			name: "Cline Desktop",
+			label: "IndusCode Desktop",
+			name: "IndusCode Desktop",
 		};
 	}
 	return {
@@ -452,13 +452,13 @@ async function main(): Promise<void> {
 		address: hubUrl,
 		authToken: hubAuthToken,
 		clientType: "menubar-app",
-		displayName: "Cline Menu Bar App",
+		displayName: "IndusCode Menu Bar App",
 	});
 	const sessionClient = new HubSessionClient({
 		address: hubUrl,
 		authToken: hubAuthToken,
 		clientType: "menubar-background-client",
-		displayName: "Cline Background Client",
+		displayName: "IndusCode Background Client",
 	});
 
 	await uiClient.connect();
@@ -626,7 +626,7 @@ async function main(): Promise<void> {
 				enableSpawn: false,
 				enableTeams: true,
 				autoApproveTools: true,
-				source: "cline-menubar",
+				source: "induscode-menubar",
 				interactive: false,
 			});
 			await sessionClient.sendRuntimeSession(started.sessionId, {
@@ -957,7 +957,7 @@ async function main(): Promise<void> {
 ensureLoopbackProxyBypass();
 const claimedDaemonSentinel = claimHubDaemonProcess();
 if (claimedDaemonSentinel || isBundledDaemonEntryInvocation()) {
-	await import("@cline/core/hub/daemon-entry");
+	await import("@induscode/core/hub/daemon-entry");
 } else {
 	main().catch((err) => {
 		const msg = err instanceof Error ? err.message : String(err);

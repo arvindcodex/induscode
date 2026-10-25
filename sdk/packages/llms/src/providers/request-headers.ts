@@ -1,4 +1,4 @@
-import { decodeJwtPayload } from "@cline/shared";
+import { decodeJwtPayload } from "@induscode/shared";
 
 export interface ProviderRequestHeaderClientContext {
 	name?: string;
@@ -25,13 +25,13 @@ export interface ResolveProviderRequestHeadersInput {
 	providerId: string;
 	/**
 	 * Session (task) id the request belongs to, surfaced as `X-Task-ID` for
-	 * Cline billing providers and `session_id` for OpenAI Codex.
+	 * IndusCode billing providers and `session_id` for OpenAI Codex.
 	 *
 	 * Optional because not every request is part of a session: standalone
 	 * one-shot utility calls (e.g. VS Code commit message generation) have no
 	 * task. When omitted, `X-Task-ID` is left off entirely rather than sent
 	 * empty — the pre-SDK extension sent `X-Task-ID: ""` from that same
-	 * commit-message path, so no Cline surface depends on a meaningful id here.
+	 * commit-message path, so no IndusCode surface depends on a meaningful id here.
 	 */
 	sessionId?: string;
 	source?: string;
@@ -42,15 +42,15 @@ export interface ResolveProviderRequestHeadersInput {
 	headers?: ProviderRequestHeaderLayers;
 }
 
-export const DEFAULT_CLINE_REQUEST_HEADERS: Record<string, string> = {
-	"HTTP-Referer": "https://cline.bot",
-	"X-Title": "Cline",
+export const DEFAULT_INDUSCODE_REQUEST_HEADERS: Record<string, string> = {
+	"HTTP-Referer": "https://induscode.bot",
+	"X-Title": "IndusCode",
 	"X-IS-MULTIROOT": "false",
-	"X-CLIENT-TYPE": "cline-sdk",
+	"X-CLIENT-TYPE": "induscode-sdk",
 };
 
-function isClineBillingProvider(providerId: string): boolean {
-	return providerId === "cline" || providerId === "cline-pass";
+function isIndusCodeBillingProvider(providerId: string): boolean {
+	return providerId === "induscode" || providerId === "induscode-pass";
 }
 
 function trimNonEmpty(value: string | undefined): string | undefined {
@@ -65,7 +65,7 @@ function resolveSource(
 	return trimNonEmpty(source) ?? defaultSource;
 }
 
-function resolveClineClientVersion(
+function resolveIndusCodeClientVersion(
 	client: ProviderRequestHeaderClientContext | undefined,
 ): string {
 	return (
@@ -75,22 +75,22 @@ function resolveClineClientVersion(
 	);
 }
 
-function buildClineRequestHeaders(
+function buildIndusCodeRequestHeaders(
 	input: ResolveProviderRequestHeadersInput,
 ): Record<string, string> | undefined {
-	if (!isClineBillingProvider(input.providerId)) {
+	if (!isIndusCodeBillingProvider(input.providerId)) {
 		return undefined;
 	}
 	const source = resolveSource(input.source, input.defaultSource);
-	const clientType = trimNonEmpty(input.client?.name) ?? `cline-${source}`;
-	const clientVersion = resolveClineClientVersion(input.client);
+	const clientType = trimNonEmpty(input.client?.name) ?? `induscode-${source}`;
+	const clientVersion = resolveIndusCodeClientVersion(input.client);
 	const platform = trimNonEmpty(input.client?.platform) ?? source;
 	const platformVersion =
 		trimNonEmpty(input.client?.platformVersion) ?? clientVersion;
 	const sessionId = trimNonEmpty(input.sessionId);
 	return {
-		...DEFAULT_CLINE_REQUEST_HEADERS,
-		"User-Agent": `Cline/${clientVersion}`,
+		...DEFAULT_INDUSCODE_REQUEST_HEADERS,
+		"User-Agent": `IndusCode/${clientVersion}`,
 		"X-IS-MULTIROOT": input.client?.isMultiRoot === true ? "true" : "false",
 		"X-CLIENT-TYPE": clientType,
 		"X-CLIENT-VERSION": clientVersion,
@@ -138,9 +138,9 @@ function buildOpenAICodexRequestHeaders(
 		deriveOpenAICodexAccountId(input.openAiCodex?.accessToken);
 	const sessionId = trimNonEmpty(input.sessionId);
 	return {
-		originator: "cline",
+		originator: "induscode",
 		...(sessionId ? { session_id: sessionId } : {}),
-		"User-Agent": `Cline/${trimNonEmpty(input.openAiCodex?.userAgentVersion) ?? "1.0.0"}`,
+		"User-Agent": `IndusCode/${trimNonEmpty(input.openAiCodex?.userAgentVersion) ?? "1.0.0"}`,
 		...(accountId ? { "ChatGPT-Account-Id": accountId } : {}),
 	};
 }
@@ -152,11 +152,11 @@ function resolveRequiredProviderHeaders(
 		const sessionId = trimNonEmpty(input.sessionId);
 		return {
 			...(sessionId ? { "x-opencode-session": sessionId } : {}),
-			"User-Agent": `Cline/${trimNonEmpty(input.client?.version) ?? input.coreVersion}`,
+			"User-Agent": `IndusCode/${trimNonEmpty(input.client?.version) ?? input.coreVersion}`,
 		};
 	}
 	return (
-		buildClineRequestHeaders(input) ?? buildOpenAICodexRequestHeaders(input)
+		buildIndusCodeRequestHeaders(input) ?? buildOpenAICodexRequestHeaders(input)
 	);
 }
 

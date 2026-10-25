@@ -8,17 +8,17 @@ import type {
 	CronSpecMode,
 	CronSpecParseResult,
 	CronTriggerKind,
-} from "@cline/shared";
-import { stripUtf8Bom } from "@cline/shared";
+} from "@induscode/shared";
+import { stripUtf8Bom } from "@induscode/shared";
 import YAML from "yaml";
 import { ALL_DEFAULT_TOOL_NAMES } from "../../extensions/tools/constants";
 import { validateCronSchedule } from "../schedule/scheduler";
 
 /**
- * Markdown frontmatter parser for `.cline/cron/*.md` automation specs.
+ * Markdown frontmatter parser for `.induscode/cron/*.md` automation specs.
  *
- * Lives in @cline/core because it depends on `yaml`. The spec types
- * themselves live in @cline/shared so other packages can consume them
+ * Lives in @induscode/core because it depends on `yaml`. The spec types
+ * themselves live in @induscode/shared so other packages can consume them
  * without pulling in a YAML parser.
  *
  * The parser never throws for a single bad file — it produces a

@@ -1,4 +1,4 @@
-import { ClineMessage } from "@shared/ExtensionMessage"
+import { IndusCodeMessage } from "@shared/ExtensionMessage"
 import { ChevronDownIcon, ChevronRightIcon } from "lucide-react"
 import React, { useCallback, useLayoutEffect, useMemo, useState } from "react"
 import { CloudTaskBadge } from "@/components/cloud/CloudTaskBadge"
@@ -19,7 +19,7 @@ import TaskWorkingDirectoryBadge from "./TaskWorkingDirectoryBadge"
 
 const IS_DEV = process.env.IS_DEV === "true"
 interface TaskHeaderProps {
-	task: ClineMessage
+	task: IndusCodeMessage
 	tokensIn: number
 	tokensOut: number
 	doesModelSupportPromptCache: boolean
@@ -116,7 +116,7 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
 	// report cost only when the user has supplied both prices. For every
 	// other provider, the SDK is the source of truth for whether to render
 	// per-task cost: any `metadata.usageCostDisplay` other than "show" —
-	// "hide", or "subscription" for flat-rate providers like ClinePass and
+	// "hide", or "subscription" for flat-rate providers like IndusCodePass and
 	// ChatGPT Plus/Pro where the computed figure would be an API-rate
 	// estimate rather than a real charge — suppresses the cost here. This
 	// mirrors the CLI's `shouldShowCliUsageCost` consumer and removes the

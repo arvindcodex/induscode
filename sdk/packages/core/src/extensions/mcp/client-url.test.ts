@@ -280,7 +280,7 @@ describe("SDK URL MCP client authorization persistence", () => {
 	): Promise<{ settingsPath: string; rejection: Promise<void> }> {
 		const tempRoot = await mkdtemp(join(tmpdir(), "core-mcp-client-url-"));
 		tempRoots.push(tempRoot);
-		const settingsPath = join(tempRoot, "cline_mcp_settings.json");
+		const settingsPath = join(tempRoot, "induscode_mcp_settings.json");
 		const transport = {
 			type: transportType,
 			url: "https://mcp.example.test",

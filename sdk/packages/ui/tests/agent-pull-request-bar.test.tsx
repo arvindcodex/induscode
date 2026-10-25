@@ -10,12 +10,12 @@ import {
 let container: HTMLDivElement;
 let root: Root;
 const data: AgentPullRequestData = {
-	repository: "cline/core",
+	repository: "induscode/core",
 	branch: "feature",
 	pullRequest: {
 		number: 7,
 		title: "Fix",
-		url: "https://github.com/cline/core/pull/7",
+		url: "https://github.com/induscode/core/pull/7",
 		state: "OPEN",
 		isDraft: false,
 		mergeable: "UNKNOWN",

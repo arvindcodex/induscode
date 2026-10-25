@@ -1,6 +1,6 @@
 "use client";
 
-import { AgentAskQuestion } from "@cline/ui";
+import { AgentAskQuestion } from "@induscode/ui";
 import {
 	MessageScroller,
 	MessageScrollerButton,
@@ -8,7 +8,7 @@ import {
 	MessageScrollerItem,
 	MessageScrollerProvider,
 	MessageScrollerViewport,
-} from "@cline/ui/components/message-scroller";
+} from "@induscode/ui/components/message-scroller";
 import { Loader2 } from "lucide-react";
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -819,7 +819,7 @@ function ChatMessagesImpl({
 									</div>
 								) : null}
 								{shouldShowErrorBanner ? (
-									<div className="cline-chat-selectable mt-4 rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
+									<div className="induscode-chat-selectable mt-4 rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
 										{lastErrorMessage?.content !== error ? (
 											<p>{error}</p>
 										) : null}

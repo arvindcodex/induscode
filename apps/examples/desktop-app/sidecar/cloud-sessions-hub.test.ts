@@ -2,8 +2,8 @@ import {
 	HubCommandError,
 	HubTransportError,
 	type NodeHubClient,
-} from "@cline/core";
-import type { HubEventEnvelope } from "@cline/shared";
+} from "@induscode/core";
+import type { HubEventEnvelope } from "@induscode/shared";
 import { describe, expect, it, vi } from "vitest";
 import {
 	CloudSessionApi,
@@ -19,7 +19,7 @@ const REMOTE_SESSION: CloudSessionRecord = {
 	id: "ses-outer",
 	status: "ready",
 	sandboxUrl: "https://pod.example/hub",
-	repoContext: { repoUrl: "https://github.com/cline/test" },
+	repoContext: { repoUrl: "https://github.com/induscode/test" },
 	metadata: { modelId: "anthropic/claude-sonnet-5" },
 	createdAt: "2026-08-05T10:00:00.000Z",
 	updatedAt: "2026-08-05T10:01:00.000Z",
@@ -27,7 +27,7 @@ const REMOTE_SESSION: CloudSessionRecord = {
 
 const CREATE_INPUT = {
 	modelId: "anthropic/claude-sonnet-5",
-	repoUrl: "https://github.com/cline/test",
+	repoUrl: "https://github.com/induscode/test",
 };
 const createRemote = async () => ({
 	sessionId: "ses-outer",
@@ -782,7 +782,7 @@ describe("CloudSessionManager Hub runtime", () => {
 		});
 		await manager.create({
 			modelId: "model",
-			repoUrl: "https://github.com/cline/test",
+			repoUrl: "https://github.com/induscode/test",
 		});
 		const rejected = expect(
 			manager.send("ses-outer", "Fix this"),
@@ -1306,7 +1306,7 @@ describe("CloudSessionManager Hub runtime", () => {
 			getActiveOrganizationId: async () => {
 				organizationLookups += 1;
 				if (organizationLookups > 1) throw new Error("account endpoint down");
-				return "org-cline-bot";
+				return "org-induscode-bot";
 			},
 			hub,
 		});
@@ -1318,7 +1318,7 @@ describe("CloudSessionManager Hub runtime", () => {
 		await vi.waitFor(() => expect(organizationLookups).toBe(2));
 
 		expect(hub.disposed).toBe(false);
-		expect(listScopes).toEqual(["org-cline-bot"]);
+		expect(listScopes).toEqual(["org-induscode-bot"]);
 		expect(
 			events.some((event) => event.name === "cloud_session_sync_failed"),
 		).toBe(true);
@@ -1519,8 +1519,8 @@ describe("CloudSessionManager Hub runtime", () => {
 	});
 
 	it.each([
-		[" tsk-01ABCDEF1234ABCD ", "cline/1234abcd"],
-		[undefined, "cline/es-outer"],
+		[" tsk-01ABCDEF1234ABCD ", "induscode/1234abcd"],
+		[undefined, "induscode/es-outer"],
 	])("includes save-work guidance when the task id is %s", async (taskId, branch) => {
 		const { manager, hub } = createFixture({
 			hub: new FakeHubClient(false),
@@ -1574,7 +1574,7 @@ describe("CloudSessionManager Hub runtime", () => {
 
 		const created = await manager.create({
 			modelId: "anthropic/claude-sonnet-5",
-			repoUrl: "https://github.com/cline/test",
+			repoUrl: "https://github.com/induscode/test",
 			initialPrompt: "Fix it",
 			thinking: true,
 			reasoningEffort: "high",
@@ -1596,7 +1596,7 @@ describe("CloudSessionManager Hub runtime", () => {
 						reasoningEffort: "high",
 					}),
 					modelSelection: {
-						provider: "cline",
+						provider: "induscode",
 						model: "anthropic/claude-sonnet-5",
 					},
 				}),
@@ -2074,7 +2074,7 @@ describe("CloudSessionManager Hub runtime", () => {
 		});
 		const creating = manager.create({
 			modelId: "anthropic/claude-sonnet-5",
-			repoUrl: "https://github.com/cline/test",
+			repoUrl: "https://github.com/induscode/test",
 		});
 		await new Promise((resolve) => setTimeout(resolve, 0));
 		authToken = "workos:new-account";
@@ -2105,17 +2105,17 @@ describe("CloudSessionManager Hub runtime", () => {
 			api: {
 				list: async (organizationId?: string) => {
 					listCalls.push(organizationId);
-					return organizationId === "org-cline-bot" ? [orgSession] : [];
+					return organizationId === "org-induscode-bot" ? [orgSession] : [];
 				},
 			} as unknown as CloudSessionApi,
-			getActiveOrganizationId: async () => "org-cline-bot",
+			getActiveOrganizationId: async () => "org-induscode-bot",
 		});
 		ctx.cloudSessionManager = manager;
 
 		await manager.list();
 		await expect(manager.attach("ses-org")).rejects.toThrow("pod offline");
 
-		expect(listCalls).toEqual(["org-cline-bot", "org-cline-bot"]);
+		expect(listCalls).toEqual(["org-induscode-bot", "org-induscode-bot"]);
 	});
 
 	it("recovers with a fresh connection after inner-session creation fails", async () => {

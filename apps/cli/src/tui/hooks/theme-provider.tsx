@@ -1,4 +1,4 @@
-import { readTuiThemeGlobally, setTuiThemeGlobally } from "@cline/core";
+import { readTuiThemeGlobally, setTuiThemeGlobally } from "@induscode/core";
 import { useRenderer } from "@opentui/react";
 import {
 	type ReactNode,
@@ -12,11 +12,11 @@ import { AUTO_THEME_ID, normalizeThemeId, resolveTheme } from "../themes";
 import { TerminalColorsContext, ThemeContext } from "./use-theme";
 
 /**
- * Resolves the theme to boot with: CLINE_THEME env override first, then the
+ * Resolves the theme to boot with: INDUSCODE_THEME env override first, then the
  * persisted setting, falling back to terminal auto-detection.
  */
 export function getInitialThemeId(): string {
-	const fromEnv = process.env.CLINE_THEME?.trim();
+	const fromEnv = process.env.INDUSCODE_THEME?.trim();
 	if (fromEnv) {
 		return normalizeThemeId(fromEnv);
 	}

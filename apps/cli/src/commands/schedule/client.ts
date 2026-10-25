@@ -3,7 +3,7 @@ import {
 	HubScheduleCommandService,
 	HubScheduleService,
 	NodeHubClient,
-} from "@cline/core";
+} from "@induscode/core";
 import {
 	ensureCliHubServer,
 	parseHubEndpointOverride,
@@ -33,7 +33,7 @@ export class HubScheduleClient {
 			const client = new NodeHubClient({
 				url: this.url,
 				clientType: "cli-schedule",
-				displayName: "Cline CLI scheduler",
+				displayName: "IndusCode CLI scheduler",
 				workspaceRoot: this.workspaceRoot,
 				cwd: this.workspaceRoot,
 				authToken: this.authToken,
@@ -133,12 +133,12 @@ export class LocalScheduleClient {
 		const reply = await this.commands.handleCommand(
 			{
 				version: "v1",
-				clientId: "cline-schedule-local",
+				clientId: "induscode-schedule-local",
 				command: command as never,
 				payload,
 			},
 			{
-				clientId: "cline-schedule-local",
+				clientId: "induscode-schedule-local",
 				workspaceContext: {
 					workspaceRoot: this.workspaceRoot,
 					cwd: this.workspaceRoot,

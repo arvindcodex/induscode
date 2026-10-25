@@ -1,7 +1,7 @@
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { GeneratedMedia } from "@cline/shared";
+import type { GeneratedMedia } from "@induscode/shared";
 
 export interface MaterializedGeneratedMedia {
 	path: string;
@@ -61,7 +61,7 @@ export function materializeGeneratedMedia(
 		if (bytes.byteLength === 0) {
 			return undefined;
 		}
-		directory = mkdtempSync(join(tmpdir(), "cline-generated-media-"));
+		directory = mkdtempSync(join(tmpdir(), "induscode-generated-media-"));
 		const extension = MEDIA_EXTENSIONS[mediaType] ?? "bin";
 		const path = join(directory, `generated.${extension}`);
 		writeFileSync(path, bytes, { mode: 0o600 });

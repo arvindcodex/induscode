@@ -1,7 +1,7 @@
 import fs from "fs/promises"
 import path from "path"
 import { Logger } from "@/shared/services/Logger"
-import { version as clineVersion } from "../../../package.json"
+import { version as induscodeVersion } from "../../../package.json"
 import { getDistinctId } from "../../services/logging/distinctId"
 import { telemetryService } from "../../services/telemetry"
 import {
@@ -17,7 +17,7 @@ import {
 	TaskResumeData,
 	TaskStartData,
 	UserPromptSubmitData,
-} from "../../shared/proto/cline/hooks"
+} from "../../shared/proto/induscode/hooks"
 import { getAllHooksDirs, getWindowWorkspaceRoots } from "../storage/disk"
 import { HookExecutionError } from "./HookError"
 import { HookProcess } from "./HookProcess"
@@ -138,7 +138,7 @@ type HookName = keyof Hooks
 
 /**
  * The hook input parameters for a named hook. These are the parameters the caller must
- * provide--the other common parameters like clineVersion and userId are handled by the
+ * provide--the other common parameters like induscodeVersion and userId are handled by the
  * hook system.
  */
 export type NamedHookInput<Name extends HookName> = {
@@ -198,11 +198,11 @@ export abstract class HookRunner<Name extends HookName> {
 	 *
 	 * This method enriches the hook-specific input (like preToolUse or postToolUse data)
 	 * with standard information that all hooks receive:
-	 * - clineVersion: Current Cline extension version
+	 * - induscodeVersion: Current IndusCode extension version
 	 * - hookName: The type of hook being executed (e.g., "PreToolUse")
 	 * - timestamp: Execution time in milliseconds since epoch
 	 * - workspaceRoots: Array of workspace folder paths
-	 * - userId: Cline user ID, machine ID, or generated UUID
+	 * - userId: IndusCode user ID, machine ID, or generated UUID
 	 *
 	 * This separation allows hook scripts to receive consistent metadata without
 	 * requiring callers to manually provide it each time.
@@ -219,11 +219,11 @@ export abstract class HookRunner<Name extends HookName> {
 		}
 
 		return {
-			clineVersion,
+			induscodeVersion,
 			hookName: this.hookName,
 			timestamp: Date.now().toString(),
 			workspaceRoots,
-			userId: getDistinctId(), // Always available: Cline User ID, machine ID, or generated UUID
+			userId: getDistinctId(), // Always available: IndusCode User ID, machine ID, or generated UUID
 			...params,
 			model,
 		}
@@ -654,8 +654,8 @@ class StdioHookRunner<Name extends HookName> extends HookRunner<Name> {
 /**
  * Combines multiple hook runners and executes them in parallel.
  *
- * Used in multi-root workspaces where both global hooks (from ~/Documents/Cline/Hooks/)
- * and workspace-specific hooks (from each workspace's .clinerules/hooks/) exist for the
+ * Used in multi-root workspaces where both global hooks (from ~/Documents/IndusCode/Hooks/)
+ * and workspace-specific hooks (from each workspace's .induscoderules/hooks/) exist for the
  * same hook type.
  *
  * Behavior:
@@ -725,7 +725,7 @@ function isExpectedHookError(error: unknown): boolean {
 	}
 
 	// Expected: Permission denied (file not executable or not readable)
-	// Note: This is expected because users may have hooks in .clinerules that they don't want to execute
+	// Note: This is expected because users may have hooks in .induscoderules that they don't want to execute
 	if (nodeError.code === "EACCES") {
 		return true
 	}
@@ -755,7 +755,7 @@ export function isPathWithin(parent: string, child: string): boolean {
 export class HookFactory {
 	/**
 	 * @param options.sessionWorkspaceRoot The workspace root of the session the
-	 * hooks run for. Discovery additionally scans this root's .clinerules/hooks
+	 * hooks run for. Discovery additionally scans this root's .induscoderules/hooks
 	 * and hooks discovered there execute from it: the session's root is not
 	 * always among the window's workspace folders (e.g. the chat-workspace
 	 * fallback when no folder is open).
@@ -764,7 +764,7 @@ export class HookFactory {
 
 	private sessionHooksDir(): string | undefined {
 		const root = this.options?.sessionWorkspaceRoot
-		return root ? path.join(root, ".clinerules", "hooks") : undefined
+		return root ? path.join(root, ".induscoderules", "hooks") : undefined
 	}
 
 	private async findSessionScripts(hookName: HookName): Promise<string[]> {
@@ -876,7 +876,7 @@ export class HookFactory {
 
 	/**
 	 * Checks if a hooks directory is a global hooks directory.
-	 * Global hooks are located in paths containing "Cline/Hooks" or "cline/hooks".
+	 * Global hooks are located in paths containing "IndusCode/Hooks" or "induscode/hooks".
 	 */
 	private static isGlobalHooksDir(dir: string): boolean {
 		return /[/\\][Cc]line[/\\][Hh]ooks/i.test(dir)
@@ -896,8 +896,8 @@ export class HookFactory {
 	/**
 	 * Determines the working directory for a hook script based on its location.
 	 *
-	 * - Global hooks (from ~/Documents/Cline/Hooks/): run from the primary workspace root
-	 * - Workspace hooks (from workspaceRoot/.clinerules/hooks/): run from that specific workspace root
+	 * - Global hooks (from ~/Documents/IndusCode/Hooks/): run from the primary workspace root
+	 * - Workspace hooks (from workspaceRoot/.induscoderules/hooks/): run from that specific workspace root
 	 *
 	 * This ensures workspace-specific hooks can use relative paths that are meaningful
 	 * within their own workspace context.
@@ -912,7 +912,7 @@ export class HookFactory {
 		const containingDir = hooksDirs.find((dir) => isPathWithin(dir, scriptPath))
 
 		// If workspace hook, find which workspace root it belongs to.
-		// Workspace hooks are at: workspaceRoot/.clinerules/hooks/. Prefer the
+		// Workspace hooks are at: workspaceRoot/.induscoderules/hooks/. Prefer the
 		// longest matching root so nested workspace roots resolve to the
 		// innermost one.
 		if (containingDir && !HookFactory.isGlobalHooksDir(containingDir)) {
@@ -931,8 +931,8 @@ export class HookFactory {
 
 	/**
 	 * Categorizes hook scripts by their location (global vs workspace).
-	 * Global hooks are located in ~/Documents/Cline/Hooks/
-	 * Workspace hooks are located in workspace .clinerules/hooks/ directories
+	 * Global hooks are located in ~/Documents/IndusCode/Hooks/
+	 * Workspace hooks are located in workspace .induscoderules/hooks/ directories
 	 *
 	 * @param scripts Array of hook script paths
 	 * @param hooksDirs Array of hooks directories (passed to avoid redundant fetches)
@@ -959,10 +959,10 @@ export class HookFactory {
 	}
 
 	/**
-	 * Finds the path to a hook in a .clinerules hooks directory.
+	 * Finds the path to a hook in a .induscoderules hooks directory.
 	 *
 	 * @param hookName the name of the hook to search for, for example 'PreToolUse'
-	 * @param hooksDir the .clinerules directory path to search
+	 * @param hooksDir the .induscoderules directory path to search
 	 * @returns the path to the hook to execute, or undefined if none found
 	 * @throws Error if an unexpected file system error occurs
 	 */
@@ -1015,7 +1015,7 @@ export class HookFactory {
 	 * with canonical extensionless hook names.
 	 *
 	 * @param hookName the name of the hook to search for
-	 * @param hooksDir the .clinerules directory path to search
+	 * @param hooksDir the .induscoderules directory path to search
 	 * @returns the path to the hook to execute, or undefined if none found
 	 * @throws Error if an unexpected file system error occurs
 	 */

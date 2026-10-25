@@ -34,20 +34,20 @@ describe("clearLegacyProviderCredentials", () => {
 		});
 	});
 
-	it("removes both Cline account secrets from the legacy secrets file", () => {
+	it("removes both IndusCode account secrets from the legacy secrets file", () => {
 		const dataDir = mkdtempSync(path.join(os.tmpdir(), "desktop-legacy-"));
 		tempDirs.push(dataDir);
 		const secretsPath = path.join(dataDir, "secrets.json");
 		writeFileSync(
 			secretsPath,
 			JSON.stringify({
-				"cline:clineAccountId": JSON.stringify({ idToken: "t" }),
-				clineApiKey: "cline-key",
+				"induscode:induscodeAccountId": JSON.stringify({ idToken: "t" }),
+				induscodeApiKey: "induscode-key",
 				openRouterApiKey: "sk-or-keep",
 			}),
 		);
 
-		expect(clearLegacyProviderCredentials("cline", dataDir)).toBe(true);
+		expect(clearLegacyProviderCredentials("induscode", dataDir)).toBe(true);
 		expect(JSON.parse(readFileSync(secretsPath, "utf8"))).toEqual({
 			openRouterApiKey: "sk-or-keep",
 		});
@@ -60,7 +60,7 @@ describe("clearLegacyProviderCredentials", () => {
 
 		const secretsPath = path.join(dataDir, "secrets.json");
 		writeFileSync(secretsPath, JSON.stringify({ apiKey: "keep" }));
-		expect(clearLegacyProviderCredentials("cline", dataDir)).toBe(false);
+		expect(clearLegacyProviderCredentials("induscode", dataDir)).toBe(false);
 		expect(clearLegacyProviderCredentials("anthropic", dataDir)).toBe(false);
 		expect(readFileSync(secretsPath, "utf8")).toBe(
 			JSON.stringify({ apiKey: "keep" }),

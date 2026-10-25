@@ -1,10 +1,10 @@
-import { setCompactionStrategyGlobally, setModelToolEnabledGlobally } from "@cline/core"
-import { Empty } from "@shared/proto/cline/common"
-import { PlanActMode, McpDisplayMode as ProtoMcpDisplayMode, UpdateSettingsRequest } from "@shared/proto/cline/state"
+import { setCompactionStrategyGlobally, setModelToolEnabledGlobally } from "@induscode/core"
+import { Empty } from "@shared/proto/induscode/common"
+import { PlanActMode, McpDisplayMode as ProtoMcpDisplayMode, UpdateSettingsRequest } from "@shared/proto/induscode/state"
 import { convertProtoToApiProvider } from "@shared/proto-conversions/models/api-configuration-conversion"
 import { OpenaiReasoningEffort } from "@shared/storage/types"
 import { TelemetrySetting } from "@shared/TelemetrySetting"
-import { ClineEnv } from "@/config"
+import { IndusCodeEnv } from "@/config"
 import { McpDisplayMode } from "@/shared/McpDisplayMode"
 import { Logger } from "@/shared/services/Logger"
 import { telemetryService } from "../../../services/telemetry"
@@ -22,8 +22,8 @@ import { createTaskApiModelShim, resolveActiveModelIdFromApiConfiguration } from
  */
 export async function updateSettings(controller: Controller, request: UpdateSettingsRequest): Promise<Empty> {
 	try {
-		if (request.clineEnv !== undefined && request.clineEnv !== "") {
-			ClineEnv.setEnvironment(request.clineEnv)
+		if (request.induscodeEnv !== undefined && request.induscodeEnv !== "") {
+			IndusCodeEnv.setEnvironment(request.induscodeEnv)
 			await accountLogoutClicked(controller, Empty.create())
 		}
 

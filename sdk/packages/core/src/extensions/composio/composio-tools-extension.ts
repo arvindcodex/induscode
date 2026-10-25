@@ -1,18 +1,18 @@
 import { createHash } from "node:crypto";
 import { join } from "node:path";
-import type { AgentExtension, AgentTool, BasicLogger } from "@cline/shared";
+import type { AgentExtension, AgentTool, BasicLogger } from "@induscode/shared";
 import {
 	createTool,
 	FeatureFlag,
-	getClineEnvironmentConfig,
-} from "@cline/shared";
-import { resolveClineDataDir } from "@cline/shared/storage";
+	getIndusCodeEnvironmentConfig,
+} from "@induscode/shared";
+import { resolveIndusCodeDataDir } from "@induscode/shared/storage";
 import {
 	OAuthReauthRequiredError,
 	RuntimeOAuthTokenManager,
 } from "../../runtime/orchestration/runtime-oauth-token-manager";
-import { isClineAccountFeatureEnabled } from "../../services/feature-flags/cline-account-feature-flags";
-import { resolveLocalClineAuthToken } from "../../services/providers/local-provider-service";
+import { isIndusCodeAccountFeatureEnabled } from "../../services/feature-flags/induscode-account-feature-flags";
+import { resolveLocalIndusCodeAuthToken } from "../../services/providers/local-provider-service";
 import { ProviderSettingsManager } from "../../services/storage/provider-settings-manager";
 import {
 	type ConnectorsRequest,
@@ -26,25 +26,25 @@ import {
  * multi-execute; saved desktop connection state never supplies model tools.
  * Local executions recheck account identity and beta access. Hosts supplying
  * a request callback own authentication without accessing local credentials.
- * The Cline API proxy scopes the tool-router session to the caller.
+ * The IndusCode API proxy scopes the tool-router session to the caller.
  */
 const COMPOSIO_TOOL_TIMEOUT_MS = 120_000;
 
 export function resolveComposioConnectionStatePath(accountId: string): string {
 	const key = createHash("sha256").update(accountId).digest("hex");
-	return join(resolveClineDataDir(), "settings", "composio", `${key}.json`);
+	return join(resolveIndusCodeDataDir(), "settings", "composio", `${key}.json`);
 }
 
 function getAccountId(): string | undefined {
 	return (
 		new ProviderSettingsManager()
-			.getProviderSettings("cline")
+			.getProviderSettings("induscode")
 			?.auth?.accountId?.trim() || undefined
 	);
 }
 
 /**
- * Resolves the Cline account bearer token and API base URL for the proxy.
+ * Resolves the IndusCode account bearer token and API base URL for the proxy.
  * Uses the refresh-aware OAuth manager (tokens expire between launches) and
  * falls back to the persisted token on transient failures. Managers coordinate
  * single-use refresh tokens through a lock shared across processes.
@@ -59,20 +59,20 @@ async function resolveConnectorsAuth(
 	try {
 		sharedTokenManager ??= new RuntimeOAuthTokenManager();
 		const resolution = await sharedTokenManager.resolveProviderApiKey({
-			providerId: "cline",
+			providerId: "induscode",
 		});
 		token = resolution?.apiKey ?? undefined;
 	} catch (error) {
 		if (error instanceof OAuthReauthRequiredError) return undefined;
 		// Fall back to the persisted token below.
 	}
-	token ??= resolveLocalClineAuthToken(manager.getProviderSettings("cline"));
+	token ??= resolveLocalIndusCodeAuthToken(manager.getProviderSettings("induscode"));
 	if (!token || getAccountId() !== accountId) {
 		return undefined;
 	}
-	const settings = manager.getProviderSettings("cline");
+	const settings = manager.getProviderSettings("induscode");
 	const baseUrl = (
-		settings?.baseUrl?.trim() || getClineEnvironmentConfig().apiBaseUrl
+		settings?.baseUrl?.trim() || getIndusCodeEnvironmentConfig().apiBaseUrl
 	).replace(/\/+$/, "");
 	return { baseUrl, token };
 }
@@ -92,11 +92,11 @@ async function authorizeExecution(
 			error: {
 				successful: false,
 				error:
-					"The Cline account changed. Start a new session to use connector tools.",
+					"The IndusCode account changed. Start a new session to use connector tools.",
 			},
 		};
 	}
-	if (!(await isClineAccountFeatureEnabled(FeatureFlag.CLINE_COMPOSIO_BETA))) {
+	if (!(await isIndusCodeAccountFeatureEnabled(FeatureFlag.INDUSCODE_COMPOSIO_BETA))) {
 		return {
 			error: {
 				successful: false,
@@ -110,7 +110,7 @@ async function authorizeExecution(
 			error: {
 				successful: false,
 				error:
-					"Sign in to your Cline account to use connector tools (no account token available).",
+					"Sign in to your IndusCode account to use connector tools (no account token available).",
 			},
 		};
 	}
@@ -146,7 +146,7 @@ export async function createComposioToolsExtension(options?: {
 	} else {
 		if (!accountId) return undefined;
 		if (
-			!(await isClineAccountFeatureEnabled(FeatureFlag.CLINE_COMPOSIO_BETA))
+			!(await isIndusCodeAccountFeatureEnabled(FeatureFlag.INDUSCODE_COMPOSIO_BETA))
 		) {
 			return undefined;
 		}

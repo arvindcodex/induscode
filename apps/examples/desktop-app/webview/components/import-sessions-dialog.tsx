@@ -49,7 +49,7 @@ type ImportSessionsDialogProps = {
  * Provider/model a new chat would start with right now, resolved the same
  * way a new chat resolves it (remembered selection, then the built-in
  * default). Imported sessions are stamped with it so "continue this in
- * Cline" runs on what the user actually uses instead of the source tool's
+ * IndusCode" runs on what the user actually uses instead of the source tool's
  * provider. Reading model-selection storage directly is not enough: the
  * composer only records a model when the user picks one explicitly, so
  * anyone on the default model has no entry there.
@@ -233,7 +233,7 @@ export function ImportSessionsDialog({
 				<DialogHeader>
 					<DialogTitle>Import sessions</DialogTitle>
 					<DialogDescription>
-						Bring your conversation history from other coding tools into Cline.
+						Bring your conversation history from other coding tools into IndusCode.
 						Imported sessions appear in your history and can be continued here.
 					</DialogDescription>
 				</DialogHeader>
@@ -258,7 +258,7 @@ export function ImportSessionsDialog({
 									No sessions found
 								</p>
 								<p className="max-w-sm text-sm text-muted-foreground">
-									Cline looks for local history from Claude Code, Codex, and
+									IndusCode looks for local history from Claude Code, Codex, and
 									opencode. Nothing importable turned up on this machine.
 								</p>
 							</div>

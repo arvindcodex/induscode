@@ -1,8 +1,8 @@
 import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { AgentTool } from "@cline/shared";
-import { setClineDir, setHomeDir } from "@cline/shared/storage";
+import type { AgentTool } from "@induscode/shared";
+import { setIndusCodeDir, setHomeDir } from "@induscode/shared/storage";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { createBuiltinTools } from "../../extensions/tools";
 import { DefaultRuntimeBuilder } from "./runtime-builder";
@@ -72,23 +72,23 @@ function makeSpawnTool(): AgentTool {
 describe("runtime tool parity", () => {
 	const envSnapshot = {
 		HOME: process.env.HOME,
-		CLINE_DIR: process.env.CLINE_DIR,
+		INDUSCODE_DIR: process.env.INDUSCODE_DIR,
 	};
 	let isolatedHomeDir = "";
 
 	beforeEach(() => {
 		isolatedHomeDir = mkdtempSync(join(tmpdir(), "runtime-parity-home-"));
 		process.env.HOME = isolatedHomeDir;
-		process.env.CLINE_DIR = join(isolatedHomeDir, ".cline");
+		process.env.INDUSCODE_DIR = join(isolatedHomeDir, ".induscode");
 		setHomeDir(isolatedHomeDir);
-		setClineDir(process.env.CLINE_DIR);
+		setIndusCodeDir(process.env.INDUSCODE_DIR);
 	});
 
 	afterEach(() => {
 		process.env.HOME = envSnapshot.HOME;
-		process.env.CLINE_DIR = envSnapshot.CLINE_DIR;
+		process.env.INDUSCODE_DIR = envSnapshot.INDUSCODE_DIR;
 		setHomeDir(envSnapshot.HOME ?? "~");
-		setClineDir(envSnapshot.CLINE_DIR ?? join("~", ".cline"));
+		setIndusCodeDir(envSnapshot.INDUSCODE_DIR ?? join("~", ".induscode"));
 	});
 
 	it("matches legacy tool list when tools+spawn are enabled", async () => {

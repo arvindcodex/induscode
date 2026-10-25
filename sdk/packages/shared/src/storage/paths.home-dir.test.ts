@@ -6,7 +6,7 @@ type EnvSnapshot = {
 	USERPROFILE: string | undefined;
 	HOMEDRIVE: string | undefined;
 	HOMEPATH: string | undefined;
-	CLINE_DIR: string | undefined;
+	INDUSCODE_DIR: string | undefined;
 };
 
 function captureEnv(): EnvSnapshot {
@@ -15,7 +15,7 @@ function captureEnv(): EnvSnapshot {
 		USERPROFILE: process.env.USERPROFILE,
 		HOMEDRIVE: process.env.HOMEDRIVE,
 		HOMEPATH: process.env.HOMEPATH,
-		CLINE_DIR: process.env.CLINE_DIR,
+		INDUSCODE_DIR: process.env.INDUSCODE_DIR,
 	};
 }
 
@@ -24,7 +24,7 @@ function restoreEnv(snapshot: EnvSnapshot): void {
 	process.env.USERPROFILE = snapshot.USERPROFILE;
 	process.env.HOMEDRIVE = snapshot.HOMEDRIVE;
 	process.env.HOMEPATH = snapshot.HOMEPATH;
-	process.env.CLINE_DIR = snapshot.CLINE_DIR;
+	process.env.INDUSCODE_DIR = snapshot.INDUSCODE_DIR;
 }
 
 describe("storage home directory fallback", () => {
@@ -41,10 +41,10 @@ describe("storage home directory fallback", () => {
 		process.env.USERPROFILE = "C:\\Users\\saoud";
 		delete process.env.HOMEDRIVE;
 		delete process.env.HOMEPATH;
-		delete process.env.CLINE_DIR;
+		delete process.env.INDUSCODE_DIR;
 
-		const { resolveClineDir } = await import("./paths");
-		expect(resolveClineDir()).toBe(join("C:\\Users\\saoud", ".cline"));
+		const { resolveIndusCodeDir } = await import("./paths");
+		expect(resolveIndusCodeDir()).toBe(join("C:\\Users\\saoud", ".induscode"));
 	});
 
 	it("treats HOME=~ as unset and falls back to USERPROFILE", async () => {
@@ -53,9 +53,9 @@ describe("storage home directory fallback", () => {
 		process.env.USERPROFILE = "C:\\Users\\saoud";
 		delete process.env.HOMEDRIVE;
 		delete process.env.HOMEPATH;
-		delete process.env.CLINE_DIR;
+		delete process.env.INDUSCODE_DIR;
 
-		const { resolveClineDir } = await import("./paths");
-		expect(resolveClineDir()).toBe(join("C:\\Users\\saoud", ".cline"));
+		const { resolveIndusCodeDir } = await import("./paths");
+		expect(resolveIndusCodeDir()).toBe(join("C:\\Users\\saoud", ".induscode"));
 	});
 });

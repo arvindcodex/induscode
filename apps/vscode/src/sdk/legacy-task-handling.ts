@@ -1,5 +1,5 @@
-import { type ContentBlock, formatDisplayUserInput, type MessageWithMetadata } from "@cline/shared"
-import type { ClineMessage } from "@shared/ExtensionMessage"
+import { type ContentBlock, formatDisplayUserInput, type MessageWithMetadata } from "@induscode/shared"
+import type { IndusCodeMessage } from "@shared/ExtensionMessage"
 import type { HistoryItem } from "@shared/HistoryItem"
 import { sanitizeInitialMessagesForSessionStart } from "./initial-message-sanitizer"
 
@@ -80,7 +80,7 @@ export function appendLegacyResumeWarning<T extends { role: string; content: unk
 }
 
 /**
- * Classic Cline truncated long conversations by omitting an index range of
+ * Classic IndusCode truncated long conversations by omitting an index range of
  * api_conversation_history from every API request: it kept the first
  * user-assistant pair, dropped everything up to and including the range end,
  * and stripped orphaned tool_results from the first kept message
@@ -90,7 +90,7 @@ export function appendLegacyResumeWarning<T extends { role: string; content: unk
  * Migration must replay that truncation: converting the full file hands the
  * resumed SDK session an untruncated working context that can exceed the
  * model's context window by millions of tokens, wedging the session with
- * "prompt is too long" on every request (cline/cline#12996).
+ * "prompt is too long" on every request (induscode/induscode#12996).
  */
 function applyLegacyDeletedRange(apiHistory: unknown[], historyItem: HistoryItem): unknown[] {
 	const deletedRangeEnd = historyItem.conversationHistoryDeletedRange?.[1]
@@ -170,14 +170,14 @@ export function legacyApiHistoryToSdkMessages(apiHistory: unknown[], historyItem
 }
 
 export function mergeLegacyUiMessagesWithResumedSdkMessages(
-	legacyUiMessages: ClineMessage[],
-	sdkClineMessages: ClineMessage[],
-): ClineMessage[] {
-	const warningIndex = sdkClineMessages.findIndex((message) => message.text?.includes(LEGACY_RESUME_MODEL_WARNING))
+	legacyUiMessages: IndusCodeMessage[],
+	sdkIndusCodeMessages: IndusCodeMessage[],
+): IndusCodeMessage[] {
+	const warningIndex = sdkIndusCodeMessages.findIndex((message) => message.text?.includes(LEGACY_RESUME_MODEL_WARNING))
 	if (warningIndex === -1) {
-		return sdkClineMessages
+		return sdkIndusCodeMessages
 	}
 
-	const resumedMessages = sdkClineMessages.slice(warningIndex + 1)
+	const resumedMessages = sdkIndusCodeMessages.slice(warningIndex + 1)
 	return [...legacyUiMessages, ...resumedMessages]
 }

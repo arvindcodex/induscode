@@ -5,13 +5,13 @@ import type {
 import {
 	projectSessionMessagesForDisplay,
 	resolveMessageDisplayRole,
-} from "@cline/core";
+} from "@induscode/core";
 import {
 	type ContentBlock,
 	formatDisplayUserInput,
 	type MessageWithMetadata,
 	type ToolResultContent,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { ACT_MODE_CONTINUATION_PROMPT } from "../runtime/interactive/mode";
 import { buildToolTitle, mapToolKind } from "./tool-utils";
 

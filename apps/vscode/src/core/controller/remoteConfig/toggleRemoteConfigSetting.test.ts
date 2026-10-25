@@ -1,4 +1,4 @@
-import { RemoteConfigType, ToggleRemoteConfigSettingRequest } from "@shared/proto/cline/remote_config"
+import { RemoteConfigType, ToggleRemoteConfigSettingRequest } from "@shared/proto/induscode/remote_config"
 import { describe, expect, it, vi } from "vitest"
 import { toggleRemoteConfigSetting } from "./toggleRemoteConfigSetting"
 

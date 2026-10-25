@@ -68,7 +68,7 @@ export class HarborParser {
 			analysis_version: "1.0.0", // TODO: Get from package.json
 			job_id: path.basename(jobDir),
 			model: config.model,
-			agent: config.agent || "cline-cli",
+			agent: config.agent || "induscode-cli",
 			environment: config.environment || "docker",
 		}
 
@@ -104,7 +104,7 @@ export class HarborParser {
 		const configPath = path.join(trialDir, "config.json")
 		const resultPath = path.join(trialDir, "result.json")
 		const rewardPath = path.join(trialDir, "verifier", "reward.txt")
-		const logsPath = path.join(trialDir, "agent", "cline.txt")
+		const logsPath = path.join(trialDir, "agent", "induscode.txt")
 		const testOutputPath = path.join(trialDir, "verifier", "test-stdout.txt")
 
 		const config = JSON.parse(fs.readFileSync(configPath, "utf-8"))

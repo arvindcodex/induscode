@@ -15,8 +15,8 @@ import {
 	resolvePluginConfigSearchPaths,
 	type SkillConfig,
 	type WorkflowConfig,
-} from "@cline/core";
-import { readFileSyncStrippingUtf8Bom } from "@cline/shared/node";
+} from "@induscode/core";
+import { readFileSyncStrippingUtf8Bom } from "@induscode/shared/node";
 import { Command } from "commander";
 import { getToolCatalog } from "../runtime/tools";
 import { createCliCore } from "../session/session";
@@ -29,8 +29,8 @@ type ConfigIo = {
 };
 
 function resolveCliAgentConfigSearchPaths(cwd: string): string[] {
-	const clineDir = process.env.CLINE_DIR?.trim() || join(homedir(), ".cline");
-	return [join(cwd, ".cline", "agents"), join(clineDir, "agents")];
+	const induscodeDir = process.env.INDUSCODE_DIR?.trim() || join(homedir(), ".induscode");
+	return [join(cwd, ".induscode", "agents"), join(induscodeDir, "agents")];
 }
 
 function createConfigUserInstructionService(cwd: string) {

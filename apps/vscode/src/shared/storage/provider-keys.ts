@@ -1,12 +1,12 @@
 // Map providers to their specific model ID keys
 
-import { getProviderCollectionSync } from "@cline/llms"
+import { getProviderCollectionSync } from "@induscode/llms"
 import { SettingsKey } from "@shared/storage/state-keys"
 import { toSdkProviderId } from "@/sdk/model-catalog/sdk-provider-id"
 import { toLegacyApiProvider } from "@/shared/model-catalog/provider-helpers"
 import {
 	type ApiProvider,
-	clinePassDefaultModelId,
+	induscodePassDefaultModelId,
 	liteLlmDefaultModelId,
 	openRouterDefaultModelId,
 	requestyDefaultModelId,
@@ -14,8 +14,8 @@ import {
 
 const ProviderKeyMap: Partial<Record<ApiProvider, string>> = {
 	openrouter: "OpenRouterModelId",
-	cline: "ClineModelId",
-	"cline-pass": "ClinePassModelId",
+	induscode: "IndusCodeModelId",
+	"induscode-pass": "IndusCodePassModelId",
 	openai: "OpenAiModelId",
 	ollama: "OllamaModelId",
 	lmstudio: "LmStudioModelId",
@@ -38,7 +38,7 @@ const ProviderKeyMap: Partial<Record<ApiProvider, string>> = {
 /**
  * Provider ids whose "default model" is not the SDK-declared catalog
  * default but a stored-on-`ApiConfiguration` slot belonging to another
- * provider. Dynamic-list providers (openrouter, cline, requesty, etc.)
+ * provider. Dynamic-list providers (openrouter, induscode, requesty, etc.)
  * write their committed ModelInfo back to their own provider field, so
  * here we expose a stable id string that downstream code can use as a
  * pre-commit placeholder.
@@ -48,7 +48,7 @@ const ProviderKeyMap: Partial<Record<ApiProvider, string>> = {
  */
 const NON_SDK_PROVIDER_DEFAULTS: Partial<Record<ApiProvider, string>> = {
 	openrouter: openRouterDefaultModelId,
-	"cline-pass": clinePassDefaultModelId,
+	"induscode-pass": induscodePassDefaultModelId,
 	together: openRouterDefaultModelId,
 	aihubmix: openRouterDefaultModelId,
 	"vercel-ai-gateway": openRouterDefaultModelId,

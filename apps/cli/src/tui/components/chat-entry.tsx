@@ -1,26 +1,26 @@
 import {
-	type ClineSubscriptionPlan,
-	extractClineFreeModelLimitResetTime,
-} from "@cline/core";
+	type IndusCodeSubscriptionPlan,
+	extractIndusCodeFreeModelLimitResetTime,
+} from "@induscode/core";
 import { useTerminalDimensions } from "@opentui/react";
 import type React from "react";
 import { useEffect, useState } from "react";
 import "opentui-spinner/react";
 import {
-	getClineOrgIndividualInferenceSubscriptionMessage,
-	getClinePassLimitDetailMessage,
+	getIndusCodeOrgIndividualInferenceSubscriptionMessage,
+	getIndusCodePassLimitDetailMessage,
 	getCliSubscriptionUrl,
 	getIndividualPlanFeatures,
-	isClineFreeModelLimitErrorMessage,
-	isClineFreePromotionEndedErrorMessage,
-	isClineOrgIndividualInferenceSubscriptionErrorMessage,
-	isClinePassLimitErrorMessage,
-	isClinePassSubscriptionError,
-} from "../../utils/cline-pass-errors";
+	isIndusCodeFreeModelLimitErrorMessage,
+	isIndusCodeFreePromotionEndedErrorMessage,
+	isIndusCodeOrgIndividualInferenceSubscriptionErrorMessage,
+	isIndusCodePassLimitErrorMessage,
+	isIndusCodePassSubscriptionError,
+} from "../../utils/induscode-pass-errors";
 import {
-	CLINE_CREDITS_DASHBOARD_URL,
-	isClineAccountCreditsErrorMessage,
-} from "../cline-account";
+	INDUSCODE_CREDITS_DASHBOARD_URL,
+	isIndusCodeAccountCreditsErrorMessage,
+} from "../induscode-account";
 import { getUserMessageBackground } from "../palette";
 import type { ResolvedTheme } from "../themes";
 import type { ChatEntry } from "../types";
@@ -274,7 +274,7 @@ function ToolCallView(props: {
 	);
 }
 
-function ClineCreditsClinePassErrorView(props: {
+function IndusCodeCreditsIndusCodePassErrorView(props: {
 	defaultFg?: string;
 	theme: ResolvedTheme;
 }) {
@@ -290,32 +290,32 @@ function ClineCreditsClinePassErrorView(props: {
 				borderColor="red"
 				paddingX={1}
 			>
-				<text fg="red">Cline Credits depleted</text>
+				<text fg="red">IndusCode Credits depleted</text>
 				<text
 					fg={props.defaultFg}
 					selectable
 					content={
-						"You have run out of Cline credits. Add credits in the dashboard or purchase and switch to ClinePass to continue."
+						"You have run out of IndusCode credits. Add credits in the dashboard or purchase and switch to IndusCodePass to continue."
 					}
 				/>
 				<box flexDirection="row">
 					<text fg="gray">Purchase Credits: </text>
 					<text fg={linkColor} selectable>
-						<a href={CLINE_CREDITS_DASHBOARD_URL}>
-							{CLINE_CREDITS_DASHBOARD_URL}
+						<a href={INDUSCODE_CREDITS_DASHBOARD_URL}>
+							{INDUSCODE_CREDITS_DASHBOARD_URL}
 						</a>
 					</text>
 				</box>
 				<box flexDirection="row">
-					<text fg="gray">Purchase ClinePass: </text>
+					<text fg="gray">Purchase IndusCodePass: </text>
 					<text fg={linkColor} selectable>
 						<a href={subscriptionUrl}>{subscriptionUrl}</a>
 					</text>
 				</box>
 				<box flexDirection="row">
-					<text fg="gray">Switch to ClinePass: </text>
+					<text fg="gray">Switch to IndusCodePass: </text>
 					<text fg="gray">
-						type /settings in CLI and switch provider to ClinePass
+						type /settings in CLI and switch provider to IndusCodePass
 					</text>
 				</box>
 			</box>
@@ -323,21 +323,21 @@ function ClineCreditsClinePassErrorView(props: {
 	);
 }
 
-function ClineCreditsErrorView(props: {
+function IndusCodeCreditsErrorView(props: {
 	defaultFg?: string;
 	theme: ResolvedTheme;
 }) {
 	return (
-		<ClineCreditsClinePassErrorView
+		<IndusCodeCreditsIndusCodePassErrorView
 			defaultFg={props.defaultFg}
 			theme={props.theme}
 		/>
 	);
 }
 
-function ClinePassSubscriptionErrorView(props: {
+function IndusCodePassSubscriptionErrorView(props: {
 	defaultFg?: string;
-	loadIndividualSubscriptionPlans?: () => Promise<ClineSubscriptionPlan[]>;
+	loadIndividualSubscriptionPlans?: () => Promise<IndusCodeSubscriptionPlan[]>;
 	theme: ResolvedTheme;
 }) {
 	const subscriptionUrl = getCliSubscriptionUrl();
@@ -375,15 +375,15 @@ function ClinePassSubscriptionErrorView(props: {
 				borderColor={planAccent}
 				paddingX={1}
 			>
-				<text fg={planAccent}>ClinePass subscription required</text>
+				<text fg={planAccent}>IndusCodePass subscription required</text>
 				<text
 					fg={props.defaultFg}
 					selectable
-					content="No access to ClinePass subscription models yet. Subscribe to ClinePass, the low cost open weights model coding plan."
+					content="No access to IndusCodePass subscription models yet. Subscribe to IndusCodePass, the low cost open weights model coding plan."
 				/>
 				{planFeatures.length > 0 && (
 					<box flexDirection="column" marginTop={1}>
-						<text fg={props.defaultFg}>ClinePass includes:</text>
+						<text fg={props.defaultFg}>IndusCodePass includes:</text>
 						{planFeatures.map((feature) => (
 							<text key={feature} fg={props.defaultFg} selectable>
 								<span fg="green">✓ </span>
@@ -409,7 +409,7 @@ function ClinePassSubscriptionErrorView(props: {
 	);
 }
 
-function ClineOrgIndividualInferenceSubscriptionErrorView(props: {
+function IndusCodeOrgIndividualInferenceSubscriptionErrorView(props: {
 	defaultFg?: string;
 	theme: ResolvedTheme;
 }) {
@@ -425,11 +425,11 @@ function ClineOrgIndividualInferenceSubscriptionErrorView(props: {
 				borderColor={planAccent}
 				paddingX={1}
 			>
-				<text fg={planAccent}>Personal ClinePass required</text>
+				<text fg={planAccent}>Personal IndusCodePass required</text>
 				<text
 					fg={props.defaultFg}
 					selectable
-					content={getClineOrgIndividualInferenceSubscriptionMessage()}
+					content={getIndusCodeOrgIndividualInferenceSubscriptionMessage()}
 				/>
 			</box>
 		</box>
@@ -468,12 +468,12 @@ function CompactionDividerRow(props: {
 	);
 }
 
-function ClinePassLimitErrorView(props: {
+function IndusCodePassLimitErrorView(props: {
 	message: string;
 	defaultFg?: string;
 	theme: ResolvedTheme;
 }) {
-	const detail = getClinePassLimitDetailMessage(props.message) ?? props.message;
+	const detail = getIndusCodePassLimitDetailMessage(props.message) ?? props.message;
 	const accent = props.theme.accents.act;
 
 	return (
@@ -486,18 +486,18 @@ function ClinePassLimitErrorView(props: {
 				borderColor={accent}
 				paddingX={1}
 			>
-				<text fg={props.theme.accents.error}>ClinePass limit reached</text>
+				<text fg={props.theme.accents.error}>IndusCodePass limit reached</text>
 				<text fg={props.defaultFg} selectable content={detail} />
 				<text
 					fg={props.defaultFg}
 					selectable
-					content="Switch to Cline usage-based billing and retry with the Cline provider."
+					content="Switch to IndusCode usage-based billing and retry with the IndusCode provider."
 				/>
 				<box flexDirection="row">
 					<text fg="gray">Headless CLI: </text>
 					<text fg={props.defaultFg} selectable content="rerun with " />
 					<code
-						content="--provider cline"
+						content="--provider induscode"
 						filetype="bash"
 						syntaxStyle={getSyntaxStyle(props.theme)}
 						selectable
@@ -509,12 +509,12 @@ function ClinePassLimitErrorView(props: {
 	);
 }
 
-function ClineFreeModelLimitErrorView(props: {
+function IndusCodeFreeModelLimitErrorView(props: {
 	message: string;
 	defaultFg?: string;
 	theme: ResolvedTheme;
 }) {
-	const resetTime = extractClineFreeModelLimitResetTime(props.message);
+	const resetTime = extractIndusCodeFreeModelLimitResetTime(props.message);
 	const accent = props.theme.accents.act;
 
 	return (
@@ -550,7 +550,7 @@ function ClineFreeModelLimitErrorView(props: {
 	);
 }
 
-function ClineFreePromotionEndedErrorView(props: {
+function IndusCodeFreePromotionEndedErrorView(props: {
 	defaultFg?: string;
 	theme: ResolvedTheme;
 }) {
@@ -587,7 +587,7 @@ export function ChatEntryView(props: {
 	accent?: string;
 	/** Mode the entry was produced in (resolved with the current-mode fallback). */
 	mode?: SyntaxAccentMode;
-	loadIndividualSubscriptionPlans?: () => Promise<ClineSubscriptionPlan[]>;
+	loadIndividualSubscriptionPlans?: () => Promise<IndusCodeSubscriptionPlan[]>;
 	theme: ResolvedTheme;
 }) {
 	const { entry, mode = "act", theme } = props;
@@ -709,20 +709,20 @@ export function ChatEntryView(props: {
 			);
 
 		case "error":
-			if (isClineAccountCreditsErrorMessage(entry.text)) {
-				return <ClineCreditsErrorView defaultFg={defaultFg} theme={theme} />;
+			if (isIndusCodeAccountCreditsErrorMessage(entry.text)) {
+				return <IndusCodeCreditsErrorView defaultFg={defaultFg} theme={theme} />;
 			}
-			if (isClineOrgIndividualInferenceSubscriptionErrorMessage(entry.text)) {
+			if (isIndusCodeOrgIndividualInferenceSubscriptionErrorMessage(entry.text)) {
 				return (
-					<ClineOrgIndividualInferenceSubscriptionErrorView
+					<IndusCodeOrgIndividualInferenceSubscriptionErrorView
 						defaultFg={defaultFg}
 						theme={theme}
 					/>
 				);
 			}
-			if (isClinePassSubscriptionError(entry.text)) {
+			if (isIndusCodePassSubscriptionError(entry.text)) {
 				return (
-					<ClinePassSubscriptionErrorView
+					<IndusCodePassSubscriptionErrorView
 						defaultFg={defaultFg}
 						loadIndividualSubscriptionPlans={
 							props.loadIndividualSubscriptionPlans
@@ -731,27 +731,27 @@ export function ChatEntryView(props: {
 					/>
 				);
 			}
-			if (isClinePassLimitErrorMessage(entry.text)) {
+			if (isIndusCodePassLimitErrorMessage(entry.text)) {
 				return (
-					<ClinePassLimitErrorView
+					<IndusCodePassLimitErrorView
 						message={entry.text}
 						defaultFg={defaultFg}
 						theme={theme}
 					/>
 				);
 			}
-			if (isClineFreeModelLimitErrorMessage(entry.text)) {
+			if (isIndusCodeFreeModelLimitErrorMessage(entry.text)) {
 				return (
-					<ClineFreeModelLimitErrorView
+					<IndusCodeFreeModelLimitErrorView
 						defaultFg={defaultFg}
 						message={entry.text}
 						theme={theme}
 					/>
 				);
 			}
-			if (isClineFreePromotionEndedErrorMessage(entry.text)) {
+			if (isIndusCodeFreePromotionEndedErrorMessage(entry.text)) {
 				return (
-					<ClineFreePromotionEndedErrorView
+					<IndusCodeFreePromotionEndedErrorView
 						defaultFg={defaultFg}
 						theme={theme}
 					/>

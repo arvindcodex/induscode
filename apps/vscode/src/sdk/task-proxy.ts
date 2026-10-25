@@ -9,9 +9,9 @@
 // and return safe defaults.
 
 import { EventEmitter } from "node:events"
-import type { ClineMessage } from "@shared/ExtensionMessage"
+import type { IndusCodeMessage } from "@shared/ExtensionMessage"
 import { Logger } from "@shared/services/Logger"
-import type { ClineAskResponse } from "@shared/WebviewMessage"
+import type { IndusCodeAskResponse } from "@shared/WebviewMessage"
 
 /**
  * Interface for the task proxy — mirrors the subset of classic Task
@@ -22,7 +22,7 @@ export interface TaskProxy {
 	ulid: string
 	taskId: string
 	/** Delegate ask response to the controller's session */
-	handleWebviewAskResponse: (askResponse: ClineAskResponse, text?: string, images?: string[], files?: string[]) => Promise<void>
+	handleWebviewAskResponse: (askResponse: IndusCodeAskResponse, text?: string, images?: string[], files?: string[]) => Promise<void>
 	/** Abort the running task */
 	abortTask: () => Promise<void>
 	/** API handler — settable for model switching via updateSettings */
@@ -44,33 +44,33 @@ export interface TaskProxy {
  * Uses tuple syntax for EventEmitter compatibility.
  */
 export interface MessageStateHandlerEvents {
-	clineMessagesChanged: [change: ClineMessageChange]
+	induscodeMessagesChanged: [change: IndusCodeMessageChange]
 }
 
 /**
  * Change event for message updates.
- * Mirrors ClineMessageChange from src/core/task/message-state.ts.
+ * Mirrors IndusCodeMessageChange from src/core/task/message-state.ts.
  */
-interface ClineMessageChange {
+interface IndusCodeMessageChange {
 	type: "add" | "update" | "set" | "delete"
 	/** The full array after the change */
-	messages: ClineMessage[]
+	messages: IndusCodeMessage[]
 	/** The affected index (for add/update/delete) */
 	index?: number
 	/** The new/updated message (for add/update) */
-	message?: ClineMessage
+	message?: IndusCodeMessage
 }
 
 /**
- * Message state handler that accumulates ClineMessages and emits change events.
+ * Message state handler that accumulates IndusCodeMessages and emits change events.
  * Extends EventEmitter for compatibility with consumers that use the
  * on/off event subscription pattern.
  *
  * The classic Task had a full MessageStateHandler; this provides the
- * getClineMessages() and event emitter interface that consumers expect.
+ * getIndusCodeMessages() and event emitter interface that consumers expect.
  */
 export class MessageStateHandler extends EventEmitter<MessageStateHandlerEvents> {
-	private messages: ClineMessage[] = []
+	private messages: IndusCodeMessage[] = []
 
 	/** Add or update messages from a session event.
 	 *  If a message with the same `ts` already exists, update it in-place
@@ -78,13 +78,13 @@ export class MessageStateHandler extends EventEmitter<MessageStateHandlerEvents>
 	 *  This prevents duplicate messages when both partial message stream
 	 *  and state updates carry the same content.
 	 */
-	addMessages(messages: ClineMessage[]): void {
+	addMessages(messages: IndusCodeMessage[]): void {
 		for (const message of messages) {
 			const existingIndex = this.messages.findIndex((m) => m.ts === message.ts)
 			if (existingIndex !== -1) {
 				// Update existing message in-place (e.g., partial=true → partial=false)
 				this.messages[existingIndex] = message
-				this.emit("clineMessagesChanged", {
+				this.emit("induscodeMessagesChanged", {
 					type: "update",
 					messages: this.messages,
 					index: existingIndex,
@@ -92,13 +92,13 @@ export class MessageStateHandler extends EventEmitter<MessageStateHandlerEvents>
 				})
 			} else {
 				this.messages.push(message)
-				this.emit("clineMessagesChanged", { type: "add", messages: this.messages, message })
+				this.emit("induscodeMessagesChanged", { type: "add", messages: this.messages, message })
 			}
 		}
 	}
 
 	/** Get all accumulated messages (returns a copy) */
-	getClineMessages(): ClineMessage[] {
+	getIndusCodeMessages(): IndusCodeMessage[] {
 		return [...this.messages]
 	}
 
@@ -108,9 +108,9 @@ export class MessageStateHandler extends EventEmitter<MessageStateHandlerEvents>
 	}
 
 	/** Replace the full message list, preserving the classic set-change event. */
-	replaceMessages(messages: ClineMessage[]): void {
+	replaceMessages(messages: IndusCodeMessage[]): void {
 		this.messages = [...messages]
-		this.emit("clineMessagesChanged", { type: "set", messages: this.messages })
+		this.emit("induscodeMessagesChanged", { type: "set", messages: this.messages })
 	}
 }
 
@@ -140,7 +140,7 @@ interface TaskProxyTerminalManager {
  * that handlers reference.
  */
 interface TaskProxyState {
-	askResponse?: ClineAskResponse
+	askResponse?: IndusCodeAskResponse
 	/** Abort flag for task cancellation (classic TaskState used boolean) */
 	abort?: boolean
 }
@@ -199,7 +199,7 @@ export function createTaskProxy(
 		},
 
 		async handleWebviewAskResponse(
-			askResponse: ClineAskResponse,
+			askResponse: IndusCodeAskResponse,
 			text?: string,
 			images?: string[],
 			files?: string[],

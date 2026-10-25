@@ -20,17 +20,17 @@ let dataDir: string;
 const savedEnv: Record<string, string | undefined> = {};
 
 beforeEach(() => {
-	dataDir = mkdtempSync(join(tmpdir(), "cline-diagnostics-"));
+	dataDir = mkdtempSync(join(tmpdir(), "induscode-diagnostics-"));
 	for (const key of [
-		"CLINE_DATA_DIR",
-		"CLINE_SESSION_DATA_DIR",
-		"CLINE_LOG_PATH",
+		"INDUSCODE_DATA_DIR",
+		"INDUSCODE_SESSION_DATA_DIR",
+		"INDUSCODE_LOG_PATH",
 	]) {
 		savedEnv[key] = process.env[key];
 		delete process.env[key];
 	}
-	process.env.CLINE_DATA_DIR = dataDir;
-	process.env.CLINE_SESSION_DATA_DIR = join(dataDir, "sessions");
+	process.env.INDUSCODE_DATA_DIR = dataDir;
+	process.env.INDUSCODE_SESSION_DATA_DIR = join(dataDir, "sessions");
 	mkdirSync(join(dataDir, "logs"), { recursive: true });
 });
 
@@ -81,7 +81,7 @@ describe("buildDiagnosticsReport", () => {
 			metadata: {
 				title: "Renamed",
 				prompt: "fix the bug in my secret project",
-				systemPrompt: "You are Cline…",
+				systemPrompt: "You are IndusCode…",
 			},
 		});
 		writeSession("session_b", { session_id: "session_b", prompt: "other" });
@@ -130,7 +130,7 @@ describe("writeDiagnosticsReport", () => {
 		const outputDir = join(dataDir, "out");
 		const result = writeDiagnosticsReport([], outputDir);
 
-		expect(result.path).toMatch(/[\\/]cline-diagnostics-.+\.txt$/);
+		expect(result.path).toMatch(/[\\/]induscode-diagnostics-.+\.txt$/);
 		expect(result.path.startsWith(outputDir)).toBe(true);
 		expect(readFileSync(result.path, "utf8")).toContain("hello");
 	});

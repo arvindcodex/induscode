@@ -115,20 +115,20 @@ describe("parseRolloutAssignment", () => {
 });
 
 describe("identity prefix", () => {
-	it("maps the nightly manifest name to the cline-nightly namespace", () => {
-		expect(idPrefix("cline-nightly")).toBe("cline-nightly");
+	it("maps the nightly manifest name to the induscode-nightly namespace", () => {
+		expect(idPrefix("induscode-nightly")).toBe("induscode-nightly");
 	});
 
-	it("maps everything else (stable claude-dev, unknown, missing) to cline", () => {
-		expect(idPrefix("claude-dev")).toBe("cline");
-		expect(idPrefix("some-fork")).toBe("cline");
-		expect(idPrefix(undefined)).toBe("cline");
+	it("maps everything else (stable claude-dev, unknown, missing) to induscode", () => {
+		expect(idPrefix("claude-dev")).toBe("induscode");
+		expect(idPrefix("some-fork")).toBe("induscode");
+		expect(idPrefix(undefined)).toBe("induscode");
 	});
 
 	it("derives the setting section and context key from the prefix", () => {
-		expect(settingSection("cline")).toBe("cline.rollout");
-		expect(settingSection("cline-nightly")).toBe("cline-nightly.rollout");
-		expect(bundleContextKey("cline")).toBe("cline.sdkBundle");
-		expect(bundleContextKey("cline-nightly")).toBe("cline-nightly.sdkBundle");
+		expect(settingSection("induscode")).toBe("induscode.rollout");
+		expect(settingSection("induscode-nightly")).toBe("induscode-nightly.rollout");
+		expect(bundleContextKey("induscode")).toBe("induscode.sdkBundle");
+		expect(bundleContextKey("induscode-nightly")).toBe("induscode-nightly.sdkBundle");
 	});
 });

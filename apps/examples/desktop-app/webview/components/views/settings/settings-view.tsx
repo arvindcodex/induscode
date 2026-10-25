@@ -1,4 +1,4 @@
-import { Switch } from "@cline/ui";
+import { Switch } from "@induscode/ui";
 import { ArrowLeft, Download, Minus, Plus, RotateCcw, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -99,7 +99,6 @@ export function SettingsView({
 	onOpenSession,
 	onExportDiagnostics,
 	onClose,
-	isChatRunning,
 }: {
 	section: SettingsSection;
 	onExportDiagnostics: () => void;
@@ -146,8 +145,10 @@ export function SettingsView({
 		if (section !== "Providers") {
 			setSelectedProviderId(null);
 			setAddingProvider(false);
+		} else if (!selectedProviderId) {
+			setSelectedProviderId("induscode");
 		}
-	}, [section]);
+	}, [section, selectedProviderId]);
 
 	const setProvidersWithCache = useCallback(
 		(next: Provider[] | ((prev: Provider[]) => Provider[])) => {
@@ -640,7 +641,7 @@ export function SettingsView({
 		);
 
 	return (
-		<div className="cline-settings-content flex h-full flex-col overflow-hidden bg-background">
+		<div className="induscode-settings-content flex h-full flex-col overflow-hidden bg-background">
 			{onClose ? (
 				<div className="flex h-12 shrink-0 items-center justify-between border-b border-border/70 bg-background/95 px-6 backdrop-blur-sm">
 					<div className="flex items-center gap-3">
@@ -654,15 +655,6 @@ export function SettingsView({
 							<ArrowLeft className="size-3.5" />
 							<span>Back to Chat</span>
 						</Button>
-						{isChatRunning ? (
-							<div className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-medium text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-								<span className="relative flex size-2">
-									<span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
-									<span className="relative inline-flex size-2 rounded-full bg-emerald-500"></span>
-								</span>
-								<span>Agent is running in background</span>
-							</div>
-						) : null}
 					</div>
 					<Button
 						aria-label="Close settings"
@@ -683,7 +675,7 @@ export function SettingsView({
 
 /**
  * Swatches shown in the accent picker. The swatch color is the accent's
- * light-mode primary (see the [data-cline-accent] blocks in globals.css);
+ * light-mode primary (see the [data-induscode-accent] blocks in globals.css);
  * violet reads the live brand token so it always matches the default theme.
  */
 const ACCENT_OPTIONS: { id: HubAccent; label: string; swatch: string }[] = [

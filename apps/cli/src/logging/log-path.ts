@@ -1,15 +1,15 @@
 import { join } from "node:path";
-import { resolveClineDataDir } from "@cline/core";
+import { resolveIndusCodeDataDir } from "@induscode/core";
 import { getCliBuildInfo } from "../utils/common";
 
 /**
- * The CLI log file: `CLINE_LOG_PATH` when set, otherwise
+ * The CLI log file: `INDUSCODE_LOG_PATH` when set, otherwise
  * `<data dir>/logs/<cli name>.log`. The CLI logger writes here by default and
- * `cline doctor` reads here, so both resolve the path through this function.
+ * `induscode doctor` reads here, so both resolve the path through this function.
  */
 export function resolveCliLogPath(): string {
 	return (
-		process.env.CLINE_LOG_PATH?.trim() ||
-		join(resolveClineDataDir(), "logs", `${getCliBuildInfo().name}.log`)
+		process.env.INDUSCODE_LOG_PATH?.trim() ||
+		join(resolveIndusCodeDataDir(), "logs", `${getCliBuildInfo().name}.log`)
 	);
 }

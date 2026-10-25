@@ -1,6 +1,6 @@
 "use client";
 
-import { Switch } from "@cline/ui";
+import { Switch } from "@induscode/ui";
 import {
 	Bot,
 	Code,
@@ -61,13 +61,13 @@ const sectionDescriptions: Record<CustomizationSection, string> = {
 };
 
 const sectionCommands: Record<CustomizationSection, string> = {
-	Rules: "cline config rules",
-	Hooks: "cline config hooks",
-	MCP: "cline mcp install",
-	Skills: "cline skill",
-	Agents: "cline config agents",
-	Plugins: "cline plugin",
-	Tools: "cline config tools",
+	Rules: "induscode config rules",
+	Hooks: "induscode config hooks",
+	MCP: "induscode mcp install",
+	Skills: "induscode skill",
+	Agents: "induscode config agents",
+	Plugins: "induscode plugin",
+	Tools: "induscode config tools",
 };
 
 type RuleItem = {
@@ -871,7 +871,7 @@ export function CustomizationSectionView({
 	const { projectRules, globalRules } = useMemo(() => {
 		const normalizedRoot = normalizePath(workspaceRoot).replace(/\/+$/, "");
 		const workspaceRuleRoots = workspaceRoot
-			? [`${normalizedRoot}/.clinerules`, `${normalizedRoot}/.cline/rules`]
+			? [`${normalizedRoot}/.induscoderules`, `${normalizedRoot}/.induscode/rules`]
 			: [];
 		const project: RuleItem[] = [];
 		const global: RuleItem[] = [];
@@ -901,7 +901,7 @@ export function CustomizationSectionView({
 			if (
 				normalizedRoot &&
 				normalized.startsWith(`${normalizedRoot}/`) &&
-				normalized.includes("/.clinerules/hooks")
+				normalized.includes("/.induscoderules/hooks")
 			) {
 				project.push(hook);
 			} else {
@@ -921,7 +921,7 @@ export function CustomizationSectionView({
 				plugin.source === "workspace-plugin" ||
 				(normalizedRoot &&
 					normalized.startsWith(`${normalizedRoot}/`) &&
-					(normalized.includes("/.cline/plugins") ||
+					(normalized.includes("/.induscode/plugins") ||
 						normalized.includes("/.agents/plugins")))
 			) {
 				project.push(plugin);
@@ -1000,7 +1000,7 @@ export function CustomizationSectionView({
 		],
 		[globalPlugins, projectPlugins],
 	);
-	const clinePlugins = useMemo(
+	const induscodePlugins = useMemo(
 		() => scopedPlugins.filter(({ plugin }) => plugin.agentPlugin !== true),
 		[scopedPlugins],
 	);
@@ -1719,11 +1719,11 @@ export function CustomizationSectionView({
 
 					<div className="mb-6">
 						<h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-							IndusCode Plugins ({clinePlugins.length})
+							IndusCode Plugins ({induscodePlugins.length})
 						</h3>
 						<div className="flex flex-col gap-3">
-							{clinePlugins.map((plugin) => renderPluginCard(plugin))}
-							{clinePlugins.length === 0 && (
+							{induscodePlugins.map((plugin) => renderPluginCard(plugin))}
+							{induscodePlugins.length === 0 && (
 								<p className="rounded-lg border border-dashed border-border px-4 py-3 text-sm text-muted-foreground">
 									No IndusCode Plugins found.
 								</p>

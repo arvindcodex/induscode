@@ -1,9 +1,9 @@
-import { GitHubConnection, type GitHubConnectionRequest, GitHubRepository } from "@shared/proto/cline/cloud"
+import { GitHubConnection, type GitHubConnectionRequest, GitHubRepository } from "@shared/proto/induscode/cloud"
 import type { Controller } from "../index"
 
 /**
  * GitHub App connection status for the active account scope, with the
- * repositories the Cline GitHub App can access. Served from the same cache
+ * repositories the IndusCode GitHub App can access. Served from the same cache
  * the task target resolves against, so the panel and the composer agree.
  */
 export async function getGitHubConnection(controller: Controller, request: GitHubConnectionRequest): Promise<GitHubConnection> {

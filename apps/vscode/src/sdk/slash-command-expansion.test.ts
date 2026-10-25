@@ -1,4 +1,4 @@
-import type { AvailableRuntimeCommand } from "@cline/core"
+import type { AvailableRuntimeCommand } from "@induscode/core"
 import { describe, expect, it } from "vitest"
 import { buildDisabledWorkflowNames, expandSlashCommands } from "./slash-command-expansion"
 
@@ -33,7 +33,7 @@ describe("expandSlashCommands", () => {
 
 	it("resolves a typed filename to a frontmatter-renamed workflow via records", () => {
 		const renamed = [workflow("ship-it", "Ship it carefully.")]
-		const records = [{ name: "ship-it", filePath: "/repo/.clinerules/workflows/release.md" }]
+		const records = [{ name: "ship-it", filePath: "/repo/.induscoderules/workflows/release.md" }]
 		expect(expandSlashCommands("/release.md", renamed, { workflowRecords: records })).toBe("Ship it carefully.")
 		// The renamed command stays governed by its file's toggle.
 		expect(
@@ -51,7 +51,7 @@ describe("expandSlashCommands", () => {
 		const renamed: AvailableRuntimeCommand[] = [
 			{ id: "ship it", name: "ship-it", instructions: "Ship it carefully.", kind: "workflow" },
 		]
-		const records = [{ id: "ship it", name: "Ship It", filePath: "/repo/.clinerules/workflows/release.md" }]
+		const records = [{ id: "ship it", name: "Ship It", filePath: "/repo/.induscoderules/workflows/release.md" }]
 		expect(expandSlashCommands("/release.md", renamed, { workflowRecords: records })).toBe("Ship it carefully.")
 		// The renamed command stays governed by its file's toggle.
 		expect(
@@ -125,14 +125,14 @@ describe("buildDisabledWorkflowNames", () => {
 	it("disables records whose file toggle is off, by exact command name", () => {
 		const disabled = buildDisabledWorkflowNames({
 			records: [
-				{ name: "Release", filePath: "/home/user/Documents/Cline/Workflows/Release.md" },
-				{ name: "notes", filePath: "/home/user/Documents/Cline/Workflows/notes.txt" },
-				{ name: "keep", filePath: "/home/user/Documents/Cline/Workflows/keep.md" },
+				{ name: "Release", filePath: "/home/user/Documents/IndusCode/Workflows/Release.md" },
+				{ name: "notes", filePath: "/home/user/Documents/IndusCode/Workflows/notes.txt" },
+				{ name: "keep", filePath: "/home/user/Documents/IndusCode/Workflows/keep.md" },
 			],
 			globalToggles: {
-				"/home/user/Documents/Cline/Workflows/Release.md": false,
-				"/home/user/Documents/Cline/Workflows/notes.txt": false,
-				"/home/user/Documents/Cline/Workflows/keep.md": true,
+				"/home/user/Documents/IndusCode/Workflows/Release.md": false,
+				"/home/user/Documents/IndusCode/Workflows/notes.txt": false,
+				"/home/user/Documents/IndusCode/Workflows/keep.md": true,
 			},
 		})
 		expect(disabled).toEqual(new Set(["Release", "notes"]))
@@ -140,8 +140,8 @@ describe("buildDisabledWorkflowNames", () => {
 
 	it("matches the toggle by file basename even when frontmatter renames the command", () => {
 		const disabled = buildDisabledWorkflowNames({
-			records: [{ name: "ship-it", filePath: "/repo/.clinerules/workflows/release.md" }],
-			workspaceToggles: { "/repo/.clinerules/workflows/release.md": false },
+			records: [{ name: "ship-it", filePath: "/repo/.induscoderules/workflows/release.md" }],
+			workspaceToggles: { "/repo/.induscoderules/workflows/release.md": false },
 		})
 		expect(disabled).toEqual(new Set(["ship-it"]))
 	})
@@ -149,19 +149,19 @@ describe("buildDisabledWorkflowNames", () => {
 	it("keeps a name enabled when any scope has it enabled", () => {
 		// Legacy expansion searched enabled workflows across scopes, so a
 		// disabled workspace file must not shadow an enabled global one.
-		const records = [{ name: "release", filePath: "/repo/.clinerules/workflows/release.md" }]
+		const records = [{ name: "release", filePath: "/repo/.induscoderules/workflows/release.md" }]
 		expect(
 			buildDisabledWorkflowNames({
 				records,
 				globalToggles: { "/global/dir/release.md": true },
-				workspaceToggles: { "/repo/.clinerules/workflows/release.md": false },
+				workspaceToggles: { "/repo/.induscoderules/workflows/release.md": false },
 			}),
 		).toEqual(new Set())
 		expect(
 			buildDisabledWorkflowNames({
 				records,
 				globalToggles: { "/global/dir/release.md": false },
-				workspaceToggles: { "/repo/.clinerules/workflows/release.md": true },
+				workspaceToggles: { "/repo/.induscoderules/workflows/release.md": true },
 			}),
 		).toEqual(new Set())
 	})
@@ -171,20 +171,20 @@ describe("buildDisabledWorkflowNames", () => {
 		// influence each other: the disabled remote command stays disabled even
 		// though the similarly-named local one is enabled, and vice versa.
 		const records = [
-			{ name: "Release", filePath: "/repo/.clinerules/workflows/Release.md" },
-			{ name: "release", filePath: "/repo/.cline/remote-config/workflows/release.md" },
+			{ name: "Release", filePath: "/repo/.induscoderules/workflows/Release.md" },
+			{ name: "release", filePath: "/repo/.induscode/remote-config/workflows/release.md" },
 		]
 		expect(
 			buildDisabledWorkflowNames({
 				records,
-				workspaceToggles: { "/repo/.clinerules/workflows/Release.md": true },
+				workspaceToggles: { "/repo/.induscoderules/workflows/Release.md": true },
 				remoteToggles: { release: false },
 			}),
 		).toEqual(new Set(["release"]))
 		expect(
 			buildDisabledWorkflowNames({
 				records,
-				workspaceToggles: { "/repo/.clinerules/workflows/Release.md": false },
+				workspaceToggles: { "/repo/.induscoderules/workflows/Release.md": false },
 				remoteAlwaysEnabledNames: ["release"],
 			}),
 		).toEqual(new Set(["Release"]))
@@ -192,7 +192,7 @@ describe("buildDisabledWorkflowNames", () => {
 
 	it("treats records without any toggle entry as enabled", () => {
 		const disabled = buildDisabledWorkflowNames({
-			records: [{ name: "fresh", filePath: "/home/user/.cline/workflows/fresh.md" }],
+			records: [{ name: "fresh", filePath: "/home/user/.induscode/workflows/fresh.md" }],
 			globalToggles: { "/global/dir/other.md": false },
 		})
 		expect(disabled).toEqual(new Set())
@@ -201,9 +201,9 @@ describe("buildDisabledWorkflowNames", () => {
 	it("governs remote-config records by name-keyed remote toggles", () => {
 		const disabled = buildDisabledWorkflowNames({
 			records: [
-				{ name: "org-standards", filePath: "/repo/.cline/remote-config/workflows/org-standards.md" },
-				{ name: "org-review", filePath: "/repo/.cline/remote-config/workflows/org-review.md" },
-				{ name: "org-default", filePath: "C:\\repo\\.cline\\remote-config\\workflows\\org-default.md" },
+				{ name: "org-standards", filePath: "/repo/.induscode/remote-config/workflows/org-standards.md" },
+				{ name: "org-review", filePath: "/repo/.induscode/remote-config/workflows/org-review.md" },
+				{ name: "org-default", filePath: "C:\\repo\\.induscode\\remote-config\\workflows\\org-default.md" },
 			],
 			remoteToggles: { "org-standards": false, "org-review": true },
 		})
@@ -212,7 +212,7 @@ describe("buildDisabledWorkflowNames", () => {
 
 	it("keys remote toggles off the materialized filename even when frontmatter aliases the command", () => {
 		const disabled = buildDisabledWorkflowNames({
-			records: [{ name: "friendly-alias", filePath: "/repo/.cline/remote-config/workflows/org-standards.md" }],
+			records: [{ name: "friendly-alias", filePath: "/repo/.induscode/remote-config/workflows/org-standards.md" }],
 			remoteToggles: { "Org Standards": false },
 		})
 		expect(disabled).toEqual(new Set(["friendly-alias"]))
@@ -222,7 +222,7 @@ describe("buildDisabledWorkflowNames", () => {
 		// "Org Standards" materializes as org-standards.md, and the record is
 		// named after the sanitized basename.
 		const disabled = buildDisabledWorkflowNames({
-			records: [{ name: "org-standards", filePath: "/repo/.cline/remote-config/workflows/org-standards.md" }],
+			records: [{ name: "org-standards", filePath: "/repo/.induscode/remote-config/workflows/org-standards.md" }],
 			remoteToggles: { "Org Standards": false },
 		})
 		expect(disabled).toEqual(new Set(["org-standards"]))
@@ -230,7 +230,7 @@ describe("buildDisabledWorkflowNames", () => {
 
 	it("merges colliding sanitized remote names as enabled-if-any-enabled", () => {
 		// "Org Standards" and "org standards" both sanitize to org-standards.
-		const records = [{ name: "org-standards", filePath: "/repo/.cline/remote-config/workflows/org-standards.md" }]
+		const records = [{ name: "org-standards", filePath: "/repo/.induscode/remote-config/workflows/org-standards.md" }]
 		expect(
 			buildDisabledWorkflowNames({
 				records,
@@ -249,7 +249,7 @@ describe("buildDisabledWorkflowNames", () => {
 		const longConfigName = "a".repeat(100)
 		const materializedName = "a".repeat(80)
 		const disabled = buildDisabledWorkflowNames({
-			records: [{ name: materializedName, filePath: `/repo/.cline/remote-config/workflows/${materializedName}.md` }],
+			records: [{ name: materializedName, filePath: `/repo/.induscode/remote-config/workflows/${materializedName}.md` }],
 			remoteToggles: { [longConfigName]: false },
 		})
 		expect(disabled).toEqual(new Set([materializedName]))
@@ -257,7 +257,7 @@ describe("buildDisabledWorkflowNames", () => {
 
 	it("treats locked (alwaysEnabled) remote workflows as enabled despite stale toggles", () => {
 		const disabled = buildDisabledWorkflowNames({
-			records: [{ name: "org-standards", filePath: "/repo/.cline/remote-config/workflows/org-standards.md" }],
+			records: [{ name: "org-standards", filePath: "/repo/.induscode/remote-config/workflows/org-standards.md" }],
 			remoteToggles: { "Org Standards": false },
 			remoteAlwaysEnabledNames: ["Org Standards"],
 		})
@@ -269,11 +269,11 @@ describe("buildDisabledWorkflowNames", () => {
 			records: [
 				{ name: "deploy", filePath: "/global/dir/deploy.md" },
 				{ name: "keep", filePath: "/global/dir/keep.md" },
-				{ name: "hotfix", filePath: "C:\\repo\\.clinerules\\workflows\\hotfix.md" },
-				{ name: "org-standards", filePath: "/repo/.cline/remote-config/workflows/org-standards.md" },
+				{ name: "hotfix", filePath: "C:\\repo\\.induscoderules\\workflows\\hotfix.md" },
+				{ name: "org-standards", filePath: "/repo/.induscode/remote-config/workflows/org-standards.md" },
 			],
 			globalToggles: { "/global/dir/deploy.md": false, "/global/dir/keep.md": true },
-			workspaceToggles: { "C:\\repo\\.clinerules\\workflows\\hotfix.md": false },
+			workspaceToggles: { "C:\\repo\\.induscoderules\\workflows\\hotfix.md": false },
 			remoteToggles: { "org-standards": false },
 		})
 		expect(disabled).toEqual(new Set(["deploy", "hotfix", "org-standards"]))

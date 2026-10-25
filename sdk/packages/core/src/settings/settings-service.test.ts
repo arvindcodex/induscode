@@ -8,7 +8,7 @@ import {
 } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { setHomeDir } from "@cline/shared/storage";
+import { setHomeDir } from "@induscode/shared/storage";
 import { afterEach, describe, expect, it } from "vitest";
 import { loadAgentPluginPackages } from "../extensions/agent-plugin";
 import {
@@ -22,23 +22,23 @@ describe("CoreSettingsService", () => {
 	const tempRoots: string[] = [];
 	const envSnapshot = {
 		HOME: process.env.HOME,
-		CLINE_GLOBAL_SETTINGS_PATH: process.env.CLINE_GLOBAL_SETTINGS_PATH,
-		CLINE_MCP_SETTINGS_PATH: process.env.CLINE_MCP_SETTINGS_PATH,
+		INDUSCODE_GLOBAL_SETTINGS_PATH: process.env.INDUSCODE_GLOBAL_SETTINGS_PATH,
+		INDUSCODE_MCP_SETTINGS_PATH: process.env.INDUSCODE_MCP_SETTINGS_PATH,
 	};
 
 	afterEach(async () => {
 		process.env.HOME = envSnapshot.HOME;
 		setHomeDir(envSnapshot.HOME ?? "~");
-		if (envSnapshot.CLINE_GLOBAL_SETTINGS_PATH === undefined) {
-			delete process.env.CLINE_GLOBAL_SETTINGS_PATH;
+		if (envSnapshot.INDUSCODE_GLOBAL_SETTINGS_PATH === undefined) {
+			delete process.env.INDUSCODE_GLOBAL_SETTINGS_PATH;
 		} else {
-			process.env.CLINE_GLOBAL_SETTINGS_PATH =
-				envSnapshot.CLINE_GLOBAL_SETTINGS_PATH;
+			process.env.INDUSCODE_GLOBAL_SETTINGS_PATH =
+				envSnapshot.INDUSCODE_GLOBAL_SETTINGS_PATH;
 		}
-		if (envSnapshot.CLINE_MCP_SETTINGS_PATH === undefined) {
-			delete process.env.CLINE_MCP_SETTINGS_PATH;
+		if (envSnapshot.INDUSCODE_MCP_SETTINGS_PATH === undefined) {
+			delete process.env.INDUSCODE_MCP_SETTINGS_PATH;
 		} else {
-			process.env.CLINE_MCP_SETTINGS_PATH = envSnapshot.CLINE_MCP_SETTINGS_PATH;
+			process.env.INDUSCODE_MCP_SETTINGS_PATH = envSnapshot.INDUSCODE_MCP_SETTINGS_PATH;
 		}
 		await Promise.all(
 			tempRoots.map((dir) => rm(dir, { recursive: true, force: true })),
@@ -111,7 +111,7 @@ Use this skill.`,
 	it("uses cwd as the workspace root when listing instruction settings", async () => {
 		const tempRoot = await mkdtemp(join(tmpdir(), "core-settings-"));
 		tempRoots.push(tempRoot);
-		const skillDir = join(tempRoot, ".cline", "skills", "skill-one");
+		const skillDir = join(tempRoot, ".induscode", "skills", "skill-one");
 		await mkdir(skillDir, { recursive: true });
 		await writeFile(join(skillDir, "SKILL.md"), "Use this skill.");
 
@@ -136,7 +136,7 @@ Use this skill.`,
 		tempRoots.push(tempRoot);
 		const installRoot = join(
 			tempRoot,
-			".cline",
+			".induscode",
 			"plugins",
 			"_installed",
 			"local",
@@ -150,7 +150,7 @@ Use this skill.`,
 			join(installRoot, "package.json"),
 			JSON.stringify({
 				name: "test-plugin-skill-owner",
-				cline: {
+				induscode: {
 					plugins: [{ paths: ["./package/index.ts"] }],
 				},
 			}),
@@ -192,7 +192,7 @@ Use the browser.`,
 		tempRoots.push(tempRoot);
 		process.env.HOME = tempRoot;
 		setHomeDir(tempRoot);
-		process.env.CLINE_GLOBAL_SETTINGS_PATH = join(
+		process.env.INDUSCODE_GLOBAL_SETTINGS_PATH = join(
 			tempRoot,
 			"global-settings.json",
 		);
@@ -303,7 +303,7 @@ Review the change.`,
 		).toBe(false);
 		expect(
 			JSON.parse(
-				await readFile(process.env.CLINE_GLOBAL_SETTINGS_PATH, "utf8"),
+				await readFile(process.env.INDUSCODE_GLOBAL_SETTINGS_PATH, "utf8"),
 			),
 		).toMatchObject({ disabledAgentPlugins: ["portable-review"] });
 
@@ -356,7 +356,7 @@ Review the change.`,
 		tempRoots.push(tempRoot);
 		process.env.HOME = tempRoot;
 		setHomeDir(tempRoot);
-		process.env.CLINE_GLOBAL_SETTINGS_PATH = join(
+		process.env.INDUSCODE_GLOBAL_SETTINGS_PATH = join(
 			tempRoot,
 			"global-settings.json",
 		);
@@ -426,10 +426,10 @@ Review the change.`;
 		);
 		tempRoots.push(tempRoot);
 		const settingsPath = join(tempRoot, "global-settings.json");
-		process.env.CLINE_GLOBAL_SETTINGS_PATH = settingsPath;
+		process.env.INDUSCODE_GLOBAL_SETTINGS_PATH = settingsPath;
 		const installRoot = join(
 			tempRoot,
-			".cline",
+			".induscode",
 			"plugins",
 			"_installed",
 			"local",
@@ -443,7 +443,7 @@ Review the change.`;
 			join(installRoot, "package.json"),
 			JSON.stringify({
 				name: "test-plugin-skill-disabled",
-				cline: {
+				induscode: {
 					plugins: [{ paths: ["./package/index.ts"] }],
 				},
 			}),
@@ -496,10 +496,10 @@ Use the browser.`,
 		process.env.HOME = tempRoot;
 		setHomeDir(tempRoot);
 		const settingsPath = join(tempRoot, "global-settings.json");
-		process.env.CLINE_GLOBAL_SETTINGS_PATH = settingsPath;
+		process.env.INDUSCODE_GLOBAL_SETTINGS_PATH = settingsPath;
 		const installRoot = join(
 			tempRoot,
-			".cline",
+			".induscode",
 			"plugins",
 			"_installed",
 			"local",
@@ -512,7 +512,7 @@ Use the browser.`,
 			join(installRoot, "package.json"),
 			JSON.stringify({
 				name: "canonical-plugin",
-				cline: {
+				induscode: {
 					plugins: [
 						{
 							paths: ["./package/src/index.ts"],
@@ -619,8 +619,8 @@ Use the browser.`,
 		tempRoots.push(tempRoot);
 		process.env.HOME = tempRoot;
 		setHomeDir(tempRoot);
-		process.env.CLINE_GLOBAL_SETTINGS_PATH = join(tempRoot, "settings.json");
-		const pluginRoot = join(tempRoot, ".cline", "plugins");
+		process.env.INDUSCODE_GLOBAL_SETTINGS_PATH = join(tempRoot, "settings.json");
+		const pluginRoot = join(tempRoot, ".induscode", "plugins");
 		await mkdir(pluginRoot, { recursive: true });
 		const pluginPath = join(pluginRoot, "broken-setup.ts");
 		await writeFile(
@@ -640,7 +640,7 @@ Use the browser.`,
 		tempRoots.push(tempRoot);
 		process.env.HOME = tempRoot;
 		setHomeDir(tempRoot);
-		const pluginRoot = join(tempRoot, ".cline", "plugins");
+		const pluginRoot = join(tempRoot, ".induscode", "plugins");
 		await mkdir(pluginRoot, { recursive: true });
 		await writeFile(
 			join(pluginRoot, "package.json"),
@@ -660,8 +660,8 @@ Use the browser.`,
 	it("lists and toggles MCP server disabled state", async () => {
 		const tempRoot = await mkdtemp(join(tmpdir(), "core-settings-"));
 		tempRoots.push(tempRoot);
-		const settingsPath = join(tempRoot, "cline_mcp_settings.json");
-		process.env.CLINE_MCP_SETTINGS_PATH = settingsPath;
+		const settingsPath = join(tempRoot, "induscode_mcp_settings.json");
+		process.env.INDUSCODE_MCP_SETTINGS_PATH = settingsPath;
 		await writeFile(
 			settingsPath,
 			`${JSON.stringify(
@@ -817,7 +817,7 @@ Use the browser.`,
 	it("honors explicit enabled values for plugin tool settings", async () => {
 		const tempRoot = await mkdtemp(join(tmpdir(), "core-settings-"));
 		tempRoots.push(tempRoot);
-		process.env.CLINE_GLOBAL_SETTINGS_PATH = join(
+		process.env.INDUSCODE_GLOBAL_SETTINGS_PATH = join(
 			tempRoot,
 			"global-settings.json",
 		);
@@ -836,7 +836,7 @@ Use the browser.`,
 
 		expect(
 			JSON.parse(
-				await readFile(process.env.CLINE_GLOBAL_SETTINGS_PATH, "utf8"),
+				await readFile(process.env.INDUSCODE_GLOBAL_SETTINGS_PATH, "utf8"),
 			),
 		).toEqual({
 			autoUpdateEnabled: true,
@@ -848,7 +848,7 @@ Use the browser.`,
 
 		expect(
 			JSON.parse(
-				await readFile(process.env.CLINE_GLOBAL_SETTINGS_PATH, "utf8"),
+				await readFile(process.env.INDUSCODE_GLOBAL_SETTINGS_PATH, "utf8"),
 			),
 		).toEqual({ autoUpdateEnabled: true, telemetryOptOut: false });
 	});

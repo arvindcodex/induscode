@@ -42,7 +42,7 @@ Plugins are packages of reusable agent capabilities. They let you bundle tools, 
 A plugin is an `AgentPlugin` — an object that implements the SDK's extension interface. It can register tools, hook into agent lifecycle events, and provide configuration defaults.
 
 ```typescript
-import { type AgentPlugin } from "@cline/sdk"
+import { type AgentPlugin } from "@induscode/sdk"
 
 const myPlugin: AgentPlugin = {
   name: "my-plugin",
@@ -68,10 +68,10 @@ Hooks are defined inside the `hooks` object, not directly on the extension. The 
 
 ## Next Steps
 
-Register with `ClineCore`:
+Register with `IndusCodeCore`:
 
 ```typescript
-await cline.start({
+await induscode.start({
   prompt: "Analyze customer records",
   config: {
     // ...model/runtime config
@@ -82,10 +82,10 @@ await cline.start({
 
 ## File-Based Plugins
 
-`ClineCore` supports plugin module paths via `pluginPaths` in session config:
+`IndusCodeCore` supports plugin module paths via `pluginPaths` in session config:
 
 ```typescript
-await cline.start({
+await induscode.start({
   prompt: "Analyze this project",
   config: {
     // ...model/runtime config
@@ -108,20 +108,20 @@ A worker contains its plugin's failures:
 
 Values passed to and returned from a plugin cross a thread boundary, so they must be plain data; functions are dropped. `process.cwd()` reports the session's directory, but relative file paths resolve against the host's, so use `ctx.cwd`. Workers share the host's memory limit, environment snapshot, and native addons: this is crash isolation, not a security boundary.
 
-Plugin code never runs on the host's main thread. One other mode is available as an opt-in through `CLINE_PLUGIN_MODE` (or `mode` on `resolveAndLoadAgentPlugins`):
+Plugin code never runs on the host's main thread. One other mode is available as an opt-in through `INDUSCODE_PLUGIN_MODE` (or `mode` on `resolveAndLoadAgentPlugins`):
 
 - **`sandbox`**: the previous per-session subprocess sandbox. It needs `node` or `bun` on `PATH` when the host isn't `node` or `bun` itself, and does not apply the per-session plugin policy or report plugin status.
 
-Both modes need the worker bootstrap. The CLI, the hub, the desktop app, and the VS Code extension ship it; an SDK host that bundles `@cline/core` can copy `dist/extensions/plugin-sandbox-bootstrap.js` next to its bundle, or point `CLINE_PLUGIN_BOOTSTRAP_PATH` at it. A host that ships none (the SSH remote, which receives only the Cline CLI binary, does not yet) cannot load any plugin; each one is reported `failed` with a message naming that variable.
+Both modes need the worker bootstrap. The CLI, the hub, the desktop app, and the VS Code extension ship it; an SDK host that bundles `@induscode/core` can copy `dist/extensions/plugin-sandbox-bootstrap.js` next to its bundle, or point `INDUSCODE_PLUGIN_BOOTSTRAP_PATH` at it. A host that ships none (the SSH remote, which receives only the IndusCode CLI binary, does not yet) cannot load any plugin; each one is reported `failed` with a message naming that variable.
 
-Plugins are bound to a session when it starts. Adding, editing, or reloading a plugin affects only sessions started afterwards; running sessions keep the plugins and code they started with. Every new session imports the plugin fresh, so any change is picked up; `cline hub plugins --reload <plugin>` re-checks it and clears a failed status.
+Plugins are bound to a session when it starts. Adding, editing, or reloading a plugin affects only sessions started afterwards; running sessions keep the plugins and code they started with. Every new session imports the plugin fresh, so any change is picked up; `induscode hub plugins --reload <plugin>` re-checks it and clears a failed status.
 
 ## Choosing Plugins per Session
 
 Pass a `plugins` policy when you start a session. It's shaped like `toolPolicies`: `"*"` sets the default, and named entries override it for one plugin. Plugins are enabled unless a policy turns them off.
 
 ```typescript
-await cline.start({
+await induscode.start({
   prompt: "Review this change",
   config: { /* ...model/runtime config */ },
   plugins: {
@@ -155,7 +155,7 @@ setup(api, ctx) {
 }
 ```
 
-Plugin tools also receive `cwd` and `emitEvent` in their call context (`execute(input, context)`). `globalThis.__clinePluginHost.emitEvent` still works for plugins written for the sandbox; it routes to the session whose hook or tool is running.
+Plugin tools also receive `cwd` and `emitEvent` in their call context (`execute(input, context)`). `globalThis.__induscodePluginHost.emitEvent` still works for plugins written for the sandbox; it routes to the session whose hook or tool is running.
 
 ## Plugin Status and Errors
 
@@ -163,7 +163,7 @@ The host wraps every plugin call and records what goes wrong, so a broken plugin
 
 | Call | Timeout | On failure |
 |------|---------|------------|
-| Import | 4 s (`CLINE_PLUGIN_IMPORT_TIMEOUT_MS`) | Plugin is `failed` |
+| Import | 4 s (`INDUSCODE_PLUGIN_IMPORT_TIMEOUT_MS`) | Plugin is `failed` |
 | `setup()` | 4 s | That session loses the plugin (none of its registrations are kept) and the status shows `failed`; other sessions keep working, and the next session tries again |
 | Hook | 3 s | Plugin is `degraded`; the run continues unless `hookErrorMode` is `"throw"` |
 | Tool | 60 s, or the tool's `timeoutMs` | The error goes back to the model as a tool error; plugin is `degraded` |
@@ -181,7 +181,7 @@ To read status:
 
 ## Installing Plugins via CLI
 
-Plugins can also be installed from file URLs, npm, git, or local paths using `cline plugin install`. See [Plugins](/customization/plugins) for install commands, the manifest format, and directory layout.
+Plugins can also be installed from file URLs, npm, git, or local paths using `induscode plugin install`. See [Plugins](/customization/plugins) for install commands, the manifest format, and directory layout.
 
 ## Hooks
 
@@ -216,6 +216,6 @@ For a step-by-step plugin tutorial, see [Writing Plugins](/sdk/guides/writing-pl
 
 ## SDK Examples
 
-The [SDK repository](https://github.com/cline/cline/tree/main/sdk) includes ready-to-run plugin examples under [`examples/plugins/`](https://github.com/cline/cline/tree/main/sdk/examples/plugins), including tool registration, lifecycle metrics, notifications, custom compaction, policy guards, web search, background jobs, TypeScript LSP tools, and multi-agent teams.
+The [SDK repository](https://github.com/induscode/induscode/tree/main/sdk) includes ready-to-run plugin examples under [`examples/plugins/`](https://github.com/induscode/induscode/tree/main/sdk/examples/plugins), including tool registration, lifecycle metrics, notifications, custom compaction, policy guards, web search, background jobs, TypeScript LSP tools, and multi-agent teams.
 
 See [Plugin Examples](/sdk/plugin-examples) for the full list and usage commands.

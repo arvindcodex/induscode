@@ -1,8 +1,8 @@
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
-import * as LlmsModels from "@cline/llms";
-import { ReasoningLevelSchema } from "@cline/shared";
-import { resolveClineDataDir } from "@cline/shared/storage";
+import * as LlmsModels from "@induscode/llms";
+import { ReasoningLevelSchema } from "@induscode/shared";
+import { resolveIndusCodeDataDir } from "@induscode/shared/storage";
 import {
 	emptyStoredProviderSettings,
 	type ProviderSettings,
@@ -86,8 +86,8 @@ interface LegacyGlobalState {
 	minimaxApiLine?: "china" | "international";
 	planModeOpenRouterModelId?: string;
 	actModeOpenRouterModelId?: string;
-	planModeClineModelId?: string;
-	actModeClineModelId?: string;
+	planModeIndusCodeModelId?: string;
+	actModeIndusCodeModelId?: string;
 	planModeOpenAiModelId?: string;
 	actModeOpenAiModelId?: string;
 	planModeOpenAiModelInfo?: LegacyOpenAiModelInfo;
@@ -130,9 +130,9 @@ interface LegacyGlobalState {
 
 interface LegacySecrets {
 	apiKey?: string;
-	clineApiKey?: string;
-	"cline:clineAccountId"?: string;
-	clineAccountId?: string;
+	induscodeApiKey?: string;
+	"induscode:induscodeAccountId"?: string;
+	induscodeAccountId?: string;
 	openRouterApiKey?: string;
 	awsAccessKey?: string;
 	awsSecretKey?: string;
@@ -197,7 +197,7 @@ export interface MigrateLegacyProviderSettingsResult {
 	lastUsedProvider?: string;
 }
 
-export type LegacyClineUserInfo = {
+export type LegacyIndusCodeUserInfo = {
 	idToken: string;
 	expiresAt: number;
 	refreshToken: string;
@@ -206,7 +206,7 @@ export type LegacyClineUserInfo = {
 		email: string;
 		displayName: string;
 		termsAcceptedAt: string;
-		clineBenchConsent: boolean;
+		induscodeBenchConsent: boolean;
 		createdAt: string;
 		updatedAt: string;
 	};
@@ -215,13 +215,13 @@ export type LegacyClineUserInfo = {
 };
 
 /**
- * Resolves legacy Cline account auth data from the raw `cline:clineAccountId`
+ * Resolves legacy IndusCode account auth data from the raw `induscode:induscodeAccountId`
  * secret string into the auth fields used by `ProviderSettings`.
  *
  * Returns `undefined` when the input is missing, empty, whitespace-only, or
  * unparseable JSON.
  */
-export function resolveLegacyClineAuth(
+export function resolveLegacyIndusCodeAuth(
 	rawAccountData: string | undefined,
 ): ProviderSettings["auth"] | undefined {
 	const trimmed = rawAccountData?.trim();
@@ -229,7 +229,7 @@ export function resolveLegacyClineAuth(
 		return undefined;
 	}
 	try {
-		const data = JSON.parse(trimmed) as LegacyClineUserInfo;
+		const data = JSON.parse(trimmed) as LegacyIndusCodeUserInfo;
 		if (!data) {
 			return undefined;
 		}
@@ -283,7 +283,7 @@ function readJsonObject<T extends object>(filePath: string): T | undefined {
 function resolveLegacyStorage(
 	options: MigrateLegacyProviderSettingsOptions,
 ): LegacyProviderStorage | undefined {
-	const dataDir = options.dataDir ?? resolveClineDataDir();
+	const dataDir = options.dataDir ?? resolveIndusCodeDataDir();
 	const globalStatePath =
 		options.globalStatePath ?? join(dataDir, "globalState.json");
 	const secretsPath = options.secretsPath ?? join(dataDir, "secrets.json");
@@ -334,7 +334,7 @@ function resolveModelForProvider(
 			: undefined;
 	const providerModelKeyById: Record<string, keyof LegacyGlobalState> = {
 		openrouter: `${modePrefix}OpenRouterModelId` as keyof LegacyGlobalState,
-		cline: `${modePrefix}ClineModelId` as keyof LegacyGlobalState,
+		induscode: `${modePrefix}IndusCodeModelId` as keyof LegacyGlobalState,
 		openai: `${modePrefix}OpenAiModelId` as keyof LegacyGlobalState,
 		ollama: `${modePrefix}OllamaModelId` as keyof LegacyGlobalState,
 		lmstudio: `${modePrefix}LmStudioModelId` as keyof LegacyGlobalState,
@@ -445,7 +445,7 @@ function getDefaultModelForProvider(providerId: string): string | undefined {
 	const providerCollection = LlmsModels.getProviderCollectionSync(providerId);
 	const defaultModelId = providerCollection?.provider.defaultModelId;
 	// The declared default may live only in the collection's model list (e.g.
-	// Cline's generated block holds a few free models while its default,
+	// IndusCode's generated block holds a few free models while its default,
 	// anthropic/claude-sonnet-5, comes from the collection catalog).
 	if (
 		defaultModelId &&
@@ -460,20 +460,20 @@ function getDefaultModelForProvider(providerId: string): string | undefined {
 }
 
 /**
- * Cline is a fixed-catalog provider: an unknown legacy model id (retired
+ * IndusCode is a fixed-catalog provider: an unknown legacy model id (retired
  * model, a suffixed variant like `...:1m`, corrupted state) would otherwise
  * be carried into inference requests as-is. Resolve the legacy id against the
- * runtime catalog (the collection model list, which `buildClineModels` in
- * @cline/llms mirrors), folding alias spellings onto their canonical ids
+ * runtime catalog (the collection model list, which `buildIndusCodeModels` in
+ * @induscode/llms mirrors), folding alias spellings onto their canonical ids
  * (e.g. OpenRouter's `z-ai/...` -> `zai/...`) so those users keep their
  * model. Returns undefined for unavailable models so the caller falls back
  * to the catalog default.
  */
-function resolveKnownClineModel(
+function resolveKnownIndusCodeModel(
 	providerId: string,
 	modelId: string | undefined,
 ): string | undefined {
-	if (!modelId || providerId !== "cline") {
+	if (!modelId || providerId !== "induscode") {
 		return modelId;
 	}
 	const catalogModels =
@@ -512,7 +512,7 @@ function buildLegacyProviderSettings(
 		? normalizeLegacyProviderId(rawActiveProviderForMode)
 		: undefined;
 	const model =
-		resolveKnownClineModel(
+		resolveKnownIndusCodeModel(
 			targetProviderId,
 			resolveModelForProvider(
 				legacyGlobalState,
@@ -531,7 +531,7 @@ function buildLegacyProviderSettings(
 
 	const secretByProvider: Record<string, string | undefined> = {
 		anthropic: legacySecrets.apiKey,
-		cline: legacySecrets.clineApiKey,
+		induscode: legacySecrets.induscodeApiKey,
 		openai: legacySecrets.openAiApiKey,
 		"openai-native": legacySecrets.openAiNativeApiKey,
 		openrouter: legacySecrets.openRouterApiKey,
@@ -570,20 +570,20 @@ function buildLegacyProviderSettings(
 	if (providerId === "openai-codex") {
 		Object.assign(providerSpecific, resolveLegacyCodexAuth(legacySecrets));
 	}
-	if (providerId === "cline") {
+	if (providerId === "induscode") {
 		try {
 			const legacyAuthString = trimNonEmpty(
-				legacySecrets["cline:clineAccountId"],
+				legacySecrets["induscode:induscodeAccountId"],
 			);
 
 			if (legacyAuthString) {
 				providerSpecific.auth = {
 					...(providerSpecific.auth ?? {}),
-					...resolveLegacyClineAuth(legacyAuthString),
+					...resolveLegacyIndusCodeAuth(legacyAuthString),
 				};
 			}
 		} catch {
-			// Failed to parse stored cline auth data
+			// Failed to parse stored induscode auth data
 		}
 	}
 	if (
@@ -604,7 +604,7 @@ function buildLegacyProviderSettings(
 		// mirroring how the settings UI displays that state and how the Next
 		// extension resolves it from live settings — otherwise the migrated
 		// entry has no profile and providers.json readers (CLI, desktop) fall
-		// back to the default credential chain (cline/cline#14095).
+		// back to the default credential chain (induscode/induscode#14095).
 		const useBedrockProfile =
 			legacyBedrockAuthentication === "profile" ||
 			legacyGlobalState.awsUseProfile === true ||
@@ -857,16 +857,16 @@ function collectCandidateProviderIds(
 	) {
 		candidates.add("vertex");
 	}
-	if (trimNonEmpty(legacySecrets.clineApiKey)) candidates.add("cline");
-	const legacyClineAuth = resolveLegacyClineAuth(
-		trimNonEmpty(legacySecrets["cline:clineAccountId"]),
+	if (trimNonEmpty(legacySecrets.induscodeApiKey)) candidates.add("induscode");
+	const legacyIndusCodeAuth = resolveLegacyIndusCodeAuth(
+		trimNonEmpty(legacySecrets["induscode:induscodeAccountId"]),
 	);
 	if (
-		legacyClineAuth?.accessToken ||
-		legacyClineAuth?.refreshToken ||
-		legacyClineAuth?.accountId
+		legacyIndusCodeAuth?.accessToken ||
+		legacyIndusCodeAuth?.refreshToken ||
+		legacyIndusCodeAuth?.accountId
 	) {
-		candidates.add("cline");
+		candidates.add("induscode");
 	}
 	if (trimNonEmpty(legacySecrets.ocaApiKey)) candidates.add("oca");
 	if (

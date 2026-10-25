@@ -1,5 +1,5 @@
-export const APP_FONT_SIZE_STORAGE_KEY = "cline.code.font-size.v1";
-export const APP_FONT_SIZE_CHANGE_EVENT = "cline-app-font-size-change";
+export const APP_FONT_SIZE_STORAGE_KEY = "induscode.code.font-size.v1";
+export const APP_FONT_SIZE_CHANGE_EVENT = "induscode-app-font-size-change";
 
 export const APP_FONT_SIZES = [12, 13, 14, 15, 16, 17, 18, 19, 20] as const;
 
@@ -59,7 +59,7 @@ export const APP_FONT_SIZE_BOOTSTRAP_SCRIPT = `(() => {
 	} catch {}
 
 	root.style.fontSize = fontSize + "px";
-	root.dataset.clineFontSize = String(fontSize);
+	root.dataset.induscodeFontSize = String(fontSize);
 })();`;
 
 export function readStoredAppFontSize(): AppFontSize {
@@ -76,7 +76,7 @@ export function readStoredAppFontSize(): AppFontSize {
 
 export function applyAppFontSize(fontSize: AppFontSize): AppFontSize {
 	document.documentElement.style.fontSize = `${fontSize}px`;
-	document.documentElement.dataset.clineFontSize = String(fontSize);
+	document.documentElement.dataset.induscodeFontSize = String(fontSize);
 	window.dispatchEvent(
 		new CustomEvent<AppFontSize>(APP_FONT_SIZE_CHANGE_EVENT, {
 			detail: fontSize,

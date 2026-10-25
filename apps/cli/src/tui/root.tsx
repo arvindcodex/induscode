@@ -4,8 +4,8 @@ import {
 	summarizeUsageFromMessages,
 	upgradeManagedHub,
 	watchManagedHubBuildMismatch,
-} from "@cline/core";
-import { formatDisplayUserInput } from "@cline/shared";
+} from "@induscode/core";
+import { formatDisplayUserInput } from "@induscode/shared";
 import type { KeyEvent } from "@opentui/core";
 import { useRenderer, useTerminalDimensions } from "@opentui/react";
 import type { ChoiceContext } from "@opentui-ui/dialog";
@@ -16,8 +16,8 @@ import {
 } from "@opentui-ui/dialog/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-	CLINE_PASS_NOTICE_ID,
-	shouldSuppressClineCliMigrationNoticeForActiveProvider,
+	INDUSCODE_PASS_NOTICE_ID,
+	shouldSuppressIndusCodeCliMigrationNoticeForActiveProvider,
 } from "../kanban-migration/notice";
 import { MigrationNoticeContent } from "../kanban-migration/notice-dialog";
 import {
@@ -108,7 +108,7 @@ function App(props: TuiProps) {
 		string | null
 	>(null);
 	const [appView, setAppView] = useState<AppView>(() => {
-		if (process.env.CLINE_FORCE_ONBOARDING === "1") return "onboarding";
+		if (process.env.INDUSCODE_FORCE_ONBOARDING === "1") return "onboarding";
 		if (!isProviderConfigured(props.config)) return "onboarding";
 		return isChatBackedStartupTarget(props.startupTarget) ||
 			session.entries.length > 0
@@ -306,8 +306,8 @@ function App(props: TuiProps) {
 	const openAccount = useAccountDialog({
 		dialog,
 		termHeight,
-		loadAccount: props.loadClineAccount,
-		switchAccount: props.switchClineAccount,
+		loadAccount: props.loadIndusCodeAccount,
+		switchAccount: props.switchIndusCodeAccount,
 		onAccountChange: props.onAccountChange,
 		openModelSelector,
 		refocusTextarea: () => refocusTextareaRef.current(),
@@ -439,7 +439,7 @@ function App(props: TuiProps) {
 		}
 	}, [dialog, props, session, showToast, termHeight]);
 
-	const exitCline = useCallback(() => {
+	const exitIndusCode = useCallback(() => {
 		session.requestExit();
 	}, [session]);
 
@@ -555,8 +555,8 @@ function App(props: TuiProps) {
 		if (initialNoticeShownRef.current) return;
 		if (appView !== "home") return;
 		if (
-			notice.id === CLINE_PASS_NOTICE_ID &&
-			shouldSuppressClineCliMigrationNoticeForActiveProvider(currentProviderId)
+			notice.id === INDUSCODE_PASS_NOTICE_ID &&
+			shouldSuppressIndusCodeCliMigrationNoticeForActiveProvider(currentProviderId)
 		) {
 			initialNoticeShownRef.current = true;
 			return;
@@ -616,17 +616,17 @@ function App(props: TuiProps) {
 					if (!update) {
 						// choice() resolves undefined on Esc; it does not reject.
 						showToast(
-							"The running Cline Hub stays on the older version. Run 'cline hub upgrade' once its sessions finish.",
+							"The running IndusCode Hub stays on the older version. Run 'induscode hub upgrade' once its sessions finish.",
 							"info",
 						);
 						refocusTextareaRef.current();
 						return;
 					}
-					showToast("Updating the Cline Hub…", "info");
+					showToast("Updating the IndusCode Hub…", "info");
 					try {
 						const result = await upgradeManagedHub({
 							force: true,
-							reason: "cline TUI hub update",
+							reason: "induscode TUI hub update",
 						});
 						if (result.outcome === "still_busy") {
 							showToast(
@@ -636,8 +636,8 @@ function App(props: TuiProps) {
 						} else {
 							showToast(
 								result.outcome === "replaced" || result.outcome === "started"
-									? "Cline Hub updated."
-									: "Cline Hub is already up to date.",
+									? "IndusCode Hub updated."
+									: "IndusCode Hub is already up to date.",
 								"success",
 							);
 						}
@@ -645,7 +645,7 @@ function App(props: TuiProps) {
 						showToast(
 							error instanceof Error && error.message
 								? error.message
-								: "Updating the Cline Hub failed. Run 'cline doctor fix' and try again.",
+								: "Updating the IndusCode Hub failed. Run 'induscode doctor fix' and try again.",
 							"error",
 						);
 					}
@@ -663,9 +663,9 @@ function App(props: TuiProps) {
 			// observed Hub build, the watcher dedupes) says what changed and
 			// how to catch up without stealing focus.
 			showToast(
-				`The shared Cline Hub was updated${
+				`The shared IndusCode Hub was updated${
 					hubCoreVersion ? ` (core ${hubCoreVersion})` : ""
-				}. Run 'cline update' and restart when convenient.`,
+				}. Run 'induscode update' and restart when convenient.`,
 				"info",
 			);
 			return;
@@ -681,11 +681,11 @@ function App(props: TuiProps) {
 			})
 			.then((update) => {
 				if (update) {
-					(onHubUpdateRestart ?? exitCline)();
+					(onHubUpdateRestart ?? exitIndusCode)();
 					return;
 				}
 				showToast(
-					"Hub still differs from this CLI. Run 'cline update' and restart when convenient.",
+					"Hub still differs from this CLI. Run 'induscode update' and restart when convenient.",
 					"info",
 				);
 				refocusTextareaRef.current();
@@ -693,7 +693,7 @@ function App(props: TuiProps) {
 			.catch(() => {
 				refocusTextareaRef.current();
 			});
-	}, [dialog, exitCline, hubBuildMismatch, onHubUpdateRestart, showToast]);
+	}, [dialog, exitIndusCode, hubBuildMismatch, onHubUpdateRestart, showToast]);
 
 	const {
 		appendEntry: appendSessionEntry,
@@ -776,7 +776,7 @@ function App(props: TuiProps) {
 		onCompact: props.onCompact,
 		onFork: props.onFork,
 		onUndo: openCheckpointRestore,
-		onExit: exitCline,
+		onExit: exitIndusCode,
 	});
 
 	const startupActionsRef = useRef({ openConfig, openHistory });
@@ -988,7 +988,7 @@ function App(props: TuiProps) {
 		setInputKey: promptInput.setInputKey,
 		setInputValue: promptInput.setInputValue,
 		onAbort: props.onAbort,
-		onExit: exitCline,
+		onExit: exitIndusCode,
 		onToggleMode: toggleMode,
 		onClearConversation: clearConversation,
 		onRestoreCheckpoint: openCheckpointRestore,
@@ -1067,7 +1067,7 @@ function App(props: TuiProps) {
 					handleModelChange().then(() => setAppView("home"));
 				}}
 				onExit={() => {
-					exitCline();
+					exitIndusCode();
 				}}
 			/>
 		);

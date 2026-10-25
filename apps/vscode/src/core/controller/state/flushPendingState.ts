@@ -1,5 +1,5 @@
-import type { EmptyRequest } from "@shared/proto/cline/common"
-import { Empty } from "@shared/proto/cline/common"
+import type { EmptyRequest } from "@shared/proto/induscode/common"
+import { Empty } from "@shared/proto/induscode/common"
 import { Logger } from "@/shared/services/Logger"
 import type { Controller } from "../index"
 

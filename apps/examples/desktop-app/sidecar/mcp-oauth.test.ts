@@ -1,7 +1,7 @@
 import type {
 	AuthorizeMcpServerOAuthOptions,
 	AuthorizeMcpServerOAuthResult,
-} from "@cline/core";
+} from "@induscode/core";
 import { describe, expect, it, vi } from "vitest";
 import {
 	cancelMcpOAuthAuthorization,

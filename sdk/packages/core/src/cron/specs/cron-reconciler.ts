@@ -1,10 +1,10 @@
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { relative } from "node:path";
-import type { CronSpecParseResult } from "@cline/shared";
+import type { CronSpecParseResult } from "@induscode/shared";
 import {
 	type ResolveCronSpecsDirOptions,
 	resolveCronSpecsDir,
-} from "@cline/shared/storage";
+} from "@induscode/shared/storage";
 import { getNextCronTime } from "../schedule/scheduler";
 import {
 	type CronSpecRecord,
@@ -24,7 +24,7 @@ import { type ParseCronSpecInput, parseCronSpecFile } from "./cron-spec-parser";
 export interface CronReconcilerOptions {
 	store: SqliteCronStore;
 	/**
-	 * Cron spec source location. Defaults to global `~/.cline/cron`.
+	 * Cron spec source location. Defaults to global `~/.induscode/cron`.
 	 * Pass `{ scope: "workspace", workspaceRoot }` later to enable
 	 * workspace-level cron sources without changing reconciler internals.
 	 */

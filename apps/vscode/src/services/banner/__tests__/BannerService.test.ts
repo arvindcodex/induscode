@@ -4,10 +4,10 @@
  */
 
 import { afterEach, beforeEach, describe, it } from "bun:test"
-import type { BannerRules } from "@shared/ClineBanner"
+import type { BannerRules } from "@shared/IndusCodeBanner"
 import { expect } from "chai"
 import * as sinon from "sinon"
-import { ClineEnv, Environment } from "@/config"
+import { IndusCodeEnv, Environment } from "@/config"
 import { Controller } from "@/core/controller"
 import { StateManager } from "@/core/storage/StateManager"
 import { HostRegistryInfo } from "@/registry"
@@ -81,12 +81,12 @@ describe("BannerService", () => {
 			distinctId: "test-distinct-id",
 		})
 
-		// Mock ClineEnv.config() to return a valid config
-		sandbox.stub(ClineEnv, "config").returns({
+		// Mock IndusCodeEnv.config() to return a valid config
+		sandbox.stub(IndusCodeEnv, "config").returns({
 			environment: Environment.production,
-			appBaseUrl: "https://app.cline-mock.bot",
-			apiBaseUrl: "https://api.cline-mock.bot",
-			mcpBaseUrl: "https://api.cline-mock.bot/v1/mcp",
+			appBaseUrl: "https://app.induscode-mock.bot",
+			apiBaseUrl: "https://api.induscode-mock.bot",
+			mcpBaseUrl: "https://api.induscode-mock.bot/v1/mcp",
 		})
 
 		const authService = AuthService.getInstance()
@@ -621,8 +621,8 @@ describe("BannerService", () => {
 				// Initial banner list fetch
 				expect(mockFetch.callCount).to.equal(1)
 
-				// Dismiss a hardcoded/webview-local banner id (e.g. the ClinePass promo)
-				await bannerService.dismissBanner("cline-pass-home-promo-v2")
+				// Dismiss a hardcoded/webview-local banner id (e.g. the IndusCodePass promo)
+				await bannerService.dismissBanner("induscode-pass-home-promo-v2")
 				// Dismiss event POST, but no cache clear
 				expect(mockFetch.callCount).to.equal(2)
 
@@ -998,8 +998,8 @@ describe("BannerService", () => {
 			})
 		})
 
-		it('should return "jetbrains" when ide is "Cline for JetBrains" (case-insensitive)', async () => {
-			stubHostInfo({ ide: "Cline for JetBrains" })
+		it('should return "jetbrains" when ide is "IndusCode for JetBrains" (case-insensitive)', async () => {
+			stubHostInfo({ ide: "IndusCode for JetBrains" })
 			mockFetch.resolves(createSuccessResponse(emptyResponse))
 
 			await mockFetchForTesting(mockFetch, async () => {
@@ -1077,7 +1077,7 @@ describe("BannerService", () => {
 		})
 
 		it("should prefer ide field over platform field for detection", async () => {
-			stubHostInfo({ ide: "Cline for JetBrains", platform: "Visual Studio Code 1.103.0" })
+			stubHostInfo({ ide: "IndusCode for JetBrains", platform: "Visual Studio Code 1.103.0" })
 			mockFetch.resolves(createSuccessResponse(emptyResponse))
 
 			await mockFetchForTesting(mockFetch, async () => {

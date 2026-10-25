@@ -1,7 +1,7 @@
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { markOtlpTraceRelayProvider } from "@cline/shared";
+import { markOtlpTraceRelayProvider } from "@induscode/shared";
 import { context, SpanStatusCode, trace } from "@opentelemetry/api";
 import {
 	InMemorySpanExporter,
@@ -22,7 +22,7 @@ const { settingsPath, directExporters } = vi.hoisted(() => ({
 	settingsPath: { current: "" },
 	directExporters: [] as InMemorySpanExporter[],
 }));
-vi.mock("@cline/shared/storage", () => ({
+vi.mock("@induscode/shared/storage", () => ({
 	resolveGlobalSettingsPath: () => settingsPath.current,
 }));
 // Keep the real AI SDK, Langfuse integration and OTel runtime. Replace only
@@ -47,15 +47,15 @@ let provider: NodeTracerProvider;
 let exporter: InMemorySpanExporter;
 
 beforeEach(() => {
-	settingsDir = mkdtempSync(path.join(tmpdir(), "cline-relay-"));
+	settingsDir = mkdtempSync(path.join(tmpdir(), "induscode-relay-"));
 	settingsPath.current = path.join(settingsDir, "settings.json");
 	directExporters.length = 0;
 	vi.stubEnv("OTEL_SERVICE_NAME", "");
 	vi.stubEnv("LANGFUSE_BASE_URL", "");
 	vi.stubEnv("LANGFUSE_PUBLIC_KEY", "");
 	vi.stubEnv("LANGFUSE_SECRET_KEY", "");
-	vi.stubEnv("CLINE_TRACE_SAMPLE_PERCENT", "100");
-	vi.stubEnv("CLINE_TRACE_RECORD_CONTENT", "false");
+	vi.stubEnv("INDUSCODE_TRACE_SAMPLE_PERCENT", "100");
+	vi.stubEnv("INDUSCODE_TRACE_RECORD_CONTENT", "false");
 	trace.disable();
 	context.disable();
 	resetLangfuseTelemetryForTests();
@@ -106,13 +106,13 @@ it.each([
 				},
 			);
 	const { telemetry, recordError } = createStreamErrorTelemetry(
-		await resolveAiSdkTelemetry("cline", "socket-test"),
+		await resolveAiSdkTelemetry("induscode", "socket-test"),
 	);
 	let index = 0;
 	const abortController = new AbortController();
 	const result = streamText({
 		model: new MockLanguageModelV4({
-			provider: "cline",
+			provider: "induscode",
 			modelId: "socket-test",
 			doStream: async () => ({
 				stream: new ReadableStream({
@@ -221,11 +221,11 @@ it.each([
 	}
 	let calls = 0;
 	const streamTelemetry = createStreamErrorTelemetry(
-		await resolveAiSdkTelemetry("cline", "retry-test"),
+		await resolveAiSdkTelemetry("induscode", "retry-test"),
 	);
 	const result = streamText({
 		model: new MockLanguageModelV4({
-			provider: "cline",
+			provider: "induscode",
 			modelId: "retry-test",
 			doStream: async () => {
 				// Every earlier attempt must already be exported before issuing a retry.
@@ -334,7 +334,7 @@ async function runStream(
 ) {
 	const result = streamText({
 		model: new MockLanguageModelV4({
-			provider: "cline",
+			provider: "induscode",
 			modelId: "test-model",
 			doStream: async () => ({
 				stream: new ReadableStream({
@@ -393,7 +393,7 @@ async function runStream(
 }
 
 it("preserves the collector scope contract on generation, step, and tool children", async () => {
-	await runStream(await resolveAiSdkTelemetry("cline", "task-a"), true);
+	await runStream(await resolveAiSdkTelemetry("induscode", "task-a"), true);
 	await provider.forceFlush();
 	const spans = exporter.getFinishedSpans();
 	expect(spans.some((span) => span.name.startsWith("chat "))).toBe(true);
@@ -401,14 +401,14 @@ it("preserves the collector scope contract on generation, step, and tool childre
 	expect(spans.some((span) => span.name.includes("synthetic_tool"))).toBe(true);
 	expect(
 		spans.every(
-			(span) => span.instrumentationScope.name === "cline-provider-langfuse",
+			(span) => span.instrumentationScope.name === "induscode-provider-langfuse",
 		),
 	).toBe(true);
 	expect(
 		spans.every((span) => span.attributes["ai.model.provider"] === undefined),
 	).toBe(true);
 	expect(
-		spans.some((span) => span.attributes["gen_ai.provider.name"] === "cline"),
+		spans.some((span) => span.attributes["gen_ai.provider.name"] === "induscode"),
 	).toBe(true);
 	expect(
 		spans.some((span) => span.attributes["gen_ai.provider.name"] === undefined),
@@ -420,9 +420,9 @@ it("preserves the collector scope contract on generation, step, and tool childre
 			expect(ids.has(span.parentSpanContext.spanId)).toBe(true);
 	}
 
-	// Opt-in fixture regeneration for cline/infra; ordinary tests never write files.
+	// Opt-in fixture regeneration for induscode/infra; ordinary tests never write files.
 	// These spans contain synthetic data only. Keep IDs, scope and child structure.
-	const fixturePath = process.env.CLINE_RELAY_FIXTURE_PATH;
+	const fixturePath = process.env.INDUSCODE_RELAY_FIXTURE_PATH;
 	if (fixturePath) {
 		const nanos = ([seconds, fraction]: [number, number]) =>
 			(BigInt(seconds) * 1_000_000_000n + BigInt(fraction)).toString();
@@ -432,7 +432,7 @@ it("preserves the collector scope contract on generation, step, and tool childre
 					resource: {},
 					scopeSpans: [
 						{
-							scope: { name: "cline-provider-langfuse" },
+							scope: { name: "induscode-provider-langfuse" },
 							spans: spans.map((span) => ({
 								traceId: span.spanContext().traceId,
 								spanId: span.spanContext().spanId,
@@ -463,18 +463,18 @@ it("preserves the collector scope contract on generation, step, and tool childre
 });
 
 it("exports AI SDK 7 stream spans through the host relay without Langfuse credentials", async () => {
-	const telemetry = await resolveAiSdkTelemetry("cline", "task-a");
+	const telemetry = await resolveAiSdkTelemetry("induscode", "task-a");
 	expect(telemetry.isEnabled).toBe(true);
 	await runStream(telemetry);
 	await provider.forceFlush();
 	const spans = exporter.getFinishedSpans();
 	expect(spans.length).toBeGreaterThan(0);
 	expect(
-		spans.some((span) => span.attributes["gen_ai.provider.name"] === "cline"),
+		spans.some((span) => span.attributes["gen_ai.provider.name"] === "induscode"),
 	).toBe(true);
 	expect(
 		spans.every(
-			(span) => span.instrumentationScope.name === "cline-provider-langfuse",
+			(span) => span.instrumentationScope.name === "induscode-provider-langfuse",
 		),
 	).toBe(true);
 	const attributes = JSON.stringify(spans.map((span) => span.attributes));
@@ -483,8 +483,8 @@ it("exports AI SDK 7 stream spans through the host relay without Langfuse creden
 });
 
 it("records prompt and completion only when the content flag is enabled", async () => {
-	vi.stubEnv("CLINE_TRACE_RECORD_CONTENT", "true");
-	await runStream(await resolveAiSdkTelemetry("cline", "task-a"));
+	vi.stubEnv("INDUSCODE_TRACE_RECORD_CONTENT", "true");
+	await runStream(await resolveAiSdkTelemetry("induscode", "task-a"));
 	await provider.forceFlush();
 	const attributes = JSON.stringify(
 		exporter.getFinishedSpans().map((span) => span.attributes),
@@ -494,7 +494,7 @@ it("records prompt and completion only when the content flag is enabled", async 
 });
 
 it("stops emitting after a mid-session opt-out", async () => {
-	await runStream(await resolveAiSdkTelemetry("cline", "task-a"));
+	await runStream(await resolveAiSdkTelemetry("induscode", "task-a"));
 	await provider.forceFlush();
 	const initialCount = exporter.getFinishedSpans().length;
 	expect(initialCount).toBeGreaterThan(0);
@@ -502,21 +502,21 @@ it("stops emitting after a mid-session opt-out", async () => {
 		settingsPath.current,
 		JSON.stringify({ telemetryOptOut: true }),
 	);
-	await runStream(await resolveAiSdkTelemetry("cline", "task-a"));
+	await runStream(await resolveAiSdkTelemetry("induscode", "task-a"));
 	await provider.forceFlush();
 	expect(exporter.getFinishedSpans()).toHaveLength(initialCount);
 });
 
 it("emits no spans for an excluded provider or a sampled-out task", async () => {
 	await runStream(await resolveAiSdkTelemetry("openrouter", "task-a"));
-	vi.stubEnv("CLINE_TRACE_SAMPLE_PERCENT", "50");
-	await runStream(await resolveAiSdkTelemetry("cline", "task-c"));
+	vi.stubEnv("INDUSCODE_TRACE_SAMPLE_PERCENT", "50");
+	await runStream(await resolveAiSdkTelemetry("induscode", "task-c"));
 	await provider.forceFlush();
 	expect(exporter.getFinishedSpans()).toHaveLength(0);
 });
 
 it("reacquires the host tracer after provider replacement", async () => {
-	await runStream(await resolveAiSdkTelemetry("cline", "task-a"));
+	await runStream(await resolveAiSdkTelemetry("induscode", "task-a"));
 	await provider.forceFlush();
 	expect(exporter.getFinishedSpans().length).toBeGreaterThan(0);
 	const oldExporter = exporter;
@@ -528,18 +528,18 @@ it("reacquires the host tracer after provider replacement", async () => {
 	});
 	markOtlpTraceRelayProvider(provider);
 	provider.register();
-	await runStream(await resolveAiSdkTelemetry("cline", "task-a"));
+	await runStream(await resolveAiSdkTelemetry("induscode", "task-a"));
 	await provider.forceFlush();
 	expect(exporter.getFinishedSpans().length).toBeGreaterThan(0);
 	expect(oldExporter.getFinishedSpans()).toHaveLength(0);
 });
 
 it("exports directly without claiming or shutting down a non-relay host tracer", async () => {
-	delete (provider as unknown as Record<string, unknown>)._clineOtlpTraceRelay;
+	delete (provider as unknown as Record<string, unknown>)._induscodeOtlpTraceRelay;
 	vi.stubEnv("LANGFUSE_BASE_URL", "https://langfuse.example");
 	vi.stubEnv("LANGFUSE_PUBLIC_KEY", "public-key");
 	vi.stubEnv("LANGFUSE_SECRET_KEY", "secret-key");
-	await runStream(await resolveAiSdkTelemetry("cline", "task-a"));
+	await runStream(await resolveAiSdkTelemetry("induscode", "task-a"));
 	expect(directExporters).toHaveLength(1);
 	expect(directExporters[0]?.getFinishedSpans().length).toBeGreaterThan(0);
 	expect(exporter.getFinishedSpans()).toHaveLength(0);
@@ -559,7 +559,7 @@ it("chooses only the host relay when direct credentials are also present", async
 	vi.stubEnv("LANGFUSE_BASE_URL", "https://langfuse.example");
 	vi.stubEnv("LANGFUSE_PUBLIC_KEY", "public-key");
 	vi.stubEnv("LANGFUSE_SECRET_KEY", "secret-key");
-	await runStream(await resolveAiSdkTelemetry("cline", "task-a"));
+	await runStream(await resolveAiSdkTelemetry("induscode", "task-a"));
 	await provider.forceFlush();
 	expect(exporter.getFinishedSpans().length).toBeGreaterThan(0);
 	expect(directExporters).toHaveLength(0);
@@ -571,7 +571,7 @@ it("keeps direct stream spans in one trace without a preinstalled host context m
 	vi.stubEnv("LANGFUSE_BASE_URL", "https://langfuse.example");
 	vi.stubEnv("LANGFUSE_PUBLIC_KEY", "public-key");
 	vi.stubEnv("LANGFUSE_SECRET_KEY", "secret-key");
-	await runStream(await resolveAiSdkTelemetry("cline", "task-a"));
+	await runStream(await resolveAiSdkTelemetry("induscode", "task-a"));
 	const spans = directExporters[0]?.getFinishedSpans() ?? [];
 	expect(spans.length).toBeGreaterThan(1);
 	expect(new Set(spans.map((span) => span.spanContext().traceId)).size).toBe(1);

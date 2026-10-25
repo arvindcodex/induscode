@@ -1,4 +1,4 @@
-import type { ClineMessage } from "@shared/ExtensionMessage"
+import type { IndusCodeMessage } from "@shared/ExtensionMessage"
 import type { Mode } from "@shared/storage/types"
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react"
 import type React from "react"
@@ -19,8 +19,8 @@ function createActionInvocation(action: ButtonActionType, getDraftSnapshot: () =
 }
 
 interface ActionButtonsProps {
-	task?: ClineMessage
-	messages: ClineMessage[]
+	task?: IndusCodeMessage
+	messages: IndusCodeMessage[]
 	chatState: ChatState
 	messageHandlers: MessageHandlers
 	mode: Mode

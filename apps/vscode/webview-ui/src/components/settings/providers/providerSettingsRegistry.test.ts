@@ -1,4 +1,4 @@
-import type { ProviderListing } from "@shared/proto/cline/models"
+import type { ProviderListing } from "@shared/proto/induscode/models"
 import { describe, expect, it } from "vitest"
 import {
 	getFallbackGenericProviderSettings,

@@ -1,12 +1,12 @@
-# Cline Testing Platform
+# IndusCode Testing Platform
 
-A CLI testing framework for the Cline Core extension, providing gRPC-based integration clients and utilities for automated scenarios.
+A CLI testing framework for the IndusCode Core extension, providing gRPC-based integration clients and utilities for automated scenarios.
 
 ## Overview
 
-The platform enables end-to-end validation of Cline's core functionality through:
+The platform enables end-to-end validation of IndusCode's core functionality through:
 
-- **gRPC Adapters** – clients for Cline’s gRPC services  
+- **gRPC Adapters** – clients for IndusCode’s gRPC services  
 - **Test Harness** – runner, utilities, and type definitions  
 - **Spec Files** – JSON instructions for automated test cases  
 
@@ -27,7 +27,7 @@ testing-platform/
 - **Node.js** ≥ 18 (the runtime) and **bun** (package manager + task runner)  
 - **Protocol Buffers** (used for gRPC)  
 
-Generate proto files in the **root Cline project**:
+Generate proto files in the **root IndusCode project**:
 
 ```bash
 bun run protos
@@ -35,7 +35,7 @@ bun run protos
 
 ## Setup
 
-From the root of the Cline project:
+From the root of the IndusCode project:
 
 ```bash
 bun run install:all
@@ -52,7 +52,7 @@ bun run build
 
 ## Running Spec File Tests
 
-Before running specs, make sure the standalone Cline Core gRPC server (that runs mocks and host gRPC as well) is running:
+Before running specs, make sure the standalone IndusCode Core gRPC server (that runs mocks and host gRPC as well) is running:
 
 ```bash
 bun run test:sca-server

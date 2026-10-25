@@ -1,22 +1,22 @@
-import type { ClineMessage } from "@shared/ExtensionMessage"
+import type { IndusCodeMessage } from "@shared/ExtensionMessage"
 import { memo } from "react"
-import { ClineAuthStatus } from "@/components/account/ClineAuthStatus"
-import ClineFreeModelLimitError from "@/components/chat/ClineFreeModelLimitError"
-import ClineFreePromotionEndedError from "@/components/chat/ClineFreePromotionEndedError"
-import ClinePassLimitError from "@/components/chat/ClinePassLimitError"
+import { IndusCodeAuthStatus } from "@/components/account/IndusCodeAuthStatus"
+import IndusCodeFreeModelLimitError from "@/components/chat/IndusCodeFreeModelLimitError"
+import IndusCodeFreePromotionEndedError from "@/components/chat/IndusCodeFreePromotionEndedError"
+import IndusCodePassLimitError from "@/components/chat/IndusCodePassLimitError"
 import CreditLimitError from "@/components/chat/CreditLimitError"
 import EntitlementError from "@/components/chat/EntitlementError"
-import OrgClinePassRestrictionError from "@/components/chat/OrgClinePassRestrictionError"
+import OrgIndusCodePassRestrictionError from "@/components/chat/OrgIndusCodePassRestrictionError"
 import SpendLimitError from "@/components/chat/SpendLimitError"
 import { Button } from "@/components/ui/button"
-import { useClineAuth, useClineSignIn } from "@/context/ClineAuthContext"
-import { ClineError, ClineErrorType, MODEL_NOT_FOUND_GUIDANCE } from "../../../../src/services/error/ClineError"
+import { useIndusCodeAuth, useIndusCodeSignIn } from "@/context/IndusCodeAuthContext"
+import { IndusCodeError, IndusCodeErrorType, MODEL_NOT_FOUND_GUIDANCE } from "../../../../src/services/error/IndusCodeError"
 
 const _errorColor = "var(--vscode-errorForeground)"
 
 interface ErrorRowProps {
-	message: ClineMessage
-	errorType: "error" | "mistake_limit_reached" | "diff_error" | "clineignore_error"
+	message: IndusCodeMessage
+	errorType: "error" | "mistake_limit_reached" | "diff_error" | "induscodeignore_error"
 	apiRequestFailedMessage?: string
 	apiReqStreamingFailedMessage?: string
 	retryFailedRequest?: () => Promise<boolean>
@@ -24,10 +24,10 @@ interface ErrorRowProps {
 
 const ErrorRow = memo((props: ErrorRowProps) => {
 	const { message, errorType, apiRequestFailedMessage, apiReqStreamingFailedMessage, retryFailedRequest } = props
-	const { clineUser } = useClineAuth()
+	const { induscodeUser } = useIndusCodeAuth()
 	const rawApiError = apiRequestFailedMessage || apiReqStreamingFailedMessage
 
-	const { isLoginLoading, authStatusMessage, handleSignIn } = useClineSignIn()
+	const { isLoginLoading, authStatusMessage, handleSignIn } = useIndusCodeSignIn()
 
 	const renderErrorContent = () => {
 		switch (errorType) {
@@ -35,20 +35,20 @@ const ErrorRow = memo((props: ErrorRowProps) => {
 			case "mistake_limit_reached":
 				// Handle API request errors with special error parsing
 				if (rawApiError) {
-					// FIXME: ClineError parsing should not be applied to non-Cline providers, but it seems we're using clineErrorMessage below in the default error display
-					const clineError = ClineError.parse(rawApiError)
-					const errorMessage = clineError?._error?.message || clineError?.message || rawApiError
-					const requestId = clineError?._error?.request_id
-					const providerId = clineError?.providerId || clineError?._error?.providerId
-					// Deliberately narrower than the shared isClineManagedProvider (which
-					// also matches cline-pass): only usage-billing errors get the credit
+					// FIXME: IndusCodeError parsing should not be applied to non-IndusCode providers, but it seems we're using induscodeErrorMessage below in the default error display
+					const induscodeError = IndusCodeError.parse(rawApiError)
+					const errorMessage = induscodeError?._error?.message || induscodeError?.message || rawApiError
+					const requestId = induscodeError?._error?.request_id
+					const providerId = induscodeError?.providerId || induscodeError?._error?.providerId
+					// Deliberately narrower than the shared isIndusCodeManagedProvider (which
+					// also matches induscode-pass): only usage-billing errors get the credit
 					// and login prompts below.
-					const isClineUsageBillingProvider = providerId === "cline"
-					const errorCode = clineError?._error?.code
+					const isIndusCodeUsageBillingProvider = providerId === "induscode"
+					const errorCode = induscodeError?._error?.code
 
-					if (clineError?.isErrorType(ClineErrorType.Balance)) {
-						const errorDetails = clineError._error?.details
-						if (isClineUsageBillingProvider || errorDetails?.buy_credits_url) {
+					if (induscodeError?.isErrorType(IndusCodeErrorType.Balance)) {
+						const errorDetails = induscodeError._error?.details
+						if (isIndusCodeUsageBillingProvider || errorDetails?.buy_credits_url) {
 							return (
 								<CreditLimitError
 									buyCreditsUrl={errorDetails?.buy_credits_url}
@@ -62,8 +62,8 @@ const ErrorRow = memo((props: ErrorRowProps) => {
 						}
 					}
 
-					if (clineError?.isErrorType(ClineErrorType.SpendLimit)) {
-						const d = clineError._error?.details
+					if (induscodeError?.isErrorType(IndusCodeErrorType.SpendLimit)) {
+						const d = induscodeError._error?.details
 						return (
 							<SpendLimitError
 								budgetPeriod={d?.budget_period}
@@ -75,33 +75,33 @@ const ErrorRow = memo((props: ErrorRowProps) => {
 						)
 					}
 
-					if (clineError?.isErrorType(ClineErrorType.Entitlement)) {
-						const detailMessage = clineError?._error?.details?.message || errorMessage
+					if (induscodeError?.isErrorType(IndusCodeErrorType.Entitlement)) {
+						const detailMessage = induscodeError?._error?.details?.message || errorMessage
 						return <EntitlementError message={detailMessage} retryFailedRequest={retryFailedRequest} />
 					}
 
-					if (clineError?.isErrorType(ClineErrorType.OrgClinePassRestriction)) {
-						return <OrgClinePassRestrictionError />
+					if (induscodeError?.isErrorType(IndusCodeErrorType.OrgIndusCodePassRestriction)) {
+						return <OrgIndusCodePassRestrictionError />
 					}
 
-					if (clineError?.isErrorType(ClineErrorType.ClinePassLimit)) {
-						const detailMessage = clineError?._error?.details?.message || errorMessage
-						return <ClinePassLimitError message={detailMessage} />
+					if (induscodeError?.isErrorType(IndusCodeErrorType.IndusCodePassLimit)) {
+						const detailMessage = induscodeError?._error?.details?.message || errorMessage
+						return <IndusCodePassLimitError message={detailMessage} />
 					}
 
-					if (clineError?.isErrorType(ClineErrorType.ClineFreeModelLimit)) {
-						const detailMessage = clineError?._error?.details?.message || errorMessage
-						return <ClineFreeModelLimitError message={detailMessage} />
+					if (induscodeError?.isErrorType(IndusCodeErrorType.IndusCodeFreeModelLimit)) {
+						const detailMessage = induscodeError?._error?.details?.message || errorMessage
+						return <IndusCodeFreeModelLimitError message={detailMessage} />
 					}
 
 					// A retired free model answers model-not-found once its promotion
 					// ends — dedicated copy plus a route into the model picker,
 					// since retrying the deleted model can never succeed.
-					if (clineError?.isErrorType(ClineErrorType.ClineFreePromotionEnded)) {
-						return <ClineFreePromotionEndedError />
+					if (induscodeError?.isErrorType(IndusCodeErrorType.IndusCodeFreePromotionEnded)) {
+						return <IndusCodeFreePromotionEndedError />
 					}
 
-					if (clineError?.isErrorType(ClineErrorType.RateLimit)) {
+					if (induscodeError?.isErrorType(IndusCodeErrorType.RateLimit)) {
 						return (
 							<p className="m-0 whitespace-pre-wrap text-error wrap-anywhere">
 								{errorMessage}
@@ -110,8 +110,8 @@ const ErrorRow = memo((props: ErrorRowProps) => {
 						)
 					}
 
-					if (clineError?.isErrorType(ClineErrorType.QuotaExceeded)) {
-						const detailMessage = clineError?._error?.details?.message || errorMessage
+					if (induscodeError?.isErrorType(IndusCodeErrorType.QuotaExceeded)) {
+						const detailMessage = induscodeError?._error?.details?.message || errorMessage
 						return <p className="m-0 whitespace-pre-wrap text-error wrap-anywhere">{detailMessage}</p>
 					}
 
@@ -120,26 +120,26 @@ const ErrorRow = memo((props: ErrorRowProps) => {
 					// when it can recognise the message text; add it here only
 					// when the status alone carried the verdict.
 					const notFoundGuidance =
-						clineError?.isErrorType(ClineErrorType.NotFound) && !errorMessage.includes(MODEL_NOT_FOUND_GUIDANCE)
+						induscodeError?.isErrorType(IndusCodeErrorType.NotFound) && !errorMessage.includes(MODEL_NOT_FOUND_GUIDANCE)
 							? `The model or endpoint was not found. ${MODEL_NOT_FOUND_GUIDANCE}`
 							: undefined
 
-					if (clineError?.isErrorType(ClineErrorType.Auth) && isClineUsageBillingProvider) {
-						return !clineUser ? (
-							// User is using Cline provider and is not logged in
+					if (induscodeError?.isErrorType(IndusCodeErrorType.Auth) && isIndusCodeUsageBillingProvider) {
+						return !induscodeUser ? (
+							// User is using IndusCode provider and is not logged in
 							<div className="flex flex-col gap-3">
 								<div className="flex items-center justify-center rounded border border-neutral-500/30 bg-vscode-editor-background p-6 text-center text-vscode-foreground">
 									Whoops looks like you're logged out – click below to sign in
 								</div>
 								<Button className="w-full" disabled={isLoginLoading} onClick={handleSignIn}>
-									Sign in to Cline
+									Sign in to IndusCode
 									{isLoginLoading && (
 										<span className="ml-1 animate-spin">
 											<span className="codicon codicon-refresh" />
 										</span>
 									)}
 								</Button>
-								<ClineAuthStatus message={authStatusMessage} />
+								<IndusCodeAuthStatus message={authStatusMessage} />
 							</div>
 						) : (
 							// Don't show sign in button after the user has logged in, just ask them to retry
@@ -151,7 +151,7 @@ const ErrorRow = memo((props: ErrorRowProps) => {
 
 					return (
 						<p className="m-0 whitespace-pre-wrap text-error wrap-anywhere flex flex-col gap-3">
-							{/* Display the well-formatted error extracted from the ClineError instance */}
+							{/* Display the well-formatted error extracted from the IndusCodeError instance */}
 
 							<header>
 								{providerId && <span className="uppercase">[{providerId}] </span>}
@@ -168,7 +168,7 @@ const ErrorRow = memo((props: ErrorRowProps) => {
 									It seems like you're having Windows PowerShell issues, please see this{" "}
 									<a
 										className="underline text-inherit"
-										href="https://github.com/cline/cline/wiki/TroubleShooting-%E2%80%90-%22PowerShell-is-not-recognized-as-an-internal-or-external-command%22">
+										href="https://github.com/induscode/induscode/wiki/TroubleShooting-%E2%80%90-%22PowerShell-is-not-recognized-as-an-internal-or-external-command%22">
 										troubleshooting guide
 									</a>
 									.
@@ -191,11 +191,11 @@ const ErrorRow = memo((props: ErrorRowProps) => {
 					</div>
 				)
 
-			case "clineignore_error":
+			case "induscodeignore_error":
 				return (
 					<div className="flex flex-col p-2 rounded text-xs opacity-80 bg-quote text-foreground">
 						<div>
-							Cline tried to access <code>{message.text}</code> which is blocked by the <code>.clineignore</code>
+							IndusCode tried to access <code>{message.text}</code> which is blocked by the <code>.induscodeignore</code>
 							file.
 						</div>
 					</div>
@@ -206,8 +206,8 @@ const ErrorRow = memo((props: ErrorRowProps) => {
 		}
 	}
 
-	// For diff_error and clineignore_error, we don't show the header separately
-	if (errorType === "diff_error" || errorType === "clineignore_error") {
+	// For diff_error and induscodeignore_error, we don't show the header separately
+	if (errorType === "diff_error" || errorType === "induscodeignore_error") {
 		return renderErrorContent()
 	}
 

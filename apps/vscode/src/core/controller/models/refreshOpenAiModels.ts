@@ -1,5 +1,5 @@
-import { StringArray } from "@shared/proto/cline/common"
-import { OpenAiModelsRequest } from "@shared/proto/cline/models"
+import { StringArray } from "@shared/proto/induscode/common"
+import { OpenAiModelsRequest } from "@shared/proto/induscode/models"
 import type { AxiosRequestConfig } from "axios"
 import axios from "axios"
 import { parseProviderId } from "@/sdk/model-catalog/provider-id"

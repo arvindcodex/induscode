@@ -20,8 +20,8 @@ const endpoint = { host: "127.0.0.1", port: 25463, pathname: "/hub" };
 
 describe("describeAddressInUse", () => {
 	it("pairs lsof pids with their command names", () => {
-		expect(parseLsofOwners("p1234\nccline\np5678\ncnode\n")).toEqual([
-			"1234\tcline",
+		expect(parseLsofOwners("p1234\ncinduscode\np5678\ncnode\n")).toEqual([
+			"1234\tinduscode",
 			"5678\tnode",
 		]);
 	});
@@ -32,8 +32,8 @@ describe("describeAddressInUse", () => {
 			stderr: "",
 			stdout:
 				process.platform === "win32"
-					? "4242\tcline.exe C:\\Users\\alice\\cline.exe\r\n"
-					: "p4242\nc/Users/alice/cline\n",
+					? "4242\tinduscode.exe C:\\Users\\alice\\induscode.exe\r\n"
+					: "p4242\nc/Users/alice/induscode\n",
 		});
 		mockProbeHubServer.mockResolvedValueOnce({
 			protocolVersion: "1",

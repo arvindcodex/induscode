@@ -58,7 +58,7 @@ import { ensureHubWebSocketServer } from "./hub-websocket-server";
 const STALE_URL = "ws://127.0.0.1:39999/hub";
 
 function createOwner() {
-	const root = mkdtempSync(join(tmpdir(), "cline-hub-ensure-retire-"));
+	const root = mkdtempSync(join(tmpdir(), "induscode-hub-ensure-retire-"));
 	return {
 		ownerId: "hub-ensure-retire-test",
 		discoveryPath: join(root, "discovery.json"),
@@ -87,7 +87,7 @@ function stubSessionHost() {
 }
 
 function ensureOptions(owner: ReturnType<typeof createOwner>) {
-	const root = mkdtempSync(join(tmpdir(), "cline-hub-ensure-ws-"));
+	const root = mkdtempSync(join(tmpdir(), "induscode-hub-ensure-ws-"));
 	return {
 		owner,
 		host: "127.0.0.1",

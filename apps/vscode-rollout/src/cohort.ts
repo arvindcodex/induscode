@@ -2,20 +2,20 @@ export type Bundle = "next" | "legacy";
 
 /**
  * The combined VSIX ships under two identities: the stable extension
- * (manifest name "claude-dev", contribution IDs under "cline.*") and the
- * nightly (name "cline-nightly", IDs under "cline-nightly.*" — the nightly
- * packaging rewrites every `"cline.` prefix in the manifest, see
+ * (manifest name "claude-dev", contribution IDs under "induscode.*") and the
+ * nightly (name "induscode-nightly", IDs under "induscode-nightly.*" — the nightly
+ * packaging rewrites every `"induscode.` prefix in the manifest, see
  * scripts/nightlify.mjs and apps/vscode/scripts/publish-nightly.mjs). Anything
  * the loader reads from or feeds back into the manifest namespace — the
  * bundleOverride setting and the sdkBundle context key — must use the prefix
  * matching the installed identity. scripts/gen-manifest.mjs derives the same
  * prefix when generating the union manifest; keep them in sync.
  */
-export const NIGHTLY_EXTENSION_NAME = "cline-nightly";
-export type IdPrefix = "cline" | "cline-nightly";
+export const NIGHTLY_EXTENSION_NAME = "induscode-nightly";
+export type IdPrefix = "induscode" | "induscode-nightly";
 
 export function idPrefix(extensionName: string | undefined): IdPrefix {
-	return extensionName === NIGHTLY_EXTENSION_NAME ? "cline-nightly" : "cline";
+	return extensionName === NIGHTLY_EXTENSION_NAME ? "induscode-nightly" : "induscode";
 }
 
 /** Settings section holding the bundleOverride escape hatch. */
@@ -33,15 +33,15 @@ export function bundleContextKey(prefix: IdPrefix): string {
  * deliberately stay un-prefixed by identity: globalState is already scoped to
  * the extension ID, so a stable and a nightly install can never collide.
  */
-export const COHORT_STATE_KEY = "cline.rollout.bundle";
+export const COHORT_STATE_KEY = "induscode.rollout.bundle";
 /** Version of the combined VSIX whose `next` bundle failed to activate, if any. */
 export const FAILED_VERSION_STATE_KEY =
-	"cline.rollout.nextActivationFailedVersion";
+	"induscode.rollout.nextActivationFailedVersion";
 /** Epoch ms of the previous loader activation, for launch-cadence telemetry. */
-export const LAST_ACTIVATION_STATE_KEY = "cline.rollout.lastActivationAt";
+export const LAST_ACTIVATION_STATE_KEY = "induscode.rollout.lastActivationAt";
 
 /**
- * PostHog rollout flag (created in the Cline PostHog project). Must be a
+ * PostHog rollout flag (created in the IndusCode PostHog project). Must be a
  * plain BOOLEAN release flag with a percentage rollout.
  *
  * The assignment is TWO-WAY: each background refresh caches exactly what the
@@ -55,7 +55,7 @@ export const LAST_ACTIVATION_STATE_KEY = "cline.rollout.lastActivationAt";
 export const ROLLOUT_FLAG = "ext-sdk-bundle-rollout";
 
 /** Env var for local dev / e2e to force a bundle. Beats everything. */
-export const BUNDLE_OVERRIDE_ENV = "CLINE_BUNDLE_OVERRIDE";
+export const BUNDLE_OVERRIDE_ENV = "INDUSCODE_BUNDLE_OVERRIDE";
 
 /**
  * User-visible escape hatch: `<prefix>.rollout.bundleOverride` in VS Code
@@ -72,7 +72,7 @@ function asBundle(value: unknown): Bundle | undefined {
 }
 
 export interface CohortInputs {
-	/** CLINE_BUNDLE_OVERRIDE, if set. */
+	/** INDUSCODE_BUNDLE_OVERRIDE, if set. */
 	envOverride: string | undefined;
 	/** The <prefix>.rollout.bundleOverride user setting ("auto" = no override). */
 	settingOverride: string | undefined;

@@ -22,10 +22,10 @@
 //
 // Before this, the VSCode button sent the literal text "/compact" to the model,
 // which the SDK does not treat as a runtime command, so the model improvised a
-// fake "Conversation Summary" instead of compacting (CLINE-2503).
+// fake "Conversation Summary" instead of compacting (INDUSCODE-2503).
 
-import type { Message as SdkMessage } from "@cline/llms"
-import type { ClineCompactionInfo, ClineMessage } from "@shared/ExtensionMessage"
+import type { Message as SdkMessage } from "@induscode/llms"
+import type { IndusCodeCompactionInfo, IndusCodeMessage } from "@shared/ExtensionMessage"
 import type { Mode } from "@shared/storage/types"
 import type { StateManager } from "@/core/storage/StateManager"
 import { Logger } from "@/shared/services/Logger"
@@ -40,7 +40,7 @@ import { prepareTaskResumeStartInput } from "./sdk-task-resume"
 import type { SdkSessionHost } from "./session-host"
 
 const COMPACTION_FAILURE_MESSAGE = "Couldn't compact the conversation. Please try again."
-const COMPACTION_UNSUPPORTED_MESSAGE = "Compaction is not supported by this runtime yet. Please update Cline and try again."
+const COMPACTION_UNSUPPORTED_MESSAGE = "Compaction is not supported by this runtime yet. Please update IndusCode and try again."
 const COMPACTION_TURN_RUNNING_MESSAGE =
 	"Cannot compact while a response is in progress. Try again once the current turn finishes."
 
@@ -224,7 +224,7 @@ export class SdkCompactionCoordinator {
 
 		// The SDK reports the compaction's token/message counters through its
 		// status notices; capture the terminal one for the final divider.
-		let noticeInfo: ClineCompactionInfo | undefined
+		let noticeInfo: IndusCodeCompactionInfo | undefined
 		try {
 			const result = await compactSessionMessages({
 				config: {
@@ -291,7 +291,7 @@ export class SdkCompactionCoordinator {
 	}
 
 	/** Append or update-in-place (same ts) the compaction divider row. */
-	private emitCompactionRow(info: ClineCompactionInfo, ts: number, sessionId: string): void {
+	private emitCompactionRow(info: IndusCodeCompactionInfo, ts: number, sessionId: string): void {
 		const targetSessionId = this.getTargetSessionId()
 		if (targetSessionId !== sessionId) {
 			Logger.warn(`[SdkController] compactTask: skipped compaction row for inactive session ${sessionId}`)
@@ -309,7 +309,7 @@ export class SdkCompactionCoordinator {
 			Logger.warn(`[SdkController] compactTask: skipped info for inactive session ${sessionId}`)
 			return
 		}
-		const infoMessage: ClineMessage = {
+		const infoMessage: IndusCodeMessage = {
 			ts: Date.now(),
 			type: "say",
 			say: "info",

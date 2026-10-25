@@ -7,8 +7,8 @@ import {
 	mergeRulesForSystemPrompt,
 	readGlobalSettings,
 	type UserInstructionConfigService,
-} from "@cline/core";
-import { type AgentMode, buildClineSystemPrompt } from "@cline/shared";
+} from "@induscode/core";
+import { type AgentMode, buildIndusCodeSystemPrompt } from "@induscode/shared";
 import { isImagePath, loadImageAsDataUrl } from "../utils/image-attachments";
 
 export async function resolveSystemPrompt(input: {
@@ -21,9 +21,9 @@ export async function resolveSystemPrompt(input: {
 	const metadata = await buildWorkspaceMetadata(input.cwd);
 	// Mode-tag and plan-mode instructions are appended by the shared prompt
 	// builder itself (see MODE_TAG_INSTRUCTIONS / PLAN_MODE_INSTRUCTIONS in
-	// @cline/shared), so only the caller-specific rules are merged here.
+	// @induscode/shared), so only the caller-specific rules are merged here.
 	const rules = mergeRulesForSystemPrompt(undefined, input.rules);
-	return buildClineSystemPrompt({
+	return buildIndusCodeSystemPrompt({
 		ide: "Terminal Shell",
 		workspaceRoot: input.cwd,
 		workspaceName: basename(input.cwd),

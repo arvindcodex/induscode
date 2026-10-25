@@ -1,10 +1,10 @@
-# Cline Evals Architecture
+# IndusCode Evals Architecture
 
-> Note: Smoke tests (Layer 2) are partially disabled while the eval framework is repointed at the new SDK CLI. The scenarios under `evals/smoke-tests/` are preserved and `npm run eval:smoke:run` still works against whatever `cline` is on `$PATH` (install with `npm i -g cline`). The old build-and-link helpers and the auto-running `cline-evals-regression.yml` workflow are off until someone wires the build step at the new SDK CLI.
+> Note: Smoke tests (Layer 2) are partially disabled while the eval framework is repointed at the new SDK CLI. The scenarios under `evals/smoke-tests/` are preserved and `npm run eval:smoke:run` still works against whatever `induscode` is on `$PATH` (install with `npm i -g induscode`). The old build-and-link helpers and the auto-running `induscode-evals-regression.yml` workflow are off until someone wires the build step at the new SDK CLI.
 
 ## Overview
 
-The evals system provides multi-layered testing for Cline's AI capabilities.
+The evals system provides multi-layered testing for IndusCode's AI capabilities.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -13,14 +13,14 @@ The evals system provides multi-layered testing for Cline's AI capabilities.
 │                                                                             │
 │                              ┌─────────┐                                    │
 │                             /   E2E    \         Layer 3: Full Agent        │
-│                            /  cline-   \         - Real coding tasks        │
+│                            /  induscode-   \         - Real coding tasks        │
 │                           /   bench     \        - Harbor execution         │
 │                          /_______________\       - Nightly runs             │
 │                                                                             │
 │                        ┌───────────────────┐                                │
 │                       /    Smoke Tests     \     Layer 2: Provider          │
 │                      /   run-smoke-tests    \    - 5 curated scenarios      │
-│                     /    (cline provider)    \   - 3 models via Vercel      │
+│                     /    (induscode provider)    \   - 3 models via Vercel      │
 │                    /_________________________\   - pass@k metrics           │
 │                                                                             │
 │              ┌─────────────────────────────────┐                            │
@@ -67,10 +67,10 @@ evals/
 │                   └── workspace-trial-1/    # Kept for failures only
 │
 ├── e2e/                     # Layer 3: Full agent E2E
-│   ├── run-cline-bench.ts   # Harbor runner
+│   ├── run-induscode-bench.ts   # Harbor runner
 │   └── README.md
 │
-└── cline-bench/             # Git submodule with real coding tasks
+└── induscode-bench/             # Git submodule with real coding tasks
     └── tasks/               # SWE-bench style problems
 ```
 
@@ -104,12 +104,12 @@ evals/
 │  │  │           RUN 3 TRIALS SEQUENTIALLY               │  │  │
 │  │  │                                                   │  │  │
 │  │  │  Trial 1 ──► Trial 2 ──► Trial 3 ──► Results      │  │  │
-│  │  │  (Sequential - Cline instance handles one at a time)  │  │
+│  │  │  (Sequential - IndusCode instance handles one at a time)  │  │
 │  │  │                                                   │  │  │
 │  │  │  Each trial:                                      │  │  │
 │  │  │  1. Create workspace-trial-N/                     │  │  │
 │  │  │  2. Copy template files (if any)                  │  │  │
-│  │  │  3. Run: cline -y -o "prompt"                     │  │  │
+│  │  │  3. Run: induscode -y -o "prompt"                     │  │  │
 │  │  │  4. Verify expected files exist                   │  │  │
 │  │  │  5. Verify expected content                       │  │  │
 │  │  │  6. Save trial-N.log                              │  │  │
@@ -136,7 +136,7 @@ evals/
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                    CLINE PROVIDER ROUTING                       │
+│                    INDUSCODE PROVIDER ROUTING                       │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
 │   ┌─────────────┐                                               │
@@ -144,12 +144,12 @@ evals/
 │   │   Runner    │                                               │
 │   └──────┬──────┘                                               │
 │          │                                                      │
-│          │  cline -y -o "prompt" --model <model>                │
+│          │  induscode -y -o "prompt" --model <model>                │
 │          │                                                      │
 │          ▼                                                      │
 │   ┌─────────────┐                                               │
-│   │   Cline     │                                               │
-│   │  Provider   │ ◄─── Uses your Cline auth (cline auth)        │
+│   │   IndusCode     │                                               │
+│   │  Provider   │ ◄─── Uses your IndusCode auth (induscode auth)        │
 │   └──────┬──────┘                                               │
 │          │                                                      │
 │          │ Routes to backend                                    │
@@ -219,7 +219,7 @@ ls evals/smoke-tests/results/latest/<scenario>/<model>/workspace-trial-1/
 
 ## CI Integration
 
-Smoke test CI is temporarily disabled. `.github/workflows/cline-evals-regression.yml` was removed until the build step is repointed at the new SDK CLI.
+Smoke test CI is temporarily disabled. `.github/workflows/induscode-evals-regression.yml` was removed until the build step is repointed at the new SDK CLI.
 
 ### Viewing CI Results
 
@@ -229,7 +229,7 @@ Smoke test CI is temporarily disabled. `.github/workflows/cline-evals-regression
 ### Running CI-like Tests Locally
 
 ```bash
-# Use an installed or locally linked cline binary
+# Use an installed or locally linked induscode binary
 npx tsx evals/smoke-tests/run-smoke-tests.ts --trials 1
 ```
 

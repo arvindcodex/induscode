@@ -1,6 +1,6 @@
-import type { ClineMessage, TurnState } from "@shared/ExtensionMessage"
+import type { IndusCodeMessage, TurnState } from "@shared/ExtensionMessage"
 
-// Convergent-replica reducer for the webview's clineMessages transcript.
+// Convergent-replica reducer for the webview's induscodeMessages transcript.
 //
 // The webview receives the same conversation over two unordered, fire-and-forget channels
 // (incremental partial messages and full state snapshots). This reducer makes the transcript
@@ -20,7 +20,7 @@ import type { ClineMessage, TurnState } from "@shared/ExtensionMessage"
  * mirrors what the UI consumes.
  */
 export interface ReplicaState {
-	messages: ClineMessage[]
+	messages: IndusCodeMessage[]
 	/** Highest epoch applied. Messages/snapshots from an older epoch are dropped. */
 	epoch: number
 	/** Highest per-message seq applied per ts. Used to ignore older copies of the same ts. */
@@ -53,12 +53,12 @@ function epochOf(item: { epoch?: number }): number {
 	return item.epoch ?? 0
 }
 
-function seqOf(message: ClineMessage): number {
+function seqOf(message: IndusCodeMessage): number {
 	return message.seq ?? 0
 }
 
 /** Replace the replica's transcript wholesale at a new epoch (new task / history load). */
-function resetTo(epoch: number, messages: ClineMessage[], stateVersion: number, turnState?: TurnState): ReplicaState {
+function resetTo(epoch: number, messages: IndusCodeMessage[], stateVersion: number, turnState?: TurnState): ReplicaState {
 	const seqByTs = new Map<number, number>()
 	for (const m of messages) {
 		const existing = seqByTs.get(m.ts)
@@ -85,7 +85,7 @@ export function applyTurnState(state: ReplicaState, incoming: TurnState | undefi
 }
 
 /**
- * Apply one incoming ClineMessage (from the partial-message stream OR from within a state
+ * Apply one incoming IndusCodeMessage (from the partial-message stream OR from within a state
  * snapshot). Returns the same state object when the message is stale/ignored, or a new state
  * when it changes the transcript.
  *
@@ -101,7 +101,7 @@ export function applyTurnState(state: ReplicaState, incoming: TurnState | undefi
  *                    follows will reconcile to the true new-task transcript.
  *  - same epoch   -> upsert by ts, keeping the higher seq
  */
-export function applyMessage(state: ReplicaState, incoming: ClineMessage): ReplicaState {
+export function applyMessage(state: ReplicaState, incoming: IndusCodeMessage): ReplicaState {
 	const incomingEpoch = epochOf(incoming)
 
 	if (incomingEpoch < state.epoch) {
@@ -167,7 +167,7 @@ export function applyMessage(state: ReplicaState, incoming: ClineMessage): Repli
  */
 export function applyStateSnapshot(
 	state: ReplicaState,
-	snapshotMessages: ClineMessage[],
+	snapshotMessages: IndusCodeMessage[],
 	snapshotEpoch = 0,
 	snapshotVersion = 0,
 	snapshotTurnState?: TurnState,

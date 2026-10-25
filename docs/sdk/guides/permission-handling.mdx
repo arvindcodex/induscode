@@ -11,7 +11,7 @@ Tool policies control whether tools are enabled and whether they run without app
 The simplest way to manage permissions is through tool policies. Set them per-tool when creating an agent:
 
 ```typescript
-import { Agent, createBuiltinTools } from "@cline/sdk"
+import { Agent, createBuiltinTools } from "@induscode/sdk"
 
 const agent = new Agent({
   // ...config
@@ -48,10 +48,10 @@ const agent = new Agent({
 })
 ```
 
-Or with ClineCore:
+Or with IndusCodeCore:
 
 ```typescript
-const session = await cline.start({
+const session = await induscode.start({
   config: {
     enableTools: true,
   },
@@ -79,13 +79,13 @@ Auto-approving all tools means the agent can execute any shell command, modify a
 For applications that need human oversight, implement a custom approval handler:
 
 ```typescript
-import { ClineCore } from "@cline/sdk"
+import { IndusCodeCore } from "@induscode/sdk"
 import * as readline from "readline"
 
 const rl = readline.createInterface({ input: process.stdin, output: process.stdout })
 const ask = (q: string) => new Promise<string>((res) => rl.question(q, res))
 
-const cline = await ClineCore.create({
+const induscode = await IndusCodeCore.create({
   clientName: "interactive-app",
   capabilities: {
     requestToolApproval: async (request) => {
@@ -122,7 +122,7 @@ for (const tool of WRITE_TOOLS) {
 Approve based on what the tool is actually doing, not just which tool it is:
 
 ```typescript
-const cline = await ClineCore.create({
+const induscode = await IndusCodeCore.create({
   clientName: "smart-approval",
   capabilities: {
     requestToolApproval: async (request) => {

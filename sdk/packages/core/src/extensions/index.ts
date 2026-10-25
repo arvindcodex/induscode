@@ -21,7 +21,7 @@ export type {
 	ResolveAgentPluginPathsOptions,
 } from "./plugin/plugin-config-loader";
 export {
-	CLINE_PLUGIN_MODE_ENV,
+	INDUSCODE_PLUGIN_MODE_ENV,
 	discoverPluginModulePaths,
 	getPluginDisplayName,
 	resolveAgentPluginPaths,
@@ -60,4 +60,4 @@ export {
 	PluginCallTimeoutError,
 	PluginRegistry,
 } from "./plugin/plugin-registry";
-export { CLINE_PLUGIN_BOOTSTRAP_PATH_ENV } from "./plugin/plugin-sandbox";
+export { INDUSCODE_PLUGIN_BOOTSTRAP_PATH_ENV } from "./plugin/plugin-sandbox";

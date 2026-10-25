@@ -95,16 +95,16 @@ const statusColors = {
 	merged: "text-purple-400",
 	failure: "text-red-400",
 	warning: "text-yellow-500",
-	neutral: "text-cline-ui-muted-foreground",
+	neutral: "text-induscode-ui-muted-foreground",
 	success: "text-green-500",
 };
 const checkColors = {
-	unavailable: "bg-cline-ui-muted-foreground",
-	none: "bg-cline-ui-muted-foreground",
+	unavailable: "bg-induscode-ui-muted-foreground",
+	none: "bg-induscode-ui-muted-foreground",
 	pending: "bg-yellow-500",
 	success: "bg-green-500",
 	failure: "bg-red-500",
-	skipped: "bg-cline-ui-muted-foreground",
+	skipped: "bg-induscode-ui-muted-foreground",
 };
 export function AgentPullRequestBar({
 	data,
@@ -142,7 +142,7 @@ export function AgentPullRequestBar({
 		onNavigate ? (
 			<button
 				type="button"
-				className={`cline-ui-pr-bar__link hover:underline ${action === "open" || action === "create" ? "shrink-0 font-medium" : "text-left"}`}
+				className={`induscode-ui-pr-bar__link hover:underline ${action === "open" || action === "create" ? "shrink-0 font-medium" : "text-left"}`}
 				title={title}
 				aria-label={label}
 				onClick={() => onNavigate(url, action)}
@@ -157,7 +157,7 @@ export function AgentPullRequestBar({
 			</button>
 		) : (
 			<a
-				className={`cline-ui-pr-bar__link hover:underline ${action === "open" || action === "create" ? "shrink-0 font-medium" : "text-left"}`}
+				className={`induscode-ui-pr-bar__link hover:underline ${action === "open" || action === "create" ? "shrink-0 font-medium" : "text-left"}`}
 				href={url}
 				target="_blank"
 				rel="noopener noreferrer"
@@ -175,37 +175,37 @@ export function AgentPullRequestBar({
 		);
 	const checksContent = (
 		<div
-			className="cline-ui-pr-bar__checks p-3"
+			className="induscode-ui-pr-bar__checks p-3"
 			data-native-navigation={onNavigate ? true : undefined}
 		>
-			<p className="cline-ui-pr-bar__checks-title mb-2 text-cline-ui-sm font-medium">
+			<p className="induscode-ui-pr-bar__checks-title mb-2 text-induscode-ui-sm font-medium">
 				Checks for #{pr?.number}
 			</p>
 			{ci === "unavailable" ? (
-				<p className="text-cline-ui-xs text-cline-ui-muted-foreground">
+				<p className="text-induscode-ui-xs text-induscode-ui-muted-foreground">
 					Checks could not be loaded. Refresh to try again.
 				</p>
 			) : ci === "none" ? (
-				<p className="text-cline-ui-xs text-cline-ui-muted-foreground">
+				<p className="text-induscode-ui-xs text-induscode-ui-muted-foreground">
 					No checks reported for this pull request.
 				</p>
 			) : null}
 			<ul className="max-h-64 space-y-2 overflow-y-auto">
 				{pr?.checks?.map((check, index) => (
 					<li
-						className="flex items-center gap-2 text-cline-ui-xs"
+						className="flex items-center gap-2 text-induscode-ui-xs"
 						key={`${check.name}:${index}`}
 					>
 						<span
 							aria-hidden="true"
-							className={`cline-ui-pr-bar__dot size-2 shrink-0 rounded-full ${checkColors[check.state]}`}
+							className={`induscode-ui-pr-bar__dot size-2 shrink-0 rounded-full ${checkColors[check.state]}`}
 							data-state={check.state}
 						/>
-						<span className="cline-ui-pr-bar__check-name min-w-0 flex-1 break-words">
+						<span className="induscode-ui-pr-bar__check-name min-w-0 flex-1 break-words">
 							{check.url ? link(check.url, "check", check.name) : check.name}
 						</span>
 						<span
-							className={`cline-ui-pr-bar__muted text-cline-ui-muted-foreground ${onNavigate ? "" : "shrink-0"}`}
+							className={`induscode-ui-pr-bar__muted text-induscode-ui-muted-foreground ${onNavigate ? "" : "shrink-0"}`}
 						>
 							{check.state}
 						</span>
@@ -216,18 +216,18 @@ export function AgentPullRequestBar({
 	);
 	return (
 		<section
-			className="cline-ui-pr-bar border-b border-cline-ui-border px-4 py-2 text-cline-ui-xs"
+			className="induscode-ui-pr-bar border-b border-induscode-ui-border px-4 py-2 text-induscode-ui-xs"
 			aria-label="Pull request status"
 			data-native-navigation={onNavigate ? true : undefined}
 		>
 			{error && (
-				<div className="cline-ui-pr-bar__error mb-1 flex items-start gap-2 text-cline-ui-muted-foreground">
+				<div className="induscode-ui-pr-bar__error mb-1 flex items-start gap-2 text-induscode-ui-muted-foreground">
 					<output className="min-w-0 flex-1">{error}</output>
 					{onDismissError && (
 						<button
 							type="button"
 							aria-label="Dismiss pull request error"
-							className="shrink-0 rounded p-1 hover:bg-cline-ui-muted"
+							className="shrink-0 rounded p-1 hover:bg-induscode-ui-muted"
 							onClick={onDismissError}
 						>
 							<X className="size-3" />
@@ -235,12 +235,12 @@ export function AgentPullRequestBar({
 					)}
 				</div>
 			)}
-			<div className="cline-ui-pr-bar__row flex min-w-0 flex-wrap items-center gap-2">
+			<div className="induscode-ui-pr-bar__row flex min-w-0 flex-wrap items-center gap-2">
 				{data &&
 					(data.branch ? (
 						<>
 							<PullRequestIcon
-								className={`cline-ui-pr-bar__icon size-4 shrink-0 cline-ui-pr-bar__tone--${status?.tone ?? "neutral"} ${statusColors[status?.tone ?? "neutral"]}`}
+								className={`induscode-ui-pr-bar__icon size-4 shrink-0 induscode-ui-pr-bar__tone--${status?.tone ?? "neutral"} ${statusColors[status?.tone ?? "neutral"]}`}
 							/>
 							{pr ? (
 								<>
@@ -252,7 +252,7 @@ export function AgentPullRequestBar({
 										`Open pull request #${pr.number}: ${pr.title}`,
 									)}
 									<span
-										className={`shrink-0 cline-ui-pr-bar__tone--${status?.tone} ${statusColors[status?.tone ?? "neutral"]}`}
+										className={`shrink-0 induscode-ui-pr-bar__tone--${status?.tone} ${statusColors[status?.tone ?? "neutral"]}`}
 									>
 										{status?.label}
 									</span>
@@ -266,7 +266,7 @@ export function AgentPullRequestBar({
 								)
 							) : null}
 							<span
-								className="cline-ui-pr-bar__branch min-w-0 flex-1 truncate text-cline-ui-muted-foreground"
+								className="induscode-ui-pr-bar__branch min-w-0 flex-1 truncate text-induscode-ui-muted-foreground"
 								title={`${data.repository} · ${data.branch}`}
 							>
 								{data.repository.split("/").pop()}{" "}
@@ -287,7 +287,7 @@ export function AgentPullRequestBar({
 								<>
 									{pr.additions !== undefined && pr.deletions !== undefined && (
 										<span
-											className="cline-ui-pr-bar__counts shrink-0 tabular-nums"
+											className="induscode-ui-pr-bar__counts shrink-0 tabular-nums"
 											{...(onNavigate
 												? {}
 												: {
@@ -296,10 +296,10 @@ export function AgentPullRequestBar({
 													})}
 											title={`${pr.additions} additions, ${pr.deletions} deletions`}
 										>
-											<span className="cline-ui-pr-bar__tone--success text-green-500">
+											<span className="induscode-ui-pr-bar__tone--success text-green-500">
 												+{pr.additions.toLocaleString()}
 											</span>{" "}
-											<span className="cline-ui-pr-bar__tone--failure text-red-400">
+											<span className="induscode-ui-pr-bar__tone--failure text-red-400">
 												−{pr.deletions.toLocaleString()}
 											</span>
 										</span>
@@ -307,14 +307,14 @@ export function AgentPullRequestBar({
 									{renderChecks(
 										<button
 											type="button"
-											className="cline-ui-pr-bar__check-trigger flex shrink-0 items-center gap-1.5 rounded-md bg-cline-ui-muted px-2 py-1"
+											className="induscode-ui-pr-bar__check-trigger flex shrink-0 items-center gap-1.5 rounded-md bg-induscode-ui-muted px-2 py-1"
 											aria-label={
 												ci === "none" ? "No CI checks" : checkLabels[ci]
 											}
 										>
 											<span
 												aria-hidden="true"
-												className={`cline-ui-pr-bar__dot size-2 rounded-full ${checkColors[ci]}`}
+												className={`induscode-ui-pr-bar__dot size-2 rounded-full ${checkColors[ci]}`}
 												data-state={ci}
 											/>
 											{checkLabels[ci]}
@@ -334,7 +334,7 @@ export function AgentPullRequestBar({
 					onClick={onRefresh}
 					aria-label="Refresh pull request status"
 					title="Refresh pull request status"
-					className="cline-ui-pr-bar__refresh shrink-0 rounded p-1 text-cline-ui-muted-foreground hover:bg-cline-ui-muted disabled:opacity-50"
+					className="induscode-ui-pr-bar__refresh shrink-0 rounded p-1 text-induscode-ui-muted-foreground hover:bg-induscode-ui-muted disabled:opacity-50"
 				>
 					<RefreshCw
 						className={`size-3 ${loading ? `animate-spin ${onNavigate ? "" : "motion-reduce:animate-none"}` : ""}`}

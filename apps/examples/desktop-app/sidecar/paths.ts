@@ -8,7 +8,7 @@ import {
 } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
-import { resolveSessionDataDir } from "@cline/shared/storage";
+import { resolveSessionDataDir } from "@induscode/shared/storage";
 import type { JsonRecord } from "./types";
 
 // ---------------------------------------------------------------------------
@@ -36,7 +36,7 @@ export function resolveWorkspaceRoot(launchCwd: string): string {
 // ---------------------------------------------------------------------------
 
 export function sharedSessionDataDir(): string {
-	return process.env.CLINE_SESSION_DATA_DIR?.trim() || resolveSessionDataDir();
+	return process.env.INDUSCODE_SESSION_DATA_DIR?.trim() || resolveSessionDataDir();
 }
 
 export function sharedSessionArtifactPath(
@@ -60,16 +60,16 @@ export function sharedSessionMessagesWritePath(sessionId: string): string {
 
 export function toolApprovalDir(): string {
 	return (
-		process.env.CLINE_TOOL_APPROVAL_DIR?.trim() ||
+		process.env.INDUSCODE_TOOL_APPROVAL_DIR?.trim() ||
 		join(sharedSessionDataDir(), "tool-approvals")
 	);
 }
 
 // MCP settings intentionally have no resolver here: every reader and writer
-// must share @cline/shared/storage `resolveMcpSettingsPath()` so the sidecar,
+// must share @induscode/shared/storage `resolveMcpSettingsPath()` so the sidecar,
 // the hub runtime, and the CLI all agree on one canonical file. A local
-// duplicate silently diverged under CLINE_DIR/CLINE_DATA_DIR overrides
-// (cline/cline#14152).
+// duplicate silently diverged under INDUSCODE_DIR/INDUSCODE_DATA_DIR overrides
+// (induscode/induscode#14152).
 
 // ---------------------------------------------------------------------------
 // Session log paths (kanban-style)
@@ -77,8 +77,8 @@ export function toolApprovalDir(): string {
 
 function kanbanDataRoot(): string {
 	return (
-		process.env.CLINE_KANBAN_DATA_DIR?.trim() ||
-		join(process.env.CLINE_DIR || join(homedir(), ".induscode"), "apps", "kanban")
+		process.env.INDUSCODE_KANBAN_DATA_DIR?.trim() ||
+		join(process.env.INDUSCODE_DIR || join(homedir(), ".induscode"), "apps", "kanban")
 	);
 }
 

@@ -1,4 +1,4 @@
-import type { HubEventEnvelope } from "@cline/shared";
+import type { HubEventEnvelope } from "@induscode/shared";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { handleChatSessionCommand } from "./chat-session";
 import {
@@ -24,7 +24,7 @@ const REMOTE_SESSION: CloudSessionRecord = {
 	id: "ses-outer",
 	status: "ready",
 	sandboxUrl: "https://pod.example/hub",
-	repoContext: { repoUrl: "https://github.com/cline/test" },
+	repoContext: { repoUrl: "https://github.com/induscode/test" },
 	metadata: { modelId: "anthropic/claude-sonnet-5" },
 	createdAt: "2026-08-05T10:00:00.000Z",
 	updatedAt: "2026-08-05T10:01:00.000Z",
@@ -151,10 +151,10 @@ function createFixture({
 }
 
 beforeAll(() => {
-	process.env.CLINE_CODE_CLOUD_AGENTS = "1";
+	process.env.INDUSCODE_CODE_CLOUD_AGENTS = "1";
 });
 afterAll(() => {
-	delete process.env.CLINE_CODE_CLOUD_AGENTS;
+	delete process.env.INDUSCODE_CODE_CLOUD_AGENTS;
 });
 
 describe("Cloud sessions sidecar wiring", () => {
@@ -177,7 +177,7 @@ describe("Cloud sessions sidecar wiring", () => {
 	});
 
 	it("blocks cloud session creation when the flag is off", async () => {
-		process.env.CLINE_CODE_CLOUD_AGENTS = "0";
+		process.env.INDUSCODE_CODE_CLOUD_AGENTS = "0";
 		try {
 			const create = vi.fn();
 			const { ctx, hub } = createFixture({
@@ -189,7 +189,7 @@ describe("Cloud sessions sidecar wiring", () => {
 					action: "start",
 					config: {
 						executionTarget: "cloud",
-						repoUrl: "https://github.com/cline/test",
+						repoUrl: "https://github.com/induscode/test",
 						model: "anthropic/claude-sonnet-5",
 					},
 				}),
@@ -198,7 +198,7 @@ describe("Cloud sessions sidecar wiring", () => {
 			expect(connect).not.toHaveBeenCalled();
 			expect(hub.commands).toEqual([]);
 		} finally {
-			process.env.CLINE_CODE_CLOUD_AGENTS = "1";
+			process.env.INDUSCODE_CODE_CLOUD_AGENTS = "1";
 		}
 	});
 
@@ -503,7 +503,7 @@ describe("Cloud sessions sidecar wiring", () => {
 			prompt: "Fix the provisioning flow",
 			config: {
 				executionTarget: "cloud",
-				repoUrl: "https://github.com/cline/test",
+				repoUrl: "https://github.com/induscode/test",
 				model: "anthropic/claude-sonnet-5",
 				sessionId: "client-planned-id",
 				branch: "feature/login-fix",
@@ -519,7 +519,7 @@ describe("Cloud sessions sidecar wiring", () => {
 		expect(ctx.liveSessions.has("ses-created")).toBe(true);
 		expect(create).toHaveBeenCalledExactlyOnceWith(
 			expect.objectContaining({
-				repoUrl: "https://github.com/cline/test",
+				repoUrl: "https://github.com/induscode/test",
 				modelId: "anthropic/claude-sonnet-5",
 				initialPrompt: "Fix the provisioning flow",
 				sandboxType: "resumable",
@@ -556,7 +556,7 @@ describe("Cloud sessions sidecar wiring", () => {
 		};
 		try {
 			await manager.create({
-				repoUrl: "https://github.com/cline/test",
+				repoUrl: "https://github.com/induscode/test",
 				modelId: "anthropic/claude-sonnet-5",
 				...(updateBeforeReset
 					? { autoApproveTools: true, thinking: true }
@@ -617,7 +617,7 @@ describe("Cloud sessions sidecar wiring", () => {
 		});
 		const created = await manager.create({
 			modelId: "model",
-			repoUrl: "https://github.com/cline/test",
+			repoUrl: "https://github.com/induscode/test",
 			initialPrompt: "Fix this",
 		});
 		expect(created).toMatchObject({
@@ -673,7 +673,7 @@ describe("Cloud sessions sidecar wiring", () => {
 		});
 		await manager.create({
 			modelId: "model",
-			repoUrl: "https://github.com/cline/test",
+			repoUrl: "https://github.com/induscode/test",
 		});
 		await expect(manager.send("ses-created", "Fix this")).rejects.toThrow(
 			/clone failed/,
@@ -707,7 +707,7 @@ describe("Cloud sessions sidecar wiring", () => {
 			sessionId: "inner-1",
 			payload: {
 				reason: "error",
-				error: "Insufficient balance. Your Cline Credits balance is $-1.55",
+				error: "Insufficient balance. Your IndusCode Credits balance is $-1.55",
 			},
 		} as HubEventEnvelope);
 
@@ -745,7 +745,7 @@ describe("Cloud sessions sidecar wiring", () => {
 						config: {
 							executionTarget: "cloud",
 							sessionId: outerId,
-							repoUrl: "https://github.com/cline/test",
+							repoUrl: "https://github.com/induscode/test",
 							model: "anthropic/claude-sonnet-5",
 						},
 					},

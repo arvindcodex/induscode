@@ -1,4 +1,4 @@
-import type * as LlmsProviders from "@cline/llms";
+import type * as LlmsProviders from "@induscode/llms";
 
 type Block = LlmsProviders.ContentBlock;
 type Message = LlmsProviders.MessageWithMetadata;

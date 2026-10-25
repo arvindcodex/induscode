@@ -22,11 +22,11 @@ const hooksE2e = e2e.extend({
 const HOOK_GATED_REPLY_TIMEOUT_MS = 45_000
 
 // The fixture ships a UserPromptSubmit hook
-// (.clinerules/hooks/UserPromptSubmit[.ps1]) that writes hook-ran.json into its
+// (.induscoderules/hooks/UserPromptSubmit[.ps1]) that writes hook-ran.json into its
 // working directory, recording process.cwd() and the workspaceRoots it received
 // on stdin. Discovery, cwd selection, and hook input metadata all resolve from
 // the window's actual workspace folders, so the marker must land in this
-// window's workspace root and name it — regardless of what any other Cline
+// window's workspace root and name it — regardless of what any other IndusCode
 // instance recorded in shared state.
 hooksE2e("Hooks - workspace hook runs from this window's workspace root", async ({ helper, sidebar, workspaceDir }) => {
 	// Each prompt here waits on a hook spawn before the reply; give the spec
@@ -46,7 +46,7 @@ hooksE2e("Hooks - workspace hook runs from this window's workspace root", async 
 
 		// The hook runs during beforeRun, ahead of the model call, so the
 		// marker exists by the time the mock response renders.
-		await expect(sidebar.getByText("mock Cline API response")).toBeVisible({ timeout: HOOK_GATED_REPLY_TIMEOUT_MS })
+		await expect(sidebar.getByText("mock IndusCode API response")).toBeVisible({ timeout: HOOK_GATED_REPLY_TIMEOUT_MS })
 
 		let markerRaw: string | undefined
 		await expect

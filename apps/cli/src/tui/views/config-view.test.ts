@@ -98,10 +98,10 @@ describe("config view helpers", () => {
 		});
 	});
 
-	it("separates Cline and Agent Plugins into labeled sections", () => {
-		const clinePlugin = createItem({
+	it("separates IndusCode and Agent Plugins into labeled sections", () => {
+		const induscodePlugin = createItem({
 			kind: "plugin",
-			name: "cline-plugin",
+			name: "induscode-plugin",
 			source: "workspace-plugin",
 		});
 		const agentPlugin = createItem({
@@ -111,8 +111,8 @@ describe("config view helpers", () => {
 			agentPlugin: true,
 		});
 
-		expect(getConfigPluginSections([clinePlugin, agentPlugin])).toEqual([
-			{ label: "Cline Plugins (1)", items: [clinePlugin] },
+		expect(getConfigPluginSections([induscodePlugin, agentPlugin])).toEqual([
+			{ label: "IndusCode Plugins (1)", items: [induscodePlugin] },
 			{ label: "Agent Plugins (1)", items: [agentPlugin] },
 		]);
 	});

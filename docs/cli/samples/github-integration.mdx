@@ -1,27 +1,27 @@
 ---
 title: "GitHub Actions Integration"
-description: "Automatically respond to GitHub issues by mentioning @cline in comments using Cline CLI in GitHub Actions."
+description: "Automatically respond to GitHub issues by mentioning @induscode in comments using IndusCode CLI in GitHub Actions."
 ---
 
-Automate GitHub issue analysis with AI. Mention `@cline` in any issue comment to trigger an autonomous investigation that reads files, analyzes code, and provides actionable insights - all running automatically in GitHub Actions.
+Automate GitHub issue analysis with AI. Mention `@induscode` in any issue comment to trigger an autonomous investigation that reads files, analyzes code, and provides actionable insights - all running automatically in GitHub Actions.
 
 
 <Note>
-**New to Cline CLI?** This sample assumes you understand Cline CLI basics and have completed the [Installation Guide](https://docs.cline.bot/getting-started/installing-cline). If you're new to Cline CLI, we recommend starting with the [GitHub RCA sample](./github-issue-rca) first, as it's simpler and will help you understand the fundamentals before setting up GitHub Actions.
+**New to IndusCode CLI?** This sample assumes you understand IndusCode CLI basics and have completed the [Installation Guide](https://docs.induscode.bot/getting-started/installing-induscode). If you're new to IndusCode CLI, we recommend starting with the [GitHub RCA sample](./github-issue-rca) first, as it's simpler and will help you understand the fundamentals before setting up GitHub Actions.
 </Note>
 
 ## The Workflow
 
-Trigger Cline by mentioning `@cline` in any issue comment:
+Trigger IndusCode by mentioning `@induscode` in any issue comment:
 
 <Frame>
-  <img src="https://storage.googleapis.com/cline_public_images/ss0a-comment.png" alt="Issue comment with @cline mention" width="600" />
+  <img src="https://storage.googleapis.com/induscode_public_images/ss0a-comment.png" alt="Issue comment with @induscode mention" width="600" />
 </Frame>
 
-Cline's automated analysis appears as a new comment, with insights drawn from your actual codebase:
+IndusCode's automated analysis appears as a new comment, with insights drawn from your actual codebase:
 
 <Frame>
-  <img src="https://storage.googleapis.com/cline_public_images/ss0b-final.png" alt="Automated analysis response from Cline" width="600" />
+  <img src="https://storage.googleapis.com/induscode_public_images/ss0b-final.png" alt="Automated analysis response from IndusCode" width="600" />
 </Frame>
 
 The entire investigation runs autonomously in GitHub Actions - from file exploration to posting results.
@@ -32,7 +32,7 @@ Let's configure your repository.
 
 Before you begin, you'll need:
 
-- **Cline CLI knowledge** - Completed the [Installation Guide](https://docs.cline.bot/getting-started/installing-cline) and understand basic usage
+- **IndusCode CLI knowledge** - Completed the [Installation Guide](https://docs.induscode.bot/getting-started/installing-induscode) and understand basic usage
 - **GitHub repository** - With admin access to configure Actions and secrets
 - **GitHub Actions familiarity** - Basic understanding of workflows and CI/CD
 - **API provider account** - OpenRouter, Anthropic, or similar with API key
@@ -43,11 +43,11 @@ Before you begin, you'll need:
 
 
 
-GitHub Actions runs workflow files in the `.github/workflows/` directory of your repository. Copy this workflow into `.github/workflows/cline-responder.yml`:
+GitHub Actions runs workflow files in the `.github/workflows/` directory of your repository. Copy this workflow into `.github/workflows/induscode-responder.yml`:
 
-<Accordion title="Click to view the complete cline-responder.yml workflow">
+<Accordion title="Click to view the complete induscode-responder.yml workflow">
 ```yaml
-name: Cline Issue Assistant
+name: IndusCode Issue Assistant
 
 on:
   issue_comment:
@@ -58,9 +58,9 @@ permissions: {}
 
 jobs:
   authorize:
-    # Runs for @cline mentions on issues, not pull requests.
+    # Runs for @induscode mentions on issues, not pull requests.
     if: |
-      contains(github.event.comment.body, '@cline') &&
+      contains(github.event.comment.body, '@induscode') &&
       !github.event.issue.pull_request
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -74,7 +74,7 @@ jobs:
 
     steps:
       # Checks the comment's author, not whoever edited it last, so that
-      # editing someone else's comment doesn't start Cline on their text.
+      # editing someone else's comment doesn't start IndusCode on their text.
       - name: Check that the comment's author can write to the repository
         id: check
         env:
@@ -91,10 +91,10 @@ jobs:
     needs: authorize
     if: needs.authorize.outputs.allowed == 'true'
     runs-on: ubuntu-latest
-    environment: cline-actions
+    environment: induscode-actions
     timeout-minutes: 30
 
-    # Read-only: Cline runs in this job.
+    # Read-only: IndusCode runs in this job.
     permissions:
       contents: read
       issues: read
@@ -110,14 +110,14 @@ jobs:
         with:
           node-version: 22
 
-      - name: Install Cline CLI
-        run: npm install -g cline
+      - name: Install IndusCode CLI
+        run: npm install -g induscode
 
-      - name: Configure Cline Authentication
+      - name: Configure IndusCode Authentication
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
         run: |
-          cline auth --provider openrouter \
+          induscode auth --provider openrouter \
             --apikey "$OPENROUTER_API_KEY" \
             --modelid anthropic/claude-sonnet-5.5
 
@@ -142,7 +142,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
-    # Can write issues, but runs no code from the repository or from Cline.
+    # Can write issues, but runs no code from the repository or from IndusCode.
     permissions:
       issues: write
 
@@ -162,11 +162,11 @@ jobs:
 ```
 </Accordion>
 
-The workflow has three jobs, so that only people who can write to the repository can start Cline, and the job that runs Cline can't change your repository or your issues:
+The workflow has three jobs, so that only people who can write to the repository can start IndusCode, and the job that runs IndusCode can't change your repository or your issues:
 
-1. **`authorize`** runs when someone mentions `@cline` in an issue comment. It looks up the comment author's permission on the repository, and the workflow stops unless they can write to it. GitHub reports the maintain role as write.
-2. **`analyze`** gets a read-only token, runs the analysis script from your repository, and saves Cline's answer to a file.
-3. **`post`** gets permission to write issues, but doesn't check out code or run Cline. It posts the file as a comment on the issue.
+1. **`authorize`** runs when someone mentions `@induscode` in an issue comment. It looks up the comment author's permission on the repository, and the workflow stops unless they can write to it. GitHub reports the maintain role as write.
+2. **`analyze`** gets a read-only token, runs the analysis script from your repository, and saves IndusCode's answer to a file.
+3. **`post`** gets permission to write issues, but doesn't check out code or run IndusCode. It posts the file as a comment on the issue.
 
 ### 2. Configure API Keys
 
@@ -176,27 +176,27 @@ Add your AI provider API keys as repository secrets:
 2. Navigate to **Settings** → **Environment** and Add a new environment.
 
    <Frame>
-     <img src="https://storage.googleapis.com/cline_public_images/ss01-environment.png" alt="Navigate to Actions secrets" width="600" />
+     <img src="https://storage.googleapis.com/induscode_public_images/ss01-environment.png" alt="Navigate to Actions secrets" width="600" />
    </Frame>
 
-   Make sure to name it "cline-actions" so that it matches the `environment`
-   value at the top of the `cline-responder.yml` file.
+   Make sure to name it "induscode-actions" so that it matches the `environment`
+   value at the top of the `induscode-responder.yml` file.
 
 3. Click **New repository secret**
 4. Add a secret for the `OPENROUTER_API_KEY` with a value of an API key from
    [openrouter.com](https://openrouter.com).
 
    <Frame>
-     <img src="https://storage.googleapis.com/cline_public_images/ss02-api-key.png" alt="Add API key secret" width="600" />
+     <img src="https://storage.googleapis.com/induscode_public_images/ss02-api-key.png" alt="Add API key secret" width="600" />
    </Frame>
 
 5. Verify your secret is configured:
 
    <Frame>
-     <img src="https://storage.googleapis.com/cline_public_images/ss03-ready.png" alt="API key configured" width="600" />
+     <img src="https://storage.googleapis.com/induscode_public_images/ss03-ready.png" alt="API key configured" width="600" />
    </Frame>
 
-Now you're ready to supply Cline with the credentials it needs in a GitHub Action.
+Now you're ready to supply IndusCode with the credentials it needs in a GitHub Action.
 
 ### 3. Add Analysis Script
 
@@ -212,7 +212,7 @@ nano git-scripts/analyze-issue.sh  # or use vim, code, etc.
 <Accordion title="Click to view the complete analyze-issue.sh script">
 ```bash
 #!/bin/bash
-# Analyze a GitHub issue using Cline CLI
+# Analyze a GitHub issue using IndusCode CLI
 
 if [ -z "$1" ]; then
     echo "Usage: $0 <github-issue-url> [prompt]"
@@ -225,11 +225,11 @@ fi
 ISSUE_URL="$1"
 PROMPT="${2:-What is the root cause of this issue?}"
 
-# Fail if Cline fails, not only if jq does
+# Fail if IndusCode fails, not only if jq does
 set -o pipefail
 
-# Ask Cline for its analysis, showing only the summary
-cline --auto-approve true --json "$PROMPT: $ISSUE_URL" | \
+# Ask IndusCode for its analysis, showing only the summary
+induscode --auto-approve true --json "$PROMPT: $ISSUE_URL" | \
     jq -r 'select(.type == "run_result") | .text'
 ```
 
@@ -239,28 +239,28 @@ chmod +x git-scripts/analyze-issue.sh
 ```
 </Accordion>
 
-This analysis script calls Cline to execute a prompt on a GitHub issue and
-prints Cline's final answer, which becomes the reply to the issue.
+This analysis script calls IndusCode to execute a prompt on a GitHub issue and
+prints IndusCode's final answer, which becomes the reply to the issue.
 
 ### 4. Commit and Push
 
 ```bash
-git add .github/workflows/cline-responder.yml
+git add .github/workflows/induscode-responder.yml
 git add git-scripts/analyze-issue.sh
-git commit -m "Add Cline issue assistant workflow"
+git commit -m "Add IndusCode issue assistant workflow"
 git push
 ```
 
 ## Usage
 
-Once set up, simply mention `@cline` in any issue comment:
+Once set up, simply mention `@induscode` in any issue comment:
 
 ```text
-@cline what's causing this error?
+@induscode what's causing this error?
 
-@cline analyze the root cause
+@induscode analyze the root cause
 
-@cline what are the security implications?
+@induscode what are the security implications?
 ```
 
 **Note**: The workflow only triggers on issue comments, not pull request
@@ -268,18 +268,18 @@ comments, and only for comments from people with write access to the repository.
 
 ## How It Works
 
-The workflow (`cline-responder.yml`):
+The workflow (`induscode-responder.yml`):
 
-1. **Triggers** on issue comments (created or edited) that mention `@cline`
+1. **Triggers** on issue comments (created or edited) that mention `@induscode`
 2. **Checks** that the comment's author can write to the repository
-3. **Installs** Cline CLI globally using npm
-4. **Configures** authentication using `cline auth --provider openrouter --apikey ... --modelid ...`
-5. **Runs** `git-scripts/analyze-issue.sh` from your repository, which runs Cline in Act mode with auto-approval
-6. **Posts** the analysis as a comment, from a separate job that doesn't run Cline
+3. **Installs** IndusCode CLI globally using npm
+4. **Configures** authentication using `induscode auth --provider openrouter --apikey ... --modelid ...`
+5. **Runs** `git-scripts/analyze-issue.sh` from your repository, which runs IndusCode in Act mode with auto-approval
+6. **Posts** the analysis as a comment, from a separate job that doesn't run IndusCode
 
 ## What the Analysis Job Can Still Do
 
-With `--auto-approve true`, Cline can run any shell command in the `analyze` job. Text in the issue or the comment could persuade Cline to do something other than analyze it. The read-only token stops Cline from changing your repository or issues, but the job can still read your code and your provider API key, and it can reach the internet. Use a provider key with a spending limit, and don't give the job any other secrets.
+With `--auto-approve true`, IndusCode can run any shell command in the `analyze` job. Text in the issue or the comment could persuade IndusCode to do something other than analyze it. The read-only token stops IndusCode from changing your repository or issues, but the job can still read your code and your provider API key, and it can reach the internet. Use a provider key with a spending limit, and don't give the job any other secrets.
 
 ## Related Samples
 

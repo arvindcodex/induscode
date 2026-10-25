@@ -1,4 +1,4 @@
-import { EmptyRequest } from "@shared/proto/cline/common"
+import { EmptyRequest } from "@shared/proto/induscode/common"
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react"
 import { CheckCircle2Icon, CloudIcon, LoaderCircleIcon, RefreshCcwIcon } from "lucide-react"
 import { useEffect, useState } from "react"
@@ -37,7 +37,7 @@ export function CloudGitHubCard() {
 		<div className="flex flex-col gap-2 rounded-md border border-border-panel px-3 py-2.5">
 			<div className="flex items-center gap-2">
 				<CloudIcon className="size-4 text-description" />
-				<span className="text-sm font-medium">Cline Cloud</span>
+				<span className="text-sm font-medium">IndusCode Cloud</span>
 				<button
 					aria-label="Refresh GitHub connection"
 					className="ml-auto cursor-pointer border-0 bg-transparent p-0 text-description hover:text-foreground"

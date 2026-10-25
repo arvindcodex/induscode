@@ -1,4 +1,4 @@
-import { estimateRequestInputTokens } from "@cline/shared";
+import { estimateRequestInputTokens } from "@induscode/shared";
 import { resolveConnectionProviderConfig } from "../../services/llms/handler-factory";
 import {
 	captureCompactionBudgetEmergency,

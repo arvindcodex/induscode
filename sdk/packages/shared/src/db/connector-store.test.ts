@@ -11,20 +11,20 @@ import { afterEach, describe, expect, it } from "vitest";
 import { SqliteConnectorStore } from "./connector-store";
 
 describe("SqliteConnectorStore", () => {
-	const previousDataDir = process.env.CLINE_DATA_DIR;
-	const previousSettingsPath = process.env.CLINE_CONNECTOR_SETTINGS_PATH;
-	const previousDbPath = process.env.CLINE_CONNECTORS_DB_PATH;
+	const previousDataDir = process.env.INDUSCODE_DATA_DIR;
+	const previousSettingsPath = process.env.INDUSCODE_CONNECTOR_SETTINGS_PATH;
+	const previousDbPath = process.env.INDUSCODE_CONNECTORS_DB_PATH;
 	const tempRoots: string[] = [];
 
 	afterEach(() => {
-		process.env.CLINE_DATA_DIR = previousDataDir;
-		process.env.CLINE_CONNECTOR_SETTINGS_PATH = previousSettingsPath;
-		process.env.CLINE_CONNECTORS_DB_PATH = previousDbPath;
-		if (previousDataDir === undefined) delete process.env.CLINE_DATA_DIR;
+		process.env.INDUSCODE_DATA_DIR = previousDataDir;
+		process.env.INDUSCODE_CONNECTOR_SETTINGS_PATH = previousSettingsPath;
+		process.env.INDUSCODE_CONNECTORS_DB_PATH = previousDbPath;
+		if (previousDataDir === undefined) delete process.env.INDUSCODE_DATA_DIR;
 		if (previousSettingsPath === undefined)
-			delete process.env.CLINE_CONNECTOR_SETTINGS_PATH;
+			delete process.env.INDUSCODE_CONNECTOR_SETTINGS_PATH;
 		if (previousDbPath === undefined)
-			delete process.env.CLINE_CONNECTORS_DB_PATH;
+			delete process.env.INDUSCODE_CONNECTORS_DB_PATH;
 		for (const root of tempRoots.splice(0)) {
 			rmSync(root, { recursive: true, force: true });
 		}
@@ -33,9 +33,9 @@ describe("SqliteConnectorStore", () => {
 	function useTempDataDir(): string {
 		const root = mkdtempSync(join(tmpdir(), "connector-store-"));
 		tempRoots.push(root);
-		process.env.CLINE_DATA_DIR = root;
-		delete process.env.CLINE_CONNECTOR_SETTINGS_PATH;
-		delete process.env.CLINE_CONNECTORS_DB_PATH;
+		process.env.INDUSCODE_DATA_DIR = root;
+		delete process.env.INDUSCODE_CONNECTOR_SETTINGS_PATH;
+		delete process.env.INDUSCODE_CONNECTORS_DB_PATH;
 		return root;
 	}
 
@@ -69,13 +69,13 @@ describe("SqliteConnectorStore", () => {
 	it("refreshes stored launch args while preserving autostart state", () => {
 		useTempDataDir();
 		withStore((store) => {
-			store.recordConnected("telegram", "cline_bot", ["-k", "123:token"]);
+			store.recordConnected("telegram", "induscode_bot", ["-k", "123:token"]);
 			store.setEnabled("telegram", false);
 			store.upsertConfig({
 				channel: "telegram",
 				values: { "-k": "456:rotated" },
 			});
-			expect(store.getConnection("telegram", "cline_bot")?.connectArgs).toEqual(
+			expect(store.getConnection("telegram", "induscode_bot")?.connectArgs).toEqual(
 				["-k", "123:token"],
 			);
 			store.upsertConfig({
@@ -86,7 +86,7 @@ describe("SqliteConnectorStore", () => {
 			expect(store.getConfig("telegram")?.values).toEqual({
 				"-k": "456:rotated",
 			});
-			const connection = store.getConnection("telegram", "cline_bot");
+			const connection = store.getConnection("telegram", "induscode_bot");
 			expect(connection?.connectArgs).toEqual(["-k", "456:rotated"]);
 			expect(connection?.lastSuccessfulArgs).toEqual(["-k", "123:token"]);
 			expect(connection?.enabled).toBe(false);
@@ -128,12 +128,12 @@ describe("SqliteConnectorStore", () => {
 	it("round-trips empty connect args for env-only starts", () => {
 		useTempDataDir();
 		withStore((store) => {
-			store.recordConnected("telegram", "cline_bot", []);
+			store.recordConnected("telegram", "induscode_bot", []);
 
-			expect(store.getConnection("telegram", "cline_bot")?.connectArgs).toEqual(
+			expect(store.getConnection("telegram", "induscode_bot")?.connectArgs).toEqual(
 				[],
 			);
-			expect(store.getConnection("telegram", "cline_bot")?.enabled).toBe(true);
+			expect(store.getConnection("telegram", "induscode_bot")?.enabled).toBe(true);
 		});
 	});
 
@@ -141,7 +141,7 @@ describe("SqliteConnectorStore", () => {
 		useTempDataDir();
 		withStore((store) => {
 			store.recordConnected("slack", "workspace", ["--bot-token", "xoxb"]);
-			store.recordConnected("telegram", "cline_bot", ["-k", "123:token"]);
+			store.recordConnected("telegram", "induscode_bot", ["-k", "123:token"]);
 			store.disableAll();
 			expect(store.listConnections().every((entry) => !entry.enabled)).toBe(
 				true,
@@ -152,7 +152,7 @@ describe("SqliteConnectorStore", () => {
 	it("deletes dashboard config without clearing CLI autostart state", () => {
 		useTempDataDir();
 		withStore((store) => {
-			store.recordConnected("telegram", "cline_bot", ["-k", "123:token"]);
+			store.recordConnected("telegram", "induscode_bot", ["-k", "123:token"]);
 			store.upsertConfig({
 				channel: "telegram",
 				values: { "-k": "123:token" },
@@ -161,10 +161,10 @@ describe("SqliteConnectorStore", () => {
 
 			expect(store.deleteConfig("telegram")).toBe(true);
 			expect(store.getConfig("telegram")).toBeUndefined();
-			expect(store.getConnection("telegram", "cline_bot")).toEqual(
+			expect(store.getConnection("telegram", "induscode_bot")).toEqual(
 				expect.objectContaining({
 					channel: "telegram",
-					instanceId: "cline_bot",
+					instanceId: "induscode_bot",
 					connectArgs: ["-k", "123:token"],
 					enabled: true,
 				}),

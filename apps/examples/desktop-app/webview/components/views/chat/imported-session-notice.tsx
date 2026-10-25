@@ -8,7 +8,7 @@ import {
 
 /**
  * Heads a transcript imported from another coding agent. Its turns keep that
- * agent's tool names and schemas, which Cline does not translate; without the
+ * agent's tool names and schemas, which IndusCode does not translate; without the
  * notice the session looks native and the user has no way to know why
  * continuing it may go differently.
  */
@@ -25,9 +25,9 @@ export function ImportedSessionNotice({ tool }: { tool: SessionImportTool }) {
 				</p>
 				<p className="mt-0.5 text-[13px] text-muted-foreground">
 					The earlier turns were recorded by {label}, whose tools and workflow
-					differ from Cline&apos;s. When you continue, the model works from a
+					differ from IndusCode&apos;s. When you continue, the model works from a
 					summary of them rather than the original tool calls, so results may
-					not be as reliable as in a session started with Cline.
+					not be as reliable as in a session started with IndusCode.
 				</p>
 			</div>
 		</output>

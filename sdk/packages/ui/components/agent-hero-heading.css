@@ -1,4 +1,4 @@
-.cline-ui-agent-hero-heading {
+.induscode-ui-agent-hero-heading {
 	margin: 0;
 	color: var(--foreground);
 	font-size: clamp(2rem, 3vw, 2.6rem);
@@ -10,17 +10,17 @@
 }
 
 /* Opacity and transform avoid per-character blur repaints. */
-.cline-ui-agent-hero-heading__character {
+.induscode-ui-agent-hero-heading__character {
 	display: inline-block;
 	white-space: pre;
 	color: var(--brand-violet);
-	animation: cline-ui-agent-hero-word-in 0.5s cubic-bezier(0.2, 0.65, 0.3, 1)
+	animation: induscode-ui-agent-hero-word-in 0.5s cubic-bezier(0.2, 0.65, 0.3, 1)
 		both;
 }
 
 /* Per-character clipping avoids invisible text on transformed WebKit layers. */
 @supports ((-webkit-background-clip: text) or (background-clip: text)) {
-	.cline-ui-agent-hero-heading__character {
+	.induscode-ui-agent-hero-heading__character {
 		background-image: linear-gradient(
 			135deg,
 			var(--brand-periwinkle),
@@ -35,12 +35,12 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-	.cline-ui-agent-hero-heading__character {
+	.induscode-ui-agent-hero-heading__character {
 		animation: none;
 	}
 }
 
-@keyframes cline-ui-agent-hero-word-in {
+@keyframes induscode-ui-agent-hero-word-in {
 	0% {
 		opacity: 0;
 		transform: translateY(0.42em);

@@ -1,9 +1,9 @@
-import type { AgentMode } from "@cline/core";
+import type { AgentMode } from "@induscode/core";
 import {
 	type ToolApprovalRequest,
 	type ToolApprovalResult,
 	USER_REJECTED_TOOL_REASON,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { RuntimeToolInteraction, TuiProps } from "../types";
 

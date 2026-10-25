@@ -1,5 +1,5 @@
 import { Controller } from "@/sdk"
-import { RemoteConfigSetting, RemoteConfigType, ToggleRemoteConfigSettingRequest } from "@/shared/proto/index.cline"
+import { RemoteConfigSetting, RemoteConfigType, ToggleRemoteConfigSettingRequest } from "@/shared/proto/index.induscode"
 import { getRemoteConfigSetting } from "./settings"
 
 function toggleKey(type: RemoteConfigType): "remoteRulesToggles" | "remoteWorkflowToggles" | "remoteSkillsToggles" {

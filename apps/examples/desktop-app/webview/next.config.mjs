@@ -20,7 +20,7 @@ const nextConfig = {
 	env: {
 		// Read by app/api/changelog at build time; the CLI's cwd differs
 		// between `next dev webview` and `next build` run inside webview/.
-		CLINE_DESKTOP_CHANGELOG_PATH: path.join(__dirname, "../CHANGELOG.md"),
+		INDUSCODE_DESKTOP_CHANGELOG_PATH: path.join(__dirname, "../CHANGELOG.md"),
 	},
 	typescript: {
 		ignoreBuildErrors: true,

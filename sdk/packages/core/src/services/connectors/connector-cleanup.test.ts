@@ -1,5 +1,5 @@
 import { EventEmitter } from "node:events";
-import type { ConnectorCliLaunchSpec } from "@cline/shared";
+import type { ConnectorCliLaunchSpec } from "@induscode/shared";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanupConnectorInstanceViaCli } from "./connector-cleanup";
 
@@ -24,15 +24,15 @@ class FakeChild extends EventEmitter {
 describe("cleanupConnectorInstanceViaCli", () => {
 	afterEach(() => {
 		vi.clearAllMocks();
-		delete process.env.CLINE_SLACK_CONNECT_CHILD;
-		delete process.env.CLINE_RUN_AS_HUB_DAEMON;
+		delete process.env.INDUSCODE_SLACK_CONNECT_CHILD;
+		delete process.env.INDUSCODE_RUN_AS_HUB_DAEMON;
 	});
 
 	it("invokes the CLI cleanup path with flags before the channel", async () => {
 		const child = new FakeChild();
 		const spawnProcess = vi.fn(() => child);
 
-		const pending = cleanupConnectorInstanceViaCli("slack", "cline-slack", {
+		const pending = cleanupConnectorInstanceViaCli("slack", "induscode-slack", {
 			launchSpec: spec,
 			spawnProcess: spawnProcess as never,
 		});
@@ -47,7 +47,7 @@ describe("cleanupConnectorInstanceViaCli", () => {
 				// `connect` uses passThroughOptions, so a flag after the channel would
 				// be handed to the adapter instead of the connect command.
 				"--cleanup-instance",
-				"cline-slack",
+				"induscode-slack",
 				"slack",
 			],
 			expect.objectContaining({ cwd: "/workspace" }),
@@ -55,8 +55,8 @@ describe("cleanupConnectorInstanceViaCli", () => {
 	});
 
 	it("strips inherited daemon and connector-child markers", async () => {
-		process.env.CLINE_RUN_AS_HUB_DAEMON = "1";
-		process.env.CLINE_SLACK_CONNECT_CHILD = "1";
+		process.env.INDUSCODE_RUN_AS_HUB_DAEMON = "1";
+		process.env.INDUSCODE_SLACK_CONNECT_CHILD = "1";
 		const child = new FakeChild();
 		let env: NodeJS.ProcessEnv = {};
 		const spawnProcess = vi.fn(
@@ -70,22 +70,22 @@ describe("cleanupConnectorInstanceViaCli", () => {
 			},
 		);
 
-		const pending = cleanupConnectorInstanceViaCli("slack", "cline-slack", {
+		const pending = cleanupConnectorInstanceViaCli("slack", "induscode-slack", {
 			launchSpec: spec,
 			spawnProcess: spawnProcess as never,
 		});
 		child.emit("close", 0);
 		await pending;
 
-		expect(env.CLINE_RUN_AS_HUB_DAEMON).toBeUndefined();
-		expect(env.CLINE_SLACK_CONNECT_CHILD).toBeUndefined();
+		expect(env.INDUSCODE_RUN_AS_HUB_DAEMON).toBeUndefined();
+		expect(env.INDUSCODE_SLACK_CONNECT_CHILD).toBeUndefined();
 	});
 
 	it("reports a failing cleanup with the CLI's stderr", async () => {
 		const child = new FakeChild();
 		const spawnProcess = vi.fn(() => child);
 
-		const pending = cleanupConnectorInstanceViaCli("slack", "cline-slack", {
+		const pending = cleanupConnectorInstanceViaCli("slack", "induscode-slack", {
 			launchSpec: spec,
 			spawnProcess: spawnProcess as never,
 		});
@@ -99,7 +99,7 @@ describe("cleanupConnectorInstanceViaCli", () => {
 
 	it("fails fast when no launch specification is available", async () => {
 		await expect(
-			cleanupConnectorInstanceViaCli("slack", "cline-slack", {
+			cleanupConnectorInstanceViaCli("slack", "induscode-slack", {
 				launchSpec: undefined,
 			}),
 		).rejects.toThrow("connector CLI launch information is unavailable");
@@ -109,7 +109,7 @@ describe("cleanupConnectorInstanceViaCli", () => {
 		vi.useFakeTimers();
 		try {
 			const child = new FakeChild();
-			const pending = cleanupConnectorInstanceViaCli("slack", "cline-slack", {
+			const pending = cleanupConnectorInstanceViaCli("slack", "induscode-slack", {
 				launchSpec: spec,
 				spawnProcess: (() => child) as never,
 				timeoutMs: 50,

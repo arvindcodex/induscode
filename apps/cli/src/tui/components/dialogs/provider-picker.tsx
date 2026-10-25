@@ -1,5 +1,5 @@
 import {
-	completeClineDeviceAuth,
+	completeIndusCodeDeviceAuth,
 	getProviderConfigFields,
 	isLocalAuthProvider,
 	isOAuthProvider,
@@ -9,9 +9,9 @@ import {
 	ProviderSettingsManager,
 	saveLocalProviderOAuthCredentials,
 	saveLocalProviderSettings,
-	startClineDeviceAuth,
-} from "@cline/core";
-import { getClineEnvironmentConfig } from "@cline/shared";
+	startIndusCodeDeviceAuth,
+} from "@induscode/core";
+import { getIndusCodeEnvironmentConfig } from "@induscode/shared";
 import type { ChoiceContext } from "@opentui-ui/dialog";
 import { useDialogKeyboard } from "@opentui-ui/dialog/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -39,7 +39,7 @@ import {
 	type SearchableItem,
 } from "../searchable-list";
 import {
-	buildClinePassSubscriptionPageUrl,
+	buildIndusCodePassSubscriptionPageUrl,
 	resolveOAuthWaitKeyAction,
 	saveManualProviderApiKey,
 } from "./provider-picker-helpers";
@@ -337,7 +337,7 @@ export function UseExistingOrReconfigureContent(
 	);
 }
 
-function ClinePassBrowserPageContent(
+function IndusCodePassBrowserPageContent(
 	props: ChoiceContext<boolean> & {
 		providerName: string;
 		pageLabel: string;
@@ -397,19 +397,19 @@ function ClinePassBrowserPageContent(
 	);
 }
 
-export function ClinePassSubscriptionContent(
+export function IndusCodePassSubscriptionContent(
 	props: ChoiceContext<boolean> & {
 		providerName: string;
 	},
 ) {
 	const subscriptionUrl = useMemo(
 		() =>
-			buildClinePassSubscriptionPageUrl(getClineEnvironmentConfig().appBaseUrl),
+			buildIndusCodePassSubscriptionPageUrl(getIndusCodeEnvironmentConfig().appBaseUrl),
 		[],
 	);
 
 	return (
-		<ClinePassBrowserPageContent
+		<IndusCodePassBrowserPageContent
 			{...props}
 			pageLabel="Subscription page"
 			url={subscriptionUrl}
@@ -766,7 +766,7 @@ export function OAuthLoginContent(
 	} = props;
 	const palette = useDialogPalette();
 	const [mode, setMode] = useState<"browser" | "device">(
-		providerId === "cline" ? "device" : "browser",
+		providerId === "induscode" ? "device" : "browser",
 	);
 	const [status, setStatus] = useState("Opening browser...");
 	const [authUrl, setAuthUrl] = useState("");
@@ -806,9 +806,9 @@ export function OAuthLoginContent(
 		const manager = new ProviderSettingsManager();
 		const existing = manager.getProviderSettings(providerId);
 		const apiBaseUrl =
-			existing?.baseUrl?.trim() || getClineEnvironmentConfig().apiBaseUrl;
+			existing?.baseUrl?.trim() || getIndusCodeEnvironmentConfig().apiBaseUrl;
 
-		startClineDeviceAuth()
+		startIndusCodeDeviceAuth()
 			.then((result) => {
 				if (!isActiveAuthAttempt(attempt)) return;
 				setDeviceUserCode(result.userCode);
@@ -816,7 +816,7 @@ export function OAuthLoginContent(
 					result.verificationUriComplete || result.verificationUri,
 				);
 
-				completeClineDeviceAuth({
+				completeIndusCodeDeviceAuth({
 					deviceCode: result.deviceCode,
 					expiresInSeconds: result.expiresInSeconds,
 					pollIntervalSeconds: result.pollIntervalSeconds,
@@ -852,7 +852,7 @@ export function OAuthLoginContent(
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: run once on mount
 	useEffect(() => {
-		if (providerId === "cline") {
+		if (providerId === "induscode") {
 			startDeviceAuthCodeFlow();
 			return cancelAuthAttempt;
 		}
@@ -1023,7 +1023,7 @@ export function OAuthApiKeyInputContent(
 			{saveError && <text fg="red">{saveError}</text>}
 
 			<text fg="gray">
-				Use an API key from your Cline dashboard instead of OAuth login. This
+				Use an API key from your IndusCode dashboard instead of OAuth login. This
 				replaces any saved login tokens.
 			</text>
 

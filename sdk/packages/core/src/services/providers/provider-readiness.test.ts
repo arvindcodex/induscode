@@ -15,14 +15,14 @@ describe("provider readiness", () => {
 
 	it("requires usable OAuth credentials for OAuth providers", () => {
 		expect(
-			isProviderSettingsUsable("cline", {
-				provider: "cline",
+			isProviderSettingsUsable("induscode", {
+				provider: "induscode",
 				model: "claude-sonnet-4-6",
 			} satisfies ProviderSettings),
 		).toBe(false);
 		expect(
-			isProviderSettingsUsable("cline", {
-				provider: "cline",
+			isProviderSettingsUsable("induscode", {
+				provider: "induscode",
 				auth: { accessToken: "token" },
 			} satisfies ProviderSettings),
 		).toBe(true);

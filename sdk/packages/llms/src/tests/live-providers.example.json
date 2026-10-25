@@ -23,9 +23,9 @@
 				"requireCacheReadTokens": true
 			}
 		},
-		"cline": {
+		"induscode": {
 			"settings": {
-				"provider": "cline",
+				"provider": "induscode",
 				"model": "anthropic/claude-sonnet-4.6"
 			},
 			"runs": 3,
@@ -34,9 +34,9 @@
 				"requireCacheReadTokens": true
 			}
 		},
-		"cline-opus": {
+		"induscode-opus": {
 			"settings": {
-				"provider": "cline",
+				"provider": "induscode",
 				"model": "anthropic/claude-opus-4.7"
 			},
 			"runs": 3,
@@ -45,9 +45,9 @@
 				"requireCacheReadTokens": true
 			}
 		},
-		"cline-gpt-5.3-codex": {
+		"induscode-gpt-5.3-codex": {
 			"settings": {
-				"provider": "cline",
+				"provider": "induscode",
 				"model": "openai/gpt-5.3-codex"
 			},
 			"expectations": {
@@ -189,9 +189,9 @@
 				"requireCacheReadTokens": true
 			}
 		},
-		"cline-qwen": {
+		"induscode-qwen": {
 			"settings": {
-				"provider": "cline",
+				"provider": "induscode",
 				"model": "qwen/qwen3.6-plus"
 			},
 			"runs": 3,

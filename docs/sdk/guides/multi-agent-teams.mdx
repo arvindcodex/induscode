@@ -8,14 +8,14 @@ Multi-agent teams let you break complex work across multiple agents that coordin
 
 ## Enabling Teams
 
-Teams are a ClineCore feature. Enable them in the session config:
+Teams are a IndusCodeCore feature. Enable them in the session config:
 
 ```typescript
-import { ClineCore } from "@cline/sdk"
+import { IndusCodeCore } from "@induscode/sdk"
 
-const cline = await ClineCore.create({ clientName: "team-app" })
+const induscode = await IndusCodeCore.create({ clientName: "team-app" })
 
-const session = await cline.start({
+const session = await induscode.start({
   prompt: "Plan and implement a user authentication module with tests",
   config: {
     providerId: "anthropic",
@@ -49,14 +49,14 @@ Teammates get the same tools except `team_spawn_teammate`, and only the coordina
 
 ## Team Persistence
 
-Team state belongs to the session. Cline saves each team's task board, mailbox, mission log, results and teammates in `~/.cline/data/db/teams.db`, under the session's ID. When the session resumes, its team and teammates come back.
+Team state belongs to the session. IndusCode saves each team's task board, mailbox, mission log, results and teammates in `~/.induscode/data/db/teams.db`, under the session's ID. When the session resumes, its team and teammates come back.
 
 ## Via CLI
 
-Start a prompt with `/team` to start a team, and resume the session with `cline --id <session-id>` to continue its work. [Agent Teams](/cli/agent-teams) has the details.
+Start a prompt with `/team` to start a team, and resume the session with `induscode --id <session-id>` to continue its work. [Agent Teams](/cli/agent-teams) has the details.
 
 ```bash
-cline "/team Plan and implement user auth with tests"
+induscode "/team Plan and implement user auth with tests"
 ```
 
 ## Sub-Agents vs Teams
@@ -75,7 +75,7 @@ Sub-agents are lighter weight. The parent agent spawns a child, waits for its re
 
 ```typescript
 // Sub-agents: simple delegation within a single session
-const session = await cline.start({
+const session = await induscode.start({
   config: {
     enableSpawnAgent: true,  // Agent can spawn sub-agents
     // ...

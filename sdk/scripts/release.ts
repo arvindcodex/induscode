@@ -47,8 +47,8 @@ if (!target || !["sdk", "cli"].includes(target)) {
 	console.error("Usage: bun release <sdk|cli> [version] [options]");
 	console.error("");
 	console.error("Targets:");
-	console.error("  sdk   Publish @cline/{shared,llms,agents,core,sdk} to npm");
-	console.error("  cli   Publish cline from an existing cli-vX.Y.Z git tag");
+	console.error("  sdk   Publish @induscode/{shared,llms,agents,core,sdk} to npm");
+	console.error("  cli   Publish induscode from an existing cli-vX.Y.Z git tag");
 	console.error("");
 	console.error("Options:");
 	console.error(
@@ -422,7 +422,7 @@ async function releaseSDK(version: string): Promise<number> {
 	header("Step 4/5: Publishing packages");
 	for (const workspace of SDK_PUBLISH_ORDER) {
 		const pkgDir = join(packagesDir, workspace);
-		const name = `@cline/${workspace}`;
+		const name = `@induscode/${workspace}`;
 		console.log(`  Publishing ${name}@${version} with tag '${npmTag}'...`);
 		const stagedReadme = await stageSdkReadmeForPublish(workspace);
 		try {
@@ -465,7 +465,7 @@ async function releaseSDK(version: string): Promise<number> {
 	} else {
 		console.log(`  Published SDK packages with tag '${npmTag}':`);
 		for (const workspace of SDK_PUBLISH_ORDER) {
-			console.log(`    - @cline/${workspace}@${version}`);
+			console.log(`    - @induscode/${workspace}@${version}`);
 		}
 	}
 	console.log(`${"═".repeat(60)}\n`);
@@ -522,7 +522,7 @@ async function releaseCLI(version: string): Promise<number> {
 		console.log(`  CLI v${version} published to npm.`);
 		console.log("");
 		console.log("  Install via npm:");
-		console.log("    npm install -g cline");
+		console.log("    npm install -g induscode");
 	}
 	console.log(`${"═".repeat(60)}\n`);
 

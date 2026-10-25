@@ -2,7 +2,7 @@
  * Shared types and interfaces for the chat view components
  */
 
-import { ClineAsk, ClineMessage } from "@shared/ExtensionMessage"
+import { IndusCodeAsk, IndusCodeMessage } from "@shared/ExtensionMessage"
 import { ListRange, VirtuosoHandle } from "react-virtuoso"
 import type { ButtonActionType, SubmittingButtonActionType } from "../shared/buttonConfig"
 
@@ -19,7 +19,7 @@ export type ButtonActionInvocation =
 	| { type: Exclude<ButtonActionType, SubmittingButtonActionType>; draft?: never }
 
 export interface PendingUserMessage {
-	message: ClineMessage
+	message: IndusCodeMessage
 	afterTs: number
 }
 
@@ -68,10 +68,10 @@ export interface ChatState {
 	textAreaRef: React.RefObject<HTMLTextAreaElement>
 
 	// Derived values
-	lastMessage: ClineMessage | undefined
-	secondLastMessage: ClineMessage | undefined
-	clineAsk: ClineAsk | undefined
-	task: ClineMessage | undefined
+	lastMessage: IndusCodeMessage | undefined
+	secondLastMessage: IndusCodeMessage | undefined
+	induscodeAsk: IndusCodeAsk | undefined
+	task: IndusCodeMessage | undefined
 
 	// Handlers
 	handleFocusChange: (isFocused: boolean) => void
@@ -114,7 +114,7 @@ export interface ScrollBehavior {
 	setIsAtBottom: React.Dispatch<React.SetStateAction<boolean>>
 	pendingScrollToMessage: number | null
 	setPendingScrollToMessage: React.Dispatch<React.SetStateAction<number | null>>
-	scrolledPastUserMessage: ClineMessage | null
+	scrolledPastUserMessage: IndusCodeMessage | null
 	handleRangeChanged: (range: ListRange) => void
 }
 

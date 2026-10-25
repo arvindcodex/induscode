@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { builtinModules, createRequire } from "node:module";
 import { dirname, extname, isAbsolute, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { PLUGIN_FILE_EXTENSIONS } from "@cline/shared";
+import { PLUGIN_FILE_EXTENSIONS } from "@induscode/shared";
 
 const MODULE_DIR = dirname(fileURLToPath(import.meta.url));
 const HOST_REQUIRE = createRequire(import.meta.url);
@@ -11,20 +11,20 @@ const HOST_REQUIRE = createRequire(import.meta.url);
 const WORKSPACE_ROOT = resolve(MODULE_DIR, "..", "..", "..", "..", "..");
 const WORKSPACE_ALIASES = collectWorkspaceAliases(WORKSPACE_ROOT);
 const HOST_PROVIDED_SDK_SPECIFIERS = [
-	"@cline/sdk",
-	"@cline/agents",
-	"@cline/core",
-	"@cline/core/hub",
-	"@cline/core/hub/daemon-entry",
-	"@cline/core/telemetry",
-	"@cline/llms",
-	"@cline/llms/browser",
-	"@cline/shared",
-	"@cline/shared/automation",
-	"@cline/shared/browser",
-	"@cline/shared/storage",
-	"@cline/shared/db",
-	"@cline/shared/types",
+	"@induscode/sdk",
+	"@induscode/agents",
+	"@induscode/core",
+	"@induscode/core/hub",
+	"@induscode/core/hub/daemon-entry",
+	"@induscode/core/telemetry",
+	"@induscode/llms",
+	"@induscode/llms/browser",
+	"@induscode/shared",
+	"@induscode/shared/automation",
+	"@induscode/shared/browser",
+	"@induscode/shared/storage",
+	"@induscode/shared/db",
+	"@induscode/shared/types",
 ];
 const BUILTIN_MODULES = new Set(
 	builtinModules.flatMap((id) => [id, id.replace(/^node:/, "")]),
@@ -50,16 +50,16 @@ export interface ImportPluginModuleOptions {
 function collectWorkspaceAliases(root: string): Record<string, string> {
 	const aliases: Record<string, string> = {};
 	const candidates: Record<string, string> = {
-		"@cline/sdk": resolve(root, "packages/sdk/src/index.ts"),
-		"@cline/agents": resolve(root, "packages/agents/src/index.ts"),
-		"@cline/core": resolve(root, "packages/core/src/index.ts"),
-		"@cline/llms": resolve(root, "packages/llms/src/index.ts"),
-		"@cline/shared": resolve(root, "packages/shared/src/index.ts"),
-		"@cline/shared/storage": resolve(
+		"@induscode/sdk": resolve(root, "packages/sdk/src/index.ts"),
+		"@induscode/agents": resolve(root, "packages/agents/src/index.ts"),
+		"@induscode/core": resolve(root, "packages/core/src/index.ts"),
+		"@induscode/llms": resolve(root, "packages/llms/src/index.ts"),
+		"@induscode/shared": resolve(root, "packages/shared/src/index.ts"),
+		"@induscode/shared/storage": resolve(
 			root,
 			"packages/shared/src/storage/index.ts",
 		),
-		"@cline/shared/db": resolve(root, "packages/shared/src/db/index.ts"),
+		"@induscode/shared/db": resolve(root, "packages/shared/src/db/index.ts"),
 	};
 	for (const [key, value] of Object.entries(candidates)) {
 		if (existsSync(value)) {
@@ -211,8 +211,8 @@ function getPackageExportPath(specifier: string): string {
 	return `.${specifier.slice(packageName.length)}`;
 }
 
-function isClineSdkSpecifier(specifier: string): boolean {
-	return getPackageName(specifier).startsWith("@cline/");
+function isIndusCodeSdkSpecifier(specifier: string): boolean {
+	return getPackageName(specifier).startsWith("@induscode/");
 }
 
 function hasInstalledDependency(
@@ -297,7 +297,7 @@ function resolveHostPackageExport(specifier: string): string | null {
 
 function getHostPackageSearchRoots(): string[] {
 	const roots = [MODULE_DIR];
-	const wrapperPath = process.env.CLINE_WRAPPER_PATH?.trim();
+	const wrapperPath = process.env.INDUSCODE_WRAPPER_PATH?.trim();
 	if (wrapperPath) {
 		roots.push(dirname(dirname(wrapperPath)));
 	}
@@ -355,11 +355,11 @@ function findHostPackageRoot(packageName: string): string | null {
 }
 
 function isPackageBasedPlugin(pluginFilePath: string): boolean {
-	// Walk up from the plugin file looking for a package.json with a `cline`
+	// Walk up from the plugin file looking for a package.json with a `induscode`
 	// manifest. Stop at the first package.json we encounter; if it doesn't
-	// declare `cline` we've left the plugin boundary (e.g. hit the workspace
+	// declare `induscode` we've left the plugin boundary (e.g. hit the workspace
 	// root).  Also cap the traversal so we never wander far from the plugin
-	// search root (.cline/plugins).
+	// search root (.induscode/plugins).
 	const MAX_DEPTH = 4;
 	let current = dirname(pluginFilePath);
 	for (let depth = 0; depth < MAX_DEPTH; depth++) {
@@ -367,7 +367,7 @@ function isPackageBasedPlugin(pluginFilePath: string): boolean {
 		if (existsSync(packageJsonPath)) {
 			try {
 				const pkg = JSON.parse(readFileSync(packageJsonPath, "utf8"));
-				return pkg != null && typeof pkg === "object" && "cline" in pkg;
+				return pkg != null && typeof pkg === "object" && "induscode" in pkg;
 			} catch {
 				return false;
 			}
@@ -464,7 +464,7 @@ function assertPluginDependenciesInstalled(
 				Object.hasOwn(WORKSPACE_ALIASES, specifier) ||
 				Object.hasOwn(WORKSPACE_ALIASES, getPackageName(specifier)) ||
 				hasInstalledDependency(pluginPath, specifier) ||
-				(isClineSdkSpecifier(specifier) &&
+				(isIndusCodeSdkSpecifier(specifier) &&
 					resolvesFromHostRuntime(specifier)) ||
 				(preferHostRuntimeDependencies && resolvesFromHostRuntime(specifier))
 			) {
@@ -580,7 +580,7 @@ function collectPluginImportAliases(
 	for (const specifier of staticSpecifiers) {
 		if (
 			isBareSpecifier(specifier) &&
-			(isClineSdkSpecifier(specifier) || preferHostRuntimeDependencies)
+			(isIndusCodeSdkSpecifier(specifier) || preferHostRuntimeDependencies)
 		) {
 			hostRuntimeSpecifiers.add(specifier);
 		}
@@ -758,7 +758,7 @@ export async function importPluginModule(
 		transformModules,
 		// On Bun (the packaged binary), tryNative defaults to true, which makes
 		// jiti hand the plugin path straight to Bun's `import()`. Bun then owns
-		// every nested import in the plugin, sees `import "@cline/core"` with no
+		// every nested import in the plugin, sees `import "@induscode/core"` with no
 		// node_modules adjacent to the drop-in plugin. Forcing tryNative off keeps
 		// jiti in charge so bare specifiers can be rewritten through aliases first.
 		tryNative: false,

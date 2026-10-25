@@ -1,62 +1,62 @@
-import type { UsageTransaction as ClineAccountUsageTransaction, PaymentTransaction } from "@shared/ClineAccount"
-import { isClineInternalTester } from "@shared/internal/account"
-import type { UserOrganization } from "@shared/proto/cline/account"
-import { EmptyRequest } from "@shared/proto/cline/common"
+import type { UsageTransaction as IndusCodeAccountUsageTransaction, PaymentTransaction } from "@shared/IndusCodeAccount"
+import { isIndusCodeInternalTester } from "@shared/internal/account"
+import type { UserOrganization } from "@shared/proto/induscode/account"
+import { EmptyRequest } from "@shared/proto/induscode/common"
 import { VSCodeButton, VSCodeDivider, VSCodeDropdown, VSCodeOption, VSCodeTag } from "@vscode/webview-ui-toolkit/react"
 import { LoaderCircleIcon } from "lucide-react"
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useInterval } from "react-use"
 import { CloudGitHubCard } from "@/components/cloud/CloudGitHubCard"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
-import { type ClineUser, handleSignOut, useClineAuth } from "@/context/ClineAuthContext"
+import { type IndusCodeUser, handleSignOut, useIndusCodeAuth } from "@/context/IndusCodeAuthContext"
 import { useExtensionState } from "@/context/ExtensionStateContext"
 import { AccountServiceClient } from "@/services/grpc-client"
 import ViewHeader from "../common/ViewHeader"
 import VSCodeButtonLink from "../common/VSCodeButtonLink"
 import { updateSetting } from "../settings/utils/settingsHandlers"
 import { AccountWelcomeView } from "./AccountWelcomeView"
-import { ClinePassCard } from "./ClinePassCard"
+import { IndusCodePassCard } from "./IndusCodePassCard"
 import { CreditBalance } from "./CreditBalance"
 import CreditsHistoryTable from "./CreditsHistoryTable"
-import { convertProtoUsageTransactions, getClineUris, getMainRole } from "./helpers"
+import { convertProtoUsageTransactions, getIndusCodeUris, getMainRole } from "./helpers"
 import { RemoteConfigToggle } from "./RemoteConfigToggle"
 
 type AccountViewProps = {
-	clineUser: ClineUser | null
+	induscodeUser: IndusCodeUser | null
 	organizations: UserOrganization[] | null
 	activeOrganization: UserOrganization | null
 	onDone: () => void
 }
 
-type ClineAccountViewProps = {
-	clineUser: ClineUser
+type IndusCodeAccountViewProps = {
+	induscodeUser: IndusCodeUser
 	userOrganizations: UserOrganization[] | null
 	activeOrganization: UserOrganization | null
-	clineEnv: "Production" | "Staging" | "Local"
+	induscodeEnv: "Production" | "Staging" | "Local"
 }
 
 type CachedData = {
 	balance: number | null
-	usageData: ClineAccountUsageTransaction[]
+	usageData: IndusCodeAccountUsageTransaction[]
 	paymentsData: PaymentTransaction[]
 	lastFetchTime: number
 }
 
-const ClineEnvOptions = ["Production", "Staging", "Local"] as const
+const IndusCodeEnvOptions = ["Production", "Staging", "Local"] as const
 
-const AccountView = ({ onDone, clineUser, organizations, activeOrganization }: AccountViewProps) => {
+const AccountView = ({ onDone, induscodeUser, organizations, activeOrganization }: AccountViewProps) => {
 	const { environment } = useExtensionState()
 
 	return (
 		<div className="fixed inset-0 flex flex-col overflow-hidden">
 			<ViewHeader environment={environment} onDone={onDone} showEnvironmentSuffix title="Account" />
 			<div className="grow flex flex-col px-5 overflow-y-auto">
-				{clineUser?.uid ? (
-					<ClineAccountView
+				{induscodeUser?.uid ? (
+					<IndusCodeAccountView
 						activeOrganization={activeOrganization}
-						clineEnv={environment === "local" ? "Local" : environment === "staging" ? "Staging" : "Production"}
-						clineUser={clineUser}
-						key={clineUser.uid}
+						induscodeEnv={environment === "local" ? "Local" : environment === "staging" ? "Staging" : "Production"}
+						induscodeUser={induscodeUser}
+						key={induscodeUser.uid}
 						userOrganizations={organizations}
 					/>
 				) : (
@@ -67,14 +67,14 @@ const AccountView = ({ onDone, clineUser, organizations, activeOrganization }: A
 	)
 }
 
-const ClineAccountView = ({ clineUser, userOrganizations, activeOrganization, clineEnv }: ClineAccountViewProps) => {
-	const { email, displayName, appBaseUrl, uid } = clineUser
+const IndusCodeAccountView = ({ induscodeUser, userOrganizations, activeOrganization, induscodeEnv }: IndusCodeAccountViewProps) => {
+	const { email, displayName, appBaseUrl, uid } = induscodeUser
 	const { remoteConfigSettings, environment, cloudSessionsEnabled } = useExtensionState()
 
 	// Determine if dropdown should be locked by remote config
 	const isLockedByRemoteConfig = Object.keys(remoteConfigSettings || {}).length > 0
 
-	const { accountSwitch, accountSwitchError, switchOrganization } = useClineAuth()
+	const { accountSwitch, accountSwitchError, switchOrganization } = useIndusCodeAuth()
 	const dropdownValue = activeOrganization?.organizationId || uid
 	const [isLoading, setIsLoading] = useState(false)
 
@@ -82,8 +82,8 @@ const ClineAccountView = ({ clineUser, userOrganizations, activeOrganization, cl
 	const creditRequest = useRef<object | null>(null)
 	const activeAccount = useRef(dropdownValue)
 	activeAccount.current = dropdownValue
-	const isClineTester = useMemo(() => (email ? isClineInternalTester(email) : false), [email])
-	const clineUrl = appBaseUrl || "https://app.cline.bot"
+	const isIndusCodeTester = useMemo(() => (email ? isIndusCodeInternalTester(email) : false), [email])
+	const induscodeUrl = appBaseUrl || "https://app.induscode.bot"
 
 	const fetchCreditBalance = useCallback(
 		async (accountId: string) => {
@@ -207,7 +207,7 @@ const ClineAccountView = ({ clineUser, userOrganizations, activeOrganization, cl
 
 				<div className="w-full flex gap-2 flex-col min-[225px]:flex-row">
 					<div className="w-full min-[225px]:w-1/2">
-						<VSCodeButtonLink appearance="primary" className="w-full" href={getClineUris(clineUrl, "dashboard").href}>
+						<VSCodeButtonLink appearance="primary" className="w-full" href={getIndusCodeUris(induscodeUrl, "dashboard").href}>
 							Dashboard
 						</VSCodeButtonLink>
 					</div>
@@ -226,13 +226,13 @@ const ClineAccountView = ({ clineUser, userOrganizations, activeOrganization, cl
 
 				<CreditBalance
 					balance={balance}
-					creditUrl={getClineUris(clineUrl, "credits", dropdownValue === uid ? "account" : "organization")}
+					creditUrl={getIndusCodeUris(induscodeUrl, "credits", dropdownValue === uid ? "account" : "organization")}
 					fetchCreditBalance={() => fetchCreditBalance(dropdownValue)}
 					isLoading={isLoading || !!accountSwitch}
 					lastFetchTime={lastFetchTime}
 				/>
 
-				<ClinePassCard />
+				<IndusCodePassCard />
 
 				<VSCodeDivider className="mt-6 mb-3 w-full" />
 
@@ -246,21 +246,21 @@ const ClineAccountView = ({ clineUser, userOrganizations, activeOrganization, cl
 				</div>
 
 				{/* Hide environment switching UI when in self-hosted mode */}
-				{isClineTester && environment !== "selfHosted" && (
+				{isIndusCodeTester && environment !== "selfHosted" && (
 					<div className="w-full gap-1 items-end">
 						<VSCodeDivider className="w-full my-3" />
-						<div className="text-sm font-semibold">Cline Environment</div>
+						<div className="text-sm font-semibold">IndusCode Environment</div>
 						<VSCodeDropdown
 							className="w-full mt-1"
-							currentValue={clineEnv}
+							currentValue={induscodeEnv}
 							onChange={async (e) => {
 								const target = e.target as HTMLSelectElement
 								if (target?.value) {
 									const value = target.value as "Local" | "Staging" | "Production"
-									updateSetting("clineEnv", value.toLowerCase())
+									updateSetting("induscodeEnv", value.toLowerCase())
 								}
 							}}>
-							{ClineEnvOptions.map((env) => (
+							{IndusCodeEnvOptions.map((env) => (
 								<VSCodeOption key={env} value={env}>
 									{env}
 								</VSCodeOption>

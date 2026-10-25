@@ -1,4 +1,4 @@
-import { buildGroupedToolLabel } from "@cline/ui/components/agent-chat/tool-summary";
+import { buildGroupedToolLabel } from "@induscode/ui/components/agent-chat/tool-summary";
 import { describe, expect, it } from "vitest";
 import type { ChatMessage } from "@/lib/chat-schema";
 import {

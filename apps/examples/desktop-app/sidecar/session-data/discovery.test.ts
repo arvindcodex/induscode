@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
-vi.mock("@cline/core", async (importOriginal) => ({
-	...(await importOriginal<typeof import("@cline/core")>()),
+vi.mock("@induscode/core", async (importOriginal) => ({
+	...(await importOriginal<typeof import("@induscode/core")>()),
 	SqliteSessionStore: class {
 		get() {
 			return { metadata: {} };
@@ -8,7 +8,7 @@ vi.mock("@cline/core", async (importOriginal) => ({
 	},
 }));
 vi.mock("../paths", () => ({
-	sharedSessionDataDir: () => "/nonexistent-cline-discovery-test",
+	sharedSessionDataDir: () => "/nonexistent-induscode-discovery-test",
 	readSessionManifest: () => undefined,
 }));
 vi.mock("./messages", () => ({ readPersistedChatMessages: () => [] }));

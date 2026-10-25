@@ -3,7 +3,7 @@ import {
 	type AgentMode,
 	decodeJwtPayload,
 	type MessageWithMetadata,
-} from "@cline/shared";
+} from "@induscode/shared";
 import type {
 	CloudBranchListOptions,
 	CloudBranchListResult,
@@ -14,7 +14,7 @@ const CREATE_TIMEOUT_MS = 610_000;
 const PROVISIONING_POLL_MS = 3_000;
 const REQUEST_TIMEOUT_MS = 15_000;
 const CLOUD_ERROR_PREFIX = "CLOUD_SESSION_ERROR:";
-const CREATE_REQUEST_TITLE_PREFIX = "__cline_create_request__:";
+const CREATE_REQUEST_TITLE_PREFIX = "__induscode_create_request__:";
 type FetchLike = (
 	input: string | URL | Request,
 	init?: RequestInit,
@@ -310,7 +310,7 @@ export class CloudSessionApi {
 			if (!token?.trim()) {
 				throw new CloudSessionError(
 					"authentication_required",
-					"Sign in to Cline before starting a cloud session.",
+					"Sign in to IndusCode before starting a cloud session.",
 				);
 			}
 			if (token.trim() === rejectedToken)
@@ -572,7 +572,7 @@ export class CloudSessionApi {
 		if (!initialAuthToken) {
 			throw new CloudSessionError(
 				"authentication_required",
-				"Sign in to Cline before starting a cloud session.",
+				"Sign in to IndusCode before starting a cloud session.",
 			);
 		}
 		const creationAuth: CreationAuth = {
@@ -990,7 +990,7 @@ export class CloudSessionApi {
 		if (!token?.trim()) {
 			throw new CloudSessionError(
 				"authentication_required",
-				"Sign in to Cline to load this session's history.",
+				"Sign in to IndusCode to load this session's history.",
 			);
 		}
 		const response = await this.fetchImpl(

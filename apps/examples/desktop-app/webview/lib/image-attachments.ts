@@ -2,7 +2,7 @@ import {
 	DEFAULT_MAX_IMAGE_BASE64_BYTES,
 	DEFAULT_MAX_TOTAL_MEDIA_BYTES,
 	SUPPORTED_IMAGE_MEDIA_TYPES,
-} from "@cline/shared/browser";
+} from "@induscode/shared/browser";
 
 export function cloudImageAttachmentError(
 	files: Pick<File, "size">[],

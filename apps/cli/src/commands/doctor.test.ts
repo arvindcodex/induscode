@@ -19,7 +19,7 @@ import { getCliBuildInfo } from "../utils/common";
 
 const {
 	mockSpawnSync,
-	mockResolveClineDataDir,
+	mockResolveIndusCodeDataDir,
 	mockResolveProductionHubOwnerContext,
 	mockResolveSharedHubOwnerContext,
 	mockReadHubDiscovery,
@@ -33,11 +33,11 @@ const {
 	mockListSupervisedConnectors,
 } = vi.hoisted(() => ({
 	mockSpawnSync: vi.fn(),
-	mockResolveClineDataDir: vi.fn(() => "/tmp/cline-data"),
+	mockResolveIndusCodeDataDir: vi.fn(() => "/tmp/induscode-data"),
 	mockResolveProductionHubOwnerContext: vi.fn(() => ({
 		ownerId: "hub-production",
 		discoveryPath: path.join(
-			"/tmp/cline-data",
+			"/tmp/induscode-data",
 			"locks",
 			"hub",
 			"production.json",
@@ -46,7 +46,7 @@ const {
 	mockResolveSharedHubOwnerContext: vi.fn(() => ({
 		ownerId: "hub-owner",
 		discoveryPath: path.join(
-			"/tmp/cline-data",
+			"/tmp/induscode-data",
 			"locks",
 			"hub",
 			"owners",
@@ -73,8 +73,8 @@ vi.mock("node:child_process", () => ({
 	spawnSync: mockSpawnSync,
 }));
 
-vi.mock("@cline/core", () => ({
-	resolveClineDataDir: mockResolveClineDataDir,
+vi.mock("@induscode/core", () => ({
+	resolveIndusCodeDataDir: mockResolveIndusCodeDataDir,
 	resolveProductionHubOwnerContext: mockResolveProductionHubOwnerContext,
 	resolveSharedHubOwnerContext: mockResolveSharedHubOwnerContext,
 	clearHubDiscovery: mockClearHubDiscovery,
@@ -105,11 +105,11 @@ describe("runDoctorCommand", () => {
 
 	afterEach(() => {
 		vi.clearAllMocks();
-		mockResolveClineDataDir.mockReturnValue("/tmp/cline-data");
+		mockResolveIndusCodeDataDir.mockReturnValue("/tmp/induscode-data");
 		mockResolveProductionHubOwnerContext.mockReturnValue({
 			ownerId: "hub-production",
 			discoveryPath: path.join(
-				"/tmp/cline-data",
+				"/tmp/induscode-data",
 				"locks",
 				"hub",
 				"production.json",
@@ -216,11 +216,11 @@ describe("runDoctorCommand", () => {
 			if (
 				command === "pgrep" &&
 				Array.isArray(args) &&
-				args[2] === "--cline-hub-daemon"
+				args[2] === "--induscode-hub-daemon"
 			) {
 				return {
 					status: 0,
-					stdout: "50174 /usr/local/bin/cline --cline-hub-daemon\n",
+					stdout: "50174 /usr/local/bin/induscode --induscode-hub-daemon\n",
 				};
 			}
 			return { status: 1, stdout: "" };
@@ -394,7 +394,7 @@ describe("runDoctorCommand", () => {
 		],
 		[
 			"/bin/desktop-backend/index.js",
-			"60123 /Applications/Cline.app/Contents/MacOS/cline-cli run --no-env-file /Applications/Cline.app/Contents/Resources/bin/desktop-backend/index.js\n",
+			"60123 /Applications/IndusCode.app/Contents/MacOS/induscode-cli run --no-env-file /Applications/IndusCode.app/Contents/Resources/bin/desktop-backend/index.js\n",
 		],
 	])("doctor --fix kills stale desktop backend processes matching %s", async (pattern, pgrepOutput) => {
 		const cwd = "/workspace";
@@ -492,8 +492,8 @@ describe("createDoctorCommand log subcommand", () => {
 			path.join(os.tmpdir(), `${commandName}-doctor-log-test-`),
 		);
 		tempDirs.push(dataDir);
-		mockResolveClineDataDir.mockReturnValue(dataDir);
-		vi.stubEnv("CLINE_LOG_PATH", undefined);
+		mockResolveIndusCodeDataDir.mockReturnValue(dataDir);
+		vi.stubEnv("INDUSCODE_LOG_PATH", undefined);
 
 		const { exitCode, opened, output, errors } = await runDoctorLog();
 
@@ -505,13 +505,13 @@ describe("createDoctorCommand log subcommand", () => {
 		expect(existsSync(expectedPath)).toBe(true);
 	});
 
-	it("opens the CLINE_LOG_PATH file the CLI writes to", async () => {
+	it("opens the INDUSCODE_LOG_PATH file the CLI writes to", async () => {
 		const logDir = mkdtempSync(
 			path.join(os.tmpdir(), `${commandName}-doctor-log-path-test-`),
 		);
 		tempDirs.push(logDir);
 		const logPath = path.join(logDir, "custom", "cli.log");
-		vi.stubEnv("CLINE_LOG_PATH", logPath);
+		vi.stubEnv("INDUSCODE_LOG_PATH", logPath);
 
 		const { exitCode, opened, output } = await runDoctorLog();
 
@@ -526,8 +526,8 @@ describe("createDoctorCommand log subcommand", () => {
 			path.join(os.tmpdir(), `${commandName}-doctor-log-test-`),
 		);
 		tempDirs.push(dataDir);
-		mockResolveClineDataDir.mockReturnValue(dataDir);
-		vi.stubEnv("CLINE_LOG_PATH", undefined);
+		mockResolveIndusCodeDataDir.mockReturnValue(dataDir);
+		vi.stubEnv("INDUSCODE_LOG_PATH", undefined);
 
 		const errors: string[] = [];
 		let exitCode = 0;
@@ -568,18 +568,18 @@ describe("doctor recent spawned processes", () => {
 		}
 	});
 
-	it("reads them from the CLINE_LOG_PATH file the CLI logged them to", async () => {
+	it("reads them from the INDUSCODE_LOG_PATH file the CLI logged them to", async () => {
 		const logDir = mkdtempSync(
-			path.join(os.tmpdir(), "cline-doctor-spawned-test-"),
+			path.join(os.tmpdir(), "induscode-doctor-spawned-test-"),
 		);
 		tempDirs.push(logDir);
-		vi.stubEnv("CLINE_LOG_PATH", path.join(logDir, "cli.log"));
-		vi.stubEnv("CLINE_LOG_ENABLED", undefined);
-		vi.stubEnv("CLINE_LOG_LEVEL", undefined);
+		vi.stubEnv("INDUSCODE_LOG_PATH", path.join(logDir, "cli.log"));
+		vi.stubEnv("INDUSCODE_LOG_ENABLED", undefined);
+		vi.stubEnv("INDUSCODE_LOG_LEVEL", undefined);
 
 		logSpawnedProcess({
 			component: "connector",
-			command: ["cline", "connect", "slack"],
+			command: ["induscode", "connect", "slack"],
 			childPid: 4242,
 		});
 		flushCliLoggerAdapters();
@@ -600,7 +600,7 @@ describe("doctor recent spawned processes", () => {
 				{
 					pid: 4242,
 					component: "connector",
-					command: "cline connect slack",
+					command: "induscode connect slack",
 				},
 			],
 		});
@@ -710,7 +710,7 @@ describe("doctor supervision reporting", () => {
 		mockListSupervisedConnectors.mockResolvedValue([
 			{
 				channel: "slack",
-				instanceId: "cline-slack",
+				instanceId: "induscode-slack",
 				state: "backoff",
 				origin: "spawned",
 				restarts: 3,
@@ -719,7 +719,7 @@ describe("doctor supervision reporting", () => {
 
 		await expect(runDoctorJson()).resolves.toMatchObject({
 			supervisedConnectors: [
-				{ channel: "slack", instanceId: "cline-slack", state: "backoff" },
+				{ channel: "slack", instanceId: "induscode-slack", state: "backoff" },
 			],
 		});
 	});
@@ -746,7 +746,7 @@ describe("doctor supervision reporting", () => {
 		expect(
 			formatSupervisedConnector({
 				channel: "slack",
-				instanceId: "cline-slack",
+				instanceId: "induscode-slack",
 				state: "failed",
 				origin: "adopted",
 				pid: 42,
@@ -755,7 +755,7 @@ describe("doctor supervision reporting", () => {
 				lastError: "invalid token",
 			}),
 		).toBe(
-			"slack | instance=cline-slack | state=failed | origin=adopted | pid=42 | restarts=5 | lastExit=1 | error=invalid token",
+			"slack | instance=induscode-slack | state=failed | origin=adopted | pid=42 | restarts=5 | lastExit=1 | error=invalid token",
 		);
 	});
 
@@ -763,14 +763,14 @@ describe("doctor supervision reporting", () => {
 		expect(
 			formatSupervisedConnector({
 				channel: "telegram",
-				instanceId: "cline_bot",
+				instanceId: "induscode_bot",
 				state: "running",
 				origin: "spawned",
 				pid: 7,
 				restarts: 0,
 			}),
 		).toBe(
-			"telegram | instance=cline_bot | state=running | origin=spawned | pid=7",
+			"telegram | instance=induscode_bot | state=running | origin=spawned | pid=7",
 		);
 	});
 });

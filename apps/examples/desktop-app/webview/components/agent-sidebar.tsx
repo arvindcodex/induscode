@@ -4,7 +4,7 @@ import {
 	AgentSessionOverview,
 	AgentSessionRow,
 	AgentSessionRowEditor,
-} from "@cline/ui";
+} from "@induscode/ui";
 
 import {
 	ArrowLeft,
@@ -43,7 +43,7 @@ import {
 	useState,
 } from "react";
 import { AppUpdateIndicator } from "@/components/app-update-indicator";
-import { ClineLogo } from "@/components/cline-logo";
+import { IndusCodeLogo } from "@/components/induscode-logo";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -850,7 +850,7 @@ export function AgentSidebar({
 									title="Home"
 									type="button"
 								>
-									<ClineLogo className="size-5" />
+									<IndusCodeLogo className="size-5" />
 								</button>
 							</HoverCardTrigger>
 							<HoverCardContent
@@ -1256,9 +1256,17 @@ export function AgentSidebar({
 								title={user.email || undefined}
 								type="button"
 							>
-								<span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
-									{accountInitial}
-								</span>
+								{user.photoUrl ? (
+									<img
+										src={user.photoUrl}
+										alt={accountName}
+										className="size-8 shrink-0 rounded-full object-cover border border-sidebar-border"
+									/>
+								) : (
+									<span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
+										{accountInitial}
+									</span>
+								)}
 								<span className="flex min-w-0 flex-col leading-tight">
 									<span className="truncate text-sm font-medium">
 										{accountName}

@@ -1,4 +1,4 @@
-import { Empty, type EmptyRequest } from "@shared/proto/cline/common"
+import { Empty, type EmptyRequest } from "@shared/proto/induscode/common"
 import { openExternal } from "@/utils/env"
 import type { Controller } from "../index"
 

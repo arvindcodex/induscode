@@ -1,4 +1,4 @@
-import type { AgentMode } from "@cline/core";
+import type { AgentMode } from "@induscode/core";
 import { useTerminalDimensions } from "@opentui/react";
 import {
 	shouldShowCliUsageCost,
@@ -45,7 +45,7 @@ function formatCost(cost: number): string {
 }
 
 function formatCostText(providerId: string, totalCost: number): string {
-	// Subscription providers (ClinePass) have no per-use cost worth surfacing.
+	// Subscription providers (IndusCodePass) have no per-use cost worth surfacing.
 	if (shouldShowCliUsageCoveredBySubscription(providerId)) {
 		return "";
 	}
@@ -102,8 +102,8 @@ export function resolveModelDisplayName(config: {
 	if (config.thinking && config.reasoningEffort) {
 		displayName = `${displayName} (${config.reasoningEffort})`;
 	}
-	if (config.providerId === "cline-pass") {
-		displayName = `ClinePass: ${displayName}`;
+	if (config.providerId === "induscode-pass") {
+		displayName = `IndusCodePass: ${displayName}`;
 	}
 	return displayName;
 }

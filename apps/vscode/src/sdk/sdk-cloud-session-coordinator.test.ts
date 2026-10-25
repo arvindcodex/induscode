@@ -2,12 +2,12 @@ import { randomUUID } from "node:crypto"
 import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs"
 import * as os from "node:os"
 import path from "node:path"
-import * as sdkCore from "@cline/core"
-import { CloudCreationUnconfirmedError } from "@cline/core/cloud"
+import * as sdkCore from "@induscode/core"
+import { CloudCreationUnconfirmedError } from "@induscode/core/cloud"
 import { CLOUD_CREATION_UNCONFIRMED_ERROR_CODE, type CloudSessionStatus } from "@shared/cloud/cloud-sessions"
 import { afterEach, describe, expect, it, vi } from "vitest"
-import { ClineEnv } from "@/config"
-import { resetClineRecommendedModelsCacheForTests } from "@/core/controller/models/refreshClineRecommendedModels"
+import { IndusCodeEnv } from "@/config"
+import { resetIndusCodeRecommendedModelsCacheForTests } from "@/core/controller/models/refreshIndusCodeRecommendedModels"
 import { HostProvider } from "@/hosts/host-provider"
 import {
 	type CloudProvisioningPhase,
@@ -15,9 +15,9 @@ import {
 	type CloudSessionRecord,
 	type CreateCloudSessionInput,
 } from "@/services/cloud/CloudSessionsService"
-import { ClineError } from "@/services/error/ClineError"
+import { IndusCodeError } from "@/services/error/IndusCodeError"
 import type { McpHub } from "@/services/mcp/McpHub"
-import { CLINE_RECOMMENDED_MODELS_FALLBACK } from "@/shared/cline/recommended-models"
+import { INDUSCODE_RECOMMENDED_MODELS_FALLBACK } from "@/shared/induscode/recommended-models"
 import { getButtonConfigFromState } from "../../webview-ui/src/components/chat/chat-view/shared/buttonConfig"
 import { CloudSessionHost } from "./cloud-session-host"
 import { MessageIdMinter } from "./message-id-minter"
@@ -51,7 +51,7 @@ const record: CloudSessionRecord = {
 	id: "ses-stale",
 	status: "active",
 	sandboxUrl: "",
-	repoContext: { repoUrl: "https://github.com/cline/fixture", branch: "main" },
+	repoContext: { repoUrl: "https://github.com/induscode/fixture", branch: "main" },
 	metadata: { modelId: "fixture-model", taskId: "tsk-stale" },
 	createdAt: new Date(0).toISOString(),
 	updatedAt: new Date(0).toISOString(),
@@ -60,7 +60,7 @@ const record: CloudSessionRecord = {
 /** In-memory global state shared by coordinators that stand in for one extension install. */
 function makeStateManager(globalState: Record<string, unknown> = {}) {
 	return {
-		getApiConfiguration: () => ({ actModeApiProvider: "cline", actModeClineModelId: "fixture-model" }),
+		getApiConfiguration: () => ({ actModeApiProvider: "induscode", actModeIndusCodeModelId: "fixture-model" }),
 		getGlobalSettingsKey: () => "act",
 		getGlobalStateKey: (key: string) => globalState[key],
 		setGlobalState: (key: string, value: unknown) => {
@@ -95,12 +95,12 @@ function makeCoordinator(overrides: Partial<SdkCloudSessionCoordinatorOptions> =
 		stateManager: makeStateManager(),
 		sessionConfigBuilder: {
 			build: vi.fn(async () => ({
-				providerId: "cline",
+				providerId: "induscode",
 				modelId: "fixture-model",
 				apiKey: "fixture-key",
 				cwd: "/workspace",
 				workspaceRoot: "/workspace",
-				systemPrompt: "normal Cline guidance",
+				systemPrompt: "normal IndusCode guidance",
 				enableTools: true,
 				enableSpawnAgent: false,
 				enableAgentTeams: false,
@@ -135,7 +135,7 @@ function makeCoordinator(overrides: Partial<SdkCloudSessionCoordinatorOptions> =
 }
 
 describe("SdkCloudSessionCoordinator ownership", () => {
-	it("starts the sandbox in Act with the Act-mode Cline model while the local UI is in Plan mode", async () => {
+	it("starts the sandbox in Act with the Act-mode IndusCode model while the local UI is in Plan mode", async () => {
 		const host = { status: "idle", readMessages: async () => [], dispose: async () => {} } as unknown as CloudSessionHost
 		vi.spyOn(CloudSessionHost, "connect").mockResolvedValue(host)
 		const startNewSession = vi.fn(async () => ({ sdkHost: host, startResult: { sessionId: record.id } }))
@@ -144,10 +144,10 @@ describe("SdkCloudSessionCoordinator ownership", () => {
 			stateManager: {
 				...makeStateManager(),
 				getApiConfiguration: () => ({
-					actModeApiProvider: "cline",
-					actModeClineModelId: "act-cloud-model",
-					planModeApiProvider: "cline",
-					planModeClineModelId: "plan-local-model",
+					actModeApiProvider: "induscode",
+					actModeIndusCodeModelId: "act-cloud-model",
+					planModeApiProvider: "induscode",
+					planModeIndusCodeModelId: "plan-local-model",
 				}),
 				getGlobalSettingsKey: () => "plan",
 			} as never,
@@ -192,8 +192,8 @@ describe("SdkCloudSessionCoordinator ownership", () => {
 			.mocked(options.messages.appendAndEmit)
 			.mock.calls.flatMap(([messages]) => messages.filter((message) => message.say === "text"))
 		expect(rows.map((row) => row.text)).toEqual([
-			"Starting a cloud sandbox for cline/fixture (main)…",
-			"Cloning cline/fixture (main) into the cloud sandbox…",
+			"Starting a cloud sandbox for induscode/fixture (main)…",
+			"Cloning induscode/fixture (main) into the cloud sandbox…",
 			"Starting the agent in the cloud sandbox…",
 		])
 		expect(new Set(rows.map((row) => row.ts)).size).toBe(1)
@@ -676,12 +676,12 @@ describe("SdkCloudSessionCoordinator ownership", () => {
 	})
 
 	it("starts the sandbox on the model the composer showed, even when a fresher recommendation lands first", async () => {
-		resetClineRecommendedModelsCacheForTests()
-		vi.spyOn(ClineEnv, "config").mockReturnValue({ apiBaseUrl: "https://api.cline-test.bot" } as ReturnType<
-			typeof ClineEnv.config
+		resetIndusCodeRecommendedModelsCacheForTests()
+		vi.spyOn(IndusCodeEnv, "config").mockReturnValue({ apiBaseUrl: "https://api.induscode-test.bot" } as ReturnType<
+			typeof IndusCodeEnv.config
 		>)
-		const fetched = deferred<Awaited<ReturnType<typeof sdkCore.fetchClineRecommendedModels>>>()
-		vi.spyOn(sdkCore, "fetchClineRecommendedModels").mockReturnValue(fetched.promise)
+		const fetched = deferred<Awaited<ReturnType<typeof sdkCore.fetchIndusCodeRecommendedModels>>>()
+		vi.spyOn(sdkCore, "fetchIndusCodeRecommendedModels").mockReturnValue(fetched.promise)
 		const host = { status: "idle", readMessages: async () => [], dispose: async () => {} } as unknown as CloudSessionHost
 		vi.spyOn(CloudSessionHost, "connect").mockResolvedValue(host)
 		const { coordinator, cloudSessions, options } = makeCoordinator({
@@ -696,12 +696,12 @@ describe("SdkCloudSessionCoordinator ownership", () => {
 		})
 
 		const shown = coordinator.getCloudModelId()
-		expect(shown).toBe(CLINE_RECOMMENDED_MODELS_FALLBACK.recommended[0].id)
+		expect(shown).toBe(INDUSCODE_RECOMMENDED_MODELS_FALLBACK.recommended[0].id)
 		const start = coordinator.beginCloudTask({ prompt: "test", repoUrl: record.repoContext.repoUrl! })()
 		fetched.resolve({
 			recommended: [{ id: "fresh/model", name: "Fresh", description: "", tags: [] }],
 			free: [],
-			clinePass: [],
+			induscodePass: [],
 		})
 		expect(await start).toBe(record.id)
 
@@ -716,22 +716,22 @@ describe("SdkCloudSessionCoordinator ownership", () => {
 		options.setTask(undefined)
 		expect(coordinator.getCloudModelId()).toBe("fresh/model")
 		await coordinator.dispose()
-		resetClineRecommendedModelsCacheForTests()
+		resetIndusCodeRecommendedModelsCacheForTests()
 	})
 
 	it("bounds failed recommendation retries while state posts keep reading the fallback", async () => {
 		vi.useFakeTimers()
-		resetClineRecommendedModelsCacheForTests()
-		vi.spyOn(ClineEnv, "config").mockReturnValue({ apiBaseUrl: "https://api.cline-test.bot" } as ReturnType<
-			typeof ClineEnv.config
+		resetIndusCodeRecommendedModelsCacheForTests()
+		vi.spyOn(IndusCodeEnv, "config").mockReturnValue({ apiBaseUrl: "https://api.induscode-test.bot" } as ReturnType<
+			typeof IndusCodeEnv.config
 		>)
 		const fetchRecommended = vi
-			.spyOn(sdkCore, "fetchClineRecommendedModels")
-			.mockResolvedValueOnce(structuredClone(sdkCore.FALLBACK_CLINE_RECOMMENDED_MODELS))
+			.spyOn(sdkCore, "fetchIndusCodeRecommendedModels")
+			.mockResolvedValueOnce(structuredClone(sdkCore.FALLBACK_INDUSCODE_RECOMMENDED_MODELS))
 			.mockResolvedValueOnce({
 				recommended: [{ id: "fresh/model", name: "Fresh", description: "", tags: [] }],
 				free: [],
-				clinePass: [],
+				induscodePass: [],
 			})
 		const { coordinator, options } = makeCoordinator({
 			stateManager: {
@@ -743,23 +743,23 @@ describe("SdkCloudSessionCoordinator ownership", () => {
 		// The failed fetch leaves the fallback in place and posts no state: a
 		// post would read the model again and start the next fetch, so a dead
 		// endpoint would be polled without bound.
-		expect(coordinator.getCloudModelId()).toBe(CLINE_RECOMMENDED_MODELS_FALLBACK.recommended[0].id)
+		expect(coordinator.getCloudModelId()).toBe(INDUSCODE_RECOMMENDED_MODELS_FALLBACK.recommended[0].id)
 		await vi.advanceTimersByTimeAsync(0)
 		expect(fetchRecommended).toHaveBeenCalledTimes(1)
 		expect(options.postStateToWebview).not.toHaveBeenCalled()
 
 		for (let read = 0; read < 10; read++) coordinator.getCloudModelId()
 		await vi.advanceTimersByTimeAsync(29_999)
-		expect(coordinator.getCloudModelId()).toBe(CLINE_RECOMMENDED_MODELS_FALLBACK.recommended[0].id)
+		expect(coordinator.getCloudModelId()).toBe(INDUSCODE_RECOMMENDED_MODELS_FALLBACK.recommended[0].id)
 		expect(fetchRecommended).toHaveBeenCalledTimes(1)
 		await vi.advanceTimersByTimeAsync(1)
-		expect(coordinator.getCloudModelId()).toBe(CLINE_RECOMMENDED_MODELS_FALLBACK.recommended[0].id)
+		expect(coordinator.getCloudModelId()).toBe(INDUSCODE_RECOMMENDED_MODELS_FALLBACK.recommended[0].id)
 		await vi.advanceTimersByTimeAsync(0)
 		expect(options.postStateToWebview).toHaveBeenCalledTimes(1)
 		expect(fetchRecommended).toHaveBeenCalledTimes(2)
 		expect(coordinator.getCloudModelId()).toBe("fresh/model")
 		await coordinator.dispose()
-		resetClineRecommendedModelsCacheForTests()
+		resetIndusCodeRecommendedModelsCacheForTests()
 	})
 
 	it("refuses to connect when the control plane omits the canonical task id", async () => {
@@ -770,7 +770,7 @@ describe("SdkCloudSessionCoordinator ownership", () => {
 
 		await coordinator.openCloudTask(withoutTaskId.id)
 
-		expect(options.getTask()?.messageStateHandler.getClineMessages().at(-1)?.text).toBe(
+		expect(options.getTask()?.messageStateHandler.getIndusCodeMessages().at(-1)?.text).toBe(
 			`Could not connect to this cloud session: Cloud session ${withoutTaskId.id} has no canonical task id.`,
 		)
 		expect(connect).not.toHaveBeenCalled()
@@ -787,7 +787,7 @@ describe("SdkCloudSessionCoordinator ownership", () => {
 			const connect = vi.spyOn(CloudSessionHost, "connect")
 			await coordinator.openCloudTask(expired.id)
 			expect(connect).not.toHaveBeenCalled()
-			const messages = options.getTask()!.messageStateHandler.getClineMessages()
+			const messages = options.getTask()!.messageStateHandler.getIndusCodeMessages()
 			await coordinator.dispose()
 			return messages
 		}
@@ -799,7 +799,7 @@ describe("SdkCloudSessionCoordinator ownership", () => {
 			expect(notice.say).toBe("info")
 			expect(notice.text).toContain("retired after 24 hours without activity")
 			expect(notice.text).toContain("saved here to read")
-			expect(notice.text).toContain("start a new cloud task on cline/fixture (main)")
+			expect(notice.text).toContain("start a new cloud task on induscode/fixture (main)")
 		})
 
 		it("does not present the last archived response as a completed task", async () => {
@@ -842,7 +842,7 @@ describe("SdkCloudSessionCoordinator ownership", () => {
 			cloudSessions.getHistory.mockResolvedValue(null)
 			vi.spyOn(CloudSessionHost, "connect").mockRejectedValue(new Error("Unexpected server response: 410"))
 			await coordinator.openCloudTask(record.id)
-			const messages = options.getTask()!.messageStateHandler.getClineMessages()
+			const messages = options.getTask()!.messageStateHandler.getIndusCodeMessages()
 			expect(messages).toHaveLength(1)
 			expect(messages[0].say).toBe("info")
 			expect(messages[0].text).toContain("retired after 24 hours")
@@ -858,7 +858,7 @@ describe("SdkCloudSessionCoordinator ownership", () => {
 			cloudSessions.getHistory.mockResolvedValue(null)
 			vi.spyOn(CloudSessionHost, "connect").mockRejectedValue(new Error("Unexpected server response: 410"))
 			await coordinator.openCloudTask(record.id)
-			const messages = options.getTask()!.messageStateHandler.getClineMessages()
+			const messages = options.getTask()!.messageStateHandler.getIndusCodeMessages()
 			expect(messages).toHaveLength(1)
 			expect(messages[0].say).toBe("info")
 			expect(messages[0].text).toContain("retired after 24 hours")
@@ -874,7 +874,7 @@ describe("SdkCloudSessionCoordinator ownership", () => {
 			vi.spyOn(CloudSessionHost, "connect").mockRejectedValue(new Error("Unexpected server response: 404"))
 			await coordinator.openCloudTask(record.id)
 			expect(options.getTask()?.taskId).toBe(record.id)
-			expect(options.getTask()!.messageStateHandler.getClineMessages()[0].text).toContain("was deleted")
+			expect(options.getTask()!.messageStateHandler.getIndusCodeMessages()[0].text).toContain("was deleted")
 			expect(options.invalidateHistoryCache).toHaveBeenCalled()
 			expect(await coordinator.findHistoryRecord(record.id)).toBeUndefined()
 			await coordinator.dispose()
@@ -1101,7 +1101,7 @@ describe("SdkCloudSessionCoordinator ownership", () => {
 			// The resume notice is brought in front of History; a plain open leaves navigation to the caller.
 			expect(options.showChatView).toHaveBeenCalledTimes(recordStatus === "suspended" ? 1 : 0)
 			expect(connect).toHaveBeenCalledOnce()
-			const shown = JSON.stringify(options.getTask()?.messageStateHandler.getClineMessages())
+			const shown = JSON.stringify(options.getTask()?.messageStateHandler.getIndusCodeMessages())
 			expect(shown).toContain("original prompt")
 			expect(shown).not.toContain("failed to start")
 			await coordinator.dispose()
@@ -1282,7 +1282,7 @@ describe("SdkCloudSessionCoordinator ownership", () => {
 		})
 		cloudSessions.listSessions.mockResolvedValue([record])
 		await coordinator.openCloudTask(record.id)
-		expect(options.getTask()?.messageStateHandler.getClineMessages().at(-1)?.ask).toBe(
+		expect(options.getTask()?.messageStateHandler.getIndusCodeMessages().at(-1)?.ask).toBe(
 			status === "completed" ? "resume_completed_task" : "resume_task",
 		)
 		expect(options.setTurnPhase).toHaveBeenLastCalledWith(
@@ -1576,7 +1576,7 @@ describe("SdkCloudSessionCoordinator ownership", () => {
 
 		const result = await coordinator.beginCloudTask({
 			prompt: "test",
-			repoUrl: "https://github.com/cline/fixture",
+			repoUrl: "https://github.com/induscode/fixture",
 		})()
 
 		expect(result).toBeUndefined()
@@ -1597,7 +1597,7 @@ describe("SdkCloudSessionCoordinator ownership", () => {
 
 		const starting = coordinator.beginCloudTask({
 			prompt: "test",
-			repoUrl: "https://github.com/cline/fixture",
+			repoUrl: "https://github.com/induscode/fixture",
 		})()
 		await provisioned.promise
 		expect(coordinator.cancelPendingStart()).toBe(true)
@@ -1648,7 +1648,7 @@ describe("SdkCloudSessionCoordinator ownership", () => {
 			throw new Error("unreachable")
 		})
 
-		const starting = coordinator.beginCloudTask({ prompt: "test", repoUrl: "https://github.com/cline/fixture" })()
+		const starting = coordinator.beginCloudTask({ prompt: "test", repoUrl: "https://github.com/induscode/fixture" })()
 		await provisioned.promise
 		coordinator.cancelPendingStart()
 
@@ -1672,7 +1672,7 @@ describe("SdkCloudSessionCoordinator ownership", () => {
 			postedStatuses.push(coordinator.getCurrentTaskInfo()?.status)
 		})
 
-		const input = { prompt: "test", images: ["img"], repoUrl: "https://github.com/cline/fixture", branch: "main" }
+		const input = { prompt: "test", images: ["img"], repoUrl: "https://github.com/induscode/fixture", branch: "main" }
 		const starting = coordinator.beginCloudTask(input)()
 		await provisioned.promise
 		expect(coordinator.getCurrentTaskInfo()?.status).toBe("provisioning")
@@ -1696,7 +1696,7 @@ describe("SdkCloudSessionCoordinator ownership", () => {
 		const ask = emitted.find((message) => message.type === "ask" && message.ask === "api_req_failed")
 		expect(ask).toBeDefined()
 		if (!ask) throw new Error("Missing cloud creation recovery marker")
-		const error = ClineError.parse(ask.text)
+		const error = IndusCodeError.parse(ask.text)
 		expect(error?._error.code).toBe(CLOUD_CREATION_UNCONFIRMED_ERROR_CODE)
 		expect(error?.message).toContain("History")
 		expect(error?.message).toContain("https://example.test/agents")
@@ -1725,7 +1725,7 @@ describe("SdkCloudSessionCoordinator ownership", () => {
 			throw new Error("unreachable")
 		})
 
-		const starting = coordinator.beginCloudTask({ prompt: "test", repoUrl: "https://github.com/cline/fixture" })()
+		const starting = coordinator.beginCloudTask({ prompt: "test", repoUrl: "https://github.com/induscode/fixture" })()
 		await provisioned.promise
 		coordinator.cancelPendingStart()
 		await starting
@@ -1736,7 +1736,7 @@ describe("SdkCloudSessionCoordinator ownership", () => {
 	it("defeats a start that is claimed but not yet running when the user cancels first", async () => {
 		const { coordinator, cloudSessions } = makeCoordinator()
 
-		const run = coordinator.beginCloudTask({ prompt: "test", repoUrl: "https://github.com/cline/fixture" })
+		const run = coordinator.beginCloudTask({ prompt: "test", repoUrl: "https://github.com/induscode/fixture" })
 		expect(coordinator.cancelPendingStart()).toBe(true)
 
 		expect(await run()).toBeUndefined()

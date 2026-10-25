@@ -10,7 +10,7 @@ const mocks = vi.hoisted(() => ({
 	clientOptions: vi.fn(),
 }));
 
-vi.mock("@cline/core", () => ({
+vi.mock("@induscode/core", () => ({
 	ensureDetachedHubServer: mocks.ensureDetachedHubServer,
 	readHubDiscovery: mocks.readHubDiscovery,
 	resolveProductionHubOwnerContext: () => ({
@@ -56,7 +56,7 @@ describe("startConnectorViaHub", () => {
 	function startRequest(overrides: Record<string, unknown> = {}) {
 		return {
 			channel: "slack",
-			instanceId: "cline-slack",
+			instanceId: "induscode-slack",
 			args: ["--bot-token", "xoxb"],
 			io,
 			cwd: "/workspace",
@@ -80,7 +80,7 @@ describe("startConnectorViaHub", () => {
 		});
 		expect(mocks.command).toHaveBeenCalledWith("connector.start", {
 			channel: "slack",
-			instanceId: "cline-slack",
+			instanceId: "induscode-slack",
 			args: ["--bot-token", "xoxb"],
 			restart: false,
 		});

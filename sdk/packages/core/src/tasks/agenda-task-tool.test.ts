@@ -1,4 +1,4 @@
-import type { AgendaTaskRecord } from "@cline/shared";
+import type { AgendaTaskRecord } from "@induscode/shared";
 import { describe, expect, it, vi } from "vitest";
 import type { AgendaTaskManagerApi } from "./agenda-task-api";
 import {

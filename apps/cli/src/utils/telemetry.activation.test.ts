@@ -7,13 +7,13 @@ const hoisted = vi.hoisted(() => ({
 	getCliTelemetryService: vi.fn(() => undefined),
 }));
 
-vi.mock("@cline/core", () => ({
+vi.mock("@induscode/core", () => ({
 	captureExtensionActivated: hoisted.captureExtensionActivated,
 	identifyAccount: hoisted.identifyAccount,
 	// CLI telemetry singleton path normally pulls in
-	// `createConfiguredTelemetryHandle` and `createClineTelemetryServiceConfig`;
+	// `createConfiguredTelemetryHandle` and `createIndusCodeTelemetryServiceConfig`;
 	// stub them so the test never spins up a real OpenTelemetry provider.
-	createClineTelemetryServiceConfig: vi.fn(() => ({})),
+	createIndusCodeTelemetryServiceConfig: vi.fn(() => ({})),
 	createConfiguredTelemetryHandle: vi.fn(() => ({
 		telemetry: undefined,
 		provider: undefined,
@@ -66,7 +66,7 @@ describe("captureCliExtensionActivated", () => {
 		const account = {
 			id: "user-1",
 			email: "user@example.com",
-			provider: "cline",
+			provider: "induscode",
 			organizationId: "org-1",
 			organizationName: "Acme Corp",
 			memberId: "member-9",
@@ -105,7 +105,7 @@ describe("identifyTelemetryAccount", () => {
 			organizationId: "org-2",
 			organizationName: "Beta Inc",
 			memberId: "member-7",
-			provider: "cline",
+			provider: "induscode",
 		};
 		identifyTelemetryAccount(account);
 		expect(hoisted.identifyAccount).toHaveBeenCalledWith(undefined, account);

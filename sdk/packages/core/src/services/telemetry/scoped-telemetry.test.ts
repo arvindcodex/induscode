@@ -30,16 +30,16 @@ describe("client-scoped telemetry", () => {
 			resolveClientTelemetryProperties({
 				source: "desktop",
 				client: {
-					name: "cline-desktop",
+					name: "induscode-desktop",
 					version: "0.0.23",
-					platform: "Cline Desktop",
+					platform: "IndusCode Desktop",
 					platformVersion: "0.0.23",
 				},
 			}),
 		).toEqual({
-			cline_type: "desktop",
+			induscode_type: "desktop",
 			extension_version: "0.0.23",
-			platform: "Cline Desktop",
+			platform: "IndusCode Desktop",
 			platform_version: "0.0.23",
 		});
 	});
@@ -57,8 +57,8 @@ describe("client-scoped telemetry", () => {
 			},
 			metadata: {
 				extension_version: "0.0.82",
-				cline_type: "hub",
-				platform: "cline-hub-daemon",
+				induscode_type: "hub",
+				platform: "induscode-hub-daemon",
 				platform_version: "v24.0.0",
 				os_type: "darwin",
 				os_version: "test-os",
@@ -67,9 +67,9 @@ describe("client-scoped telemetry", () => {
 		const telemetry = createClientScopedTelemetryService(parent, {
 			source: "desktop",
 			client: {
-				name: "cline-desktop",
+				name: "induscode-desktop",
 				version: "0.0.23",
-				platform: "Cline Desktop",
+				platform: "IndusCode Desktop",
 				platformVersion: "0.0.23",
 			},
 			user: {
@@ -95,8 +95,8 @@ describe("client-scoped telemetry", () => {
 			account_email: "dev@example.com",
 			organization_id: "org-1",
 			extension_version: "0.0.23",
-			cline_type: "desktop",
-			platform: "Cline Desktop",
+			induscode_type: "desktop",
+			platform: "IndusCode Desktop",
 			platform_version: "0.0.23",
 			os_type: "darwin",
 			os_version: "test-os",
@@ -121,21 +121,21 @@ describe("client-scoped telemetry", () => {
 			},
 			metadata: {
 				extension_version: "0.0.82",
-				cline_type: "hub",
-				platform: "cline-hub-daemon",
+				induscode_type: "hub",
+				platform: "induscode-hub-daemon",
 				platform_version: "v24.0.0",
 			},
 		});
 		const telemetry = createClientScopedTelemetryService(parent, {
-			client: { name: "cline-desktop" },
+			client: { name: "induscode-desktop" },
 			user: { distinctId: "machine-1", accountId: null },
 		});
 
 		telemetry.capture({ event: CORE_TELEMETRY_EVENTS.TASK.CREATED });
 
 		expect(emit).toHaveBeenCalledWith(CORE_TELEMETRY_EVENTS.TASK.CREATED, {
-			cline_type: "desktop",
-			platform: "cline-desktop",
+			induscode_type: "desktop",
+			platform: "induscode-desktop",
 			distinct_id: "machine-1",
 			device_id: expect.any(String),
 		});
@@ -145,7 +145,7 @@ describe("client-scoped telemetry", () => {
 		const { adapter, dispose } = createAdapter();
 		const parent = new TelemetryService({ adapters: [adapter] });
 		const telemetry = createClientScopedTelemetryService(parent, {
-			client: { name: "cline-desktop" },
+			client: { name: "induscode-desktop" },
 		});
 
 		await telemetry.dispose();

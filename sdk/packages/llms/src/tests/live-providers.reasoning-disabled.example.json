@@ -1,9 +1,9 @@
 {
 	"version": 1,
 	"providers": {
-		"cline-glm-4.6-thinking-off": {
+		"induscode-glm-4.6-thinking-off": {
 			"settings": {
-				"provider": "cline",
+				"provider": "induscode",
 				"model": "z-ai/glm-4.6",
 				"reasoning": {
 					"enabled": false
@@ -15,9 +15,9 @@
 				"requireNoReasoningSignal": true
 			}
 		},
-		"cline-glm-4.7-thinking-off": {
+		"induscode-glm-4.7-thinking-off": {
 			"settings": {
-				"provider": "cline",
+				"provider": "induscode",
 				"model": "z-ai/glm-4.7",
 				"reasoning": {
 					"enabled": false
@@ -29,9 +29,9 @@
 				"requireNoReasoningSignal": true
 			}
 		},
-		"cline-glm-5-thinking-off": {
+		"induscode-glm-5-thinking-off": {
 			"settings": {
-				"provider": "cline",
+				"provider": "induscode",
 				"model": "z-ai/glm-5",
 				"reasoning": {
 					"enabled": false
@@ -197,9 +197,9 @@
 				"requireNoReasoningChunk": true
 			}
 		},
-		"cline-gpt-5.4-thinking-off": {
+		"induscode-gpt-5.4-thinking-off": {
 			"settings": {
-				"provider": "cline",
+				"provider": "induscode",
 				"model": "openai/gpt-5.4",
 				"reasoning": {
 					"enabled": false
@@ -211,9 +211,9 @@
 				"requireNoReasoningChunk": true
 			}
 		},
-		"cline-gpt-5.3-codex-thinking-off": {
+		"induscode-gpt-5.3-codex-thinking-off": {
 			"settings": {
-				"provider": "cline",
+				"provider": "induscode",
 				"model": "openai/gpt-5.3-codex",
 				"reasoning": {
 					"enabled": false
@@ -310,9 +310,9 @@
 				"requireNoReasoningChunk": true
 			}
 		},
-		"cline-deepseek-v3.2-thinking-off": {
+		"induscode-deepseek-v3.2-thinking-off": {
 			"settings": {
-				"provider": "cline",
+				"provider": "induscode",
 				"model": "deepseek/deepseek-v3.2",
 				"reasoning": {
 					"enabled": false
@@ -324,9 +324,9 @@
 				"requireNoReasoningChunk": true
 			}
 		},
-		"cline-kimi-k2.6-thinking-off": {
+		"induscode-kimi-k2.6-thinking-off": {
 			"settings": {
-				"provider": "cline",
+				"provider": "induscode",
 				"model": "moonshotai/kimi-k2.6",
 				"reasoning": {
 					"enabled": false
@@ -338,9 +338,9 @@
 				"requireNoReasoningChunk": true
 			}
 		},
-		"cline-qwen3-next-instruct": {
+		"induscode-qwen3-next-instruct": {
 			"settings": {
-				"provider": "cline",
+				"provider": "induscode",
 				"model": "qwen/qwen3-next-80b-a3b-instruct"
 			},
 			"prompt": "Answer with only the number: what is 47*83?",
@@ -349,9 +349,9 @@
 				"requireNoReasoningChunk": true
 			}
 		},
-		"cline-grok-4.20-beta-thinking-off": {
+		"induscode-grok-4.20-beta-thinking-off": {
 			"settings": {
-				"provider": "cline",
+				"provider": "induscode",
 				"model": "x-ai/grok-4.20-beta",
 				"reasoning": {
 					"enabled": false
@@ -363,9 +363,9 @@
 				"requireNoReasoningChunk": true
 			}
 		},
-		"cline-grok-4.1-fast-thinking-off": {
+		"induscode-grok-4.1-fast-thinking-off": {
 			"settings": {
-				"provider": "cline",
+				"provider": "induscode",
 				"model": "x-ai/grok-4.1-fast",
 				"reasoning": {
 					"enabled": false
@@ -377,9 +377,9 @@
 				"requireNoReasoningChunk": true
 			}
 		},
-		"cline-mistral-medium-thinking-off": {
+		"induscode-mistral-medium-thinking-off": {
 			"settings": {
-				"provider": "cline",
+				"provider": "induscode",
 				"model": "mistralai/mistral-medium-3.1",
 				"reasoning": {
 					"enabled": false
@@ -391,9 +391,9 @@
 				"requireNoReasoningChunk": true
 			}
 		},
-		"cline-claude-sonnet-thinking-off": {
+		"induscode-claude-sonnet-thinking-off": {
 			"settings": {
-				"provider": "cline",
+				"provider": "induscode",
 				"model": "anthropic/claude-sonnet-4.6",
 				"reasoning": {
 					"enabled": false
@@ -405,9 +405,9 @@
 				"requireNoReasoningChunk": true
 			}
 		},
-		"cline-gemini-flash-lite-thinking-off": {
+		"induscode-gemini-flash-lite-thinking-off": {
 			"settings": {
-				"provider": "cline",
+				"provider": "induscode",
 				"model": "google/gemini-3.1-flash-lite-preview",
 				"reasoning": {
 					"enabled": false

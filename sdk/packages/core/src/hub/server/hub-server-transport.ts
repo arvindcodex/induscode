@@ -9,14 +9,14 @@ import type {
 	HubEventEnvelope,
 	HubReplyEnvelope,
 	ToolApprovalRequest,
-} from "@cline/shared";
+} from "@induscode/shared";
 import {
-	CLINE_DEFAULT_MODEL_ID,
+	INDUSCODE_DEFAULT_MODEL_ID,
 	captureSdkError,
 	createSessionId,
 	HUB_CLIENT_TOOL_APPROVAL_CAPABILITY,
-} from "@cline/shared";
-import { isChatWorkspacePath } from "@cline/shared/storage";
+} from "@induscode/shared";
+import { isChatWorkspacePath } from "@induscode/shared/storage";
 import { CronService } from "../../cron/service/cron-service";
 import { HubScheduleCommandService } from "../../cron/service/schedule-command-service";
 import { HubScheduleService } from "../../cron/service/schedule-service";
@@ -453,7 +453,7 @@ export class HubServerTransport implements NativeHubTransport {
 						if (!session) return undefined;
 						// Agent-created schedules are user-level routines: anchor
 						// them (and run their unattended sessions) in the stable
-						// ~/.cline/schedules home instead of whichever chat
+						// ~/.induscode/schedules home instead of whichever chat
 						// workspace created them, so they survive chat cleanup and
 						// every chat manages the same set. Prompts must carry
 						// absolute paths to any project they operate on.
@@ -515,10 +515,10 @@ export class HubServerTransport implements NativeHubTransport {
 		const inheritedAutoApproveTools =
 			originSession?.metadata?.autoApproveTools === true;
 		const autoApproveTools = unattended || inheritedAutoApproveTools;
-		const providerId = task.modelSelection?.providerId?.trim() || "cline";
+		const providerId = task.modelSelection?.providerId?.trim() || "induscode";
 		const modelId =
 			task.modelSelection?.modelId?.trim() ||
-			(providerId === "cline" ? CLINE_DEFAULT_MODEL_ID : "");
+			(providerId === "induscode" ? INDUSCODE_DEFAULT_MODEL_ID : "");
 		const metadata = withSessionHistoryOriginMetadata(
 			{
 				title: task.title,

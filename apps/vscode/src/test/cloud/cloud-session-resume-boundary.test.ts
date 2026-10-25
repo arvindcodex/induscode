@@ -1,4 +1,4 @@
-import { SessionSource } from "@cline/core"
+import { SessionSource } from "@induscode/core"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import { CloudSessionHost } from "@/sdk/cloud-session-host"
 import { MessageIdMinter } from "@/sdk/message-id-minter"
@@ -11,12 +11,12 @@ import { type LocalCloudEnvironment, startLocalCloudEnvironment } from "./local-
 // Only the IDE window and model-catalog refresh are replaced; the control
 // plane, proxy, Hub transport and coordinator are the shipped implementations.
 vi.mock("@/hosts/host-provider", () => ({ HostProvider: { window: { showMessage: vi.fn(async () => ({})) } } }))
-vi.mock("@/core/controller/models/refreshClineRecommendedModels", () => ({ refreshClineRecommendedModels: vi.fn() }))
+vi.mock("@/core/controller/models/refreshIndusCodeRecommendedModels", () => ({ refreshIndusCodeRecommendedModels: vi.fn() }))
 
 const config = {
-	providerId: "cline",
+	providerId: "induscode",
 	modelId: "fixture-model",
-	systemPrompt: "normal Cline guidance",
+	systemPrompt: "normal IndusCode guidance",
 	enableTools: false,
 	enableSpawnAgent: false,
 	enableAgentTeams: false,
@@ -45,7 +45,7 @@ describe("resuming a suspended cloud sandbox through the real Hub", () => {
 			getAuthToken: async () => environment?.accessToken,
 			getActiveOrganizationId: () => undefined,
 		})
-		const record = await service.createSession({ modelId: "fixture-model", repoUrl: "https://github.com/cline/fixture" })
+		const record = await service.createSession({ modelId: "fixture-model", repoUrl: "https://github.com/induscode/fixture" })
 		const taskId = record.metadata.taskId
 		if (!taskId) throw new Error("Local cloud session did not return a task id")
 		const connect = async (restoreConfig?: () => Promise<typeof config>) => {
@@ -118,7 +118,7 @@ describe("resuming a suspended cloud sandbox through the real Hub", () => {
 			resetMessageTranslator: vi.fn(() => renders.push("new epoch")),
 			setTurnPhase: vi.fn(),
 			postStateToWebview: vi.fn(async () => {
-				const text = task?.messageStateHandler.getClineMessages().at(-1)?.text
+				const text = task?.messageStateHandler.getIndusCodeMessages().at(-1)?.text
 				if (text !== undefined) renders.push(`post: ${text}`)
 			}),
 			showChatView: vi.fn(async () => renders.push("chat view shown")),
@@ -146,7 +146,7 @@ describe("resuming a suspended cloud sandbox through the real Hub", () => {
 		expect(renders.indexOf("chat view shown")).toBeGreaterThan(noticePosted)
 		expect(renders.lastIndexOf("new epoch")).toBeGreaterThan(renders.indexOf("chat view shown"))
 		expect(environment.sessions.get(record.id)?.record.status).toBe("ready")
-		const shown = JSON.stringify(task?.messageStateHandler.getClineMessages())
+		const shown = JSON.stringify(task?.messageStateHandler.getIndusCodeMessages())
 		expect(shown).toContain("first prompt")
 		expect(shown).not.toContain("Could not connect")
 

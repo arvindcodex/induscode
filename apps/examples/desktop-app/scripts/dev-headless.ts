@@ -1,5 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { createServer } from "node:net";
+import { homedir } from "node:os";
+import { join } from "node:path";
 
 const approvalToken = randomUUID();
 const children: ReturnType<typeof Bun.spawn>[] = [];
@@ -44,9 +46,12 @@ process.on("SIGTERM", stopChildren);
 async function main(): Promise<void> {
 	const sidecarPort = await reserveAvailablePort();
 	const endpoint = `ws://127.0.0.1:${sidecarPort}/transport?approval_token=${approvalToken}`;
+	const indusDir = join(homedir(), ".induscode");
 	const sidecar = spawn(["bun", "run", "sidecar/index.ts"], {
-		CLINE_SIDECAR_APPROVAL_TOKEN: approvalToken,
-		CLINE_SIDECAR_PORT: String(sidecarPort),
+		INDUSCODE_SIDECAR_APPROVAL_TOKEN: approvalToken,
+		INDUSCODE_SIDECAR_PORT: String(sidecarPort),
+		INDUSCODE_DIR: indusDir,
+		INDUSCODE_DATA_DIR: join(indusDir, "data"),
 	});
 	const web = spawn(
 		["bun", "run", "next", "dev", "webview", "-p", "3125", "--turbo"],

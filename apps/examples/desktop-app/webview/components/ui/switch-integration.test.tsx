@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { Switch } from "@cline/ui";
+import { Switch } from "@induscode/ui";
 import { act, createRef } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";

@@ -1,4 +1,4 @@
-import type { AgentToolContext } from "@cline/core"
+import type { AgentToolContext } from "@induscode/core"
 import * as fs from "fs/promises"
 import * as os from "os"
 import * as path from "path"
@@ -38,7 +38,7 @@ describe("createWorkspaceFileReadExecutor", () => {
 		const getWorkspaceRoot = vi.fn(async () => workspaceRoot)
 		const reader = createWorkspaceFileReadExecutor(getWorkspaceRoot)
 		await expect(
-			reader({ path: "cline://cache/session/missing.result.txt", start_line: 2, end_line: 3 }, context),
+			reader({ path: "induscode://cache/session/missing.result.txt", start_line: 2, end_line: 3 }, context),
 		).rejects.toThrow("Cache not found")
 		expect(getWorkspaceRoot).not.toHaveBeenCalled()
 	})

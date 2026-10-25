@@ -1,26 +1,26 @@
-# [experimental] @cline/llms
+# [experimental] @induscode/llms
 
-`@cline/llms` is the model and provider layer for the Cline SDK. It gives
+`@induscode/llms` is the model and provider layer for the IndusCode SDK. It gives
 you typed provider settings, model catalogs, shared gateway contracts, and
 AI SDK-backed handler creation for supported LLM backends.
 
 ## What You Get
 
-- `@cline/llms/runtime` for declarative config and runtime registry creation
-- `@cline/llms/providers` for handler creation and provider settings/types
-- `@cline/llms/models` for model catalogs and query helpers
-- `@cline/llms` root exports for the gateway registry and shared llm contracts
+- `@induscode/llms/runtime` for declarative config and runtime registry creation
+- `@induscode/llms/providers` for handler creation and provider settings/types
+- `@induscode/llms/models` for model catalogs and query helpers
+- `@induscode/llms` root exports for the gateway registry and shared llm contracts
 
 ## Installation
 
 ```bash
-npm install @cline/llms zod
+npm install @induscode/llms zod
 ```
 
 ## Quick Start
 
 ```ts
-import { createHandler } from "@cline/llms";
+import { createHandler } from "@induscode/llms";
 
 const handler = createHandler({
 	providerId: "anthropic",
@@ -49,12 +49,12 @@ Use `createLlmsRuntime(...)` when you want a small registry around:
 Preferred import:
 
 ```ts
-import { createLlmsRuntime, defineLlmsConfig } from "@cline/llms/runtime";
+import { createLlmsRuntime, defineLlmsConfig } from "@induscode/llms/runtime";
 ```
 
 ### Providers
 
-Use `@cline/llms/providers` for:
+Use `@induscode/llms/providers` for:
 
 - `createHandler(...)` and `createHandlerAsync(...)`
 - `ProviderSettings` and `ProviderSettingsSchema`
@@ -63,11 +63,11 @@ Use `@cline/llms/providers` for:
 
 Built-in providers are routed through the internal gateway registry and backed by
 AI SDK provider implementations. Shared gateway contracts are exported from both
-`@cline/llms` and `@cline/shared`.
+`@induscode/llms` and `@induscode/shared`.
 
 ### Models
 
-Use `@cline/llms/models` when you need generated provider/model metadata for
+Use `@induscode/llms/models` when you need generated provider/model metadata for
 selection UIs, defaults, or validation.
 
 For generated catalog field semantics and token-limit behavior, see
@@ -82,7 +82,7 @@ use `/audio/transcriptions`; the built-in ElevenLabs provider uses its native
 surface:
 
 ```ts
-import { transcribeAudio } from "@cline/llms";
+import { transcribeAudio } from "@induscode/llms";
 
 const result = await transcribeAudio({
   providerConfig,
@@ -108,7 +108,7 @@ WebSocket instead of the recorded-audio call. The SDK can mint a short-lived,
 transcription-bound browser credential without exposing the provider API key:
 
 ```ts
-import { createStreamingAudioTranscriptionSession } from "@cline/llms";
+import { createStreamingAudioTranscriptionSession } from "@induscode/llms";
 
 const session = await createStreamingAudioTranscriptionSession({
   providerConfig,
@@ -132,35 +132,35 @@ Batch models continue to use `transcribeAudio`.
 
 ## Entry Points
 
-- `@cline/llms`: runtime-focused convenience entrypoint
-- `@cline/llms/node`: explicit Node/runtime entrypoint
-- `@cline/llms/browser`: browser-safe bundle
-- `@cline/llms/runtime`: focused runtime entrypoint
-- `@cline/llms/models`: model catalog/query entrypoint
-- `@cline/llms/providers`: provider handler/settings entrypoint
+- `@induscode/llms`: runtime-focused convenience entrypoint
+- `@induscode/llms/node`: explicit Node/runtime entrypoint
+- `@induscode/llms/browser`: browser-safe bundle
+- `@induscode/llms/runtime`: focused runtime entrypoint
+- `@induscode/llms/models`: model catalog/query entrypoint
+- `@induscode/llms/providers`: provider handler/settings entrypoint
 
 ## Related Packages
 
-- `@cline/agents`: agent loop and tool execution
-- `@cline/core`: stateful runtime assembly and provider settings storage
+- `@induscode/agents`: agent loop and tool execution
+- `@induscode/core`: stateful runtime assembly and provider settings storage
 
 ## More Examples
 
-- Workspace overview: [README.md](https://github.com/cline/cline/blob/main/README.md)
-- API and architecture references: [DOC.md](https://github.com/cline/cline/blob/main/DOC.md), [ARCHITECTURE.md](https://github.com/cline/cline/blob/main/ARCHITECTURE.md)
+- Workspace overview: [README.md](https://github.com/induscode/induscode/blob/main/README.md)
+- API and architecture references: [DOC.md](https://github.com/induscode/induscode/blob/main/DOC.md), [ARCHITECTURE.md](https://github.com/induscode/induscode/blob/main/ARCHITECTURE.md)
 
 ## Live Provider Smoke Test
 
 Use this for API-key-backed provider validation against real endpoints.
 
-1. Ensure provider keys are present in your environment (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY`, `CLINE_API_KEY`, etc.).
+1. Ensure provider keys are present in your environment (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY`, `INDUSCODE_API_KEY`, etc.).
 2. Use the sample config at `packages/llms/src/tests/live-providers.example.json` as the providers list.
 3. Run:
 
 ```bash
 LLMS_LIVE_TESTS=1 \
 LLMS_LIVE_PROVIDERS_PATH=/absolute/path/to/packages/llms/src/tests/live-providers.example.json \
-bun -F @cline/llms run test:live
+bun -F @induscode/llms run test:live
 ```
 
 Reasoning-focused live run (same command, different flags):
@@ -168,7 +168,7 @@ Reasoning-focused live run (same command, different flags):
 ```bash
 LLMS_LIVE_REASONING_TESTS=1 \
 LLMS_LIVE_REASONING_PROVIDERS_PATH=/absolute/path/to/packages/llms/src/tests/live-providers.reasoning.example.json \
-bun -F @cline/llms run test:live
+bun -F @induscode/llms run test:live
 ```
 
 Tool-use-focused live run (same command, different flags):
@@ -176,7 +176,7 @@ Tool-use-focused live run (same command, different flags):
 ```bash
 LLMS_LIVE_TOOL_TESTS=1 \
 LLMS_LIVE_TOOL_PROVIDERS_PATH=/absolute/path/to/packages/llms/src/tests/live-providers.tools.example.json \
-bun -F @cline/llms run test:live
+bun -F @induscode/llms run test:live
 ```
 
 Optional:
@@ -188,9 +188,9 @@ Optional:
 - Point `LLMS_LIVE_REASONING_PROVIDERS_PATH` to a custom file for reasoning-enabled suites.
 - Point `LLMS_LIVE_TOOL_PROVIDERS_PATH` to a custom file for tool-use suites.
 - Use `apiKeyEnv`, `baseUrlEnv`, and `headersEnv` in a provider entry when a live config needs secrets without writing them to JSON.
-- When recording provider cassettes for committed replay tests, set `CLINE_VCR=record` and `CLINE_VCR_INCLUDE_REQUEST_BODY=1` so playback also verifies the sanitized request body contract.
+- When recording provider cassettes for committed replay tests, set `INDUSCODE_VCR=record` and `INDUSCODE_VCR_INCLUDE_REQUEST_BODY=1` so playback also verifies the sanitized request body contract.
 
-OpenAI Codex subscription live runs use the saved OAuth credentials from `~/.cline/data/settings/providers.json` after `cline auth --provider openai-codex`. Point the plain or reasoning suite at `packages/llms/src/tests/live-providers.openai-codex.example.json` or `packages/llms/src/tests/live-providers.openai-codex.reasoning.example.json`.
+OpenAI Codex subscription live runs use the saved OAuth credentials from `~/.induscode/data/settings/providers.json` after `induscode auth --provider openai-codex`. Point the plain or reasoning suite at `packages/llms/src/tests/live-providers.openai-codex.example.json` or `packages/llms/src/tests/live-providers.openai-codex.reasoning.example.json`.
 
 Per-provider live assertions are configured in the JSON via `expectations`:
 
@@ -203,7 +203,7 @@ Per-provider live assertions are configured in the JSON via `expectations`:
 - `requireToolCall`: fail unless at least one `tool_calls` chunk is emitted.
 
 In reasoning suites, set `requireReasoningSignal: true` to require either a reasoning chunk or provider-reported hidden reasoning tokens (provider-dependent; can be flaky on some endpoints).
-To check that disabling reasoning actually suppresses reasoning output across models, use `packages/llms/src/tests/live-providers.reasoning-disabled.example.json`; it covers direct and routed provider paths across `cline`, `openai`, `openrouter`, `anthropic`, `gemini`, `vercel-ai-gateway`, `zai`, and `deepseek` where model support exists, with `reasoning.enabled: false` and the strongest available no-reasoning expectation for each provider.
+To check that disabling reasoning actually suppresses reasoning output across models, use `packages/llms/src/tests/live-providers.reasoning-disabled.example.json`; it covers direct and routed provider paths across `induscode`, `openai`, `openrouter`, `anthropic`, `gemini`, `vercel-ai-gateway`, `zai`, and `deepseek` where model support exists, with `reasoning.enabled: false` and the strongest available no-reasoning expectation for each provider.
 
 Common live failure classes:
 

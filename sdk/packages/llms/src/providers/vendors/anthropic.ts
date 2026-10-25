@@ -3,7 +3,7 @@ import type { LanguageModelV4 } from "@ai-sdk/provider";
 import type {
 	GatewayProviderContext,
 	GatewayResolvedProviderConfig,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { wrapLanguageModel } from "ai";
 import { resolveApiKey } from "../http";
 import {

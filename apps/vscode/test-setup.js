@@ -72,9 +72,9 @@ Module.prototype.require = function (id) {
 
 	// The SDK packages are ESM-only and expose only an `import` condition.
 	// Integration tests run the tsc-built `out/` tree as CommonJS in VS Code's
-	// extension host, so `require("@cline/core")` fails before tests start.
+	// extension host, so `require("@induscode/core")` fails before tests start.
 	// Mock the small surface needed by legacy VS Code integration tests.
-	if (id === "@cline/core") {
+	if (id === "@induscode/core") {
 		const createNoopTelemetry = () => ({
 			setDistinctId() {},
 			setMetadata() {},
@@ -115,11 +115,11 @@ Module.prototype.require = function (id) {
 			const normalized = String(providerId || "")
 				.trim()
 				.toLowerCase()
-			if (normalized === "cline" || normalized === "cline-pass") return "cline"
+			if (normalized === "induscode" || normalized === "induscode-pass") return "induscode"
 			if (normalized === "oca" || normalized === "openai-codex") return normalized
 			return undefined
 		}
-		const formatClineApiKey = (token) => {
+		const formatIndusCodeApiKey = (token) => {
 			const trimmed = String(token || "").trim()
 			return trimmed.toLowerCase().startsWith("workos:") ? trimmed : `workos:${trimmed}`
 		}
@@ -131,7 +131,7 @@ Module.prototype.require = function (id) {
 				storageProviderId,
 				getApiKey(settings) {
 					const accessToken = settings?.auth?.accessToken?.trim?.()
-					if (accessToken) return storageProviderId === "cline" ? formatClineApiKey(accessToken) : accessToken
+					if (accessToken) return storageProviderId === "induscode" ? formatIndusCodeApiKey(accessToken) : accessToken
 					return settings?.apiKey?.trim?.() || settings?.auth?.apiKey?.trim?.() || undefined
 				},
 			}
@@ -145,11 +145,11 @@ Module.prototype.require = function (id) {
 		const listLocalProviders = async (manager) => ({ providers: [], settingsPath: manager.getFilePath?.() ?? "" })
 
 		return {
-			createClineTelemetryServiceConfig: (config = {}) => ({
+			createIndusCodeTelemetryServiceConfig: (config = {}) => ({
 				enabled: false,
 				metadata: {
 					extension_version: "test",
-					cline_type: "test",
+					induscode_type: "test",
 					platform: "test",
 					platform_version: "test",
 					os_type: "test",
@@ -162,7 +162,7 @@ Module.prototype.require = function (id) {
 				flush: async () => {},
 				dispose: async () => {},
 			}),
-			ClineCore: class {
+			IndusCodeCore: class {
 				constructor() {
 					this.runtimeAddress = undefined
 					this.pendingPrompts = {
@@ -219,7 +219,7 @@ Module.prototype.require = function (id) {
 			listLocalProviders,
 			resolveProviderConfig: async () => undefined,
 			getProviderConfigFields: () => [],
-			fetchClineRecommendedModels: async () => ({ recommended: [], free: [] }),
+			fetchIndusCodeRecommendedModels: async () => ({ recommended: [], free: [] }),
 			readGlobalSettings: () => ({ telemetryOptOut: false }),
 			setTelemetryOptOutGlobally: () => undefined,
 			prepareRemoteConfigCoreIntegration: () => undefined,
@@ -229,14 +229,14 @@ Module.prototype.require = function (id) {
 			getProviderAuthHandler,
 			getProviderAuthStorageId,
 			resolveProviderApiKeyFromSettings,
-			getValidClineCredentials: async () => undefined,
-			loginClineOAuth: async () => undefined,
+			getValidIndusCodeCredentials: async () => undefined,
+			loginIndusCodeOAuth: async () => undefined,
 			loginOcaOAuth: async () => undefined,
 			loginOpenAICodex: async () => undefined,
 		}
 	}
 
-	if (id === "@cline/core/cloud") {
+	if (id === "@induscode/core/cloud") {
 		class CloudSessionError extends Error {}
 		class CloudCreationUnconfirmedError extends CloudSessionError {}
 		return {
@@ -251,12 +251,12 @@ Module.prototype.require = function (id) {
 		}
 	}
 
-	if (id === "@cline/shared") {
+	if (id === "@induscode/shared") {
 		// Mirrors USER_REJECTED_TOOL_REASON / TOOL_REJECTION_SUFFIX in
 		// sdk/packages/shared/src/llms/tools.ts (the ESM-only real package
 		// cannot be required from this CommonJS test host).
 		return {
-			buildClineSystemPrompt: () => "",
+			buildIndusCodeSystemPrompt: () => "",
 			USER_REJECTED_TOOL_REASON: "This tool call was rejected by the user and not executed.",
 			TOOL_REJECTION_SUFFIX: "NOT a tool or system failure. Clarify with user before proceeding.",
 			createTool: (tool) => tool,
@@ -264,13 +264,13 @@ Module.prototype.require = function (id) {
 		}
 	}
 
-	if (id === "@cline/shared/storage") {
+	if (id === "@induscode/shared/storage") {
 		return {
 			resolveGlobalSettingsPath: () => path.join(baseUrl, ".vscode-test", "shared-global-settings.json"),
 		}
 	}
 
-	if (id === "@cline/llms") {
+	if (id === "@induscode/llms") {
 		return {
 			getAllProviders: async () => [],
 			getGeneratedModelsForProvider: () => ({}),

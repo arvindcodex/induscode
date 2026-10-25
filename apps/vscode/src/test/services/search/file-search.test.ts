@@ -216,13 +216,13 @@ describe("File Search", () => {
 		})
 
 		it("normalizes platform separators in ripgrep results to forward slashes", async () => {
-			// On Windows `path.relative` yields `cline\evals\README.md`; the webview,
-			// the open-tabs dedupe and stored mentions all assume `/` (CLINE-731).
+			// On Windows `path.relative` yields `induscode\evals\README.md`; the webview,
+			// the open-tabs dedupe and stored mentions all assume `/` (INDUSCODE-731).
 			// Built with `path.sep` so the conversion is exercised on Windows CI and
 			// the test stays a valid no-op on POSIX.
 			const mockStdout = new Readable({
 				read() {
-					this.push(`/workspace/${["cline", "evals", "README.md"].join(path.sep)}\n`)
+					this.push(`/workspace/${["induscode", "evals", "README.md"].join(path.sep)}\n`)
 					this.push(null)
 				},
 			})
@@ -247,10 +247,10 @@ describe("File Search", () => {
 
 			const paths = result.map((item) => item.path)
 			should(paths.some((p) => p.includes("\\"))).be.false()
-			should(paths).containEql("cline/evals/README.md")
-			should(paths).containEql("cline/evals")
-			should(paths).containEql("cline")
-			should(result.find((item) => item.path === "cline/evals/README.md")).have.property("label", "README.md")
+			should(paths).containEql("induscode/evals/README.md")
+			should(paths).containEql("induscode/evals")
+			should(paths).containEql("induscode")
+			should(result.find((item) => item.path === "induscode/evals/README.md")).have.property("label", "README.md")
 		})
 
 		it("falls back to a system ripgrep when the bundled binary path is missing", async () => {
@@ -318,7 +318,7 @@ describe("File Search", () => {
 		})
 
 		it("should not duplicate a folder when the host returns it as both an explicit folder and a parent of a file", async () => {
-			// Repro for CLINE-2092 review feedback: with `selectedType=undefined`, the
+			// Repro for INDUSCODE-2092 review feedback: with `selectedType=undefined`, the
 			// host-index path returned `src/` as an explicit folder *and* `src/main.ts`
 			// as a file, then the parent-walk re-added `src` as an inferred dir, so the
 			// picker showed `src` twice.
@@ -343,7 +343,7 @@ describe("File Search", () => {
 
 		it("normalizes platform separators in host-index results and dedupes them against open tabs", async () => {
 			// The JetBrains host relativizes with java.nio Path, so on Windows every
-			// nested item arrives as `cline\sdk\README.md`. The webview then shows
+			// nested item arrives as `induscode\sdk\README.md`. The webview then shows
 			// only the label for such paths (every README rendered as "/README.md"),
 			// and the open-tabs dedupe, which already normalizes to `/`, misses them.
 			// Built with `path.sep` so the conversion is exercised on Windows CI and
@@ -352,30 +352,30 @@ describe("File Search", () => {
 			const hostResponse = SearchWorkspaceItemsResponse.create({
 				items: [
 					{
-						path: hostPath("cline", "sdk", "README.md"),
+						path: hostPath("induscode", "sdk", "README.md"),
 						type: SearchWorkspaceItemsRequest_SearchItemType.FILE,
 						label: "README.md",
 					},
 					{
-						path: hostPath("cline", "evals", "README.md"),
+						path: hostPath("induscode", "evals", "README.md"),
 						type: SearchWorkspaceItemsRequest_SearchItemType.FILE,
 						label: "README.md",
 					},
-					{ path: hostPath("cline", "evals"), type: SearchWorkspaceItemsRequest_SearchItemType.FOLDER, label: "evals" },
+					{ path: hostPath("induscode", "evals"), type: SearchWorkspaceItemsRequest_SearchItemType.FOLDER, label: "evals" },
 				],
 			})
 			sandbox.stub(HostProvider.workspace, "searchWorkspaceItems").resolves(hostResponse)
-			sandbox.stub(HostProvider.window, "getOpenTabs").resolves({ paths: ["/workspace/cline/sdk/README.md"] } as any)
+			sandbox.stub(HostProvider.window, "getOpenTabs").resolves({ paths: ["/workspace/induscode/sdk/README.md"] } as any)
 
 			const result = await fileSearch.searchWorkspaceFiles("", "/workspace", 20)
 
 			should(result.source).equal("host_index")
 			const paths = result.items.map((item) => item.path)
 			should(paths.some((p) => p.includes("\\"))).be.false()
-			should(paths.filter((p) => p === "cline/sdk/README.md")).have.length(1)
-			should(paths).containEql("cline/evals/README.md")
-			should(paths.filter((p) => p === "cline/evals")).have.length(1)
-			should(paths).containEql("cline")
+			should(paths.filter((p) => p === "induscode/sdk/README.md")).have.length(1)
+			should(paths).containEql("induscode/evals/README.md")
+			should(paths.filter((p) => p === "induscode/evals")).have.length(1)
+			should(paths).containEql("induscode")
 		})
 
 		it.skipIf(process.platform === "win32")("keeps literal backslashes in POSIX filenames", async () => {

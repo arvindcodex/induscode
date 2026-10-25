@@ -216,7 +216,7 @@ jobs:
               env:
                   VSCE_PAT: ${{ secrets.VSCE_PAT }}
                   OVSX_PAT: ${{ secrets.OVSX_PAT }}
-                  CLINE_ENVIRONMENT: production
+                  INDUSCODE_ENVIRONMENT: production
                   TELEMETRY_SERVICE_API_KEY: ${{ secrets.TELEMETRY_SERVICE_API_KEY }}
                   ERROR_SERVICE_API_KEY: ${{ secrets.ERROR_SERVICE_API_KEY }}
                   # OpenTelemetry production defaults (can be overridden at runtime)
@@ -236,7 +236,7 @@ jobs:
                   trap 'node scripts/marketplace-readme.mjs restore' EXIT
 
                   # Required to generate the .vsix
-                  vsce package --allow-package-secrets sendgrid --out "cline-${{ steps.get_version.outputs.version }}.vsix"
+                  vsce package --allow-package-secrets sendgrid --out "induscode-${{ steps.get_version.outputs.version }}.vsix"
 
                   if [ "$RELEASE_TYPE" = "pre-release" ]; then
                     npm run publish:marketplace:prerelease
@@ -311,12 +311,12 @@ jobs:
                   token: ${{ secrets.SLACK_RELEASE_BOT_TOKEN }}
                   payload: |
                     channel: "C0APVKGGZFC"
-                    text: "Cline ${{ steps.resolve_tag.outputs.tag }} (legacy)"
+                    text: "IndusCode ${{ steps.resolve_tag.outputs.tag }} (legacy)"
                     blocks:
                       - type: "section"
                         text:
                           type: "mrkdwn"
-                          text: "*Cline ${{ steps.resolve_tag.outputs.tag }} (legacy)*"
+                          text: "*IndusCode ${{ steps.resolve_tag.outputs.tag }} (legacy)*"
                       - type: "section"
                         text:
                           type: "mrkdwn"

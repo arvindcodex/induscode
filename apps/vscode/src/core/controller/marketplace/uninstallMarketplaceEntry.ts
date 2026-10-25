@@ -1,4 +1,4 @@
-import { type MarketplaceEntryRequest, MarketplaceInstallResult } from "@shared/proto/cline/marketplace"
+import { type MarketplaceEntryRequest, MarketplaceInstallResult } from "@shared/proto/induscode/marketplace"
 import type { Controller } from "../index"
 import { uninstallMarketplaceEntryFromCatalog } from "./marketplace-helpers"
 

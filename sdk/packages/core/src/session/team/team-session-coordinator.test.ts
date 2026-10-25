@@ -1,4 +1,4 @@
-import { TeamMessageType } from "@cline/shared";
+import { TeamMessageType } from "@induscode/shared";
 import { describe, expect, it, vi } from "vitest";
 import { dispatchTeamEventToBackend } from "./team-session-coordinator";
 

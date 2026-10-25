@@ -4,7 +4,7 @@ sidebarTitle: "Types"
 description: "Common SDK type surfaces."
 ---
 
-Most common types are exported from `@cline/shared`; runtime entry-point packages re-export selected helpers.
+Most common types are exported from `@induscode/shared`; runtime entry-point packages re-export selected helpers.
 
 ## AgentRuntime Types
 
@@ -16,7 +16,7 @@ import type {
   AgentRuntimeEvent,
   AgentRuntimeStateSnapshot,
   AgentUsage,
-} from "@cline/sdk"
+} from "@induscode/sdk"
 ```
 
 `AgentRunResult` is returned by direct `AgentRuntime` / `Agent` runs:
@@ -46,7 +46,7 @@ import type {
   AgentTool,
   AgentToolContext,
   ToolPolicy,
-} from "@cline/sdk"
+} from "@induscode/sdk"
 ```
 
 `AgentResult` is the host/core-facing result shape:
@@ -66,15 +66,15 @@ interface AgentResult {
 }
 ```
 
-## ClineCore Types
+## IndusCodeCore Types
 
 ```typescript
 import type {
-  ClineCoreOptions,
-  ClineCoreStartInput,
+  IndusCodeCoreOptions,
+  IndusCodeCoreStartInput,
   CoreSessionConfig,
   SessionRecord,
-} from "@cline/sdk"
+} from "@induscode/sdk"
 ```
 
 ## Tool Types

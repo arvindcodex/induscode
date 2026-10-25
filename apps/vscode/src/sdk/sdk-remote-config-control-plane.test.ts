@@ -40,8 +40,8 @@ vi.mock("@/core/storage/remote-config/utils", () => ({
 	isRemoteConfigEnabled,
 }))
 
-vi.mock("@/config", () => ({ ClineEnv: { config: () => ({ apiBaseUrl: "https://api.example.test" }) } }))
-vi.mock("@/services/EnvUtils", () => ({ buildBasicClineHeaders: async () => ({}) }))
+vi.mock("@/config", () => ({ IndusCodeEnv: { config: () => ({ apiBaseUrl: "https://api.example.test" }) } }))
+vi.mock("@/services/EnvUtils", () => ({ buildBasicIndusCodeHeaders: async () => ({}) }))
 vi.mock("@/shared/net", () => ({ getAxiosSettings: () => ({}) }))
 vi.mock("axios", () => ({ default: { request: axiosRequest } }))
 
@@ -161,7 +161,7 @@ describe("SdkRemoteConfigControlPlane", () => {
 
 		const bundle = await controlPlane.fetchBundle({ workspacePath: "/workspace" })
 
-		expect(bundle?.source).toBe("cline-extension-remote-config")
+		expect(bundle?.source).toBe("induscode-extension-remote-config")
 		expect(bundle?.version).toBe("v1")
 		expect(bundle?.remoteConfig?.version).toBe("v1")
 		expect(controlPlane.getLastRemoteConfig()?.version).toBe("v1")

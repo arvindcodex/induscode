@@ -9,7 +9,7 @@ if [ "$#" -ne 3 ]; then
     echo "Usage: $0 <source.zip> <output.zip> <endpoints.json>"
     echo ""
     echo "Example:"
-    echo "  $0 cline-jetbrains-3.55.0.zip cline-jetbrains-3.55.0-enterprise.zip endpoints.json"
+    echo "  $0 induscode-jetbrains-3.55.0.zip induscode-jetbrains-3.55.0-enterprise.zip endpoints.json"
     exit 1
 fi
 
@@ -66,9 +66,9 @@ echo "Extracting JetBrains plugin ZIP..."
 unzip -q "$SOURCE_ZIP" -d "$TEMP_DIR"
 
 # Find the plugin lib directory (where the main JAR is located)
-# JetBrains plugins typically have a structure like: cline/lib/
+# JetBrains plugins typically have a structure like: induscode/lib/
 # We need to add endpoints.json to the root of the plugin directory
-PLUGIN_DIR="$TEMP_DIR/cline"
+PLUGIN_DIR="$TEMP_DIR/induscode"
 if [ ! -d "$PLUGIN_DIR" ]; then
     # Try to find any directory that looks like a plugin root
     PLUGIN_DIR=$(find "$TEMP_DIR" -maxdepth 1 -type d ! -path "$TEMP_DIR" | head -n 1)
@@ -93,4 +93,4 @@ mv "$TEMP_DIR/$(basename "$OUTPUT_ZIP")" "$OUTPUT_ZIP"
 echo "✓ Successfully created $OUTPUT_ZIP with bundled endpoints.json"
 echo ""
 echo "The package is ready for enterprise distribution."
-echo "When installed in JetBrains IDEs, Cline will automatically use the bundled configuration."
+echo "When installed in JetBrains IDEs, IndusCode will automatically use the bundled configuration."

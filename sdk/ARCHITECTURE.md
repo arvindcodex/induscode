@@ -1,10 +1,10 @@
-# Cline SDK Architecture
+# IndusCode SDK Architecture
 
-This document is the architecture source of truth for the Cline SDK repository. It describes how the system is organized, how components interact, and the design principles that guide development decisions.
+This document is the architecture source of truth for the IndusCode SDK repository. It describes how the system is organized, how components interact, and the design principles that guide development decisions.
 
 **Who should read this?**
 - SDK contributors working across multiple packages
-- Developers building integrations or host applications using `@cline/core`
+- Developers building integrations or host applications using `@induscode/core`
 - Plugin authors understanding the runtime and extension systems
 
 **What this covers:**
@@ -25,10 +25,10 @@ The workspace is organized as a layered runtime stack.
 
 ```mermaid
 flowchart LR
-  shared["@cline/shared"]
-  llms["@cline/llms"]
-  agents["@cline/agents"]
-  core["@cline/core"]
+  shared["@induscode/shared"]
+  llms["@induscode/llms"]
+  agents["@induscode/agents"]
+  core["@induscode/core"]
   apps["Host Apps"]
 
   llms --> shared
@@ -42,7 +42,7 @@ flowchart LR
 
 ## Package Responsibilities
 
-### `@cline/shared`
+### `@induscode/shared`
 
 Owns reusable low-level contracts and infrastructure:
 
@@ -58,7 +58,7 @@ Design rule:
 
 - `shared` should not depend on higher-level runtime packages.
 
-### `@cline/llms`
+### `@induscode/llms`
 
 Owns model/provider runtime concerns:
 
@@ -99,7 +99,7 @@ Design rule:
   The field-level contract is `GitSnapshotProperties` in
   `packages/core/src/services/telemetry/core-events.ts`.
 
-### `@cline/agents`
+### `@induscode/agents`
 
 Owns the stateless runtime loop:
 
@@ -114,7 +114,7 @@ Design rule:
 
 - `agents` should not own persistent storage or host lifecycle concerns.
 
-### `@cline/core`
+### `@induscode/core`
 
 Owns stateful orchestration:
 
@@ -128,15 +128,15 @@ Owns stateful orchestration:
 - default context compaction policy
 - telemetry integration
 - hub server and scheduled-runtime services under `src/hub/`
-- hub discovery, the detached hub daemon, and the `@cline/core/hub/daemon-entry` subpath
-- host-side hub client adapters (`NodeHubClient`, `HubSessionClient`, `HubUIClient`, `connectToHub`) exported from `@cline/core/hub`
-- the experimental cloud-session client exported from `@cline/core/cloud`: cloud API access, remote session lifecycle, and transcript reconciliation
+- hub discovery, the detached hub daemon, and the `@induscode/core/hub/daemon-entry` subpath
+- host-side hub client adapters (`NodeHubClient`, `HubSessionClient`, `HubUIClient`, `connectToHub`) exported from `@induscode/core/hub`
+- the experimental cloud-session client exported from `@induscode/core/cloud`: cloud API access, remote session lifecycle, and transcript reconciliation
 
 Design rules:
 
 - `core` is the app-facing orchestration layer over `agents`.
 - `session/fork-metadata` owns fork ancestry and removal of inherited handoff markers; hosts retain title, transcript, and workspace-restore policies.
-- `@cline/core/cloud` owns remote cloud-session state and emits immutable snapshots and events. Viewers hydrating active runs with `readMessages` reconcile canonical history at completion even if they missed the run start. Hosts supply authentication and project those snapshots into their UI; feature flags, account selection, and host persistence remain outside the controller. Importing this subpath does not initialize a local agent.
+- `@induscode/core/cloud` owns remote cloud-session state and emits immutable snapshots and events. Viewers hydrating active runs with `readMessages` reconcile canonical history at completion even if they missed the run start. Hosts supply authentication and project those snapshots into their UI; feature flags, account selection, and host persistence remain outside the controller. Importing this subpath does not initialize a local agent.
 - `cloud/models` owns cloud model eligibility; `services/cloud-handoff` owns Git preflight, fingerprints, and transcript verification. Hosts own transfer orchestration, source locks, persistence, feature gating, and draft recovery.
 - The cloud controller resumes suspended sessions and restores saved tasks.
 - Desktop retains pending first-task creation options in a context-owned map across credential-driven controller replacement. The shared controller consumes that intent when an inner task exists or is created; retaining an ID without its approval policy is not sufficient.
@@ -151,19 +151,19 @@ Design rules:
 
 ### Local In-Process Runtime
 
-1. Host constructs a `RuntimeHost` through `@cline/core`.
-2. `@cline/core` selects `LocalRuntimeHost` through `packages/core/src/runtime/host.ts`.
+1. Host constructs a `RuntimeHost` through `@induscode/core`.
+2. `@induscode/core` selects `LocalRuntimeHost` through `packages/core/src/runtime/host.ts`.
 3. Hosts normalize broad local config into `RuntimeSessionConfig` plus `localRuntime` overrides before calling `RuntimeHost.start(...)`.
-4. `@cline/core` prepares a local bootstrap artifact from `localRuntime`, then builds the runtime from it.
-5. `@cline/core` creates an `Agent` from `@cline/agents`.
-6. `@cline/agents` runs the loop using `@cline/llms` handlers.
-7. `@cline/core` persists state, artifacts, and metadata.
+4. `@induscode/core` prepares a local bootstrap artifact from `localRuntime`, then builds the runtime from it.
+5. `@induscode/core` creates an `Agent` from `@induscode/agents`.
+6. `@induscode/agents` runs the loop using `@induscode/llms` handlers.
+7. `@induscode/core` persists state, artifacts, and metadata.
 
 Completion telemetry is anchored to the assistant's explicit completion
 declaration, not session shutdown. After each agent turn, the local
 runtime inspects `AgentResult.toolCalls` and emits `task.completed` the
 moment a successful `submit_and_exit` (the SDK analog of original
-Cline's `attempt_completion`) is observed. A single teardown choke
+IndusCode's `attempt_completion`) is observed. A single teardown choke
 point (`emitTaskCompletedOnTeardown(...)`) retains a fallback emission
 for sessions whose final turn finished cleanly without an explicit
 completion-tool observation (non-interactive runs not using the yolo
@@ -176,15 +176,15 @@ field.
 
 ### Hub-Backed Runtime
 
-1. Host constructs a `RuntimeHost` through `@cline/core`.
-2. `@cline/core` selects `HubRuntimeHost` or `RemoteRuntimeHost` through `packages/core/src/runtime/host.ts`.
-3. When no compatible local hub is already discovered, `@cline/core` can spawn a detached hub daemon and reconnect through discovery. The spawner waits up to 15s for the daemon to publish a usable discovery record (cold starts of the compiled binary on Windows regularly need more than the previous 8s). If the daemon still fails to come up, the runtime host's `No compatible hub runtime is available` error carries the underlying reason, and the daemon reports its own startup failure to telemetry (`hub.daemon.startup`) before exiting.
+1. Host constructs a `RuntimeHost` through `@induscode/core`.
+2. `@induscode/core` selects `HubRuntimeHost` or `RemoteRuntimeHost` through `packages/core/src/runtime/host.ts`.
+3. When no compatible local hub is already discovered, `@induscode/core` can spawn a detached hub daemon and reconnect through discovery. The spawner waits up to 15s for the daemon to publish a usable discovery record (cold starts of the compiled binary on Windows regularly need more than the previous 8s). If the daemon still fails to come up, the runtime host's `No compatible hub runtime is available` error carries the underlying reason, and the daemon reports its own startup failure to telemetry (`hub.daemon.startup`) before exiting.
 4. Hosts attach and detach from shared sessions without stopping the authority runtime, so another client can keep streaming or resume the same session later.
-   One daemon serves every Cline client on the machine, and a hub-hosted session's telemetry carries only its own client (`clientName`/`clientVersion`), so the daemon also records *whose build started it*. The spawner stamps `CLINE_HUB_LAUNCHER_CLIENT`, `CLINE_HUB_LAUNCHER_VERSION`, and `CLINE_HUB_LAUNCHER_TRANSPORT` on the daemon environment (`withHubLauncherIdentity` in `@cline/shared`), defaulting to the spawning process's `ClineClientIdentity` and `local`. An embedding host that starts the hub through the CLI (the desktop app running `cline-cli hub ensure`) stamps itself first, and a stamp already present is kept as a whole, so the CLI that performs the spawn never records its own name or fills in its version next to the host's name. SSH remote hubs are stamped by the client over the `env` prefix of the remote `hub ensure` command with `transport=ssh`. The daemon claims the stamp out of its environment at startup (`claimHubLauncherIdentity`, same hazard as the daemon sentinel: hosted sessions spawn processes that inherit the environment, and a hub one of them starts must record itself) and publishes it with its build id and executable name as OTel resource attributes: `cline.hub.launcher.client`, `cline.hub.launcher.version`, `cline.hub.launcher.transport`, `cline.hub.build_id`, `cline.hub.runtime`. Collectors and Langfuse surface these as `resourceAttributes.*`, so a desktop session hosted by a CLI-started hub is attributable to that CLI build.
-5. The hub-hosted runtime executes the agent loop using `@cline/agents` and `@cline/llms`.
-6. `@cline/core` hub services broker sessions, events, approvals, schedules, and client-owned runtime capabilities such as session-local tool executors.
+   One daemon serves every IndusCode client on the machine, and a hub-hosted session's telemetry carries only its own client (`clientName`/`clientVersion`), so the daemon also records *whose build started it*. The spawner stamps `INDUSCODE_HUB_LAUNCHER_CLIENT`, `INDUSCODE_HUB_LAUNCHER_VERSION`, and `INDUSCODE_HUB_LAUNCHER_TRANSPORT` on the daemon environment (`withHubLauncherIdentity` in `@induscode/shared`), defaulting to the spawning process's `IndusCodeClientIdentity` and `local`. An embedding host that starts the hub through the CLI (the desktop app running `induscode-cli hub ensure`) stamps itself first, and a stamp already present is kept as a whole, so the CLI that performs the spawn never records its own name or fills in its version next to the host's name. SSH remote hubs are stamped by the client over the `env` prefix of the remote `hub ensure` command with `transport=ssh`. The daemon claims the stamp out of its environment at startup (`claimHubLauncherIdentity`, same hazard as the daemon sentinel: hosted sessions spawn processes that inherit the environment, and a hub one of them starts must record itself) and publishes it with its build id and executable name as OTel resource attributes: `induscode.hub.launcher.client`, `induscode.hub.launcher.version`, `induscode.hub.launcher.transport`, `induscode.hub.build_id`, `induscode.hub.runtime`. Collectors and Langfuse surface these as `resourceAttributes.*`, so a desktop session hosted by a CLI-started hub is attributable to that CLI build.
+5. The hub-hosted runtime executes the agent loop using `@induscode/agents` and `@induscode/llms`.
+6. `@induscode/core` hub services broker sessions, events, approvals, schedules, and client-owned runtime capabilities such as session-local tool executors.
 7. Hub event forwarding preserves structured streaming lifecycle boundaries: text/reasoning deltas, final text/reasoning completion, tool start/update/finish, and agent done events are translated across the hub transport so host UIs can reliably close loading/streaming state. `run.started` is emitted only after the target session is resolved and carries the originating command's `requestId` and `clientId`, allowing multi-client hosts to correlate delivery acknowledgments.
-8. Hub client adapters exported from `@cline/core/hub` (`NodeHubClient`, `HubSessionClient`, `HubUIClient`, `connectToHub`) translate command/reply and event streams into host-facing APIs. Node clients register their version and PID together with caller metadata on every connection; `HubSessionClient` passes metadata through at registration so client events, refreshed lists, and reconnects retain the same details.
+8. Hub client adapters exported from `@induscode/core/hub` (`NodeHubClient`, `HubSessionClient`, `HubUIClient`, `connectToHub`) translate command/reply and event streams into host-facing APIs. Node clients register their version and PID together with caller metadata on every connection; `HubSessionClient` passes metadata through at registration so client events, refreshed lists, and reconnects retain the same details.
 9. Hub `session.get` records include both canonical root-session usage and explicit aggregate usage from the hub-owned `RuntimeHost`, so attached clients can intentionally render either root-only or root-plus-teammate costs without replaying event streams.
 
 Hub `session.send_input` accepts a nonblank prompt or at least one nonblank image/file
@@ -265,7 +265,7 @@ image, audio, transcription, or video endpoint.
 
 Generated media crosses package boundaries as follows:
 
-1. `@cline/llms` validates provider output once and creates canonical
+1. `@induscode/llms` validates provider output once and creates canonical
    `GeneratedMedia` values. The contract carries a stable ID, modality, MIME type,
    and a discriminated base64, HTTP(S), or artifact source. Current producers emit
    images; audio, video, and large artifact-backed files use the same contract.
@@ -274,13 +274,13 @@ Generated media crosses package boundaries as follows:
    coalesces preliminary or repeated results, enforces the per-turn media budget,
    and persists only a compact activity summary rather than duplicating base64 in
    model-tool metadata.
-3. `@cline/agents` appends media events at their exact stream position in the
+3. `@induscode/agents` appends media events at their exact stream position in the
    assistant message. That message is the canonical replay and persistence source;
    observational provider-tool activity remains display-only metadata.
-4. `@cline/core` projects live media as `content_end(media)`. The hub publishes
+4. `@induscode/core` projects live media as `content_end(media)`. The hub publishes
    `assistant.media`, preserving the same media ID, and clients deduplicate live
    and hydrated content by that ID.
-5. Web clients share `GeneratedMediaContent` from `@cline/ui` for image, audio,
+5. Web clients share `GeneratedMediaContent` from `@induscode/ui` for image, audio,
    video, file, and unavailable-source rendering. Inline bytes are exposed only
    through short-lived browser-owned object URLs; remote and artifact sources
    require a client-owned trusted resolver. CLI and ACP clients provide
@@ -321,8 +321,8 @@ Workspace bootstrap is owned by the runtime that executes the session. Hub
 clients preserve an omitted `cwd` and `workspaceRoot` across the transport so
 the hub-side execution host can place the session in the shared chat
 workspace on its own filesystem at
-`<cline-data-dir>/workspaces/chat` (by default
-`~/.cline/data/workspaces/chat`). The chat workspace is seeded with an
+`<induscode-data-dir>/workspaces/chat` (by default
+`~/.induscode/data/workspaces/chat`). The chat workspace is seeded with an
 `AGENTS.md` rules file that tells the agent to treat the session as a chat
 and to create a named project folder only when the user asks for one.
 The resolved paths are returned in the session snapshot and are the source of
@@ -382,7 +382,7 @@ different process.
 
 1. `apps/cli` owns OpenTUI startup and must render the first frame without waiting for detached hub startup.
 2. Interactive sessions use `backendMode: "auto"` so an already-compatible hub can be reused immediately, while a missing hub is only prewarmed in the background and the TUI falls back to a local runtime for responsiveness.
-3. Hub-required flows such as `cline hub`, schedules, connectors, and `--zen` may still call the explicit ensure path because those commands require a live hub before proceeding.
+3. Hub-required flows such as `induscode hub`, schedules, connectors, and `--zen` may still call the explicit ensure path because those commands require a live hub before proceeding.
 4. Resume hydration is deferred until after `renderOpenTui()` so loading previous messages cannot block initial TUI paint.
 5. Any future CLI/TUI startup work should follow the same rule: daemon startup, discovery polling, provider catalog refreshes, file indexing, and resume reads must be background or user-action gated unless a command explicitly requires their result before output.
 
@@ -392,7 +392,7 @@ Cache admission sizes the persisted result using the same JSON/string preview re
 
 MCP and Composio tools declare `resultPolicy: "cache-oversized"` at registration; custom tools may opt in. After result-transforming hooks finish, Core caches oversized output in a session-owned `ToolResultCache` while retaining original output in conversation history and tool events. The existing synchronous `MessageBuilder.buildForApi` produces bounded previews and model-only recovery instructions, preserving native images. Other tools keep their existing projection behavior. No disk cache or asynchronous recovery builder is involved.
 
-Recovery URIs have the form `cline://cache/<encoded-session-id>/<unique-result-id>.result.txt`. Core injects the owning cache into the runtime tool context. The built-in file reader resolves these URIs before filesystem handling and uses the same bounded line reader, inclusive ranges, output caps, and abort handling as ordinary text files. URIs are restricted to the owning session; shell commands and filesystem search do not resolve them.
+Recovery URIs have the form `induscode://cache/<encoded-session-id>/<unique-result-id>.result.txt`. Core injects the owning cache into the runtime tool context. The built-in file reader resolves these URIs before filesystem handling and uses the same bounded line reader, inclusive ranges, output caps, and abort handling as ordinary text files. URIs are restricted to the owning session; shell commands and filesystem search do not resolve them.
 
 Entries expire after five additional model iterations without an explicit cache read. A session-level counter spans follow-up turns; including a URI in a model request does not refresh it. Reads refresh both the iteration age and least-recently-used order. Cached text is limited to 16 MiB of UTF-8 bytes per session, evicting the least recently read entry first; individually larger results receive a preview without a URI. Shutdown, history reset, and restore clear the cache. Resume and copied sessions do not rehydrate it from history. Missing entries return an explicit refetch instruction through `read_files`, without automatically repeating tools or side effects.
 
@@ -400,9 +400,9 @@ Cache eviction releases cache-owned text only; original output remains under ord
 
 ### Connector Persistence and Recovery
 
-1. `@cline/shared/db` owns the low-level SQLite connector store and the one-time legacy JSON import.
+1. `@induscode/shared/db` owns the low-level SQLite connector store and the one-time legacy JSON import.
 2. Dashboard configuration and CLI connection state are recorded separately. Configuration edits replace only dashboard-owned connector and security flags in stored reconnect arguments, preserving CLI-only runtime options, and refresh arguments only for connectors that have previously started successfully.
-3. `@cline/core` owns connector autostart persistence and reconnect orchestration. The detached hub daemon is the sole startup reconnect owner, preventing dashboard startup from racing it and launching duplicate processes.
+3. `@induscode/core` owns connector autostart persistence and reconnect orchestration. The detached hub daemon is the sole startup reconnect owner, preventing dashboard startup from racing it and launching duplicate processes.
 4. Detached connector starts are persisted only after a child process is created. Internal detached children preserve that state when they exit, while a clean user-interactive exit disables autostart.
 5. CLI and dashboard hosts pass their connector CLI launch specification through the detached process environment. The package-owned daemon entrypoint uses that specification to start connector reconnect wrappers without importing application code.
 6. The detached hub entrypoint exposes `hubDaemonReady`, which resolves only after the WebSocket server is listening. It begins reconnect attempts after signaling readiness, and reconnect failures remain best-effort rather than taking down the hub.
@@ -410,11 +410,11 @@ Cache eviction releases cache-owned text only; original output remains under ord
 ### Remote-Config Managed Runtime
 
 1. A host or core wrapper fetches a normalized `RemoteConfigBundle`.
-2. `@cline/shared/remote-config` caches the bundle when configured.
-3. Shared remote-config materializes managed rules/workflows/skills under workspace-local `.cline/<plugin>/`.
+2. `@induscode/shared/remote-config` caches the bundle when configured.
+3. Shared remote-config materializes managed rules/workflows/skills under workspace-local `.induscode/<plugin>/`.
 4. Shared remote-config derives generic OpenTelemetry config and session blob upload metadata from the bundle.
-5. `@cline/core` exposes the app-facing integration wrapper that applies extensions, telemetry, and session metadata to `StartSessionInput`.
-6. `@cline/core` consumes the prepared local overrides during local bootstrap.
+5. `@induscode/core` exposes the app-facing integration wrapper that applies extensions, telemetry, and session metadata to `StartSessionInput`.
+6. `@induscode/core` consumes the prepared local overrides during local bootstrap.
 
 This keeps reusable remote-config behavior in `shared` while the session-specific bridge remains in `core`.
 
@@ -466,15 +466,15 @@ Concrete implementations:
 Design implication:
 
 - host selection happens in `packages/core/src/runtime/host.ts`
-- `ClineCore` delegates uniformly to `RuntimeHost` and does not branch on local vs hub behavior
+- `IndusCodeCore` delegates uniformly to `RuntimeHost` and does not branch on local vs hub behavior
 - transport-specific translation belongs inside concrete hosts, not in top-level orchestration
-- `RuntimeHost` inputs stay transport-safe, while `ClineCore.start(...)` is the app-facing facade that normalizes broad local config before delegation
+- `RuntimeHost` inputs stay transport-safe, while `IndusCodeCore.start(...)` is the app-facing facade that normalizes broad local config before delegation
 - `RuntimeSessionConfig` is transport-neutral across local, shared hub, and remote hub modes; host-local bootstrap concerns stay under `localRuntime`
 - client-local runtime behaviors that must survive hub mode, such as `defaultToolExecutors`, are attached at session start and proxied through hub capability requests instead of changing host selection
 - pending prompt list/update/delete are exposed through the grouped
-  `ClineCore.pendingPrompts` service. Usage summary lookup and active-session
+  `IndusCodeCore.pendingPrompts` service. Usage summary lookup and active-session
   model switching are also service-style capabilities exposed through
-  `ClineCore` when the concrete transport implements them. These service APIs
+  `IndusCodeCore` when the concrete transport implements them. These service APIs
   are intentionally outside the minimal `RuntimeHost` primitive vocabulary.
 - `session.abort` remains the cancellation boundary for a root session in both
   local and hub-backed execution. The owning `LocalRuntimeHost` aborts the lead
@@ -512,7 +512,7 @@ Design implication:
 
 ### 5. Session Startup Bootstrap
 
-`ClineCore.create(...)` exposes a generic `prepare(input)` hook.
+`IndusCodeCore.create(...)` exposes a generic `prepare(input)` hook.
 
 Design implication:
 
@@ -522,7 +522,7 @@ Design implication:
 
 ### 6. Logging
 
-Cross-package logging uses a small injected interface exported from `@cline/shared`:
+Cross-package logging uses a small injected interface exported from `@induscode/shared`:
 
 - **`BasicLogger`** — required `debug` and `log`; optional `error`. Hosts map these to their backend (Pino, VS Code `OutputChannel`, etc.). Many runtime options take `logger?: BasicLogger`; when omitted, components skip logging or use `noopBasicLogger` where a full object is required.
 - **`BasicLogMetadata`** — optional structured fields (`sessionId`, `runId`, `providerId`, `toolName`, `durationMs`, …) plus `severity` on `log` when a single method must represent both informational and warning-style messages (for example the CLI Pino bridge maps `severity: "warn"` to Pino `warn`).
@@ -530,7 +530,7 @@ Cross-package logging uses a small injected interface exported from `@cline/shar
 Naming clarity:
 
 - **`CliLoggerAdapter` (CLI)** — a **host bundle**: holds the raw `pino` logger (for file paths, rotation, and CLI-only concerns) and exposes `.core: BasicLogger` for anything that consumes the SDK contract. It is not an `ITelemetryAdapter`.
-- **`TelemetryLoggerSink` (`@cline/core`)** — an **`ITelemetryAdapter`** that mirrors telemetry events and metrics into a `BasicLogger`. It is a telemetry sink, not a host logging implementation.
+- **`TelemetryLoggerSink` (`@induscode/core`)** — an **`ITelemetryAdapter`** that mirrors telemetry events and metrics into a `BasicLogger`. It is a telemetry sink, not a host logging implementation.
 
 The agent and other call sites route former `info` / `warn` semantics through `log` (warnings include `severity: "warn"` in metadata). Errors prefer `error` when implemented; otherwise `log` with `severity: "error"` is used as a fallback.
 
@@ -541,17 +541,17 @@ Design implication:
 
 ### 6.1 Langfuse telemetry ownership
 
-`@cline/llms` owns Langfuse instrumentation, trace attribute propagation, and
-the `LangfuseAttributesSpanProcessor`. `@cline/core` owns the host OpenTelemetry
+`@induscode/llms` owns Langfuse instrumentation, trace attribute propagation, and
+the `LangfuseAttributesSpanProcessor`. `@induscode/core` owns the host OpenTelemetry
 provider and installs that processor when constructing an OTLP trace pipeline.
-The processor copies context attributes onto `cline-provider-langfuse` spans;
+The processor copies context attributes onto `induscode-provider-langfuse` spans;
 it does not create an exporter or require Langfuse credentials. User and session
 IDs must be span attributes, not only observation metadata, for Langfuse tracking.
 
 In the collector relay path, spans use the existing host OTLP exporter. The
 collector owns Langfuse credentials and downstream filtering and sampling.
 The relay exists only when the host registered a traces exporter, which release
-builds inline at build time (`OTEL_TRACES_EXPORTER`, `CLINE_TRACE_*`) into the
+builds inline at build time (`OTEL_TRACES_EXPORTER`, `INDUSCODE_TRACE_*`) into the
 CLI, the extension, and the desktop backend and its bundled CLI; a packaged
 app has no runtime environment to read them from. The `--telemetry-selfcheck`
 report includes `traces_exporter` so publish workflows can gate on it.
@@ -601,11 +601,11 @@ Design implication:
 
 Context compaction is owned by `core`.
 
-- `@cline/agents` owns the generic turn-preparation seam:
+- `@induscode/agents` owns the generic turn-preparation seam:
   - run normal lifecycle hooks
   - allow hosts to project message history or system prompt before the provider call
   - keep its canonical runtime transcript append-only when a projection is returned
-- `@cline/core` owns compaction policy:
+- `@induscode/core` owns compaction policy:
   - inject a prepare-turn pipeline for root sessions
   - choose between built-in strategies through a registry map
   - persist the latest compacted working context as a session compaction artifact
@@ -640,7 +640,7 @@ Plugin code never runs on a host's main thread. Every plugin a session uses
 goes through one `PluginRegistry` per process (`getProcessPluginRegistry()`,
 `extensions/plugin/plugin-registry.ts`). The registry owns status, failure
 counting, timeouts, the session policy, and reload; the execution mode
-(`CLINE_PLUGIN_MODE`, `resolvePluginExecutionMode`) only decides which
+(`INDUSCODE_PLUGIN_MODE`, `resolvePluginExecutionMode`) only decides which
 isolated transport a session's copy of a plugin runs in:
 
 - `worker` (default): each plugin runs in its own worker thread per session
@@ -680,7 +680,7 @@ Each session gets its own guarded view of the plugins it enabled:
   `toolPolicies`.
 - `setup()` runs once per session with a context that carries the session's
   `cwd`, `session.sessionId`, and `emitEvent`. Plugin tools also receive `cwd`
-  and `emitEvent` in their call context. `globalThis.__clinePluginHost.emitEvent`
+  and `emitEvent` in their call context. `globalThis.__induscodePluginHost.emitEvent`
   remains as a shim for sandbox-era plugins and routes to the calling session
   through async context.
 - Every import (4 s), setup (4 s), hook (3 s), and tool, command, rule
@@ -738,7 +738,7 @@ Status is surfaced, never only logged:
 
 - `plugins.list` / `plugins.status` return each plugin's status, last error,
   and the sessions using it; `plugins.reload` re-imports one plugin by name or
-  path without restarting the Hub. `cline hub plugins [--reload <plugin>]`
+  path without restarting the Hub. `induscode hub plugins [--reload <plugin>]`
   wraps these.
 - The Hub broadcasts `plugin.status_changed` to attached clients.
 - `session.create` replies and `session.created` events carry `pluginIssues`
@@ -781,19 +781,19 @@ imports anything but Node builtins, because hosts ship it without
 
 Hosts find the bootstrap beside their bundle (`plugin-sandbox-bootstrap.js`,
 or `.mjs` for the CommonJS VS Code bundle), beside the CLI binary
-(`extensions/`), or through `CLINE_PLUGIN_BOOTSTRAP_PATH` (the desktop
+(`extensions/`), or through `INDUSCODE_PLUGIN_BOOTSTRAP_PATH` (the desktop
 sidecar sets it to the copy shipped as a Tauri resource). A host that ships
 none cannot run plugins at all: every load fails with
 `PluginBootstrapMissingError`, which names the env var, rather than
 importing plugin code into the host. The SSH remote host is in that state
-today: since #14792 it is the bundled Cline CLI uploaded as a single file
+today: since #14792 it is the bundled IndusCode CLI uploaded as a single file
 with no bootstrap beside it, so plugins fail on remotes until the remote
 runtime carries one.
 
 Sandboxed plugin subprocesses and workers are session-local but lazily recreatable. Core
 reclaims a sandbox after 30 minutes without an in-flight RPC call (configurable
 through `PluginSandboxOptions.idleTimeoutMs` or
-`CLINE_PLUGIN_IDLE_TIMEOUT_MS`), and the next plugin call starts and
+`INDUSCODE_PLUGIN_IDLE_TIMEOUT_MS`), and the next plugin call starts and
 reinitializes it transparently. Pending requests are associated with the child
 generation that owns them so an old process exiting cannot reject work sent to
 its replacement. The bootstrap also exits when its parent IPC channel
@@ -813,7 +813,7 @@ Design implications:
 
 ### Keep `agents` Stateless
 
-Do not move these concerns into `@cline/agents`:
+Do not move these concerns into `@induscode/agents`:
 
 - session persistence
 - provider settings storage
@@ -823,9 +823,9 @@ Do not move these concerns into `@cline/agents`:
 
 ### Keep `core` Generic
 
-Do not make `@cline/core` organization- or provider-specific.
+Do not make `@induscode/core` organization- or provider-specific.
 
-If a capability is truly generic and app-facing, add a generic core seam. Reusable remote-config parsing, materialization, and upload primitives belong in `@cline/shared/remote-config`.
+If a capability is truly generic and app-facing, add a generic core seam. Reusable remote-config parsing, materialization, and upload primitives belong in `@induscode/shared/remote-config`.
 
 ### Use One-Way Optional Layers
 
@@ -840,7 +840,7 @@ Agenda tasks are durable proposals for future work. They are intentionally
 separate from cron specs, queued prompts inside an existing session, and the
 agent-team task board. Shared, browser-safe contracts use `AgendaTaskRecord`
 and `AgendaTaskRunRecord`; orchestration and persistence remain in
-`@cline/core`.
+`@induscode/core`.
 
 > **Status:** the agent-facing `kind: "todo"` half of the `tasks` tool and the
 > desktop Agenda UI are temporarily disabled while the Agenda UX is reworked
@@ -858,8 +858,8 @@ and `AgendaTaskRunRecord`; orchestration and persistence remain in
   lifecycle, approval, run, or session-link state. Hub commands, file import,
   and the agent tool all route mutations through that boundary.
 - User-editable intent is represented as Markdown with YAML frontmatter in
-  `~/.cline/tasks/*.task.md` for global tasks and
-  `<workspace>/.cline/tasks/*.task.md` for workspace tasks. Operational fields
+  `~/.induscode/tasks/*.task.md` for global tasks and
+  `<workspace>/.induscode/tasks/*.task.md` for workspace tasks. Operational fields
   such as status, revision, approval, and session IDs are not writable in a
   spec. `AgendaTaskSpecFileStore` confines paths to the selected task directory
   and writes specs atomically.
@@ -950,36 +950,36 @@ and `AgendaTaskRunRecord`; orchestration and persistence remain in
   manager-backed intent, `applyToAgentCreated` governs tasks originally
   created by an agent and tasks whose latest manager-backed edit came from an
   agent; disabling it leaves those revisions pending manual approval.
-- Cline Code projects the same Hub state into an Agenda section in the desktop
+- IndusCode Code projects the same Hub state into an Agenda section in the desktop
   sidebar and workspace-filtered `suggestion`/`reminder` quick actions below
   the welcome composer. The sidebar supports review, start, cancellation,
   linked-session navigation, and the automation toggle; it does not maintain a
   second task store.
 
-## File-Based And Event-Driven Automation (`ClineCore` / `CronService`)
+## File-Based And Event-Driven Automation (`IndusCodeCore` / `CronService`)
 
-`@cline/core` ships a file-based automation subsystem under
+`@induscode/core` ships a file-based automation subsystem under
 `packages/core/src/cron/`. It lets operators author recurring and one-off
-tasks as Markdown files under global `~/.cline/cron/` by default, and
+tasks as Markdown files under global `~/.induscode/cron/` by default, and
 event-driven tasks as `events/*.event.md` specs. All trigger kinds run
-through the same durable queue and runtime handlers. `ClineCore` exposes the
-SDK-facing `cline.automation.*` entry points; `CronService` is the internal
+through the same durable queue and runtime handlers. `IndusCodeCore` exposes the
+SDK-facing `induscode.automation.*` entry points; `CronService` is the internal
 orchestrator used by core and hub layers.
 
 ### Layers
 
 1. **Spec parser** (`cron/specs/cron-spec-parser.ts`): parses YAML frontmatter + body
    into a `CronSpec` discriminated union (`one_off | schedule | event`).
-   Types live in `@cline/shared` under `src/cron/cron-spec-types.ts`
+   Types live in `@induscode/shared` under `src/cron/cron-spec-types.ts`
    so other packages can consume them without the YAML parser. Schedule
    expressions and timezones are validated before a spec can become
    runnable.
 2. **Store** (`cron/store/sqlite-cron-store.ts`): owns `cron.db` at
-   `resolveCronDbPath()` (default `.cline/data/db/cron.db`). Schema is
+   `resolveCronDbPath()` (default `.induscode/data/db/cron.db`). Schema is
    bootstrapped from `cron/store/cron-schema.ts` — sessions and cron live in separate
    DBs so their lifecycles stay decoupled.
 3. **Reconciler** (`cron/specs/cron-reconciler.ts`): scans the configured cron specs
-   directory (global `~/.cline/cron/` by default, or workspace-scoped when
+   directory (global `~/.induscode/cron/` by default, or workspace-scoped when
    configured), parses each file independently, and upserts spec state.
    Invalid specs are recorded
    with `parse_status='invalid'` so state is durable rather than silently
@@ -1030,16 +1030,16 @@ orchestrator used by core and hub layers.
    source as `sessionHistoryOrigin.trigger` in session metadata. Event runs
    include the normalized trigger event context in the prompt.
 8. **Reports** (`cron/reports/cron-report-writer.ts`): writes
-   `.cline/cron/reports/<run-id>.md` with run frontmatter plus
+   `.induscode/cron/reports/<run-id>.md` with run frontmatter plus
    `## Summary`, `## Usage`, `## Tool Calls`, and, for event runs,
    `## Trigger Event` sections.
 9. **Service** (`cron/service/cron-service.ts`): orchestrates all of the above.
-   `ClineCore.create({ automation })` owns the SDK-facing lifecycle and exposes
-   `cline.automation.*` methods. Hub-side callers can submit normalized events
+   `IndusCodeCore.create({ automation })` owns the SDK-facing lifecycle and exposes
+   `induscode.automation.*` methods. Hub-side callers can submit normalized events
    through the `cron.event.ingest` command.
 
 The detached hub daemon passes its workspace root as `cronOptions`, so
-normal CLI/hub startup watches `${workspaceRoot}/.cline/cron/` without a
+normal CLI/hub startup watches `${workspaceRoot}/.induscode/cron/` without a
 custom host needing to opt in.
 
 Programmatic hub schedules are stored as `cron_specs` with source
@@ -1107,7 +1107,7 @@ completed turn. Report and cleanup failures are logged separately.
 
 ### Key Type Locations
 
-- **`ClineCore`** — `packages/core/src/index.ts` — the main SDK orchestrator
+- **`IndusCodeCore`** — `packages/core/src/index.ts` — the main SDK orchestrator
 - **`Agent`** — `packages/agents/src/agent.ts` — the agent loop
 - **`RuntimeHost`** — `packages/core/src/runtime/host/runtime-host.ts` — execution abstraction
 - **`AgentPlugin`** — `packages/shared/src/plugin/` — plugin contract
@@ -1127,10 +1127,10 @@ Architectural consequence:
 
 The following packages are published to npm:
 
-- `@cline/shared` — shared types, contracts, and low-level utilities
-- `@cline/llms` — provider integrations and model manifests
-- `@cline/agents` — the agent loop and tool orchestration
-- `@cline/core` — the main SDK with session management, hub, and configuration
+- `@induscode/shared` — shared types, contracts, and low-level utilities
+- `@induscode/llms` — provider integrations and model manifests
+- `@induscode/agents` — the agent loop and tool orchestration
+- `@induscode/core` — the main SDK with session management, hub, and configuration
 
 ### Internal Apps
 
@@ -1166,16 +1166,16 @@ state. Without it, the local behavior described below is unchanged.
 
 Composio management in the desktop sidecar and tool registration/execution in
 local runtimes (including the detached hub) require the account-scoped PostHog
-flag `CLINE_COMPOSIO_BETA` to be exactly `true`. The shared core account flag
-evaluator reads the current Cline account ID from provider settings, caches the
+flag `INDUSCODE_COMPOSIO_BETA` to be exactly `true`. The shared core account flag
+evaluator reads the current IndusCode account ID from provider settings, caches the
 evaluation in memory for one minute, and discards grants on account changes.
 Missing identity, provider configuration, or flag values deny access; internal
 email domains do not bypass this gate. Saved connector schemas alone cannot
 enable tools. Existing sessions recheck access before each tool execution.
-Disconnect/cancel cleanup remains available after access is removed. The Cline
+Disconnect/cancel cleanup remains available after access is removed. The IndusCode
 API proxy must enforce the same flag server-side for authenticated requests.
 
-The connector client uses `/api/v1/connectors` with the Cline `{ success, data }`
+The connector client uses `/api/v1/connectors` with the IndusCode `{ success, data }`
 envelope. The sidecar fetches every catalog and connection page, including empty
 pages with continuation tokens, and rejects failed, malformed, or cyclic
 pagination before caching or reconciliation. Disabled accounts (`is_disabled`)
@@ -1228,7 +1228,7 @@ cannot make Enter promote an entry from a stale queue snapshot.
 
 `core/src/remote` owns the reusable SSH environment service and standalone remote
 helper entrypoint. Clients use `RemoteEnvironmentService.connect` to obtain an
-authenticated loopback endpoint, then instantiate the ordinary `ClineCore` remote
+authenticated loopback endpoint, then instantiate the ordinary `IndusCodeCore` remote
 backend. The helper uploads are content-addressed and the remote Hub binds only
 to loopback. SSH forwards that endpoint to a local ephemeral port. The helper's
 explicit discovery record is separate from the remote account's default Hub.

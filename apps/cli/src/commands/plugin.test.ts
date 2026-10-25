@@ -12,9 +12,9 @@ import { join } from "node:path";
 import {
 	discoverPluginModulePaths,
 	resolvePluginConfigSearchPaths,
-	setClineDir,
+	setIndusCodeDir,
 	setHomeDir,
-} from "@cline/shared/storage";
+} from "@induscode/shared/storage";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
 	collectPluginMcpOAuthCandidates,
@@ -34,8 +34,8 @@ describe("plugin install command", () => {
 	let home = "";
 	let workspace = "";
 	let originalHome: string | undefined;
-	let originalClineDir: string | undefined;
-	let originalClineDataDir: string | undefined;
+	let originalIndusCodeDir: string | undefined;
+	let originalIndusCodeDataDir: string | undefined;
 	let originalMcpSettingsPath: string | undefined;
 
 	beforeEach(() => {
@@ -43,14 +43,14 @@ describe("plugin install command", () => {
 		home = join(root, "home");
 		workspace = join(root, "workspace");
 		originalHome = process.env.HOME;
-		originalClineDir = process.env.CLINE_DIR;
-		originalClineDataDir = process.env.CLINE_DATA_DIR;
-		originalMcpSettingsPath = process.env.CLINE_MCP_SETTINGS_PATH;
+		originalIndusCodeDir = process.env.INDUSCODE_DIR;
+		originalIndusCodeDataDir = process.env.INDUSCODE_DATA_DIR;
+		originalMcpSettingsPath = process.env.INDUSCODE_MCP_SETTINGS_PATH;
 		process.env.HOME = home;
-		process.env.CLINE_DIR = join(home, ".cline");
-		process.env.CLINE_DATA_DIR = join(home, ".cline", "data");
+		process.env.INDUSCODE_DIR = join(home, ".induscode");
+		process.env.INDUSCODE_DATA_DIR = join(home, ".induscode", "data");
 		setHomeDir(home);
-		setClineDir(process.env.CLINE_DIR);
+		setIndusCodeDir(process.env.INDUSCODE_DIR);
 	});
 
 	function runGitCommand(cwd: string, args: string[]): void {
@@ -70,7 +70,7 @@ describe("plugin install command", () => {
 		}
 		runGitCommand(repo, ["init"]);
 		runGitCommand(repo, ["config", "user.email", "test@example.com"]);
-		runGitCommand(repo, ["config", "user.name", "Cline Test"]);
+		runGitCommand(repo, ["config", "user.name", "IndusCode Test"]);
 		runGitCommand(repo, ["add", "."]);
 		runGitCommand(repo, ["commit", "-m", "seed plugins"]);
 		return repo;
@@ -84,20 +84,20 @@ describe("plugin install command", () => {
 		} else {
 			process.env.HOME = originalHome;
 		}
-		if (originalClineDir === undefined) {
-			delete process.env.CLINE_DIR;
+		if (originalIndusCodeDir === undefined) {
+			delete process.env.INDUSCODE_DIR;
 		} else {
-			process.env.CLINE_DIR = originalClineDir;
+			process.env.INDUSCODE_DIR = originalIndusCodeDir;
 		}
-		if (originalClineDataDir === undefined) {
-			delete process.env.CLINE_DATA_DIR;
+		if (originalIndusCodeDataDir === undefined) {
+			delete process.env.INDUSCODE_DATA_DIR;
 		} else {
-			process.env.CLINE_DATA_DIR = originalClineDataDir;
+			process.env.INDUSCODE_DATA_DIR = originalIndusCodeDataDir;
 		}
 		if (originalMcpSettingsPath === undefined) {
-			delete process.env.CLINE_MCP_SETTINGS_PATH;
+			delete process.env.INDUSCODE_MCP_SETTINGS_PATH;
 		} else {
-			process.env.CLINE_MCP_SETTINGS_PATH = originalMcpSettingsPath;
+			process.env.INDUSCODE_MCP_SETTINGS_PATH = originalMcpSettingsPath;
 		}
 		rmSync(root, { recursive: true, force: true });
 	});
@@ -147,11 +147,11 @@ describe("plugin install command", () => {
 	it("parses GitHub plugin file URLs as remote sources", () => {
 		expect(
 			parsePluginSource(
-				"https://github.com/cline/cline/blob/main/sdk/examples/plugins/weather-metrics.ts",
+				"https://github.com/induscode/induscode/blob/main/sdk/examples/plugins/weather-metrics.ts",
 			),
 		).toEqual({
 			type: "remote",
-			url: "https://raw.githubusercontent.com/cline/cline/main/sdk/examples/plugins/weather-metrics.ts",
+			url: "https://raw.githubusercontent.com/induscode/induscode/main/sdk/examples/plugins/weather-metrics.ts",
 			filename: "weather-metrics.ts",
 		});
 	});
@@ -159,11 +159,11 @@ describe("plugin install command", () => {
 	it("parses raw plugin file URLs as remote sources", () => {
 		expect(
 			parsePluginSource(
-				"https://raw.githubusercontent.com/cline/cline/main/sdk/examples/plugins/weather-metrics.ts",
+				"https://raw.githubusercontent.com/induscode/induscode/main/sdk/examples/plugins/weather-metrics.ts",
 			),
 		).toEqual({
 			type: "remote",
-			url: "https://raw.githubusercontent.com/cline/cline/main/sdk/examples/plugins/weather-metrics.ts",
+			url: "https://raw.githubusercontent.com/induscode/induscode/main/sdk/examples/plugins/weather-metrics.ts",
 			filename: "weather-metrics.ts",
 		});
 	});
@@ -184,11 +184,11 @@ describe("plugin install command", () => {
 
 		const result = await installPlugin({ source });
 
-		expect(result.installPath).toContain(join(home, ".cline", "plugins"));
+		expect(result.installPath).toContain(join(home, ".induscode", "plugins"));
 		expect(result.entryPaths).toHaveLength(1);
 		expect(existsSync(result.entryPaths[0] ?? "")).toBe(true);
 		const discovered = discoverPluginModulePaths(
-			join(home, ".cline", "plugins"),
+			join(home, ".induscode", "plugins"),
 		);
 		expect(discovered).toEqual(result.entryPaths);
 	});
@@ -210,7 +210,7 @@ describe("plugin install command", () => {
 
 		expect(fetchMock).toHaveBeenCalledTimes(1);
 		expect(result.installPath).toContain(
-			join(workspace, ".cline", "plugins", "_installed", "remote"),
+			join(workspace, ".induscode", "plugins", "_installed", "remote"),
 		);
 		expect(result.entryPaths).toHaveLength(1);
 		expect(existsSync(result.entryPaths[0] ?? "")).toBe(true);
@@ -218,7 +218,7 @@ describe("plugin install command", () => {
 			"remote-weather",
 		);
 		expect(
-			discoverPluginModulePaths(join(workspace, ".cline", "plugins")),
+			discoverPluginModulePaths(join(workspace, ".induscode", "plugins")),
 		).toEqual(result.entryPaths);
 	});
 
@@ -241,7 +241,7 @@ describe("plugin install command", () => {
 		});
 
 		expect(result.installPath).toContain(
-			join(workspace, ".cline", "plugins", "_installed", "official"),
+			join(workspace, ".induscode", "plugins", "_installed", "official"),
 		);
 		expect(result.entryPaths).toHaveLength(1);
 		expect(readFileSync(result.entryPaths[0] ?? "", "utf8")).toContain(
@@ -256,7 +256,7 @@ describe("plugin install command", () => {
 			existsSync(join(result.installPath, "package", "other-plugin")),
 		).toBe(false);
 		expect(
-			discoverPluginModulePaths(join(workspace, ".cline", "plugins")),
+			discoverPluginModulePaths(join(workspace, ".induscode", "plugins")),
 		).toEqual(result.entryPaths);
 	});
 
@@ -267,7 +267,7 @@ describe("plugin install command", () => {
 					{
 						name: "package-plugin",
 						type: "module",
-						cline: {
+						induscode: {
 							plugins: [{ paths: ["./index.ts"] }],
 						},
 						dependencies: {
@@ -319,7 +319,7 @@ describe("plugin install command", () => {
 				officialPluginsRepo,
 			}),
 		).rejects.toThrow(
-			/Official Cline plugin "missing-plugin" was not found at plugins\/missing-plugin/,
+			/Official IndusCode plugin "missing-plugin" was not found at plugins\/missing-plugin/,
 		);
 	});
 
@@ -338,7 +338,7 @@ describe("plugin install command", () => {
 		});
 
 		expect(result.installPath).toContain(
-			join(workspace, ".cline", "plugins", "_installed", "local"),
+			join(workspace, ".induscode", "plugins", "_installed", "local"),
 		);
 		const wrapperManifest = JSON.parse(
 			readFileSync(join(result.installPath, "package.json"), "utf8"),
@@ -429,19 +429,19 @@ describe("plugin install command", () => {
 			JSON.stringify(
 				{
 					name: "plugin-package",
-					cline: {
+					induscode: {
 						plugins: [{ paths: ["./index.ts"], capabilities: ["tools"] }],
 					},
 					dependencies: {
-						"@cline/core": "latest",
+						"@induscode/core": "latest",
 						yaml: "^2.8.1",
 					},
 					peerDependencies: {
-						"@cline/shared": "*",
+						"@induscode/shared": "*",
 						bun: ">=1.0.0",
 					},
 					peerDependenciesMeta: {
-						"@cline/shared": {
+						"@induscode/shared": {
 							optional: true,
 						},
 					},
@@ -472,10 +472,10 @@ describe("plugin install command", () => {
 
 		const wrapperManifest = JSON.parse(
 			readFileSync(join(result.installPath, "package.json"), "utf8"),
-		) as { name?: string; cline?: { plugins?: Array<{ paths?: string[] }> } };
+		) as { name?: string; induscode?: { plugins?: Array<{ paths?: string[] }> } };
 		expect(wrapperManifest.name).toBe("plugin-package");
-		expect(wrapperManifest.cline?.plugins?.[0]?.paths).toHaveLength(1);
-		expect(wrapperManifest.cline?.plugins?.[0]?.paths?.[0]).toContain(
+		expect(wrapperManifest.induscode?.plugins?.[0]?.paths).toHaveLength(1);
+		expect(wrapperManifest.induscode?.plugins?.[0]?.paths?.[0]).toContain(
 			"package/index.ts",
 		);
 		const packageManifest = JSON.parse(
@@ -498,7 +498,7 @@ describe("plugin install command", () => {
 			existsSync(join(result.installPath, "package", "node_modules")),
 		).toBe(false);
 		const discovered = discoverPluginModulePaths(
-			join(workspace, ".cline", "plugins"),
+			join(workspace, ".induscode", "plugins"),
 		);
 		expect(discovered).toEqual(result.entryPaths);
 		expect(discovered.some((path) => path.includes("noise.ts"))).toBe(false);
@@ -521,10 +521,10 @@ describe("plugin install command", () => {
 				"  shift",
 				"done",
 				'mkdir -p "$prefix/node_modules/published-plugin"',
-				'mkdir -p "$prefix/node_modules/@cline/core"',
-				'printf \'%s\\n\' \'{"name":"published-plugin","type":"module","cline":{"plugins":["index.ts"]}}\' > "$prefix/node_modules/published-plugin/package.json"',
+				'mkdir -p "$prefix/node_modules/@induscode/core"',
+				'printf \'%s\\n\' \'{"name":"published-plugin","type":"module","induscode":{"plugins":["index.ts"]}}\' > "$prefix/node_modules/published-plugin/package.json"',
 				"printf '%s\\n' \"export default { name: 'published-plugin', manifest: { capabilities: ['tools'] } };\" > \"$prefix/node_modules/published-plugin/index.ts\"",
-				'printf \'%s\\n\' \'{"name":"@cline/core"}\' > "$prefix/node_modules/@cline/core/package.json"',
+				'printf \'%s\\n\' \'{"name":"@induscode/core"}\' > "$prefix/node_modules/@induscode/core/package.json"',
 				"exit 0",
 			].join("\n"),
 			{ encoding: "utf8", mode: 0o755 },
@@ -541,7 +541,7 @@ describe("plugin install command", () => {
 		expect(npmLog).toContain("--legacy-peer-deps");
 		expect(
 			existsSync(
-				join(result.installPath, "package", "node_modules", "@cline", "core"),
+				join(result.installPath, "package", "node_modules", "@induscode", "core"),
 			),
 		).toBe(false);
 		expect(existsSync(result.entryPaths[0] ?? "")).toBe(true);
@@ -571,7 +571,7 @@ describe("plugin install command", () => {
 			JSON.stringify(
 				{
 					name: "replace-package",
-					cline: {
+					induscode: {
 						plugins: [{ paths: ["./index.ts"], capabilities: ["tools"] }],
 					},
 				},
@@ -620,7 +620,7 @@ describe("plugin install command", () => {
 			JSON.stringify(
 				{
 					name: "cli-uninstall-plugin",
-					cline: {
+					induscode: {
 						plugins: [{ paths: ["./index.ts"], capabilities: ["tools"] }],
 					},
 				},
@@ -683,7 +683,7 @@ describe("plugin install command", () => {
 			});
 			expect(code).toBe(0);
 			const parsed = JSON.parse(stdout.join("")) as { installPath: string };
-			expect(parsed.installPath).toContain(join(home, ".cline", "plugins"));
+			expect(parsed.installPath).toContain(join(home, ".induscode", "plugins"));
 			expect("mcpOAuthCandidates" in parsed).toBe(false);
 		} finally {
 			process.stdout.write = originalWrite;
@@ -691,7 +691,7 @@ describe("plugin install command", () => {
 	});
 
 	it("does not run MCP OAuth follow-up for JSON plugin installs", async () => {
-		process.env.CLINE_MCP_SETTINGS_PATH = join(root, "mcp-settings.json");
+		process.env.INDUSCODE_MCP_SETTINGS_PATH = join(root, "mcp-settings.json");
 		const source = join(root, "json-oauth-mcp-plugin.js");
 		writeFileSync(
 			source,
@@ -736,7 +736,7 @@ export default {
 				installPath: string;
 				mcpOAuthCandidates?: unknown;
 			};
-			expect(parsed.installPath).toContain(join(home, ".cline", "plugins"));
+			expect(parsed.installPath).toContain(join(home, ".induscode", "plugins"));
 			expect(parsed.mcpOAuthCandidates).toBeUndefined();
 		} finally {
 			process.stdout.write = originalWrite;
@@ -763,10 +763,10 @@ export default {
 		);
 		const blockedDirectory = join(root, "not-a-directory");
 		writeFileSync(blockedDirectory, "file", "utf8");
-		const originalSettingsPath = process.env.CLINE_MCP_SETTINGS_PATH;
-		process.env.CLINE_MCP_SETTINGS_PATH = join(
+		const originalSettingsPath = process.env.INDUSCODE_MCP_SETTINGS_PATH;
+		process.env.INDUSCODE_MCP_SETTINGS_PATH = join(
 			blockedDirectory,
-			"cline_mcp_settings.json",
+			"induscode_mcp_settings.json",
 		);
 		const output: string[] = [];
 		try {
@@ -786,15 +786,15 @@ export default {
 			expect(output.join("\n")).toContain("mcp-plugin");
 		} finally {
 			if (originalSettingsPath === undefined) {
-				delete process.env.CLINE_MCP_SETTINGS_PATH;
+				delete process.env.INDUSCODE_MCP_SETTINGS_PATH;
 			} else {
-				process.env.CLINE_MCP_SETTINGS_PATH = originalSettingsPath;
+				process.env.INDUSCODE_MCP_SETTINGS_PATH = originalSettingsPath;
 			}
 		}
 	});
 
 	it("detects plugin-owned remote MCP servers as OAuth candidates", async () => {
-		process.env.CLINE_MCP_SETTINGS_PATH = join(root, "mcp-settings.json");
+		process.env.INDUSCODE_MCP_SETTINGS_PATH = join(root, "mcp-settings.json");
 		const source = join(root, "oauth-mcp-plugin.js");
 		writeFileSync(
 			source,
@@ -825,7 +825,7 @@ export default {
 	});
 
 	it("does not treat remote MCP servers with static headers as OAuth candidates", async () => {
-		process.env.CLINE_MCP_SETTINGS_PATH = join(root, "mcp-settings.json");
+		process.env.INDUSCODE_MCP_SETTINGS_PATH = join(root, "mcp-settings.json");
 		const source = join(root, "headers-mcp-plugin.js");
 		writeFileSync(
 			source,
@@ -855,7 +855,7 @@ export default {
 
 	it("skips plugin MCP OAuth candidates that already have tokens", async () => {
 		const settingsPath = join(root, "mcp-settings.json");
-		process.env.CLINE_MCP_SETTINGS_PATH = settingsPath;
+		process.env.INDUSCODE_MCP_SETTINGS_PATH = settingsPath;
 		const source = join(root, "authorized-mcp-plugin.js");
 		writeFileSync(
 			source,
@@ -893,7 +893,7 @@ export default {
 	});
 
 	it("authorizes selected plugin MCP OAuth candidates during interactive installs", async () => {
-		process.env.CLINE_MCP_SETTINGS_PATH = join(root, "mcp-settings.json");
+		process.env.INDUSCODE_MCP_SETTINGS_PATH = join(root, "mcp-settings.json");
 		const source = join(root, "interactive-mcp-plugin.js");
 		writeFileSync(
 			source,
@@ -935,7 +935,7 @@ export default {
 	});
 
 	it("keeps plugin install successful when MCP OAuth authorization fails", async () => {
-		process.env.CLINE_MCP_SETTINGS_PATH = join(root, "mcp-settings.json");
+		process.env.INDUSCODE_MCP_SETTINGS_PATH = join(root, "mcp-settings.json");
 		const source = join(root, "failing-oauth-mcp-plugin.js");
 		writeFileSync(
 			source,
@@ -977,7 +977,7 @@ export default {
 	});
 
 	it("prints guidance for plugin MCP OAuth candidates in non-interactive installs", async () => {
-		process.env.CLINE_MCP_SETTINGS_PATH = join(root, "mcp-settings.json");
+		process.env.INDUSCODE_MCP_SETTINGS_PATH = join(root, "mcp-settings.json");
 		const source = join(root, "non-interactive-mcp-plugin.js");
 		writeFileSync(
 			source,
@@ -1016,7 +1016,7 @@ export default {
 			"Plugin MCP servers may require OAuth authorization",
 		);
 		expect(output.join("\n")).toContain("non-interactive-docs");
-		expect(output.join("\n")).toContain('Run "cline mcp"');
+		expect(output.join("\n")).toContain('Run "induscode mcp"');
 	});
 
 	it("prints JSON output for official plugin installs", async () => {
@@ -1046,7 +1046,7 @@ export default {
 			expect(code).toBe(0);
 			const parsed = JSON.parse(stdout.join("")) as { installPath: string };
 			expect(parsed.installPath).toContain(
-				join(workspace, ".cline", "plugins", "_installed", "official"),
+				join(workspace, ".induscode", "plugins", "_installed", "official"),
 			);
 		} finally {
 			process.stdout.write = originalWrite;
@@ -1067,10 +1067,10 @@ export default {
 		});
 
 		expect(resolvePluginConfigSearchPaths(workspace)[0]).toBe(
-			join(workspace, ".cline", "plugins"),
+			join(workspace, ".induscode", "plugins"),
 		);
 		expect(
-			discoverPluginModulePaths(join(workspace, ".cline", "plugins")),
+			discoverPluginModulePaths(join(workspace, ".induscode", "plugins")),
 		).toHaveLength(1);
 	});
 });

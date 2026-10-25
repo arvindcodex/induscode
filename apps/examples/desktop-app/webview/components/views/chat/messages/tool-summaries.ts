@@ -1,12 +1,12 @@
 import {
 	buildToolSummary,
 	type ToolSummary,
-} from "@cline/ui/components/agent-chat/tool-summary";
+} from "@induscode/ui/components/agent-chat/tool-summary";
 import type { ChatMessage } from "@/lib/chat-schema";
 
 /**
  * Thin presentation layer between the desktop chat transcript and the shared
- * `@cline/ui` tool-summary module: it owns the app's tool-message payload
+ * `@induscode/ui` tool-summary module: it owns the app's tool-message payload
  * schema and hook-event conventions, then delegates label/detail/diff
  * construction to `buildToolSummary`.
  */

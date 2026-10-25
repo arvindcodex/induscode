@@ -1,4 +1,4 @@
-import { formatUserCommandBlock } from "@cline/shared";
+import { formatUserCommandBlock } from "@induscode/shared";
 
 export const TEAM_COMMAND_USAGE =
 	"Usage: /team <task description>\nStarts a team of agents for the given task.";

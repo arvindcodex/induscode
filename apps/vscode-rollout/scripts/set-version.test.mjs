@@ -4,11 +4,11 @@ import { setPackageVersion } from "./set-version.mjs";
 const fixture = JSON.stringify(
 	{
 		name: "claude-dev",
-		displayName: "Cline",
+		displayName: "IndusCode",
 		publisher: "saoudrizwan",
 		version: "4.0.0",
 		contributes: {
-			commands: [{ command: "cline.plusButtonClicked", title: "New Task" }],
+			commands: [{ command: "induscode.plusButtonClicked", title: "New Task" }],
 		},
 	},
 	null,
@@ -20,10 +20,10 @@ describe("setPackageVersion", () => {
 		const pkg = JSON.parse(setPackageVersion(fixture, "4.1.0"));
 		expect(pkg.version).toBe("4.1.0");
 		expect(pkg.name).toBe("claude-dev");
-		expect(pkg.displayName).toBe("Cline");
+		expect(pkg.displayName).toBe("IndusCode");
 		expect(pkg.publisher).toBe("saoudrizwan");
 		expect(pkg.contributes.commands[0].command).toBe(
-			"cline.plusButtonClicked",
+			"induscode.plusButtonClicked",
 		);
 	});
 

@@ -34,7 +34,7 @@ export function MessageScroller({ className, ...props }: MessageScrollerProps) {
 	return (
 		<Primitive.Root
 			data-slot="message-scroller"
-			className={clsx("cline-message-scroller", className)}
+			className={clsx("induscode-message-scroller", className)}
 			{...props}
 		/>
 	);
@@ -47,7 +47,7 @@ export function MessageScrollerViewport({
 	return (
 		<Primitive.Viewport
 			data-slot="message-scroller-viewport"
-			className={clsx("cline-message-scroller-viewport", className)}
+			className={clsx("induscode-message-scroller-viewport", className)}
 			{...props}
 		/>
 	);
@@ -60,7 +60,7 @@ export function MessageScrollerContent({
 	return (
 		<Primitive.Content
 			data-slot="message-scroller-content"
-			className={clsx("cline-message-scroller-content", className)}
+			className={clsx("induscode-message-scroller-content", className)}
 			{...props}
 		/>
 	);
@@ -73,7 +73,7 @@ export function MessageScrollerItem({
 	return (
 		<Primitive.Item
 			data-slot="message-scroller-item"
-			className={clsx("cline-message-scroller-item", className)}
+			className={clsx("induscode-message-scroller-item", className)}
 			{...props}
 		/>
 	);
@@ -98,13 +98,13 @@ export function MessageScrollerButton({
 			data-slot="message-scroller-button"
 			behavior={resolvedBehavior}
 			direction={direction}
-			className={clsx("cline-message-scroller-button", className)}
+			className={clsx("induscode-message-scroller-button", className)}
 			{...props}
 		>
 			{children ?? (
 				<>
 					<ArrowDownIcon aria-hidden="true" />
-					<span className="cline-message-scroller-button-label">
+					<span className="induscode-message-scroller-button-label">
 						{direction === "end" ? "Scroll to end" : "Scroll to start"}
 					</span>
 				</>

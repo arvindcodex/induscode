@@ -1,6 +1,6 @@
 name: ext-vscode-publish-nightly
 
-# Publishes saoudrizwan.cline-nightly as the COMBINED A/B VSIX: the rollout
+# Publishes saoudrizwan.induscode-nightly as the COMBINED A/B VSIX: the rollout
 # loader plus two complete extension bundles — `next/` from this ref's
 # apps/vscode (SDK-based) and `legacy/` from the legacy-extension branch.
 # Cohort selection happens at runtime via PostHog flags; see
@@ -46,7 +46,7 @@ permissions: {}
 
 jobs:
   test:
-    if: github.repository == 'cline/cline'
+    if: github.repository == 'induscode/induscode'
     permissions:
       contents: read
       pull-requests: read
@@ -56,12 +56,12 @@ jobs:
     needs: test
     permissions:
       contents: write
-    name: Publish Cline (Nightly) Combined Extension
+    name: Publish IndusCode (Nightly) Combined Extension
     # Defense in depth: only protected main may enter the publishing environment.
     # This `if` is advisory because a dispatched branch runs its own copy of this
     # file; the enforced gate is the PublishNightly environment's deployment-branch
     # policy, which must also allow only main.
-    if: github.repository == 'cline/cline' && github.ref == 'refs/heads/main'
+    if: github.repository == 'induscode/induscode' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: PublishNightly
 
@@ -139,7 +139,7 @@ jobs:
           fi
           echo "Found better-sqlite3 native binary: $NODE_FILE"
 
-      # Rewrite each bundle's package.json to the cline-nightly identity BEFORE
+      # Rewrite each bundle's package.json to the induscode-nightly identity BEFORE
       # its build (runtime command/config IDs derive from the manifest) and
       # AFTER dependency install (workspace self-links key off the original
       # package name).
@@ -150,19 +150,19 @@ jobs:
       - name: Build next bundle
         working-directory: next-src/apps/vscode
         env:
-          CLINE_ENVIRONMENT: production
+          INDUSCODE_ENVIRONMENT: production
           TELEMETRY_SERVICE_API_KEY: ${{ secrets.TELEMETRY_SERVICE_API_KEY }}
           ERROR_SERVICE_API_KEY: ${{ secrets.ERROR_SERVICE_API_KEY }}
           # Inlined by esbuild: attributes every telemetry event with
           # extension_variant and unlocks the bundle's authoritative
           # extension.rollout.bundle_activated capture. Rollout builds only.
-          CLINE_ROLLOUT_VARIANT: next
+          INDUSCODE_ROLLOUT_VARIANT: next
           # OpenTelemetry production defaults (can be overridden at runtime)
           OTEL_TELEMETRY_ENABLED: ${{ secrets.OTEL_TELEMETRY_ENABLED }}
           OTEL_LOGS_EXPORTER: otlp
           OTEL_METRICS_EXPORTER: otlp
           OTEL_TRACES_EXPORTER: otlp
-          CLINE_TRACE_RECORD_CONTENT: "true"
+          INDUSCODE_TRACE_RECORD_CONTENT: "true"
           OTEL_EXPORTER_OTLP_PROTOCOL: ${{ secrets.OTEL_EXPORTER_OTLP_PROTOCOL }}
           OTEL_EXPORTER_OTLP_ENDPOINT: ${{ secrets.OTEL_EXPORTER_OTLP_ENDPOINT }}
           OTEL_EXPORTER_OTLP_HEADERS: ${{ secrets.OTEL_EXPORTER_OTLP_HEADERS }}
@@ -181,10 +181,10 @@ jobs:
       - name: Build legacy bundle
         working-directory: legacy-src/apps/vscode
         env:
-          CLINE_ENVIRONMENT: production
+          INDUSCODE_ENVIRONMENT: production
           TELEMETRY_SERVICE_API_KEY: ${{ secrets.TELEMETRY_SERVICE_API_KEY }}
           ERROR_SERVICE_API_KEY: ${{ secrets.ERROR_SERVICE_API_KEY }}
-          CLINE_ROLLOUT_VARIANT: legacy
+          INDUSCODE_ROLLOUT_VARIANT: legacy
           # Legacy's esbuild inlines these too (its own publish workflow passes
           # them) — omitting them here would ship the legacy bundle with the
           # OTel pipeline dead, unlike what legacy users get today.
@@ -232,12 +232,12 @@ jobs:
             const assert = require("node:assert");
             const expected = process.env.EXPECTED_VERSION;
             const pkg = require("./package.json");
-            assert.equal(pkg.name, "cline-nightly", `unexpected name ${pkg.name}`);
+            assert.equal(pkg.name, "induscode-nightly", `unexpected name ${pkg.name}`);
             assert.equal(pkg.publisher, "saoudrizwan", `unexpected publisher ${pkg.publisher}`);
             assert.equal(pkg.version, expected, `unexpected union version ${pkg.version}`);
             for (const bundle of ["next", "legacy"]) {
               const sub = require(`./${bundle}/package.json`);
-              assert.equal(sub.name, "cline-nightly", `unexpected ${bundle} bundle name ${sub.name}`);
+              assert.equal(sub.name, "induscode-nightly", `unexpected ${bundle} bundle name ${sub.name}`);
               assert.equal(sub.version, expected, `unexpected ${bundle} bundle version ${sub.version}`);
             }
             console.log(`nightly identity ok: ${pkg.publisher}.${pkg.name}@${pkg.version} (bundle identities aligned)`);
@@ -251,13 +251,13 @@ jobs:
         # Preserve the narrowly scoped VSCE `sendgrid` scanner exemption used by
         # both standalone bundle workflows. No SendGrid credential is intentionally
         # supplied here; inspect the reported artifact before widening the exemption.
-        run: vsce package --no-dependencies --allow-package-secrets sendgrid --out "cline-nightly-${{ steps.version.outputs.version }}.vsix"
+        run: vsce package --no-dependencies --allow-package-secrets sendgrid --out "induscode-nightly-${{ steps.version.outputs.version }}.vsix"
 
       - name: Upload VSIX artifact
         uses: actions/upload-artifact@v4
         with:
-          name: cline-nightly-${{ steps.version.outputs.version }}
-          path: staging/cline-nightly-${{ steps.version.outputs.version }}.vsix
+          name: induscode-nightly-${{ steps.version.outputs.version }}
+          path: staging/induscode-nightly-${{ steps.version.outputs.version }}.vsix
           if-no-files-found: error
 
       # The job is main-only; step-level dry-run gating still permits a build-only
@@ -273,9 +273,9 @@ jobs:
             echo "Error: VSCE_PAT is required to publish."
             exit 1
           fi
-          vsce publish --no-dependencies --packagePath "cline-nightly-${{ steps.version.outputs.version }}.vsix"
+          vsce publish --no-dependencies --packagePath "induscode-nightly-${{ steps.version.outputs.version }}.vsix"
           if [[ -n "$OVSX_PAT" ]]; then
-            npx ovsx publish --packagePath "cline-nightly-${{ steps.version.outputs.version }}.vsix" --pat "$OVSX_PAT"
+            npx ovsx publish --packagePath "induscode-nightly-${{ steps.version.outputs.version }}.vsix" --pat "$OVSX_PAT"
           else
             echo "WARNING: OVSX_PAT not set; skipping Open VSX publish."
           fi
@@ -300,7 +300,7 @@ jobs:
 
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag -a "$TAG" -m "Cline Nightly (combined A/B) published from ${GITHUB_REF_NAME} at ${GITHUB_SHA} (legacy bundle: ${LEGACY_SHA})"
+          git tag -a "$TAG" -m "IndusCode Nightly (combined A/B) published from ${GITHUB_REF_NAME} at ${GITHUB_SHA} (legacy bundle: ${LEGACY_SHA})"
           # Use an explicit HTTPS remote with GH_TOKEN because checkout was run with
           # persist-credentials: false, so actions/checkout did not persist a git credential helper.
           git push "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "refs/tags/${TAG}"

@@ -1,5 +1,5 @@
 import { isAbsolute, relative, resolve } from "node:path";
-import type { PluginErrorRecord, PluginRuntimeState } from "@cline/shared";
+import type { PluginErrorRecord, PluginRuntimeState } from "@induscode/shared";
 import {
 	resolveAgentPluginPathsWithDiagnostics,
 	resolvePluginExecutionMode,

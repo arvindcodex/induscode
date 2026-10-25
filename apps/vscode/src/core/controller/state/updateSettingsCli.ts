@@ -1,9 +1,9 @@
-import { Empty } from "@shared/proto/cline/common"
-import { PlanActMode, UpdateSettingsRequestCli } from "@shared/proto/cline/state"
+import { Empty } from "@shared/proto/induscode/common"
+import { PlanActMode, UpdateSettingsRequestCli } from "@shared/proto/induscode/state"
 import { convertProtoToApiProvider } from "@shared/proto-conversions/models/api-configuration-conversion"
 import type { Settings } from "@shared/storage/state-keys"
 import { TelemetrySetting } from "@shared/TelemetrySetting"
-import { ClineEnv } from "@/config"
+import { IndusCodeEnv } from "@/config"
 import { Logger } from "@/shared/services/Logger"
 import { Mode } from "@/shared/storage/types"
 import { telemetryService } from "../../../services/telemetry"
@@ -24,7 +24,7 @@ export async function updateSettingsCli(controller: Controller, request: UpdateS
 	}
 
 	if (request.environment !== undefined) {
-		ClineEnv.setEnvironment(request.environment)
+		IndusCodeEnv.setEnvironment(request.environment)
 		await accountLogoutClicked(controller, Empty.create())
 	}
 

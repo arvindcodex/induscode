@@ -3,7 +3,7 @@
 import {
 	formatDisplayUserInput,
 	type ProviderAuthInfo,
-} from "@cline/shared/browser";
+} from "@induscode/shared/browser";
 import {
 	createElement,
 	useCallback,
@@ -554,13 +554,13 @@ const LOG_DISPATCH: Record<string, typeof console.info> = {
 // Core streams a steady flow of info/debug log chunks during a session.
 // Serializing them through the console on the streaming hot path costs real
 // CPU (DevTools keeps every entry alive), so anything below warn is dropped
-// unless the user opts in via `localStorage.setItem("cline:debug-logs", "1")`.
+// unless the user opts in via `localStorage.setItem("induscode:debug-logs", "1")`.
 let verboseCoreLogs: boolean | undefined;
 
 function shouldLogVerboseCoreLogs(): boolean {
 	if (verboseCoreLogs === undefined) {
 		try {
-			verboseCoreLogs = window.localStorage.getItem("cline:debug-logs") === "1";
+			verboseCoreLogs = window.localStorage.getItem("induscode:debug-logs") === "1";
 		} catch {
 			verboseCoreLogs = false;
 		}
@@ -2048,7 +2048,7 @@ export function useChatSession(environmentId: string) {
 						parsed.metadata as { hubReconnect?: unknown } | undefined
 					)?.hubReconnect;
 					if (hubReconnect === "started") {
-						setActivityLabel("Reconnecting to Cline Hub...");
+						setActivityLabel("Reconnecting to IndusCode Hub...");
 					} else if (hubReconnect === "finished") {
 						setActivityLabel(null);
 					}

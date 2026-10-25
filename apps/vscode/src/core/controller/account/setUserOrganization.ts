@@ -1,5 +1,5 @@
-import { UserOrganizationUpdateRequest } from "@shared/proto/cline/account"
-import { Empty } from "@shared/proto/cline/common"
+import { UserOrganizationUpdateRequest } from "@shared/proto/induscode/account"
+import { Empty } from "@shared/proto/induscode/common"
 import type { Controller } from "../index"
 
 const SWITCH_TIMEOUT_MS = 10_000

@@ -2,7 +2,7 @@ import fs from "node:fs"
 import os from "node:os"
 import path from "node:path"
 // The SDK's ProviderSettingsManager is stubbed under vitest (see
-// vitest.config.ts → cline-core-vitest-stub.ts), so these tests cover the
+// vitest.config.ts → induscode-core-vitest-stub.ts), so these tests cover the
 // adapter's responsibilities only: that `migrateProviders` faithfully maps the
 // manager's state into a ProviderMigrationResult, and that
 // `getProviderSettingsManager` caches per dataDir. The actual legacy
@@ -21,7 +21,7 @@ import { getProviderSettingsManager, migrateProviders } from "./provider-migrati
 let tempDir: string
 
 beforeEach(() => {
-	tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "cline-provider-migration-"))
+	tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "induscode-provider-migration-"))
 })
 
 afterEach(() => {

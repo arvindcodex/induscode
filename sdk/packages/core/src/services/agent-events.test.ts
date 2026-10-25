@@ -1,4 +1,4 @@
-import type { AgentEvent } from "@cline/shared";
+import type { AgentEvent } from "@induscode/shared";
 import { describe, expect, it, vi } from "vitest";
 import type { CoreSessionConfig } from "../types/config";
 import type { ActiveSession } from "../types/session";
@@ -44,7 +44,7 @@ function createTelemetryHarness() {
 
 function createContext(telemetry: TelemetryService): AgentEventContext {
 	const config = {
-		providerId: "cline",
+		providerId: "induscode",
 		modelId: "anthropic/claude-haiku-4.5",
 		mode: "act",
 		telemetry,
@@ -172,7 +172,7 @@ describe("handleAgentEvent task.tokens emission", () => {
 			cacheReadTokens: 0,
 			cacheWriteTokens: 0,
 			totalCost: 0.007447,
-			provider: "cline",
+			provider: "induscode",
 			model: "anthropic/claude-haiku-4.5",
 		});
 		expect(emits[1][1]).toMatchObject({

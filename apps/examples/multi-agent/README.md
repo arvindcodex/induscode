@@ -16,7 +16,7 @@ bun run build:sdk
 Set an API key:
 
 ```bash
-export CLINE_API_KEY="cline_..."
+export INDUSCODE_API_KEY="induscode_..."
 ```
 
 Run:

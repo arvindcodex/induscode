@@ -1,8 +1,8 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import type { ActiveConnectorRecord } from "@cline/shared";
-import { listConnectorCatalog } from "@cline/shared";
-import { resolveConnectorDataDir } from "@cline/shared/storage";
+import type { ActiveConnectorRecord } from "@induscode/shared";
+import { listConnectorCatalog } from "@induscode/shared";
+import { resolveConnectorDataDir } from "@induscode/shared/storage";
 
 type ConnectorFieldKey = keyof Omit<
 	ActiveConnectorRecord,

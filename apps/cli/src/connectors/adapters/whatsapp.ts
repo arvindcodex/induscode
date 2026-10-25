@@ -1,13 +1,13 @@
 import { createWhatsAppAdapter } from "@chat-adapter/whatsapp";
-import type { ChatStartSessionRequest } from "@cline/core";
+import type { ChatStartSessionRequest } from "@induscode/core";
 import {
 	createUserInstructionConfigService,
 	HubSessionClient,
-} from "@cline/core";
+} from "@induscode/core";
 import type {
 	ConnectWhatsAppOptions,
 	WhatsAppConnectorState,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { Chat, ConsoleLogger, type Thread } from "chat";
 import type { Command } from "commander";
 import type { CliLoggerAdapter } from "../../logging/adapter";
@@ -302,7 +302,7 @@ class WhatsAppConnector extends ConnectorBase<
 				.option(
 					"--rpc-address <host:port>",
 					"RPC address",
-					process.env.CLINE_RPC_ADDRESS?.trim() ||
+					process.env.INDUSCODE_RPC_ADDRESS?.trim() ||
 						resolveDefaultCliRpcAddress(),
 				)
 				.option("--host <host>", "Webhook listen host")
@@ -375,11 +375,11 @@ class WhatsAppConnector extends ConnectorBase<
 			enableTools: opts.tools !== false,
 			rpcAddress:
 				opts.rpcAddress?.trim() ||
-				process.env.CLINE_RPC_ADDRESS?.trim() ||
+				process.env.INDUSCODE_RPC_ADDRESS?.trim() ||
 				resolveDefaultCliRpcAddress(),
 			hookCommand:
 				opts.hookCommand?.trim() ||
-				process.env.CLINE_CONNECT_HOOK_COMMAND?.trim(),
+				process.env.INDUSCODE_CONNECT_HOOK_COMMAND?.trim(),
 			port,
 			host: opts.host?.trim() || process.env.HOST?.trim() || "0.0.0.0",
 			baseUrl:
@@ -497,7 +497,7 @@ class WhatsAppConnector extends ConnectorBase<
 			rawArgs,
 			io,
 			interactive: options.interactive,
-			childEnvVar: "CLINE_WHATSAPP_CONNECT_CHILD",
+			childEnvVar: "INDUSCODE_WHATSAPP_CONNECT_CHILD",
 			statePath,
 			readState: (path) => this.readConnectorState(path),
 			isRunning: (state) => isProcessRunning(state.pid),
@@ -506,7 +506,7 @@ class WhatsAppConnector extends ConnectorBase<
 			formatBackgroundStartMessage: (pid) =>
 				`[whatsapp] starting background connector pid=${pid} user=${options.userName}`,
 			foregroundHint:
-				"[whatsapp] use `cline connect whatsapp -i ...` to run in the foreground",
+				"[whatsapp] use `induscode connect whatsapp -i ...` to run in the foreground",
 			launchFailureMessage: "failed to launch WhatsApp connector in background",
 		});
 		if (backgroundExitCode !== undefined) {

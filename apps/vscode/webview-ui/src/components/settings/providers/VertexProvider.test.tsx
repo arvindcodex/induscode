@@ -1,4 +1,4 @@
-import type { ProviderConfigResponse } from "@shared/proto/cline/models"
+import type { ProviderConfigResponse } from "@shared/proto/induscode/models"
 import { fireEvent, render, screen, waitFor } from "@testing-library/react"
 import type { ChangeEventHandler, FormEventHandler, ReactNode } from "react"
 import { beforeEach, describe, expect, it, vi } from "vitest"

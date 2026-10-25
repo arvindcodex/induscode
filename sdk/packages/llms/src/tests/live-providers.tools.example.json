@@ -115,9 +115,9 @@
 				"requireToolCall": true
 			}
 		},
-		"cline-tools": {
+		"induscode-tools": {
 			"settings": {
-				"provider": "cline",
+				"provider": "induscode",
 				"model": "anthropic/claude-sonnet-4.6"
 			},
 			"expectations": {
@@ -125,9 +125,9 @@
 				"requireToolCall": true
 			}
 		},
-		"cline-opus-tools": {
+		"induscode-opus-tools": {
 			"settings": {
-				"provider": "cline",
+				"provider": "induscode",
 				"model": "anthropic/claude-opus-4.7"
 			},
 			"expectations": {
@@ -135,9 +135,9 @@
 				"requireToolCall": true
 			}
 		},
-		"cline-gpt-5.3-codex-tools": {
+		"induscode-gpt-5.3-codex-tools": {
 			"settings": {
-				"provider": "cline",
+				"provider": "induscode",
 				"model": "openai/gpt-5.3-codex"
 			},
 			"expectations": {

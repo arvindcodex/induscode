@@ -55,7 +55,7 @@ describe("reshapeErrorForWebview - missing credentials", () => {
 		expect(reshapeErrorForWebview({ message: "Invalid API key" }, "openai")).toBe("Invalid API key")
 	})
 
-	it("does not blame the cline provider when the active provider id is unknown", () => {
+	it("does not blame the induscode provider when the active provider id is unknown", () => {
 		expect(reshapeErrorForWebview({ message: "Missing Authorization header" })).toBe(
 			"Missing API key for the active provider. Add credentials in Settings, or switch providers.",
 		)
@@ -75,20 +75,20 @@ describe("reshapeErrorForWebview - rejected credentials (errorClass auth)", () =
 		)
 	})
 
-	it("keeps the cline provider on the JSON path so the webview renders the sign-in card", () => {
+	it("keeps the induscode provider on the JSON path so the webview renders the sign-in card", () => {
 		const reshaped = reshapeErrorForWebview(
 			{ message: '{"status":401,"message":"Unauthorized"}' },
-			"cline",
+			"induscode",
 			undefined,
 			"auth",
 		)
 		expect(reshaped).toBe('{"status":401,"message":"Unauthorized"}')
 	})
 
-	it("keeps cline-pass on the JSON path as well", () => {
+	it("keeps induscode-pass on the JSON path as well", () => {
 		const reshaped = reshapeErrorForWebview(
 			{ message: '{"status":401,"message":"Unauthorized"}' },
-			"cline-pass",
+			"induscode-pass",
 			undefined,
 			"auth",
 		)
@@ -99,7 +99,7 @@ describe("reshapeErrorForWebview - rejected credentials (errorClass auth)", () =
 		expect(reshapeErrorForWebview({ message: "boom" }, "mistral", undefined, "unknown")).toBe("boom")
 	})
 
-	it("does not rewrite when the provider id is unknown, so a cline-account sign-in card is never suppressed", () => {
+	it("does not rewrite when the provider id is unknown, so a induscode-account sign-in card is never suppressed", () => {
 		expect(reshapeErrorForWebview({ message: '{"status":401,"message":"Unauthorized"}' }, undefined, undefined, "auth")).toBe(
 			'{"status":401,"message":"Unauthorized"}',
 		)

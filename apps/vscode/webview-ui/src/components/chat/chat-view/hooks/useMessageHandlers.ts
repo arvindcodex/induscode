@@ -1,7 +1,7 @@
-import type { ClineMessage } from "@shared/ExtensionMessage"
-import { EmptyRequest, StringRequest } from "@shared/proto/cline/common"
-import { AskResponseRequest, NewTaskRequest } from "@shared/proto/cline/task"
-import { IntentEvent } from "@shared/proto/cline/ui"
+import type { IndusCodeMessage } from "@shared/ExtensionMessage"
+import { EmptyRequest, StringRequest } from "@shared/proto/induscode/common"
+import { AskResponseRequest, NewTaskRequest } from "@shared/proto/induscode/task"
+import { IntentEvent } from "@shared/proto/induscode/ui"
 import { useCallback, useRef, useState } from "react"
 import { useExtensionState } from "@/context/ExtensionStateContext"
 import { SlashServiceClient, TaskServiceClient, UiServiceClient } from "@/services/grpc-client"
@@ -18,7 +18,7 @@ function formatDraftText(text: string, activeQuote: string | null): string {
 // `/compact` and its aliases `/smol` and `/newtask` run a real SDK manual
 // compaction via the condense RPC. Sending the literal text to the model would
 // make it improvise a fake summary instead of compacting the context window
-// (CLINE-2503). `/newtask` aliases compaction because condensing achieves its
+// (INDUSCODE-2503). `/newtask` aliases compaction because condensing achieves its
 // goal (continue working with a fresh, summarized context) without the legacy
 // new_task tool.
 function isCompactionCommand(text: string): boolean {
@@ -29,7 +29,7 @@ function isCompactionCommand(text: string): boolean {
  * Custom hook for managing message handlers
  * Handles sending messages, button clicks, and task management
  */
-export function useMessageHandlers(messages: ClineMessage[], chatState: ChatState): MessageHandlers {
+export function useMessageHandlers(messages: IndusCodeMessage[], chatState: ChatState): MessageHandlers {
 	const { backgroundCommandRunning, turnState, cloudSessionsEnabled, cloudTaskTarget } = useExtensionState()
 	const {
 		setInputValue,
@@ -43,7 +43,7 @@ export function useMessageHandlers(messages: ClineMessage[], chatState: ChatStat
 		setEnableButtons,
 		setPendingUserMessage,
 		setPendingResponse,
-		clineAsk,
+		induscodeAsk,
 		lastMessage,
 	} = chatState
 	const cancelInFlightRef = useRef(false)
@@ -162,7 +162,7 @@ export function useMessageHandlers(messages: ClineMessage[], chatState: ChatStat
 					setSelectedFiles(files)
 					setEnableButtons(enableButtons)
 				}
-				const beginPendingResponse = (pendingMessage?: ClineMessage) => {
+				const beginPendingResponse = (pendingMessage?: IndusCodeMessage) => {
 					const id = ++pendingResponseIdRef.current
 					// A follow-up submitted during an active stream is queued/steering feedback.
 					// The authoritative streaming UI is already current, so forcing a loader could
@@ -309,10 +309,10 @@ export function useMessageHandlers(messages: ClineMessage[], chatState: ChatStat
 						}),
 					)
 					messageSent = true
-				} else if (clineAsk) {
+				} else if (induscodeAsk) {
 					// For resume_task and resume_completed_task, use yesButtonClicked to match Resume button behavior
 					// This ensures Enter key and Resume button work identically
-					if (clineAsk === "resume_task" || clineAsk === "resume_completed_task") {
+					if (induscodeAsk === "resume_task" || induscodeAsk === "resume_completed_task") {
 						// Resuming a task opened from history rebuilds the SDK session before the
 						// extension echoes say:user_feedback, so without an optimistic bubble the
 						// user's message would not appear until the (slow) resume finishes — the
@@ -329,7 +329,7 @@ export function useMessageHandlers(messages: ClineMessage[], chatState: ChatStat
 						messageSent = true
 					} else {
 						// All other ask types use messageResponse
-						switch (clineAsk) {
+						switch (induscodeAsk) {
 							case "followup":
 							case "plan_mode_respond":
 							case "tool":
@@ -351,7 +351,7 @@ export function useMessageHandlers(messages: ClineMessage[], chatState: ChatStat
 								// option buttons, that resolver consumes the response before normal follow-up
 								// routing and immediately appends the real say:user_feedback row. If we also add
 								// an optimistic pending row here, the chat shows the same answer twice.
-								const showPendingMessage = clineAsk !== "followup" && turnState?.phase !== "streaming"
+								const showPendingMessage = induscodeAsk !== "followup" && turnState?.phase !== "streaming"
 
 								await sendAskResponseWithPendingState(
 									AskResponseRequest.create({
@@ -368,13 +368,13 @@ export function useMessageHandlers(messages: ClineMessage[], chatState: ChatStat
 						}
 					}
 				} else if (messages.length > 0) {
-					// No clineAsk set, but there is an existing conversation. Route this to the
+					// No induscodeAsk set, but there is an existing conversation. Route this to the
 					// active session as a follow-up when either:
 					//
 					//   1. The authoritative turnState says the conversation is continuable —
 					//      phases "completed" / "awaiting_followup" (the agent finished or is
 					//      waiting for the user) or "streaming" (interrupt with feedback). The SDK
-					//      does not emit a trailing ask:"completion_result", so clineAsk is
+					//      does not emit a trailing ask:"completion_result", so induscodeAsk is
 					//      undefined even when the user can keep talking; turnState is the source
 					//      of truth.
 					//   2. Legacy fallback (no turnState): the task looks actively running from the
@@ -417,7 +417,7 @@ export function useMessageHandlers(messages: ClineMessage[], chatState: ChatStat
 		},
 		[
 			messages,
-			clineAsk,
+			induscodeAsk,
 			turnState,
 			activeQuote,
 			recoverySeq,
@@ -529,7 +529,7 @@ export function useMessageHandlers(messages: ClineMessage[], chatState: ChatStat
 					break
 
 				case "new_task":
-					if (clineAsk === "new_task") {
+					if (induscodeAsk === "new_task") {
 						// Reset context from the old task before the first await. A quote
 						// selected while New Task is in flight belongs to the new draft.
 						setActiveQuote(null)
@@ -571,7 +571,7 @@ export function useMessageHandlers(messages: ClineMessage[], chatState: ChatStat
 				}
 
 				case "utility":
-					switch (clineAsk) {
+					switch (induscodeAsk) {
 						case "condense":
 							await SlashServiceClient.condense(StringRequest.create({ value: lastMessage?.text })).catch((err) =>
 								console.error(err),
@@ -592,7 +592,7 @@ export function useMessageHandlers(messages: ClineMessage[], chatState: ChatStat
 			return true
 		},
 		[
-			clineAsk,
+			induscodeAsk,
 			lastMessage,
 			startNewTask,
 			chatState,

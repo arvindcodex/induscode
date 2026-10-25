@@ -5,16 +5,16 @@ import { E2ETestHelper, e2e } from "./utils/helpers"
 
 /**
  * Seeds an SDK session history record the way a completed task persists it
- * (~/.cline/data/sessions/<id>/<id>.json, snake_case on disk). `provider` is
+ * (~/.induscode/data/sessions/<id>/<id>.json, snake_case on disk). `provider` is
  * the field the cost-display suppression keys on.
  */
 function seedSessionRecord(
-	clineDir: string,
+	induscodeDir: string,
 	options: { id: string; provider: string; title: string; totalCost: number; ts: number },
 ): void {
 	const { id, provider, title, totalCost, ts } = options
 	const startedAt = new Date(ts).toISOString()
-	const sessionDir = path.join(clineDir, "data", "sessions", id)
+	const sessionDir = path.join(induscodeDir, "data", "sessions", id)
 	mkdirSync(sessionDir, { recursive: true })
 	writeFileSync(
 		path.join(sessionDir, `${id}.json`),
@@ -57,13 +57,13 @@ function seedSessionRecord(
 e2e("History - hides cost estimates for subscription-billed tasks", async ({ app, page, helper, server: _server }) => {
 	// Seed history BEFORE the webview loads so its first state fetch sees the
 	// records (the extension caches history metadata for ~10s).
-	const clineDir = await app.evaluate(() => process.env.CLINE_DIR)
-	expect(clineDir).toBeTruthy()
+	const induscodeDir = await app.evaluate(() => process.env.INDUSCODE_DIR)
+	expect(induscodeDir).toBeTruthy()
 
 	const now = Date.now()
 	// openai-codex is marked usageCostDisplay = "subscription" in the SDK; its
 	// stored totalCost is an API-rate estimate, not a real charge.
-	seedSessionRecord(clineDir as string, {
+	seedSessionRecord(induscodeDir as string, {
 		id: `${now - 1000}_subtask`,
 		provider: "openai-codex",
 		title: "Subscription billed e2e task",
@@ -71,7 +71,7 @@ e2e("History - hides cost estimates for subscription-billed tasks", async ({ app
 		ts: now - 1000,
 	})
 	// anthropic is usage-billed; its cost must keep rendering.
-	seedSessionRecord(clineDir as string, {
+	seedSessionRecord(induscodeDir as string, {
 		id: `${now - 2000}_apitask`,
 		provider: "anthropic",
 		title: "Usage billed e2e task",
@@ -79,7 +79,7 @@ e2e("History - hides cost estimates for subscription-billed tasks", async ({ app
 		ts: now - 2000,
 	})
 
-	await E2ETestHelper.openClineSidebar(page)
+	await E2ETestHelper.openIndusCodeSidebar(page)
 	const sidebar = await helper.getSidebar(page)
 	await helper.signin(sidebar)
 

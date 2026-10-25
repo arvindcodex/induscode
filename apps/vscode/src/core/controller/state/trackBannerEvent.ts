@@ -1,6 +1,6 @@
 import { BannerService } from "@/services/banner/BannerService"
-import { Empty } from "@/shared/proto/cline/common"
-import type { TrackBannerEventRequest } from "@/shared/proto/cline/state"
+import { Empty } from "@/shared/proto/induscode/common"
+import type { TrackBannerEventRequest } from "@/shared/proto/induscode/state"
 import { Logger } from "@/shared/services/Logger"
 import type { Controller } from ".."
 

@@ -1,6 +1,6 @@
 # Desktop App Example
 
-Tauri desktop shell + desktop backend (`sidecar/`) + Next.js UI for running and inspecting Cline chat sessions. The packaged app bundles a self-contained Cline CLI binary that starts the shared Hub and runs the backend, so no Node or Bun install is needed.
+Tauri desktop shell + desktop backend (`sidecar/`) + Next.js UI for running and inspecting IndusCode chat sessions. The packaged app bundles a self-contained IndusCode CLI binary that starts the shared Hub and runs the backend, so no Node or Bun install is needed.
 
 ## Dev Commands
 
@@ -13,14 +13,14 @@ From `apps/examples/desktop-app/`:
 - `bun run build:web` - build production web assets only (includes the shared UI build)
 - `bun run build` - build web assets and the desktop runtime
 - `bun run build:sidecar` - build the Bun sidecar bundle
-- `bun run build:runtime` - compile the bundled Cline CLI (host plus Linux SSH remote copies) and bundle the desktop backend into `src-tauri/bin/`
+- `bun run build:runtime` - compile the bundled IndusCode CLI (host plus Linux SSH remote copies) and bundle the desktop backend into `src-tauri/bin/`
 - `bun run build:binary` - build desktop binary
 - `bun run package:desktop` - package the current OS desktop app into `dist/desktop/`
 - `bun run typecheck` - TypeScript check
 
 ### Checking webview changes
 
-Run `bun run build:web` from this directory when changing webview imports or shared browser APIs. Type checking and Vitest do not check the production browser bundle: a valid TypeScript import can still pull Node-only modules into a client chunk. Use `@cline/shared/browser` for runtime imports in the webview; the bare `@cline/shared` source alias points to the Node entry point.
+Run `bun run build:web` from this directory when changing webview imports or shared browser APIs. Type checking and Vitest do not check the production browser bundle: a valid TypeScript import can still pull Node-only modules into a client chunk. Use `@induscode/shared/browser` for runtime imports in the webview; the bare `@induscode/shared` source alias points to the Node entry point.
 
 ## Pull Requests
 
@@ -123,7 +123,7 @@ shell — read from the account database via `getpwuid`, falling back to
 agent-spawned child (run_commands, MCP servers) inherits. Only `PATH` is
 imported, deliberately; other login-environment variables (`SSH_AUTH_SOCK`,
 API keys, `JAVA_HOME`-style tool roots) are not pulled in. Set
-`CLINE_SIDECAR_SKIP_SHELL_PATH=1` to disable. Implementation and details:
+`INDUSCODE_SIDECAR_SKIP_SHELL_PATH=1` to disable. Implementation and details:
 [`core shell-path.ts`](../../../sdk/packages/core/src/remote/shell-path.ts).
 
 ## SSH Remote Environments
@@ -140,36 +140,36 @@ the local machine.
 SSH config aliases are supported. Leave **Port** blank to use the alias's SSH
 configuration (including its configured port), or enter a port to override it.
 The desktop keeps its webview and native integration local; only the
-authenticated Cline Hub protocol is forwarded through SSH. Agent tools,
+authenticated IndusCode Hub protocol is forwarded through SSH. Agent tools,
 workspace discovery, Git metadata, and session persistence therefore run on the
 SSH host, while approvals and live session events return to the desktop.
 
-The shared `@cline/core` `RemoteEnvironmentService` owns this feature; other
-clients can use the same service and `ClineCore` remote backend (see `sdk/DOC.md`).
+The shared `@induscode/core` `RemoteEnvironmentService` owns this feature; other
+clients can use the same service and `IndusCodeCore` remote backend (see `sdk/DOC.md`).
 Desktop owns the settings UI and packaged helper resource lookup.
 
 The service stores host metadata at
-`~/.cline/data/settings/remote-environments.json` with mode `0600`. It stores an
+`~/.induscode/data/settings/remote-environments.json` with mode `0600`. It stores an
 identity-file path, never private-key contents. On first connect it uploads a
-content-addressed, branch-matched, self-contained Cline CLI binary under
-`~/.cline/remote/` and runs `cline hub ensure --json --discovery-path ...`
+content-addressed, branch-matched, self-contained IndusCode CLI binary under
+`~/.induscode/remote/` and runs `induscode hub ensure --json --discovery-path ...`
 there, which reuses a compatible healthy remote Hub or starts one bound to
 remote loopback. The desktop forwards it to a random local loopback port.
 Linux x64 and arm64 CLI copies are bundled by `bun run build:runtime`; 32-bit
 Raspberry Pi operating systems are not supported. A macOS desktop reaches
-macOS SSH hosts with its own signed universal Cline CLI; Windows and Linux
+macOS SSH hosts with its own signed universal IndusCode CLI; Windows and Linux
 desktops need a locally built darwin CLI passed through
-`CLINE_REMOTE_HELPER_BINARY`. The remote CLI includes its own runtime (about
+`INDUSCODE_REMOTE_HELPER_BINARY`. The remote CLI includes its own runtime (about
 115 MB per copy) and must not be UPX-compressed; Bun reads its embedded code
 back from the executable at runtime, so a packed binary crashes with
 `SyntaxError: Invalid character: '\0'`. It is copied once per matching desktop
 build and cached, with no `apt`, `npm`, root access, global CLI install, or
-public Hub port. Disconnecting runs `cline hub stop` for the desktop-owned
+public Hub port. Disconnecting runs `induscode hub stop` for the desktop-owned
 remote Hub but leaves the CLI cached for a faster reconnect. The remote Hub
 imports the remote login-shell `PATH` (`--login-shell-path`), so
 user-installed Git, GitHub CLI, and MCP executables remain visible.
 
-Each service instance uses its own discovery record, so an existing Cline CLI/Hub on the
+Each service instance uses its own discovery record, so an existing IndusCode CLI/Hub on the
 same account is neither replaced nor stopped. Both Hub processes can coexist
 while the desktop is connected; this isolation keeps the desktop's remote Hub separate from the default CLI Hub.
 
@@ -181,8 +181,8 @@ session; reusable OAuth refresh credentials are not copied into remote provider
 settings.
 
 For a real SSH acceptance run, `scripts/verify-ssh-poc.ts` accepts
-`CLINE_SSH_TEST_HOST`, `CLINE_SSH_TEST_USER`, `CLINE_SSH_TEST_KEY`,
-`CLINE_SSH_TEST_WORKSPACE`, and `CLINE_SSH_TEST_HELPER`. It starts a remote
+`INDUSCODE_SSH_TEST_HOST`, `INDUSCODE_SSH_TEST_USER`, `INDUSCODE_SSH_TEST_KEY`,
+`INDUSCODE_SSH_TEST_WORKSPACE`, and `INDUSCODE_SSH_TEST_HELPER`. It starts a remote
 connection at the SSH user's home, starts an agent session in the test
 workspace with the selected desktop provider, asks the agent to read
 `REMOTE_MARKER.txt`, then verifies the session appears in remote history and
@@ -191,8 +191,8 @@ that its messages can be read back.
 ## Web Visual System
 
 The framework-neutral color, typography, radius, and navigation contract lives
-in the internal [`@cline/ui`](../../../sdk/packages/ui/README.md) workspace
-package. Other Cline web surfaces can take only its tokens or opt into the
+in the internal [`@induscode/ui`](../../../sdk/packages/ui/README.md) workspace
+package. Other IndusCode web surfaces can take only its tokens or opt into the
 Tailwind adapter and shared base styles without depending on the desktop
 runtime. See [`webview/styles/README.md`](./webview/styles/README.md) for the
 desktop integration notes.
@@ -205,12 +205,12 @@ natively on both Apple Silicon and Intel (macOS picks the matching slice at
 launch, so users never choose an architecture) — plus a Windows x64 NSIS
 installer and Linux x64 and arm64 `.deb` and `.rpm` packages. The step-by-step flow
 (version bumps, changelog, tag, repo secrets) lives in the `publish-desktop`
-skill (`.cline/skills/publish-desktop/SKILL.md`).
+skill (`.induscode/skills/publish-desktop/SKILL.md`).
 
 Individual releases are not announced in-app; Settings → About lists the
 bundled release notes. Every so often a one-time "What's new" dialog catches
 users up on accumulated features — see the `desktop-whats-new` skill
-(`.cline/skills/desktop-whats-new/SKILL.md`).
+(`.induscode/skills/desktop-whats-new/SKILL.md`).
 
 Installed apps auto-update via the Tauri updater: they poll the rolling
 `desktop-latest` release's `latest.json` on launch and every 2 hours, download
@@ -232,22 +232,22 @@ so the runtime dependencies (`libwebkit2gtk-4.1-0`, `libgtk-3-0`,
 `libayatana-appindicator3-1`) resolve:
 
 ```bash
-sudo apt install ./Cline_<version>_amd64.deb     # Debian / Ubuntu (x86_64)
-sudo apt install ./Cline_<version>_arm64.deb     # Debian / Ubuntu (arm64)
-sudo dnf install ./Cline_<version>_x86_64.rpm    # Fedora / RHEL (x86_64)
-sudo dnf install ./Cline_<version>_aarch64.rpm   # Fedora / RHEL (arm64)
+sudo apt install ./IndusCode_<version>_amd64.deb     # Debian / Ubuntu (x86_64)
+sudo apt install ./IndusCode_<version>_arm64.deb     # Debian / Ubuntu (arm64)
+sudo dnf install ./IndusCode_<version>_x86_64.rpm    # Fedora / RHEL (x86_64)
+sudo dnf install ./IndusCode_<version>_aarch64.rpm   # Fedora / RHEL (arm64)
 ```
 
-The app installs as `/usr/bin/cline-app` with a `Cline` launcher entry; the
-bundled Cline CLI is `/usr/bin/cline-cli`, and the desktop backend bundle and
-SSH remote CLIs live in `/usr/lib/Cline/`. The tray icon needs a StatusNotifier host (KDE, XFCE, and
+The app installs as `/usr/bin/induscode-app` with a `IndusCode` launcher entry; the
+bundled IndusCode CLI is `/usr/bin/induscode-cli`, and the desktop backend bundle and
+SSH remote CLIs live in `/usr/lib/IndusCode/`. The tray icon needs a StatusNotifier host (KDE, XFCE, and
 GNOME with the AppIndicator extension); without one the app still runs but the
 tray menu is unavailable. There is no AppImage: linuxdeploy cannot process the
-Bun-compiled Cline CLI (`ldd` fails on it and `patchelf` corrupts it), so the
+Bun-compiled IndusCode CLI (`ldd` fails on it and `patchelf` corrupts it), so the
 AppImage target is excluded from `tauri build` on Linux. A Linux desktop
 cannot use a Mac as an SSH remote host (see the changelog).
 
-There is also a beta channel ("Cline Beta", a separate app that installs
+There is also a beta channel ("IndusCode Beta", a separate app that installs
 side by side with stable) cut from the `desktop-experimental` branch and
 served by the rolling `desktop-beta` release — the same never-delete rule
 applies to it. The experimental-branch process and beta release flow live in
@@ -293,7 +293,7 @@ bun run package:desktop:mac
 
 The first signing run pops a keychain dialog — enter your macOS login password and click **Always Allow**. Notarization uploads the app to Apple's automated malware scan (typically 2–10 minutes) and staples the ticket. Artifacts land in `dist/desktop/`; share the `.dmg`. The DMG name takes its version from `src-tauri/tauri.conf.json`, the zip name from `package.json` — bump both.
 
-Do not remove `src-tauri/entitlements.plist` or the `bundle.macOS.entitlements` reference in `tauri.conf.json`: notarization requires the hardened runtime, which breaks the Bun-compiled Cline CLI (`SharedArrayBuffer is not defined`, surfacing in-app as "desktop backend endpoint not ready") unless the JIT entitlements are present.
+Do not remove `src-tauri/entitlements.plist` or the `bundle.macOS.entitlements` reference in `tauri.conf.json`: notarization requires the hardened runtime, which breaks the Bun-compiled IndusCode CLI (`SharedArrayBuffer is not defined`, surfacing in-app as "desktop backend endpoint not ready") unless the JIT entitlements are present.
 
 ## Runtime Overview
 
@@ -301,10 +301,10 @@ Startup flow:
 
 1. Tauri starts a persistent local desktop backend and keeps only native window/file-picker/open-path responsibilities.
    In a packaged app the backend is `bin/desktop-backend/index.js`, executed by
-   the bundled Cline CLI (`cline-cli run`); `bun run dev` runs `sidecar/index.ts`
+   the bundled IndusCode CLI (`induscode-cli run`); `bun run dev` runs `sidecar/index.ts`
    with Bun directly.
-2. The backend runs `cline-cli hub ensure`, which reuses a compatible healthy
-   shared Cline Hub on loopback or starts one (the Hub daemon is the same CLI
+2. The backend runs `induscode-cli hub ensure`, which reuses a compatible healthy
+   shared IndusCode Hub on loopback or starts one (the Hub daemon is the same CLI
    binary). The backend then attaches to the Hub and exposes one websocket
    transport (`/transport`) for desktop commands, queries, and pushed events.
 3. The React app uses `lib/desktop-client.ts` and no longer imports `@tauri-apps/api/core` directly in feature code.
@@ -322,13 +322,13 @@ Desktop transport envelope:
 - The Settings sidebar includes a `Routine` view for hub-backed automations.
 - `Routine` lists all RPC schedules and shows status (`enabled`, `nextRunAt`, active execution).
 - From the UI you can open a create form and add, pause/resume, trigger-now, and delete schedules.
-- The view is wired to the same scheduler APIs used by `cline schedule` through Tauri commands and `scripts/routine-schedules.ts`.
+- The view is wired to the same scheduler APIs used by `induscode schedule` through Tauri commands and `scripts/routine-schedules.ts`.
 
 ## Key Files
 
 - [`src-tauri/src/main.rs`](./src-tauri/src/main.rs) - Tauri shell lifecycle, backend launch, and native-only commands
 - [`sidecar/index.ts`](./sidecar/index.ts) - persistent desktop backend entrypoint
-- [`sidecar/cli-runtime.ts`](./sidecar/cli-runtime.ts) - bundled Cline CLI runtime adoption and `hub ensure`
+- [`sidecar/cli-runtime.ts`](./sidecar/cli-runtime.ts) - bundled IndusCode CLI runtime adoption and `hub ensure`
 - [`sidecar/chat-session.ts`](./sidecar/chat-session.ts) - shared-Hub chat session adapter
 - [`webview/lib/desktop-client.ts`](./webview/lib/desktop-client.ts) - typed desktop websocket client
 - [`webview/hooks/use-chat-session.ts`](./webview/hooks/use-chat-session.ts) - UI chat session state + backend subscriptions
@@ -337,7 +337,7 @@ Desktop transport envelope:
 
 ## Data + Storage
 
-- Session artifacts are written under `~/.cline/data/sessions/<sessionId>/` (or `CLINE_SESSION_DATA_DIR`).
+- Session artifacts are written under `~/.induscode/data/sessions/<sessionId>/` (or `INDUSCODE_SESSION_DATA_DIR`).
 - Canonical replay/export artifact: `<sessionId>.messages.json`.
 - `<sessionId>.messages.json` is expected to contain ordered messages plus assistant `modelInfo` and `metrics` (including cache token fields when provided by the model runtime).
 - `<sessionId>.hooks.jsonl` is observability/debug telemetry and should not be required for normal history replay/export flows.
@@ -347,22 +347,22 @@ Desktop transport envelope:
 
 The desktop sidecar sends SDK telemetry through the same configured OpenTelemetry
 pipeline used by the CLI and writes structured runtime logs to
-`~/.cline/data/logs/code.log` by default. Telemetry continues to honor the global
+`~/.induscode/data/logs/code.log` by default. Telemetry continues to honor the global
 opt-out setting exposed in the desktop settings UI. The sidecar truncates stale
 logs and rotates the active file before it exceeds 50 MiB.
 
 Logging can be configured with the same environment variables as the CLI:
 
-- `CLINE_LOG_ENABLED=0` disables file logging.
-- `CLINE_LOG_LEVEL` sets the Pino level (for example, `debug` or `warn`).
-- `CLINE_LOG_PATH` overrides the log destination.
-- `CLINE_LOG_NAME` overrides the logger name.
+- `INDUSCODE_LOG_ENABLED=0` disables file logging.
+- `INDUSCODE_LOG_LEVEL` sets the Pino level (for example, `debug` or `warn`).
+- `INDUSCODE_LOG_PATH` overrides the log destination.
+- `INDUSCODE_LOG_NAME` overrides the logger name.
 
 In a development webview, sidecar voice-input diagnostics are also streamed to
 the webview console as `[desktop:voice-input]` entries. Production builds can
-enable the same console stream with `NEXT_PUBLIC_CLINE_DEBUG_LOGS=1` at build
+enable the same console stream with `NEXT_PUBLIC_INDUSCODE_DEBUG_LOGS=1` at build
 time, or at runtime from DevTools with
-`localStorage.setItem("cline.debugLogs", "1")` followed by a reload. Diagnostic
+`localStorage.setItem("induscode.debugLogs", "1")` followed by a reload. Diagnostic
 events include the selected provider/model and sanitized endpoint, but never
 credentials, request headers, recorded audio, or transcript contents.
 
@@ -381,7 +381,7 @@ credentials, request headers, recorded audio, or transcript contents.
   This also matches hybrid-GPU systems where another GPU renders, which then
   lose the faster DMA-BUF path (not hardware acceleration as a whole). To opt
   out, fully Quit from the tray (closing the window only hides it) and launch
-  with `WEBKIT_DISABLE_DMABUF_RENDERER=0 cline-app`; any value you set is
+  with `WEBKIT_DISABLE_DMABUF_RENDERER=0 induscode-app`; any value you set is
   left untouched.
 - If package changes are not reflected, rebuild SDK packages (`bun run build:sdk`).
   The next desktop or CLI Hub connection will reuse a compatible running Hub or
@@ -396,7 +396,7 @@ credentials, request headers, recorded audio, or transcript contents.
   you speak; Stop closes the audio stream and waits for final text. Batch-only models are
   excluded from Voice settings and rejected when saving a voice selection.
 - The voice selection is stored separately from the chat model as
-  `modes.voiceInput` in `~/.cline/data/settings/providers.json`. The sidecar
+  `modes.voiceInput` in `~/.induscode/data/settings/providers.json`. The sidecar
   mints a short-lived token, keeping long-lived provider credentials out of the
   webview.
 - If a recognized network failure interrupts transcription, the mic switches

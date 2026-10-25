@@ -28,7 +28,7 @@ function Example({ narrow = false }: { narrow?: boolean }) {
 					role="dialog"
 					aria-modal="true"
 					aria-label="Expanded attachment"
-					className="absolute inset-0 z-50 flex items-center justify-center bg-cline-ui-background/95 p-4 backdrop-blur-sm"
+					className="absolute inset-0 z-50 flex items-center justify-center bg-induscode-ui-background/95 p-4 backdrop-blur-sm"
 				>
 					<AgentImageLightboxContent
 						src={sampleAttachmentSrc}

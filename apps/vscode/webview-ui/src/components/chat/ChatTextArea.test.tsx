@@ -49,7 +49,7 @@ vi.mock("@/services/grpc-client", () => ({
 	},
 }))
 
-vi.mock("../cline-rules/ClineRulesToggleModal", () => ({ default: () => null }))
+vi.mock("../induscode-rules/IndusCodeRulesToggleModal", () => ({ default: () => null }))
 vi.mock("./ServersToggleModal", () => ({ default: () => null }))
 
 const PNG_DATA_URL = "data:image/png;base64,iVBORw0KGgo="
@@ -101,7 +101,7 @@ describe("ChatTextArea model label", () => {
 	])("shows the cloud model when %s", (_case, cloudState) => {
 		mocks.cloudState = { ...cloudState, cloudModelId: "anthropic/claude-sonnet-4.5" }
 		renderTextArea()
-		expect(screen.getByTitle("Open API Settings")).toHaveTextContent("cline:anthropic/claude-sonnet-4.5")
+		expect(screen.getByTitle("Open API Settings")).toHaveTextContent("induscode:anthropic/claude-sonnet-4.5")
 	})
 })
 

@@ -1,4 +1,4 @@
-import { UpdateSettingsRequest } from "@shared/proto/cline/state"
+import { UpdateSettingsRequest } from "@shared/proto/induscode/state"
 import { memo, type ReactNode } from "react"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -45,7 +45,7 @@ const editorFeatures: FeatureToggle[] = [
 	{
 		id: "show-feature-tips",
 		label: "Feature Tips",
-		description: "Show rotating tips during the thinking phase to help you discover Cline features.",
+		description: "Show rotating tips during the thinking phase to help you discover IndusCode features.",
 		stateKey: "showFeatureTips",
 		settingKey: "showFeatureTips",
 	},
@@ -66,7 +66,7 @@ const editorFeatures: FeatureToggle[] = [
 	{
 		id: "worktrees",
 		label: "Worktrees",
-		description: "Enables git worktree management for running parallel Cline tasks.",
+		description: "Enables git worktree management for running parallel IndusCode tasks.",
 		stateKey: "worktreesEnabled",
 		settingKey: "worktreesEnabled",
 	},
@@ -220,7 +220,7 @@ const FeatureSettingsSection = ({ renderSectionHeader }: FeatureSettingsSectionP
 							/>
 							<FeatureRow
 								checked={cloudSessionsEnabled}
-								description="Run Cline on your GitHub repositories in secure cloud sandboxes. Adds a Cloud option to the new task composer. Requires a Cline account with GitHub connected."
+								description="Run IndusCode on your GitHub repositories in secure cloud sandboxes. Adds a Cloud option to the new task composer. Requires a IndusCode account with GitHub connected."
 								id="cloud-sessions"
 								isVisible={!!cloudSessionsAvailable}
 								label="Cloud"

@@ -1,26 +1,26 @@
 import { basename } from "node:path";
 
-export const CLINE_BUILD_ENV_ENV = "CLINE_BUILD_ENV";
-export const CLINE_DEBUG_HOST_ENV = "CLINE_DEBUG_HOST";
-export const CLINE_DEBUG_PORT_BASE_ENV = "CLINE_DEBUG_PORT_BASE";
+export const INDUSCODE_BUILD_ENV_ENV = "INDUSCODE_BUILD_ENV";
+export const INDUSCODE_DEBUG_HOST_ENV = "INDUSCODE_DEBUG_HOST";
+export const INDUSCODE_DEBUG_PORT_BASE_ENV = "INDUSCODE_DEBUG_PORT_BASE";
 
-export type ClineBuildEnv = "development" | "production";
-export type ClineDebugRole =
+export type IndusCodeBuildEnv = "development" | "production";
+export type IndusCodeDebugRole =
 	| "rpc"
 	| "hook"
 	| "plugin-sandbox"
 	| "connector"
 	| "sandbox";
 
-export interface ResolveClineBuildEnvOptions {
+export interface ResolveIndusCodeBuildEnvOptions {
 	env?: NodeJS.ProcessEnv;
 	execArgv?: string[];
-	debugRole?: ClineDebugRole;
+	debugRole?: IndusCodeDebugRole;
 }
 
 function normalizeBuildEnv(
 	value: string | undefined,
-): ClineBuildEnv | undefined {
+): IndusCodeBuildEnv | undefined {
 	const normalized = value?.trim().toLowerCase();
 	if (normalized === "development" || normalized === "production") {
 		return normalized;
@@ -82,11 +82,11 @@ function hasSourceMapFlag(values: string[]): boolean {
 }
 
 function resolveDebugHost(env: NodeJS.ProcessEnv): string {
-	return env[CLINE_DEBUG_HOST_ENV]?.trim() || "127.0.0.1";
+	return env[INDUSCODE_DEBUG_HOST_ENV]?.trim() || "127.0.0.1";
 }
 
 function resolveDebugPortBase(env: NodeJS.ProcessEnv): number | undefined {
-	const raw = env[CLINE_DEBUG_PORT_BASE_ENV]?.trim();
+	const raw = env[INDUSCODE_DEBUG_PORT_BASE_ENV]?.trim();
 	if (!raw) {
 		return undefined;
 	}
@@ -94,7 +94,7 @@ function resolveDebugPortBase(env: NodeJS.ProcessEnv): number | undefined {
 	return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined;
 }
 
-function resolveRolePortOffset(role: ClineDebugRole | undefined): number {
+function resolveRolePortOffset(role: IndusCodeDebugRole | undefined): number {
 	switch (role) {
 		case "rpc":
 			return 0;
@@ -111,13 +111,13 @@ function resolveRolePortOffset(role: ClineDebugRole | undefined): number {
 	}
 }
 
-export function resolveClineBuildEnv(
-	options: ResolveClineBuildEnvOptions = {},
-): ClineBuildEnv {
+export function resolveIndusCodeBuildEnv(
+	options: ResolveIndusCodeBuildEnvOptions = {},
+): IndusCodeBuildEnv {
 	const env = options.env ?? process.env;
 	const execArgv = options.execArgv ?? process.execArgv;
 
-	const explicit = normalizeBuildEnv(env[CLINE_BUILD_ENV_ENV]);
+	const explicit = normalizeBuildEnv(env[INDUSCODE_BUILD_ENV_ENV]);
 	if (explicit) {
 		return explicit;
 	}
@@ -133,16 +133,16 @@ export function resolveClineBuildEnv(
 	return hasDevelopmentCondition(execArgv) ? "development" : "production";
 }
 
-export function withResolvedClineBuildEnv(
+export function withResolvedIndusCodeBuildEnv(
 	env: NodeJS.ProcessEnv = process.env,
-	options: Omit<ResolveClineBuildEnvOptions, "env"> = {},
+	options: Omit<ResolveIndusCodeBuildEnvOptions, "env"> = {},
 ): NodeJS.ProcessEnv {
-	if (normalizeBuildEnv(env[CLINE_BUILD_ENV_ENV])) {
+	if (normalizeBuildEnv(env[INDUSCODE_BUILD_ENV_ENV])) {
 		return env;
 	}
 	return {
 		...env,
-		[CLINE_BUILD_ENV_ENV]: resolveClineBuildEnv({
+		[INDUSCODE_BUILD_ENV_ENV]: resolveIndusCodeBuildEnv({
 			env,
 			execArgv: options.execArgv,
 		}),
@@ -151,12 +151,12 @@ export function withResolvedClineBuildEnv(
 
 export function augmentNodeCommandForDebug(
 	command: string[],
-	options: ResolveClineBuildEnvOptions = {},
+	options: ResolveIndusCodeBuildEnvOptions = {},
 ): string[] {
 	if (command.length === 0 || !isNodeLauncher(command[0])) {
 		return [...command];
 	}
-	if (resolveClineBuildEnv(options) !== "development") {
+	if (resolveIndusCodeBuildEnv(options) !== "development") {
 		return [...command];
 	}
 

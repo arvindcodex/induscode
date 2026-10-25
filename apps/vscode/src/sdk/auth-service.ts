@@ -1,30 +1,30 @@
 // Replaces classic src/services/auth/AuthService.ts (see origin/main)
 //
-// SDK-backed authentication service. Uses @cline/core OAuth functions
+// SDK-backed authentication service. Uses @induscode/core OAuth functions
 // for login flows and ProviderSettingsManager (providers.json) as the
 // single source of truth for credentials.
 //
 // User profile info (email, displayName, organizations) is NOT stored on
-// disk — it's fetched from the Cline API on startup and cached in memory.
+// disk — it's fetched from the IndusCode API on startup and cached in memory.
 // This matches the CLI's pattern (see apps/cli/src/runtime/interactive-welcome.ts).
 
-import type { ITelemetryService, OAuthCredentials, ProviderSettings } from "@cline/core"
+import type { ITelemetryService, OAuthCredentials, ProviderSettings } from "@induscode/core"
 import {
 	createOAuthClientCallbacks,
 	getProviderAuthStorageId,
-	getValidClineCredentials,
+	getValidIndusCodeCredentials,
 	hashSecret,
-	loginClineOAuth,
+	loginIndusCodeOAuth,
 	loginOcaOAuth,
 	loginOpenAICodex,
 	sdkDebug,
-} from "@cline/core"
+} from "@induscode/core"
 import type { ApiProvider } from "@shared/api"
-import { AuthState, UserInfo } from "@shared/proto/cline/account"
-import type { EmptyRequest, String } from "@shared/proto/cline/common"
+import { AuthState, UserInfo } from "@shared/proto/induscode/account"
+import type { EmptyRequest, String } from "@shared/proto/induscode/common"
 import { ShowMessageType } from "@shared/proto/host/window"
 import axios from "axios"
-import { ClineEnv } from "@/config"
+import { IndusCodeEnv } from "@/config"
 import type { Controller } from "@/core/controller"
 import { getRequestRegistry, type StreamingResponseHandler } from "@/core/controller/grpc-handler"
 import { StateManager } from "@/core/storage/StateManager"
@@ -32,10 +32,10 @@ import { HostProvider } from "@/hosts/host-provider"
 import { openAiCodexOAuthManager } from "@/integrations/openai-codex/oauth"
 import { LogoutReason } from "@/services/auth/types"
 import { BannerService } from "@/services/banner/BannerService"
-import { buildBasicClineHeaders } from "@/services/EnvUtils"
+import { buildBasicIndusCodeHeaders } from "@/services/EnvUtils"
 import { featureFlagsService } from "@/services/feature-flags"
 import { telemetryService } from "@/services/telemetry"
-import { CLINE_API_ENDPOINT } from "@/shared/cline/api"
+import { INDUSCODE_API_ENDPOINT } from "@/shared/induscode/api"
 import { fetch, getAxiosSettings } from "@/shared/net"
 import { Logger } from "@/shared/services/Logger"
 import { openExternal } from "@/utils/env"
@@ -46,26 +46,26 @@ import { getProviderSettingsManager } from "./provider-migration"
 // ---------------------------------------------------------------------------
 
 /** Shape of the auth info cached in memory (NOT persisted to disk). */
-export interface ClineAuthInfo {
+export interface IndusCodeAuthInfo {
 	idToken: string
 	refreshToken?: string
 	expiresAt?: number // seconds since epoch
-	userInfo: ClineAccountUserInfo
+	userInfo: IndusCodeAccountUserInfo
 	provider: string
 	startedAt?: number
 }
 
-export interface ClineAccountUserInfo {
+export interface IndusCodeAccountUserInfo {
 	createdAt?: string
 	displayName: string
 	email: string
 	id: string
-	organizations: ClineAccountOrganization[]
+	organizations: IndusCodeAccountOrganization[]
 	appBaseUrl?: string
 	subject?: string
 }
 
-export interface ClineAccountOrganization {
+export interface IndusCodeAccountOrganization {
 	active: boolean
 	memberId: string
 	name: string
@@ -104,10 +104,10 @@ function readSessionStartedAtMs(metadata: AuthMetadata | undefined): number | un
 // ---------------------------------------------------------------------------
 
 /**
- * Read Cline OAuth credentials from providers.json.
+ * Read IndusCode OAuth credentials from providers.json.
  * Returns { accessToken, refreshToken, expiresAt, accountId } or null.
  */
-function readClineCredentials(): {
+function readIndusCodeCredentials(): {
 	accessToken: string
 	refreshToken?: string
 	expiresAt?: number // milliseconds since epoch (providers.json convention)
@@ -116,9 +116,9 @@ function readClineCredentials(): {
 } | null {
 	try {
 		const manager = getProviderSettingsManager()
-		const settings = manager.getProviderSettings("cline")
+		const settings = manager.getProviderSettings("induscode")
 		if (!settings?.auth?.accessToken) {
-			sdkDebug("[SdkAuthService] readClineCredentials: no auth.accessToken found")
+			sdkDebug("[SdkAuthService] readIndusCodeCredentials: no auth.accessToken found")
 			return null
 		}
 
@@ -136,7 +136,7 @@ function readClineCredentials(): {
 			sessionStartedAtMs: readSessionStartedAtMs(getAuthMetadata(settings.auth)),
 		}
 		sdkDebug(
-			`[SdkAuthService] readClineCredentials: found credentials (accessHash=${hashSecret(result.accessToken)}, refreshHash=${hashSecret(result.refreshToken)}, expiresAt=${result.expiresAt}, sessionStartedAtMs=${result.sessionStartedAtMs})`,
+			`[SdkAuthService] readIndusCodeCredentials: found credentials (accessHash=${hashSecret(result.accessToken)}, refreshHash=${hashSecret(result.refreshToken)}, expiresAt=${result.expiresAt}, sessionStartedAtMs=${result.sessionStartedAtMs})`,
 		)
 		return result
 	} catch (error) {
@@ -146,9 +146,9 @@ function readClineCredentials(): {
 }
 
 /**
- * Write Cline OAuth credentials to providers.json.
+ * Write IndusCode OAuth credentials to providers.json.
  */
-function writeClineCredentials(credentials: {
+function writeIndusCodeCredentials(credentials: {
 	accessToken: string
 	refreshToken?: string
 	expiresAt?: number // milliseconds since epoch
@@ -158,7 +158,7 @@ function writeClineCredentials(credentials: {
 }): void {
 	try {
 		const manager = getProviderSettingsManager()
-		const existing = manager.getProviderSettings("cline")
+		const existing = manager.getProviderSettings("induscode")
 		const existingMetadata = getAuthMetadata(existing?.auth)
 		const sessionStartedAtMs =
 			credentials.sessionStartedAtMs ??
@@ -188,22 +188,22 @@ function writeClineCredentials(credentials: {
 
 		// Token refreshes and startup restores also land here. Only claim the
 		// last-used slot when the current selection isn't already a provider
-		// backed by this credential entry (cline-pass stores under "cline") —
-		// otherwise every refresh resets a ClinePass selection back to
+		// backed by this credential entry (induscode-pass stores under "induscode") —
+		// otherwise every refresh resets a IndusCodePass selection back to
 		// usage-billing in the shared providers.json (#13501).
 		const lastUsedProvider = manager.read().lastUsedProvider
-		const setLastUsed = getProviderAuthStorageId(lastUsedProvider ?? "") !== "cline"
+		const setLastUsed = getProviderAuthStorageId(lastUsedProvider ?? "") !== "induscode"
 
 		manager.saveProviderSettings(
 			{
-				...(existing ?? { provider: "cline" }),
-				provider: "cline",
+				...(existing ?? { provider: "induscode" }),
+				provider: "induscode",
 				auth: auth as { accessToken?: string; refreshToken?: string; accountId?: string; metadata?: AuthMetadata },
 			},
 			{ tokenSource: "oauth", setLastUsed },
 		)
 		sdkDebug(
-			`[SdkAuthService] writeClineCredentials: wrote (accessHash=${hashSecret(credentials.accessToken)}, refreshHash=${hashSecret(credentials.refreshToken)}, expiresAt=${credentials.expiresAt}, sessionStartedAtMs=${sessionStartedAtMs})`,
+			`[SdkAuthService] writeIndusCodeCredentials: wrote (accessHash=${hashSecret(credentials.accessToken)}, refreshHash=${hashSecret(credentials.refreshToken)}, expiresAt=${credentials.expiresAt}, sessionStartedAtMs=${sessionStartedAtMs})`,
 		)
 	} catch (error) {
 		Logger.error("[SdkAuthService] Failed to write credentials to providers.json:", error)
@@ -211,18 +211,18 @@ function writeClineCredentials(credentials: {
 }
 
 /**
- * Clear Cline OAuth credentials from providers.json.
+ * Clear IndusCode OAuth credentials from providers.json.
  */
-function clearClineCredentials(): void {
+function clearIndusCodeCredentials(): void {
 	try {
 		const manager = getProviderSettingsManager()
-		const existing = manager.getProviderSettings("cline")
+		const existing = manager.getProviderSettings("induscode")
 		if (existing) {
-			sdkDebug("[SdkAuthService] clearClineCredentials: clearing auth from providers.json")
+			sdkDebug("[SdkAuthService] clearIndusCodeCredentials: clearing auth from providers.json")
 			manager.saveProviderSettings(
 				{
 					...existing,
-					provider: "cline",
+					provider: "induscode",
 					auth: undefined,
 				},
 				{ tokenSource: "manual" },
@@ -241,7 +241,7 @@ export class AuthService {
 	private static instance: AuthService | null = null
 
 	private _authenticated = false
-	private _clineAuthInfo: ClineAuthInfo | null = null
+	private _induscodeAuthInfo: IndusCodeAuthInfo | null = null
 	private _activeAuthStatusUpdateHandlers = new Set<StreamingResponseHandler<AuthState>>()
 	private _handlerToController = new Map<StreamingResponseHandler<AuthState>, Controller>()
 	private _refreshPromise: Promise<string | undefined> | null = null
@@ -276,13 +276,13 @@ export class AuthService {
 		// Kept for interface compatibility — not needed in SDK-backed version
 	}
 
-	// ---- SDK OAuth → ClineAuthInfo conversion ----
+	// ---- SDK OAuth → IndusCodeAuthInfo conversion ----
 
 	/**
-	 * Convert SDK OAuthCredentials to our ClineAuthInfo format.
-	 * Also fetches full user info from the Cline API.
+	 * Convert SDK OAuthCredentials to our IndusCodeAuthInfo format.
+	 * Also fetches full user info from the IndusCode API.
 	 */
-	private async credentialsToAuthInfo(credentials: OAuthCredentials, provider: string): Promise<ClineAuthInfo> {
+	private async credentialsToAuthInfo(credentials: OAuthCredentials, provider: string): Promise<IndusCodeAuthInfo> {
 		// Fetch full user info from the API using the access token
 		const userInfo = await this.fetchUserInfoFromApi(credentials.access)
 		const startedAt = readSessionStartedAtMs(credentials.metadata)
@@ -303,11 +303,11 @@ export class AuthService {
 	}
 
 	/**
-	 * Fetch user info from the Cline API using an access token.
+	 * Fetch user info from the IndusCode API using an access token.
 	 */
-	private async fetchUserInfoFromApi(accessToken: string): Promise<ClineAccountUserInfo | null> {
+	private async fetchUserInfoFromApi(accessToken: string): Promise<IndusCodeAccountUserInfo | null> {
 		try {
-			const apiBaseUrl = ClineEnv.config().apiBaseUrl
+			const apiBaseUrl = IndusCodeEnv.config().apiBaseUrl
 			// Ensure the token has the workos: prefix for the API
 			const bearerToken = accessToken.toLowerCase().startsWith(WORKOS_TOKEN_PREFIX)
 				? accessToken
@@ -319,7 +319,7 @@ export class AuthService {
 				headers: {
 					Authorization: `Bearer ${bearerToken}`,
 					"Content-Type": "application/json",
-					...(await buildBasicClineHeaders()),
+					...(await buildBasicIndusCodeHeaders()),
 				},
 				...getAxiosSettings(),
 			})
@@ -331,7 +331,7 @@ export class AuthService {
 		}
 	}
 
-	private toOAuthCredentials(authInfo: ClineAuthInfo): OAuthCredentials {
+	private toOAuthCredentials(authInfo: IndusCodeAuthInfo): OAuthCredentials {
 		return {
 			access: authInfo.idToken,
 			refresh: authInfo.refreshToken ?? "",
@@ -342,17 +342,17 @@ export class AuthService {
 		}
 	}
 
-	private async resolveValidClineCredentials(
-		authInfo: ClineAuthInfo,
+	private async resolveValidIndusCodeCredentials(
+		authInfo: IndusCodeAuthInfo,
 		options?: { forceRefresh?: boolean },
 	): Promise<OAuthCredentials | null> {
 		if (options?.forceRefresh && !authInfo.refreshToken) {
 			return null
 		}
 
-		return getValidClineCredentials(
+		return getValidIndusCodeCredentials(
 			this.toOAuthCredentials(authInfo),
-			{ apiBaseUrl: ClineEnv.config().apiBaseUrl, telemetry: this._telemetry },
+			{ apiBaseUrl: IndusCodeEnv.config().apiBaseUrl, telemetry: this._telemetry },
 			{ forceRefresh: options?.forceRefresh },
 		)
 	}
@@ -364,12 +364,12 @@ export class AuthService {
 	 * Refreshes if necessary using the SDK's token management.
 	 */
 	async getAuthToken(): Promise<string | null> {
-		if (!this._clineAuthInfo?.idToken) {
+		if (!this._induscodeAuthInfo?.idToken) {
 			return null
 		}
 
 		// Check if we need to refresh
-		const expiresAt = this._clineAuthInfo.expiresAt
+		const expiresAt = this._induscodeAuthInfo.expiresAt
 		if (expiresAt) {
 			const currentTime = Date.now() / 1000
 			const bufferSeconds = 5 * 60 // 5 minute buffer
@@ -383,48 +383,48 @@ export class AuthService {
 		}
 
 		// Verify the token is still valid (not past expiry). Re-read the expiry:
-		// a successful refresh above replaces _clineAuthInfo, and the expiry
+		// a successful refresh above replaces _induscodeAuthInfo, and the expiry
 		// captured before it belongs to the old token — which has already passed
 		// whenever the process sat idle beyond token lifetime.
-		const currentExpiresAt = this._clineAuthInfo.expiresAt
+		const currentExpiresAt = this._induscodeAuthInfo.expiresAt
 		if (currentExpiresAt && Date.now() / 1000 >= currentExpiresAt) {
 			return null
 		}
 
-		return `${WORKOS_TOKEN_PREFIX}${this._clineAuthInfo.idToken}`
+		return `${WORKOS_TOKEN_PREFIX}${this._induscodeAuthInfo.idToken}`
 	}
 
 	/**
-	 * Refresh the access token using the SDK's shared Cline credential validator.
+	 * Refresh the access token using the SDK's shared IndusCode credential validator.
 	 * Persists refreshed credentials to providers.json when credentials change.
 	 */
 	private async refreshAccessToken(): Promise<boolean> {
 		if (this._refreshPromise) {
 			await this._refreshPromise
-			return this._clineAuthInfo?.idToken !== undefined
+			return this._induscodeAuthInfo?.idToken !== undefined
 		}
 
-		if (!this._clineAuthInfo?.refreshToken) {
+		if (!this._induscodeAuthInfo?.refreshToken) {
 			sdkDebug("[SdkAuthService] refreshAccessToken: no refresh token available")
 			return false
 		}
 
-		sdkDebug(`[SdkAuthService] refreshAccessToken: starting (currentTokenHash=${hashSecret(this._clineAuthInfo.idToken)})`)
+		sdkDebug(`[SdkAuthService] refreshAccessToken: starting (currentTokenHash=${hashSecret(this._induscodeAuthInfo.idToken)})`)
 		this._refreshPromise = (async () => {
 			try {
-				const currentInfo = this._clineAuthInfo
+				const currentInfo = this._induscodeAuthInfo
 				if (!currentInfo) {
 					return undefined
 				}
-				const newCredentials = await this.resolveValidClineCredentials(currentInfo, { forceRefresh: true })
+				const newCredentials = await this.resolveValidIndusCodeCredentials(currentInfo, { forceRefresh: true })
 				if (!newCredentials) {
 					// null means the refresh token was rejected (transient failures
 					// throw). The SDK resolver already emitted user.auth_logged_out
 					// (reason=token_invalid) for this — don't double-report here.
 					sdkDebug("[SdkAuthService] refreshAccessToken: refresh returned null — clearing credentials")
-					this._clineAuthInfo = null
+					this._induscodeAuthInfo = null
 					this._authenticated = false
-					clearClineCredentials()
+					clearIndusCodeCredentials()
 					setImmediate(() => {
 						this.sendAuthStatusUpdate().catch(() => {})
 					})
@@ -440,7 +440,7 @@ export class AuthService {
 				const userInfo = credentialsChanged
 					? await this.fetchUserInfoFromApi(newCredentials.access)
 					: currentInfo.userInfo
-				this._clineAuthInfo = {
+				this._induscodeAuthInfo = {
 					idToken: newCredentials.access,
 					refreshToken: newCredentials.refresh,
 					expiresAt: newCredentials.expires ? newCredentials.expires / 1000 : undefined,
@@ -454,11 +454,11 @@ export class AuthService {
 					sdkDebug(
 						`[SdkAuthService] refreshAccessToken: credentials changed (newTokenHash=${hashSecret(newCredentials.access)})`,
 					)
-					writeClineCredentials({
+					writeIndusCodeCredentials({
 						accessToken: newCredentials.access,
 						refreshToken: newCredentials.refresh,
 						expiresAt: newCredentials.expires,
-						accountId: this._clineAuthInfo.userInfo.id,
+						accountId: this._induscodeAuthInfo.userInfo.id,
 						metadata: newCredentials.metadata,
 						sessionStartedAtMs: readSessionStartedAtMs(newCredentials.metadata),
 					})
@@ -472,7 +472,7 @@ export class AuthService {
 					sdkDebug("[SdkAuthService] refreshAccessToken: credentials unchanged after refresh")
 				}
 
-				return this._clineAuthInfo.idToken
+				return this._induscodeAuthInfo.idToken
 			} catch (error) {
 				Logger.error("[SdkAuthService] Token refresh failed:", error)
 				return undefined
@@ -489,32 +489,32 @@ export class AuthService {
 	 * Gets the active organization ID from the authenticated user's info.
 	 */
 	getActiveOrganizationId(): string | null {
-		if (!this._clineAuthInfo?.userInfo?.organizations) return null
-		const activeOrg = this._clineAuthInfo.userInfo.organizations.find((org) => org.active)
+		if (!this._induscodeAuthInfo?.userInfo?.organizations) return null
+		const activeOrg = this._induscodeAuthInfo.userInfo.organizations.find((org) => org.active)
 		return activeOrg?.organizationId ?? null
 	}
 
 	/**
 	 * Gets all organizations from the authenticated user's info.
 	 */
-	getUserOrganizations(): ClineAccountOrganization[] | undefined {
-		return this._clineAuthInfo?.userInfo?.organizations
+	getUserOrganizations(): IndusCodeAccountOrganization[] | undefined {
+		return this._induscodeAuthInfo?.userInfo?.organizations
 	}
 
 	/**
 	 * Gets the provider name for the current authentication.
 	 */
 	getProviderName(): string | null {
-		return this._clineAuthInfo?.provider ?? null
+		return this._induscodeAuthInfo?.provider ?? null
 	}
 
 	/**
 	 * Returns the current auth state for the webview.
 	 */
 	getInfo(): AuthState {
-		if (this._clineAuthInfo && this._authenticated) {
-			const userInfo = this._clineAuthInfo.userInfo
-			userInfo.appBaseUrl = ClineEnv.config().appBaseUrl
+		if (this._induscodeAuthInfo && this._authenticated) {
+			const userInfo = this._induscodeAuthInfo.userInfo
+			userInfo.appBaseUrl = IndusCodeEnv.config().appBaseUrl
 
 			const user = UserInfo.create({
 				uid: userInfo?.id,
@@ -546,20 +546,20 @@ export class AuthService {
 	}
 
 	/**
-	 * Initiate Cline OAuth login.
-	 * Uses SDK's loginClineOAuth() which spawns a local callback server.
+	 * Initiate IndusCode OAuth login.
+	 * Uses SDK's loginIndusCodeOAuth() which spawns a local callback server.
 	 * Persists credentials to providers.json.
 	 */
 	async createAuthRequest(strict = false): Promise<String> {
 		// In strict mode, don't open a new auth window if already authenticated
 		if (strict && this._authenticated) {
 			await this.sendAuthStatusUpdate()
-			const { String: ProtoString } = await import("@shared/proto/cline/common")
+			const { String: ProtoString } = await import("@shared/proto/induscode/common")
 			return ProtoString.create({ value: "Already authenticated" })
 		}
 
 		// E2E test mode: authenticate against the local mock API server instead
-		// of loginClineOAuth(), which opens a real browser window the tests can't
+		// of loginIndusCodeOAuth(), which opens a real browser window the tests can't
 		// interact with. Replaces classic AuthServiceMock (see origin/main
 		// src/services/auth/AuthServiceMock.ts).
 		if (process.env.E2E_TEST === "true") {
@@ -575,12 +575,12 @@ export class AuthService {
 
 		void (async () => {
 			try {
-				const apiBaseUrl = ClineEnv.config().apiBaseUrl
-				const credentials = await loginClineOAuth({
+				const apiBaseUrl = IndusCodeEnv.config().apiBaseUrl
+				const credentials = await loginIndusCodeOAuth({
 					apiBaseUrl,
 					// Use WorkOS device auth so the browser confirmation code can be surfaced in the extension.
 					useWorkOSDeviceAuth: true,
-					headers: await buildBasicClineHeaders(),
+					headers: await buildBasicIndusCodeHeaders(),
 					callbacks: createOAuthClientCallbacks({
 						onOutput: (message) => {
 							resolveAuthMessage(message)
@@ -597,11 +597,11 @@ export class AuthService {
 				})
 
 				// Convert and persist to providers.json
-				const authInfo = await this.credentialsToAuthInfo(credentials, "cline")
-				this._clineAuthInfo = authInfo
+				const authInfo = await this.credentialsToAuthInfo(credentials, "induscode")
+				this._induscodeAuthInfo = authInfo
 				this._authenticated = true
 
-				writeClineCredentials({
+				writeIndusCodeCredentials({
 					accessToken: credentials.access,
 					refreshToken: credentials.refresh,
 					expiresAt: credentials.expires,
@@ -623,11 +623,11 @@ export class AuthService {
 				})
 			} catch (error) {
 				rejectAuthMessage(error)
-				Logger.error("[SdkAuthService] Cline OAuth login failed:", error)
+				Logger.error("[SdkAuthService] IndusCode OAuth login failed:", error)
 			}
 		})()
 
-		const { String: ProtoString } = await import("@shared/proto/cline/common")
+		const { String: ProtoString } = await import("@shared/proto/induscode/common")
 		return ProtoString.create({ value: await authMessagePromise })
 	}
 
@@ -637,17 +637,17 @@ export class AuthService {
 	 * interaction. Replaces classic AuthServiceMock.createAuthRequest().
 	 */
 	private async createMockAuthRequest(): Promise<String> {
-		if (ClineEnv.config().environment !== "local") {
-			throw new Error("E2E mock auth is only available when CLINE_ENVIRONMENT=local")
+		if (IndusCodeEnv.config().environment !== "local") {
+			throw new Error("E2E mock auth is only available when INDUSCODE_ENVIRONMENT=local")
 		}
 
-		const apiBaseUrl = ClineEnv.config().apiBaseUrl
-		const tokenUrl = new URL(CLINE_API_ENDPOINT.TOKEN_EXCHANGE, apiBaseUrl)
+		const apiBaseUrl = IndusCodeEnv.config().apiBaseUrl
+		const tokenUrl = new URL(INDUSCODE_API_ENDPOINT.TOKEN_EXCHANGE, apiBaseUrl)
 		const response = await fetch(tokenUrl.toString(), {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
-				...(await buildBasicClineHeaders()),
+				...(await buildBasicIndusCodeHeaders()),
 			},
 			body: JSON.stringify({
 				code: "test-personal-token",
@@ -664,31 +664,31 @@ export class AuthService {
 		}
 
 		const sessionStartedAtMs = Date.now()
-		this._clineAuthInfo = {
+		this._induscodeAuthInfo = {
 			idToken: tokenData.accessToken,
 			refreshToken: tokenData.refreshToken,
 			expiresAt: new Date(tokenData.expiresAt).getTime() / 1000,
 			userInfo: {
-				id: tokenData.userInfo?.clineUserId || tokenData.userInfo?.subject || "",
+				id: tokenData.userInfo?.induscodeUserId || tokenData.userInfo?.subject || "",
 				email: tokenData.userInfo?.email || "",
 				displayName: tokenData.userInfo?.name || "",
 				createdAt: new Date().toISOString(),
 				organizations: tokenData.userInfo?.organizations ?? [],
-				appBaseUrl: ClineEnv.config().appBaseUrl,
+				appBaseUrl: IndusCodeEnv.config().appBaseUrl,
 				subject: tokenData.userInfo?.subject,
 			},
-			provider: "cline",
+			provider: "induscode",
 			startedAt: sessionStartedAtMs,
 		}
 		this._authenticated = true
 
 		// Persist to providers.json so session config resolution
 		// (resolveApiKey) and provider-usability checks see the credentials.
-		writeClineCredentials({
+		writeIndusCodeCredentials({
 			accessToken: tokenData.accessToken,
 			refreshToken: tokenData.refreshToken,
 			expiresAt: new Date(tokenData.expiresAt).getTime(),
-			accountId: this._clineAuthInfo.userInfo.id,
+			accountId: this._induscodeAuthInfo.userInfo.id,
 			metadata: { sessionStartedAtMs },
 			sessionStartedAtMs,
 		})
@@ -696,9 +696,9 @@ export class AuthService {
 		this.markWelcomeViewCompleted()
 
 		await this.sendAuthStatusUpdate()
-		Logger.log(`[SdkAuthService] E2E mock login completed as ${this._clineAuthInfo.userInfo.email}`)
+		Logger.log(`[SdkAuthService] E2E mock login completed as ${this._induscodeAuthInfo.userInfo.email}`)
 
-		const { String: ProtoString } = await import("@shared/proto/cline/common")
+		const { String: ProtoString } = await import("@shared/proto/induscode/common")
 		return ProtoString.create({ value: apiBaseUrl })
 	}
 
@@ -720,10 +720,10 @@ export class AuthService {
 			const credentials = await loginOcaOAuth({ callbacks })
 
 			const authInfo = await this.credentialsToAuthInfo(credentials, "oca")
-			this._clineAuthInfo = authInfo
+			this._induscodeAuthInfo = authInfo
 			this._authenticated = true
 
-			writeClineCredentials({
+			writeIndusCodeCredentials({
 				accessToken: credentials.access,
 				refreshToken: credentials.refresh,
 				expiresAt: credentials.expires,
@@ -734,7 +734,7 @@ export class AuthService {
 
 			await this.sendAuthStatusUpdate()
 
-			const { String: ProtoString } = await import("@shared/proto/cline/common")
+			const { String: ProtoString } = await import("@shared/proto/induscode/common")
 			return ProtoString.create({ value: "Authenticated" })
 		} catch (error) {
 			Logger.error("[SdkAuthService] OCA OAuth login failed:", error)
@@ -848,10 +848,10 @@ export class AuthService {
 	 */
 	async handleDeauth(reason: LogoutReason = LogoutReason.UNKNOWN): Promise<void> {
 		try {
-			telemetryService.captureAuthLoggedOut("cline", reason)
-			this._clineAuthInfo = null
+			telemetryService.captureAuthLoggedOut("induscode", reason)
+			this._induscodeAuthInfo = null
 			this._authenticated = false
-			clearClineCredentials()
+			clearIndusCodeCredentials()
 			await this.sendAuthStatusUpdate()
 
 			// Notify BannerService of auth change (mirrors classic AuthService)
@@ -870,17 +870,17 @@ export class AuthService {
 	 */
 	async handleAuthCallback(authorizationCode: string, provider: string): Promise<void> {
 		try {
-			// Exchange the authorization code for tokens using the Cline API
-			const apiBaseUrl = ClineEnv.config().apiBaseUrl
+			// Exchange the authorization code for tokens using the IndusCode API
+			const apiBaseUrl = IndusCodeEnv.config().apiBaseUrl
 			const callbackUrl = await HostProvider.get().getCallbackUrl("/auth")
 
-			const tokenUrl = new URL(CLINE_API_ENDPOINT.TOKEN_EXCHANGE, apiBaseUrl)
+			const tokenUrl = new URL(INDUSCODE_API_ENDPOINT.TOKEN_EXCHANGE, apiBaseUrl)
 			const response = await fetch(tokenUrl.toString(), {
 				method: "POST",
 				headers: {
 					Accept: "application/json",
 					"Content-Type": "application/json",
-					...(await buildBasicClineHeaders()),
+					...(await buildBasicIndusCodeHeaders()),
 				},
 				body: JSON.stringify({
 					grant_type: "authorization_code",
@@ -907,26 +907,26 @@ export class AuthService {
 			const userInfo = await this.fetchUserInfoFromApi(tokenData.accessToken)
 
 			const sessionStartedAtMs = Date.now()
-			const authInfo: ClineAuthInfo = {
+			const authInfo: IndusCodeAuthInfo = {
 				idToken: tokenData.accessToken,
 				refreshToken: tokenData.refreshToken,
 				userInfo: userInfo ?? {
-					id: tokenData.userInfo.clineUserId || "",
+					id: tokenData.userInfo.induscodeUserId || "",
 					email: tokenData.userInfo.email || "",
 					displayName: tokenData.userInfo.name || "",
 					createdAt: new Date().toISOString(),
 					organizations: [],
 				},
 				expiresAt: new Date(tokenData.expiresAt).getTime() / 1000,
-				provider: "cline",
+				provider: "induscode",
 				startedAt: sessionStartedAtMs,
 			}
 
-			this._clineAuthInfo = authInfo
+			this._induscodeAuthInfo = authInfo
 			this._authenticated = true
 
 			// Persist to providers.json
-			writeClineCredentials({
+			writeIndusCodeCredentials({
 				accessToken: tokenData.accessToken,
 				refreshToken: tokenData.refreshToken,
 				expiresAt: new Date(tokenData.expiresAt).getTime(),
@@ -969,14 +969,14 @@ export class AuthService {
 	 */
 	async restoreRefreshTokenAndRetrieveAuthInfo(): Promise<void> {
 		try {
-			const creds = readClineCredentials()
+			const creds = readIndusCodeCredentials()
 			if (!creds) {
 				this._authenticated = false
-				this._clineAuthInfo = null
+				this._induscodeAuthInfo = null
 				return
 			}
 
-			const restoredAuthInfo: ClineAuthInfo = {
+			const restoredAuthInfo: IndusCodeAuthInfo = {
 				idToken: creds.accessToken,
 				refreshToken: creds.refreshToken,
 				expiresAt: creds.expiresAt ? creds.expiresAt / 1000 : undefined, // providers.json uses ms, we use seconds
@@ -986,13 +986,13 @@ export class AuthService {
 					displayName: "",
 					organizations: [],
 				},
-				provider: "cline",
+				provider: "induscode",
 				startedAt: creds.sessionStartedAtMs,
 			}
 
 			let validCredentials: OAuthCredentials | null
 			try {
-				validCredentials = await this.resolveValidClineCredentials(restoredAuthInfo)
+				validCredentials = await this.resolveValidIndusCodeCredentials(restoredAuthInfo)
 			} catch (error) {
 				// The resolver throws only on transient failures (network,
 				// timeout, 5xx) — stored credentials stay untouched and the next
@@ -1001,7 +1001,7 @@ export class AuthService {
 				// the in-memory state is reset for this session.
 				Logger.error("[SdkAuthService] Transient failure refreshing stored session on restore:", error)
 				this._authenticated = false
-				this._clineAuthInfo = null
+				this._induscodeAuthInfo = null
 				return
 			}
 			if (!validCredentials) {
@@ -1009,13 +1009,13 @@ export class AuthService {
 				// resolver already emitted user.auth_logged_out
 				// (reason=token_invalid) for this — don't double-report here.
 				this._authenticated = false
-				this._clineAuthInfo = null
-				clearClineCredentials()
+				this._induscodeAuthInfo = null
+				clearIndusCodeCredentials()
 				await this.sendAuthStatusUpdate()
 				return
 			}
 
-			writeClineCredentials({
+			writeIndusCodeCredentials({
 				accessToken: validCredentials.access,
 				refreshToken: validCredentials.refresh,
 				expiresAt: validCredentials.expires,
@@ -1024,7 +1024,7 @@ export class AuthService {
 				sessionStartedAtMs: readSessionStartedAtMs(validCredentials.metadata),
 			})
 
-			this._clineAuthInfo = {
+			this._induscodeAuthInfo = {
 				idToken: validCredentials.access,
 				refreshToken: validCredentials.refresh,
 				expiresAt: validCredentials.expires ? validCredentials.expires / 1000 : undefined,
@@ -1040,10 +1040,10 @@ export class AuthService {
 
 			// Fetch full user info from the API (the key step — fills in
 			// email, displayName, organizations that providers.json doesn't store)
-			if (this._authenticated && this._clineAuthInfo) {
-				const userInfo = await this.fetchUserInfoFromApi(this._clineAuthInfo.idToken)
+			if (this._authenticated && this._induscodeAuthInfo) {
+				const userInfo = await this.fetchUserInfoFromApi(this._induscodeAuthInfo.idToken)
 				if (userInfo) {
-					this._clineAuthInfo.userInfo = userInfo
+					this._induscodeAuthInfo.userInfo = userInfo
 				} else {
 					Logger.warn("[SdkAuthService] Could not fetch user info on restore — UI will show limited profile")
 				}
@@ -1052,7 +1052,7 @@ export class AuthService {
 			await this.sendAuthStatusUpdate()
 
 			// Notify BannerService of auth change (mirrors classic AuthService)
-			BannerService.onAuthUpdate(this._clineAuthInfo?.userInfo?.id || null).catch((error) => {
+			BannerService.onAuthUpdate(this._induscodeAuthInfo?.userInfo?.id || null).catch((error) => {
 				Logger.error("[SdkAuthService] Banner update failed after restore", error)
 			})
 		} catch (error) {
@@ -1060,9 +1060,9 @@ export class AuthService {
 			// writing providers.json, pushing auth state, …). Transient refresh
 			// failures are handled above and never reach this reason.
 			Logger.error("[SdkAuthService] Error restoring auth token:", error)
-			telemetryService.captureAuthLoggedOut("cline", LogoutReason.RESTORE_ERROR)
+			telemetryService.captureAuthLoggedOut("induscode", LogoutReason.RESTORE_ERROR)
 			this._authenticated = false
-			this._clineAuthInfo = null
+			this._induscodeAuthInfo = null
 		}
 	}
 
@@ -1125,7 +1125,7 @@ export class AuthService {
 
 		// Poll feature flags immediately for the current auth context so cache-only
 		// consumers (for example BannerService) see the latest remote config.
-		const authInfo = this._clineAuthInfo
+		const authInfo = this._induscodeAuthInfo
 		if (authInfo?.userInfo) {
 			await telemetryService.identifyAccount(authInfo.userInfo)
 		}

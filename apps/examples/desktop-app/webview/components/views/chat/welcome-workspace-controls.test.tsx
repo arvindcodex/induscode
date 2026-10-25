@@ -84,9 +84,9 @@ function renderControls(
 			repositories: [
 				{
 					id: 42,
-					name: "cline",
-					fullName: "cline/cline",
-					url: "https://github.com/cline/cline",
+					name: "induscode",
+					fullName: "induscode/induscode",
+					url: "https://github.com/induscode/induscode",
 					defaultBranch: "main",
 				},
 			],
@@ -97,8 +97,8 @@ function renderControls(
 		})),
 		onOpenExternalUrl: vi.fn(async () => undefined),
 		onSignIn: vi.fn(),
-		workspaceRoot: "/projects/cline",
-		workspaces: ["/projects/cline"],
+		workspaceRoot: "/projects/induscode",
+		workspaces: ["/projects/induscode"],
 		onRefreshWorkspaces: vi.fn(async () => undefined),
 		onSwitchWorkspace: vi.fn(async () => true),
 		onPickWorkspaceDirectory: vi.fn(async () => null),
@@ -127,7 +127,7 @@ describe("WelcomeWorkspaceControls cloud mode", () => {
 			(candidate) => candidate.textContent ?? "",
 		);
 		expect(buttons.some((text) => text.includes("Cloud"))).toBe(false);
-		expect(buttons.some((text) => text.includes("cline"))).toBe(true);
+		expect(buttons.some((text) => text.includes("induscode"))).toBe(true);
 	});
 
 	it("requires sign in before choosing a cloud repository", async () => {
@@ -158,9 +158,9 @@ describe("WelcomeWorkspaceControls cloud mode", () => {
 			await Promise.resolve();
 		});
 		expect(props.onListCloudRepositories).toHaveBeenCalledOnce();
-		await click(button("cline/cline"));
+		await click(button("induscode/induscode"));
 		expect(onRepoUrlChange).toHaveBeenLastCalledWith(
-			"https://github.com/cline/cline",
+			"https://github.com/induscode/induscode",
 		);
 		expect(onCloudBranchChange).toHaveBeenLastCalledWith("main");
 	});
@@ -176,10 +176,10 @@ describe("WelcomeWorkspaceControls cloud mode", () => {
 			await Promise.resolve();
 			await Promise.resolve();
 		});
-		await click(button("cline/cline"));
+		await click(button("induscode/induscode"));
 		renderControls({
 			executionTarget: "cloud",
-			repoUrl: "https://github.com/cline/cline",
+			repoUrl: "https://github.com/induscode/induscode",
 			cloudBranch: "main",
 			onCloudBranchChange,
 			onListCloudRepositories: props.onListCloudRepositories,
@@ -198,7 +198,7 @@ describe("WelcomeWorkspaceControls cloud mode", () => {
 	it("enables branches for a restored cloud repository", async () => {
 		const props = renderControls({
 			executionTarget: "cloud",
-			repoUrl: "https://github.com/cline/cline",
+			repoUrl: "https://github.com/induscode/induscode",
 			cloudBranch: "main",
 		});
 
@@ -219,7 +219,7 @@ describe("WelcomeWorkspaceControls cloud mode", () => {
 		}));
 		renderControls({
 			executionTarget: "cloud",
-			repoUrl: "https://github.com/cline/cline",
+			repoUrl: "https://github.com/induscode/induscode",
 			cloudBranch: "main",
 			onCloudBranchChange,
 			onListCloudBranches,
@@ -248,7 +248,7 @@ describe("WelcomeWorkspaceControls cloud mode", () => {
 		);
 		renderControls({
 			executionTarget: "cloud",
-			repoUrl: "https://github.com/cline/cline",
+			repoUrl: "https://github.com/induscode/induscode",
 			cloudBranch: selectedBranch,
 			onCloudBranchChange,
 			onListCloudBranches,
@@ -294,7 +294,7 @@ describe("WelcomeWorkspaceControls cloud mode", () => {
 		const onCloudBranchChange = vi.fn();
 		const props = renderControls({
 			executionTarget: "cloud",
-			repoUrl: "https://github.com/cline/cline",
+			repoUrl: "https://github.com/induscode/induscode",
 			cloudBranch: "deleted",
 			onCloudBranchChange,
 			onListCloudRepositories: vi.fn(async () => ({
@@ -303,16 +303,16 @@ describe("WelcomeWorkspaceControls cloud mode", () => {
 				repositories: [
 					{
 						id: 42,
-						name: "cline",
-						fullName: "cline/cline",
-						url: "https://github.com/cline/cline",
+						name: "induscode",
+						fullName: "induscode/induscode",
+						url: "https://github.com/induscode/induscode",
 						defaultBranch: "main",
 					},
 					{
 						id: 43,
 						name: "other",
-						fullName: "cline/other",
-						url: "https://github.com/cline/other",
+						fullName: "induscode/other",
+						url: "https://github.com/induscode/other",
 						defaultBranch: "develop",
 					},
 				],
@@ -342,11 +342,11 @@ describe("WelcomeWorkspaceControls cloud mode", () => {
 			]),
 		);
 		expect(releasePage).toBeDefined();
-		await click(button("cline/cline"));
-		await click(button("cline/other"));
+		await click(button("induscode/induscode"));
+		await click(button("induscode/other"));
 		renderControls({
 			...props,
-			repoUrl: "https://github.com/cline/other",
+			repoUrl: "https://github.com/induscode/other",
 			cloudBranch: "develop",
 		});
 		await act(async () => {
@@ -369,7 +369,7 @@ describe("WelcomeWorkspaceControls cloud mode", () => {
 		);
 		renderControls({
 			executionTarget: "cloud",
-			repoUrl: "https://github.com/cline/cline",
+			repoUrl: "https://github.com/induscode/induscode",
 			cloudBranch: "main",
 			onCloudBranchChange,
 			onListCloudBranches,
@@ -418,7 +418,7 @@ describe("WelcomeWorkspaceControls cloud mode", () => {
 		);
 		renderControls({
 			executionTarget: "cloud",
-			repoUrl: "https://github.com/cline/cline",
+			repoUrl: "https://github.com/induscode/induscode",
 			cloudBranch: "old/first",
 			onListCloudBranches,
 		});
@@ -441,7 +441,7 @@ describe("WelcomeWorkspaceControls cloud mode", () => {
 		}));
 		renderControls({
 			executionTarget: "cloud",
-			repoUrl: "https://github.com/cline/cline",
+			repoUrl: "https://github.com/induscode/induscode",
 			cloudBranch: "old/first",
 			onListCloudBranches: refreshedList,
 		});
@@ -504,10 +504,10 @@ describe("WelcomeWorkspaceControls cloud mode", () => {
 			await Promise.resolve();
 			await Promise.resolve();
 		});
-		await click(button("cline/cline"));
+		await click(button("induscode/induscode"));
 		renderControls({
 			executionTarget: "cloud",
-			repoUrl: "https://github.com/cline/cline",
+			repoUrl: "https://github.com/induscode/induscode",
 			cloudBranch: "main",
 			onListCloudRepositories: props.onListCloudRepositories,
 			onListCloudBranches,
@@ -588,10 +588,10 @@ describe("WelcomeWorkspaceControls cloud mode", () => {
 			await Promise.resolve();
 			await Promise.resolve();
 		});
-		await click(button("cline/cline"));
+		await click(button("induscode/induscode"));
 		renderControls({
 			executionTarget: "cloud",
-			repoUrl: "https://github.com/cline/cline",
+			repoUrl: "https://github.com/induscode/induscode",
 			cloudBranch: "main",
 			onCloudBranchChange,
 			onListCloudRepositories: props.onListCloudRepositories,
@@ -649,7 +649,7 @@ async function clickButton(text: string): Promise<void> {
 
 async function openWorkspaceMenu(): Promise<void> {
 	await clickButton(
-		container.textContent?.includes("project-1") ? "project-1" : "cline",
+		container.textContent?.includes("project-1") ? "project-1" : "induscode",
 	);
 }
 

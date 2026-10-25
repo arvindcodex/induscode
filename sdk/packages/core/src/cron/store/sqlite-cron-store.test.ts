@@ -8,13 +8,13 @@ import {
 	type CronScheduleSpec,
 	ONE_TIME_SCHEDULE_CRON_PATTERN,
 	ONE_TIME_SCHEDULE_RUN_AT_METADATA_KEY,
-} from "@cline/shared";
-import { loadSqliteDb } from "@cline/shared/db";
+} from "@induscode/shared";
+import { loadSqliteDb } from "@induscode/shared/db";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { SqliteCronStore } from "./sqlite-cron-store";
 
 function tempDbPath(): { dir: string; path: string } {
-	const dir = mkdtempSync(join(tmpdir(), "cline-cron-store-"));
+	const dir = mkdtempSync(join(tmpdir(), "induscode-cron-store-"));
 	return { dir, path: join(dir, "cron.db") };
 }
 

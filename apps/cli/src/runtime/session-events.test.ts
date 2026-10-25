@@ -1,4 +1,4 @@
-import type { AgentEvent } from "@cline/core";
+import type { AgentEvent } from "@induscode/core";
 import { describe, expect, it, vi } from "vitest";
 import { subscribeToAgentEvents } from "./session-events";
 

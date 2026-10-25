@@ -28,11 +28,11 @@ const {
 	),
 	mockResolveProductionHubOwnerContext: vi.fn(() => ({
 		ownerId: "production",
-		discoveryPath: "/tmp/cline-data/locks/hub/production.json",
+		discoveryPath: "/tmp/induscode-data/locks/hub/production.json",
 	})),
 	mockResolveSharedHubOwnerContext: vi.fn(() => ({
 		ownerId: "shared",
-		discoveryPath: "/tmp/cline-data/locks/hub/owners/shared.json",
+		discoveryPath: "/tmp/induscode-data/locks/hub/owners/shared.json",
 	})),
 	mockReconnectDaemonConnectors: vi.fn(async () => []),
 	mockStartHubWebSocketServer: vi.fn(
@@ -72,16 +72,16 @@ const {
 	};
 });
 
-vi.mock("@cline/shared", async (importOriginal) => {
-	const actual = await importOriginal<typeof import("@cline/shared")>();
+vi.mock("@induscode/shared", async (importOriginal) => {
+	const actual = await importOriginal<typeof import("@induscode/shared")>();
 	return {
 		...actual,
 		initVcr: mockInitVcr,
-		resolveClineBuildEnv: () => "production",
+		resolveIndusCodeBuildEnv: () => "production",
 	};
 });
 
-vi.mock("@cline/agents", () => ({
+vi.mock("@induscode/agents", () => ({
 	AgentRuntimeAbortError: class AgentRuntimeAbortError extends Error {},
 }));
 
@@ -112,7 +112,7 @@ vi.mock("./telemetry", () => ({
 }));
 
 const mockDescribeAddressInUse = vi.hoisted(() =>
-	vi.fn(async () => ({ port_owners: "4242\tcline", occupant_is_hub: false })),
+	vi.fn(async () => ({ port_owners: "4242\tinduscode", occupant_is_hub: false })),
 );
 
 vi.mock("./bind-diagnostics", () => ({
@@ -125,7 +125,7 @@ const { mockPluginPreload } = vi.hoisted(() => ({
 
 vi.mock("../../extensions/plugin/plugin-config-loader", () => ({
 	resolvePluginExecutionMode: () =>
-		process.env.CLINE_PLUGIN_MODE === "sandbox" ? "sandbox" : "worker",
+		process.env.INDUSCODE_PLUGIN_MODE === "sandbox" ? "sandbox" : "worker",
 	resolveAgentPluginPathsWithDiagnostics: () => ({
 		paths: [],
 		disabledPaths: [],
@@ -177,7 +177,7 @@ describe("hub daemon entry", () => {
 	});
 
 	it("starts the daemon with cron options for the daemon workspace root", async () => {
-		const cwd = mkdtempSync(join(tmpdir(), "cline-hub-entry-test-"));
+		const cwd = mkdtempSync(join(tmpdir(), "induscode-hub-entry-test-"));
 		tempDirs.push(cwd);
 		process.argv = [
 			"node",
@@ -232,7 +232,7 @@ describe("hub daemon entry", () => {
 	});
 
 	it("does not signal readiness before the WebSocket server is listening", async () => {
-		const cwd = mkdtempSync(join(tmpdir(), "cline-hub-entry-test-"));
+		const cwd = mkdtempSync(join(tmpdir(), "induscode-hub-entry-test-"));
 		tempDirs.push(cwd);
 		process.argv = ["node", "entry.js", "--cwd", cwd];
 		vi.spyOn(process, "on").mockImplementation(() => process);
@@ -262,7 +262,7 @@ describe("hub daemon entry", () => {
 	});
 
 	it("does not become ready or reconnect connectors after an early HTTP shutdown", async () => {
-		const cwd = mkdtempSync(join(tmpdir(), "cline-hub-entry-test-"));
+		const cwd = mkdtempSync(join(tmpdir(), "induscode-hub-entry-test-"));
 		tempDirs.push(cwd);
 		process.argv = ["node", "entry.js", "--cwd", cwd];
 		vi.spyOn(process, "on").mockImplementation(() => process);
@@ -291,7 +291,7 @@ describe("hub daemon entry", () => {
 	it("forces exit when startup hangs after an early shutdown request", async () => {
 		vi.useFakeTimers();
 		try {
-			const cwd = mkdtempSync(join(tmpdir(), "cline-hub-entry-test-"));
+			const cwd = mkdtempSync(join(tmpdir(), "induscode-hub-entry-test-"));
 			tempDirs.push(cwd);
 			process.argv = ["node", "entry.js", "--cwd", cwd];
 			const handlers = new Map<string, (value?: unknown) => void>();
@@ -323,7 +323,7 @@ describe("hub daemon entry", () => {
 	});
 
 	it("ignores abort-family unhandled rejections instead of shutting down", async () => {
-		const cwd = mkdtempSync(join(tmpdir(), "cline-hub-entry-test-"));
+		const cwd = mkdtempSync(join(tmpdir(), "induscode-hub-entry-test-"));
 		tempDirs.push(cwd);
 		process.argv = ["node", "entry.js", "--cwd", cwd];
 		const handlers = new Map<string, (reason: unknown) => void>();
@@ -347,7 +347,7 @@ describe("hub daemon entry", () => {
 		// Cancelling a turn can leave provider fetches rejecting on floating
 		// promises after the run settled. None of these may kill the daemon —
 		// it hosts every resident session.
-		const { AgentRuntimeAbortError } = await import("@cline/agents");
+		const { AgentRuntimeAbortError } = await import("@induscode/agents");
 		onUnhandledRejection?.(new AgentRuntimeAbortError("run aborted"));
 		const domAbort = new Error("This operation was aborted");
 		domAbort.name = "AbortError";
@@ -366,34 +366,34 @@ describe("hub daemon entry", () => {
 	});
 
 	it("does not preload plugins in sandbox mode", async () => {
-		const cwd = mkdtempSync(join(tmpdir(), "cline-hub-entry-test-"));
+		const cwd = mkdtempSync(join(tmpdir(), "induscode-hub-entry-test-"));
 		tempDirs.push(cwd);
 		process.argv = ["node", "entry.js", "--cwd", cwd];
 		vi.spyOn(process, "on").mockImplementation((() => process) as never);
 		vi.spyOn(process.stderr, "write").mockImplementation(() => true);
 		mockPluginPreload.mockClear();
-		const previous = process.env.CLINE_PLUGIN_MODE;
-		process.env.CLINE_PLUGIN_MODE = "sandbox";
+		const previous = process.env.INDUSCODE_PLUGIN_MODE;
+		process.env.INDUSCODE_PLUGIN_MODE = "sandbox";
 		try {
 			const { hubDaemonReady } = await import("./entry");
 			await hubDaemonReady;
 			await new Promise((resolve) => setTimeout(resolve, 10));
 			expect(mockPluginPreload).not.toHaveBeenCalled();
 		} finally {
-			if (previous === undefined) delete process.env.CLINE_PLUGIN_MODE;
-			else process.env.CLINE_PLUGIN_MODE = previous;
+			if (previous === undefined) delete process.env.INDUSCODE_PLUGIN_MODE;
+			else process.env.INDUSCODE_PLUGIN_MODE = previous;
 		}
 	});
 
 	it("preloads plugin status in worker mode", async () => {
-		const cwd = mkdtempSync(join(tmpdir(), "cline-hub-entry-test-"));
+		const cwd = mkdtempSync(join(tmpdir(), "induscode-hub-entry-test-"));
 		tempDirs.push(cwd);
 		process.argv = ["node", "entry.js", "--cwd", cwd];
 		vi.spyOn(process, "on").mockImplementation((() => process) as never);
 		vi.spyOn(process.stderr, "write").mockImplementation(() => true);
 		mockPluginPreload.mockClear();
-		const previous = process.env.CLINE_PLUGIN_MODE;
-		delete process.env.CLINE_PLUGIN_MODE;
+		const previous = process.env.INDUSCODE_PLUGIN_MODE;
+		delete process.env.INDUSCODE_PLUGIN_MODE;
 		try {
 			const { hubDaemonReady } = await import("./entry");
 			await hubDaemonReady;
@@ -403,13 +403,13 @@ describe("hub daemon entry", () => {
 				expect.objectContaining({ pluginPaths: [] }),
 			);
 		} finally {
-			if (previous === undefined) delete process.env.CLINE_PLUGIN_MODE;
-			else process.env.CLINE_PLUGIN_MODE = previous;
+			if (previous === undefined) delete process.env.INDUSCODE_PLUGIN_MODE;
+			else process.env.INDUSCODE_PLUGIN_MODE = previous;
 		}
 	});
 
 	it("routes HTTP and signal shutdown through one cleanup", async () => {
-		const cwd = mkdtempSync(join(tmpdir(), "cline-hub-entry-test-"));
+		const cwd = mkdtempSync(join(tmpdir(), "induscode-hub-entry-test-"));
 		tempDirs.push(cwd);
 		process.argv = ["node", "entry.js", "--cwd", cwd];
 		const handlers = new Map<string, (value?: unknown) => void>();
@@ -446,7 +446,7 @@ describe("hub daemon entry", () => {
 	});
 
 	it("lets a fatal error upgrade an in-progress graceful shutdown", async () => {
-		const cwd = mkdtempSync(join(tmpdir(), "cline-hub-entry-test-"));
+		const cwd = mkdtempSync(join(tmpdir(), "induscode-hub-entry-test-"));
 		tempDirs.push(cwd);
 		process.argv = ["node", "entry.js", "--cwd", cwd];
 		const handlers = new Map<string, (value?: unknown) => void>();
@@ -489,7 +489,7 @@ describe("hub daemon entry", () => {
 	});
 
 	it("keeps telemetry active until runtime teardown settles", async () => {
-		const cwd = mkdtempSync(join(tmpdir(), "cline-hub-entry-test-"));
+		const cwd = mkdtempSync(join(tmpdir(), "induscode-hub-entry-test-"));
 		tempDirs.push(cwd);
 		process.argv = ["node", "entry.js", "--cwd", cwd];
 		vi.spyOn(process, "on").mockImplementation(() => process);
@@ -528,7 +528,7 @@ describe("hub daemon entry", () => {
 	it("forces process exit when daemon cleanup stalls", async () => {
 		vi.useFakeTimers();
 		try {
-			const cwd = mkdtempSync(join(tmpdir(), "cline-hub-entry-test-"));
+			const cwd = mkdtempSync(join(tmpdir(), "induscode-hub-entry-test-"));
 			tempDirs.push(cwd);
 			process.argv = ["node", "entry.js", "--cwd", cwd];
 			vi.spyOn(process, "on").mockImplementation(() => process);
@@ -561,7 +561,7 @@ describe("hub daemon entry", () => {
 	});
 
 	it("disposes telemetry and exits when server startup fails", async () => {
-		const cwd = mkdtempSync(join(tmpdir(), "cline-hub-entry-test-"));
+		const cwd = mkdtempSync(join(tmpdir(), "induscode-hub-entry-test-"));
 		tempDirs.push(cwd);
 		process.argv = ["node", "entry.js", "--cwd", cwd];
 		vi.spyOn(process, "on").mockImplementation(() => process);
@@ -593,7 +593,7 @@ describe("hub daemon entry", () => {
 	});
 
 	it("attaches port-owner diagnostics when the bind fails with EADDRINUSE", async () => {
-		const cwd = mkdtempSync(join(tmpdir(), "cline-hub-entry-test-"));
+		const cwd = mkdtempSync(join(tmpdir(), "induscode-hub-entry-test-"));
 		tempDirs.push(cwd);
 		process.argv = ["node", "entry.js", "--cwd", cwd];
 		vi.spyOn(process, "on").mockImplementation(() => process);
@@ -623,7 +623,7 @@ describe("hub daemon entry", () => {
 			properties: expect.objectContaining({
 				operation: "hub.daemon.startup",
 				error_code: "EADDRINUSE",
-				port_owners: "4242\tcline",
+				port_owners: "4242\tinduscode",
 				occupant_is_hub: false,
 			}),
 		});

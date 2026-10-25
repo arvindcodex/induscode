@@ -1,5 +1,5 @@
-import type { CheckpointEntry } from "@cline/core";
-import type { Message } from "@cline/shared";
+import type { CheckpointEntry } from "@induscode/core";
+import type { Message } from "@induscode/shared";
 import { describe, expect, it } from "vitest";
 import { buildCheckpointPickerItems } from "./checkpoint-picker-items";
 

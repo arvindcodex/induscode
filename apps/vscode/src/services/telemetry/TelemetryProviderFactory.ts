@@ -1,4 +1,4 @@
-import { ClineEndpoint } from "@/config"
+import { IndusCodeEndpoint } from "@/config"
 import {
 	getValidOpenTelemetryConfig,
 	getValidRuntimeOpenTelemetryConfig,
@@ -19,9 +19,9 @@ export type TelemetryProviderConfig =
 	| { type: "posthog"; apiKey?: string; host?: string }
 	/** OpenTelemetry collector
 	 * @param config - Config for this specific collector
-	 * @param bypassUserSettings - When true, telemetry is sent regardless of the user's Cline telemetry opt-in/opt-out settings.
+	 * @param bypassUserSettings - When true, telemetry is sent regardless of the user's IndusCode telemetry opt-in/opt-out settings.
 	 * This is used for:
-	 * 	- User-controlled collectors configured via environment variables (e.g., CLINE_OTEL_TELEMETRY_ENABLED).
+	 * 	- User-controlled collectors configured via environment variables (e.g., INDUSCODE_OTEL_TELEMETRY_ENABLED).
 	 * 	- Organization-controlled collectors configured via remote config.
 	 */
 	| { type: "opentelemetry"; config: OpenTelemetryClientValidConfig; bypassUserSettings: boolean }
@@ -109,14 +109,14 @@ export class TelemetryProviderFactory {
 		const configs: TelemetryProviderConfig[] = []
 
 		// Skip PostHog in selfHosted mode - enterprise customers should not send telemetry to PostHog
-		if (!ClineEndpoint.isSelfHosted() && isPostHogConfigValid(posthogConfig)) {
+		if (!IndusCodeEndpoint.isSelfHosted() && isPostHogConfigValid(posthogConfig)) {
 			configs.push({ type: "posthog", ...posthogConfig })
 		}
 
-		// Skip build-time OTEL in selfHosted mode - enterprise customers should not send telemetry to Cline's collector
+		// Skip build-time OTEL in selfHosted mode - enterprise customers should not send telemetry to IndusCode's collector
 		// Note: Runtime env OTEL and remote config OTEL are still allowed (user/org explicitly configured them)
 		const otelConfig = getValidOpenTelemetryConfig()
-		if (!ClineEndpoint.isSelfHosted() && otelConfig) {
+		if (!IndusCodeEndpoint.isSelfHosted() && otelConfig) {
 			configs.push({
 				type: "opentelemetry",
 				config: otelConfig,
@@ -129,8 +129,8 @@ export class TelemetryProviderFactory {
 			configs.push({
 				type: "opentelemetry",
 				config: runtimeOtelConfig,
-				// If the user has `CLINE_OTEL_TELEMETRY_ENABLED` in his environment, enable
-				// OTEL regardless of his Cline telemetry settings
+				// If the user has `INDUSCODE_OTEL_TELEMETRY_ENABLED` in his environment, enable
+				// OTEL regardless of his IndusCode telemetry settings
 				bypassUserSettings: true,
 			})
 		}

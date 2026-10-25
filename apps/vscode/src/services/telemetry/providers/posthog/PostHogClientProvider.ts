@@ -1,5 +1,5 @@
 import { type EventMessage, PostHog } from "posthog-node"
-import { ClineEndpoint } from "@/config"
+import { IndusCodeEndpoint } from "@/config"
 import { fetch } from "@/shared/net"
 import { posthogConfig } from "@/shared/services/config/posthog-config"
 import { Logger } from "@/shared/services/Logger"
@@ -22,7 +22,7 @@ export class PostHogClientProvider {
 
 	private constructor() {
 		// Skip PostHog client initialization in self-hosted mode
-		if (ClineEndpoint.isSelfHosted()) {
+		if (IndusCodeEndpoint.isSelfHosted()) {
 			this.client = null
 			return
 		}
@@ -44,8 +44,8 @@ export class PostHogClientProvider {
 
 	/**
 	 * Filters PostHog events before they are sent.
-	 * For exceptions, we only capture those from the Cline extension.
-	 * this is specifically to avoid capturing errors from anything other than Cline
+	 * For exceptions, we only capture those from the IndusCode extension.
+	 * this is specifically to avoid capturing errors from anything other than IndusCode
 	 */
 	static eventFilter(event: EventMessage | null) {
 		if (!event || event?.event !== "$exception") {
@@ -56,11 +56,11 @@ export class PostHogClientProvider {
 			return null
 		}
 
-		// Check if any exception is from Cline
+		// Check if any exception is from IndusCode
 		for (let i = 0; i < exceptionList.length; i++) {
 			const stacktrace = exceptionList[i].stacktrace
-			// Fast check: error message contains "cline"
-			if (stacktrace?.value?.toLowerCase().includes("cline")) {
+			// Fast check: error message contains "induscode"
+			if (stacktrace?.value?.toLowerCase().includes("induscode")) {
 				return event
 			}
 
@@ -69,8 +69,8 @@ export class PostHogClientProvider {
 				for (let j = 0; j < frames.length; j++) {
 					const fileName = frames[j]?.filename
 					// The extension filename will include "saoudrizwan"
-					// The CLI filename will include "cline"
-					if (fileName?.includes("saoudrizwan") || fileName?.includes("cline")) {
+					// The CLI filename will include "induscode"
+					if (fileName?.includes("saoudrizwan") || fileName?.includes("induscode")) {
 						return event
 					}
 				}

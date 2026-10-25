@@ -1,6 +1,6 @@
 "use client";
 
-import { Switch } from "@cline/ui";
+import { Switch } from "@induscode/ui";
 import {
 	ChevronRight,
 	Circle,

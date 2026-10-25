@@ -1,4 +1,4 @@
-import { NewTaskRequest } from "@shared/proto/cline/task"
+import { NewTaskRequest } from "@shared/proto/induscode/task"
 import { describe, expect, it, vi } from "vitest"
 import type { Controller } from ".."
 import { newTask } from "./newTask"
@@ -30,13 +30,13 @@ describe("newTask execution target", () => {
 			NewTaskRequest.create({
 				text: "hello",
 				executionTarget: "cloud",
-				cloudRepoUrl: "https://github.com/cline/fixture",
+				cloudRepoUrl: "https://github.com/induscode/fixture",
 				cloudBranch: "main",
 			}),
 		)
 
 		expect(initTask).toHaveBeenCalledWith("hello", [], [], undefined, expect.any(Object), {
-			repoUrl: "https://github.com/cline/fixture",
+			repoUrl: "https://github.com/induscode/fixture",
 			branch: "main",
 		})
 	})

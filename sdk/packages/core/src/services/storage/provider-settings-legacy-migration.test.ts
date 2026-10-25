@@ -1,12 +1,12 @@
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import * as LlmsModels from "@cline/llms";
+import * as LlmsModels from "@induscode/llms";
 import { afterEach, describe, expect, it } from "vitest";
 import {
-	type LegacyClineUserInfo,
+	type LegacyIndusCodeUserInfo,
 	migrateLegacyProviderSettings,
-	resolveLegacyClineAuth,
+	resolveLegacyIndusCodeAuth,
 } from "./provider-settings-legacy-migration";
 import { ProviderSettingsManager } from "./provider-settings-manager";
 
@@ -457,7 +457,7 @@ describe("migrateLegacyProviderSettings", () => {
 		);
 	});
 
-	it("migrates legacy Cline OAuth account auth even without a clineApiKey", () => {
+	it("migrates legacy IndusCode OAuth account auth even without a induscodeApiKey", () => {
 		const tempDir = mkdtempSync(
 			path.join(os.tmpdir(), "core-legacy-provider-"),
 		);
@@ -480,9 +480,9 @@ describe("migrateLegacyProviderSettings", () => {
 			path.join(tempDir, "secrets.json"),
 			JSON.stringify(
 				{
-					"cline:clineAccountId": makeClineAccountJson({
-						idToken: "legacy-cline-access",
-						refreshToken: "legacy-cline-refresh",
+					"induscode:induscodeAccountId": makeIndusCodeAccountJson({
+						idToken: "legacy-induscode-access",
+						refreshToken: "legacy-induscode-refresh",
 						expiresAt: 1_750_000_000,
 						userId: "user-123",
 					}),
@@ -498,16 +498,16 @@ describe("migrateLegacyProviderSettings", () => {
 		});
 
 		expect(result.migrated).toBe(true);
-		expect(manager.getProviderSettings("cline")?.auth).toEqual({
-			accessToken: "legacy-cline-access",
-			refreshToken: "legacy-cline-refresh",
+		expect(manager.getProviderSettings("induscode")?.auth).toEqual({
+			accessToken: "legacy-induscode-access",
+			refreshToken: "legacy-induscode-refresh",
 			expiresAt: 1_750_000_000_000,
 			accountId: "user-123",
 		});
-		expect(manager.read().providers.cline?.tokenSource).toBe("migration");
+		expect(manager.read().providers.induscode?.tokenSource).toBe("migration");
 	});
 
-	it("falls back to the default Cline model when the legacy model id is unknown", () => {
+	it("falls back to the default IndusCode model when the legacy model id is unknown", () => {
 		const tempDir = mkdtempSync(
 			path.join(os.tmpdir(), "core-legacy-provider-"),
 		);
@@ -520,8 +520,8 @@ describe("migrateLegacyProviderSettings", () => {
 			JSON.stringify(
 				{
 					mode: "act",
-					actModeApiProvider: "cline",
-					actModeClineModelId: "some-model/that-no-longer-exists",
+					actModeApiProvider: "induscode",
+					actModeIndusCodeModelId: "some-model/that-no-longer-exists",
 				},
 				null,
 				2,
@@ -529,7 +529,7 @@ describe("migrateLegacyProviderSettings", () => {
 		);
 		writeFileSync(
 			path.join(tempDir, "secrets.json"),
-			JSON.stringify({ clineApiKey: "legacy-cline-key" }, null, 2),
+			JSON.stringify({ induscodeApiKey: "legacy-induscode-key" }, null, 2),
 		);
 
 		migrateLegacyProviderSettings({
@@ -538,12 +538,12 @@ describe("migrateLegacyProviderSettings", () => {
 		});
 
 		const expectedDefault =
-			LlmsModels.getProviderCollectionSync("cline")?.provider.defaultModelId;
+			LlmsModels.getProviderCollectionSync("induscode")?.provider.defaultModelId;
 		expect(expectedDefault).toBeTruthy();
-		expect(manager.getProviderSettings("cline")?.model).toBe(expectedDefault);
+		expect(manager.getProviderSettings("induscode")?.model).toBe(expectedDefault);
 	});
 
-	it("keeps a legacy Cline model id the catalog knows", () => {
+	it("keeps a legacy IndusCode model id the catalog knows", () => {
 		const tempDir = mkdtempSync(
 			path.join(os.tmpdir(), "core-legacy-provider-"),
 		);
@@ -556,8 +556,8 @@ describe("migrateLegacyProviderSettings", () => {
 			JSON.stringify(
 				{
 					mode: "act",
-					actModeApiProvider: "cline",
-					actModeClineModelId: "openai/gpt-5.5",
+					actModeApiProvider: "induscode",
+					actModeIndusCodeModelId: "openai/gpt-5.5",
 				},
 				null,
 				2,
@@ -565,7 +565,7 @@ describe("migrateLegacyProviderSettings", () => {
 		);
 		writeFileSync(
 			path.join(tempDir, "secrets.json"),
-			JSON.stringify({ clineApiKey: "legacy-cline-key" }, null, 2),
+			JSON.stringify({ induscodeApiKey: "legacy-induscode-key" }, null, 2),
 		);
 
 		migrateLegacyProviderSettings({
@@ -573,10 +573,10 @@ describe("migrateLegacyProviderSettings", () => {
 			dataDir: tempDir,
 		});
 
-		expect(manager.getProviderSettings("cline")?.model).toBe("openai/gpt-5.5");
+		expect(manager.getProviderSettings("induscode")?.model).toBe("openai/gpt-5.5");
 	});
 
-	it("falls back to the default Cline model for suffixed variant ids like :1m", () => {
+	it("falls back to the default IndusCode model for suffixed variant ids like :1m", () => {
 		const tempDir = mkdtempSync(
 			path.join(os.tmpdir(), "core-legacy-provider-"),
 		);
@@ -589,8 +589,8 @@ describe("migrateLegacyProviderSettings", () => {
 			JSON.stringify(
 				{
 					mode: "act",
-					actModeApiProvider: "cline",
-					actModeClineModelId: "anthropic/claude-sonnet-4.5:1m",
+					actModeApiProvider: "induscode",
+					actModeIndusCodeModelId: "anthropic/claude-sonnet-4.5:1m",
 				},
 				null,
 				2,
@@ -598,7 +598,7 @@ describe("migrateLegacyProviderSettings", () => {
 		);
 		writeFileSync(
 			path.join(tempDir, "secrets.json"),
-			JSON.stringify({ clineApiKey: "legacy-cline-key" }, null, 2),
+			JSON.stringify({ induscodeApiKey: "legacy-induscode-key" }, null, 2),
 		);
 
 		migrateLegacyProviderSettings({
@@ -606,17 +606,17 @@ describe("migrateLegacyProviderSettings", () => {
 			dataDir: tempDir,
 		});
 
-		expect(manager.getProviderSettings("cline")?.model).toBe(
-			LlmsModels.getProviderCollectionSync("cline")?.provider.defaultModelId,
+		expect(manager.getProviderSettings("induscode")?.model).toBe(
+			LlmsModels.getProviderCollectionSync("induscode")?.provider.defaultModelId,
 		);
 	});
 
-	it("folds legacy alias Cline model ids onto their canonical catalog ids", () => {
+	it("folds legacy alias IndusCode model ids onto their canonical catalog ids", () => {
 		// Legacy state stores OpenRouter spellings (e.g. `z-ai/...`) that the
 		// runtime catalog canonicalizes (to `zai/...`). Migration must keep the
 		// user's model under the canonical id instead of defaulting it away.
 		const catalogModels =
-			LlmsModels.getProviderCollectionSync("cline")?.models ?? {};
+			LlmsModels.getProviderCollectionSync("induscode")?.models ?? {};
 		const canonicalModelId = Object.keys(catalogModels).find((modelId) =>
 			modelId.startsWith("zai/"),
 		);
@@ -636,8 +636,8 @@ describe("migrateLegacyProviderSettings", () => {
 			JSON.stringify(
 				{
 					mode: "act",
-					actModeApiProvider: "cline",
-					actModeClineModelId: aliasModelId,
+					actModeApiProvider: "induscode",
+					actModeIndusCodeModelId: aliasModelId,
 				},
 				null,
 				2,
@@ -645,7 +645,7 @@ describe("migrateLegacyProviderSettings", () => {
 		);
 		writeFileSync(
 			path.join(tempDir, "secrets.json"),
-			JSON.stringify({ clineApiKey: "legacy-cline-key" }, null, 2),
+			JSON.stringify({ induscodeApiKey: "legacy-induscode-key" }, null, 2),
 		);
 
 		migrateLegacyProviderSettings({
@@ -653,7 +653,7 @@ describe("migrateLegacyProviderSettings", () => {
 			dataDir: tempDir,
 		});
 
-		expect(manager.getProviderSettings("cline")?.model).toBe(canonicalModelId);
+		expect(manager.getProviderSettings("induscode")?.model).toBe(canonicalModelId);
 	});
 
 	it("migrates legacy OpenAI-compatible config into the openai-compatible provider", () => {
@@ -952,7 +952,7 @@ describe("migrateLegacyProviderSettings", () => {
 	it("keeps the AWS profile for legacy installs that set only awsProfile", () => {
 		// Installs that predate both awsAuthentication and awsUseProfile stored
 		// just the profile name. Dropping it here left profile-auth users on the
-		// default credential chain (cline/cline#14095).
+		// default credential chain (induscode/induscode#14095).
 		const tempDir = mkdtempSync(
 			path.join(os.tmpdir(), "core-legacy-provider-"),
 		);
@@ -1476,12 +1476,12 @@ describe("migrateLegacyProviderSettings", () => {
 });
 
 // =============================================================================
-// resolveLegacyClineAuth – pure in-memory tests
+// resolveLegacyIndusCodeAuth – pure in-memory tests
 // =============================================================================
 
-/** Builds a realistic LegacyClineUserInfo JSON string. */
-function makeClineAccountJson(
-	overrides: Partial<LegacyClineUserInfo> & { userId?: string } = {},
+/** Builds a realistic LegacyIndusCodeUserInfo JSON string. */
+function makeIndusCodeAccountJson(
+	overrides: Partial<LegacyIndusCodeUserInfo> & { userId?: string } = {},
 ): string {
 	return JSON.stringify({
 		idToken: overrides.idToken ?? "id-token-abc",
@@ -1492,19 +1492,19 @@ function makeClineAccountJson(
 			email: "test@example.com",
 			displayName: "Test User",
 			termsAcceptedAt: "2025-01-01T00:00:00Z",
-			clineBenchConsent: false,
+			induscodeBenchConsent: false,
 			createdAt: "2025-01-01T00:00:00Z",
 			updatedAt: "2025-01-01T00:00:00Z",
 		},
 		provider: overrides.provider ?? "google",
 		startedAt: overrides.startedAt ?? Date.now(),
-	} satisfies LegacyClineUserInfo);
+	} satisfies LegacyIndusCodeUserInfo);
 }
 
-describe("resolveLegacyClineAuth", () => {
+describe("resolveLegacyIndusCodeAuth", () => {
 	it("extracts all auth fields from a complete legacy account JSON", () => {
-		const result = resolveLegacyClineAuth(
-			makeClineAccountJson({
+		const result = resolveLegacyIndusCodeAuth(
+			makeIndusCodeAccountJson({
 				idToken: "my-id-token",
 				expiresAt: 1750000000000,
 				refreshToken: "my-refresh",
@@ -1521,30 +1521,30 @@ describe("resolveLegacyClineAuth", () => {
 	});
 
 	it("maps idToken to accessToken", () => {
-		const result = resolveLegacyClineAuth(
-			makeClineAccountJson({ idToken: "tok-abc" }),
+		const result = resolveLegacyIndusCodeAuth(
+			makeIndusCodeAccountJson({ idToken: "tok-abc" }),
 		);
 		expect(result?.accessToken).toBe("tok-abc");
 	});
 
 	it("preserves millisecond expiresAt values", () => {
-		const result = resolveLegacyClineAuth(
-			makeClineAccountJson({ expiresAt: 9999999999999 }),
+		const result = resolveLegacyIndusCodeAuth(
+			makeIndusCodeAccountJson({ expiresAt: 9999999999999 }),
 		);
 		expect(result?.expiresAt).toBe(9999999999999);
 		expect(typeof result?.expiresAt).toBe("number");
 	});
 
 	it("normalizes classic second-based expiresAt values to milliseconds", () => {
-		const result = resolveLegacyClineAuth(
-			makeClineAccountJson({ expiresAt: 1_750_000_000 }),
+		const result = resolveLegacyIndusCodeAuth(
+			makeIndusCodeAccountJson({ expiresAt: 1_750_000_000 }),
 		);
 		expect(result?.expiresAt).toBe(1_750_000_000_000);
 	});
 
 	it("maps userInfo.id to accountId", () => {
-		const result = resolveLegacyClineAuth(
-			makeClineAccountJson({ userId: "uid-xyz" }),
+		const result = resolveLegacyIndusCodeAuth(
+			makeIndusCodeAccountJson({ userId: "uid-xyz" }),
 		);
 		expect(result?.accountId).toBe("uid-xyz");
 	});
@@ -1558,7 +1558,7 @@ describe("resolveLegacyClineAuth", () => {
 			startedAt: 1,
 		});
 
-		const result = resolveLegacyClineAuth(raw);
+		const result = resolveLegacyIndusCodeAuth(raw);
 		expect(result).toBeDefined();
 		expect(result?.accessToken).toBe("tok");
 		expect(result?.accountId).toBeUndefined();
@@ -1573,7 +1573,7 @@ describe("resolveLegacyClineAuth", () => {
 				email: "x@y.com",
 				displayName: "X",
 				termsAcceptedAt: "2025-01-01T00:00:00Z",
-				clineBenchConsent: false,
+				induscodeBenchConsent: false,
 				createdAt: "2025-01-01T00:00:00Z",
 				updatedAt: "2025-01-01T00:00:00Z",
 			},
@@ -1581,17 +1581,17 @@ describe("resolveLegacyClineAuth", () => {
 			startedAt: 1,
 		});
 
-		const result = resolveLegacyClineAuth(raw);
+		const result = resolveLegacyIndusCodeAuth(raw);
 		expect(result).toBeDefined();
 		expect(result?.accountId).toBeUndefined();
 	});
 
 	it("returns undefined for invalid json", () => {
-		expect(resolveLegacyClineAuth(undefined)).toBeUndefined();
-		expect(resolveLegacyClineAuth("")).toBeUndefined();
-		expect(resolveLegacyClineAuth("   \n\t  ")).toBeUndefined();
-		expect(resolveLegacyClineAuth("not-json{{{")).toBeUndefined();
-		expect(resolveLegacyClineAuth("null")).toBeUndefined();
+		expect(resolveLegacyIndusCodeAuth(undefined)).toBeUndefined();
+		expect(resolveLegacyIndusCodeAuth("")).toBeUndefined();
+		expect(resolveLegacyIndusCodeAuth("   \n\t  ")).toBeUndefined();
+		expect(resolveLegacyIndusCodeAuth("not-json{{{")).toBeUndefined();
+		expect(resolveLegacyIndusCodeAuth("null")).toBeUndefined();
 	});
 
 	it("returns undefined fields when idToken/refreshToken are missing from JSON", () => {
@@ -1601,7 +1601,7 @@ describe("resolveLegacyClineAuth", () => {
 			startedAt: 1,
 		});
 
-		const result = resolveLegacyClineAuth(raw);
+		const result = resolveLegacyIndusCodeAuth(raw);
 		expect(result).toBeDefined();
 		expect(result?.accessToken).toBeUndefined();
 		expect(result?.refreshToken).toBeUndefined();

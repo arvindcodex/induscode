@@ -5,7 +5,7 @@ import { e2e } from "./utils/helpers"
 e2e("Views - can set up API keys and navigate to Settings from Chat", async ({ sidebar }) => {
 	// Use the page object to interact with editor outside the sidebar
 	// Verify initial state
-	await expect(sidebar.getByRole("button", { name: "Login to Cline" })).toBeVisible()
+	await expect(sidebar.getByRole("button", { name: "Login to IndusCode" })).toBeVisible()
 	await expect(sidebar.getByText("Bring my own API key")).toBeVisible()
 
 	// Navigate to API key setup
@@ -17,12 +17,12 @@ e2e("Views - can set up API keys and navigate to Settings from Chat", async ({ s
 	// Verify provider selector is visible
 	await expect(providerSelectorInput).toBeVisible()
 
-	// Test Cline provider option
+	// Test IndusCode provider option
 	await providerSelectorInput.click({ delay: 100 })
-	// Wait for dropdown to appear and find Cline option
-	await expect(sidebar.getByTestId("provider-option-cline")).toBeVisible()
-	await sidebar.getByTestId("provider-option-cline").click({ delay: 100 })
-	await expect(sidebar.getByRole("button", { name: "Sign Up with Cline" })).toBeVisible()
+	// Wait for dropdown to appear and find IndusCode option
+	await expect(sidebar.getByTestId("provider-option-induscode")).toBeVisible()
+	await sidebar.getByTestId("provider-option-induscode").click({ delay: 100 })
+	await expect(sidebar.getByRole("button", { name: "Sign Up with IndusCode" })).toBeVisible()
 
 	// Switch to OpenRouter and complete setup
 	await providerSelectorInput.click({ delay: 100 })
@@ -36,16 +36,16 @@ e2e("Views - can set up API keys and navigate to Settings from Chat", async ({ s
 	await apiKeyInput.click({ delay: 100 })
 	await sidebar.getByRole("button", { name: "Continue" }).click()
 
-	await expect(sidebar.getByRole("button", { name: "Login to Cline" })).not.toBeVisible()
+	await expect(sidebar.getByRole("button", { name: "Login to IndusCode" })).not.toBeVisible()
 
 	// Verify start up page is no longer visible
 	await expect(apiKeyInput).not.toBeVisible()
 	await expect(providerSelectorInput).not.toBeVisible()
 
 	// Verify you are now in the chat page after setup was completed.
-	// cline logo container
-	const clineLogo = sidebar.locator(".size-20")
-	await expect(clineLogo).toBeVisible()
+	// induscode logo container
+	const induscodeLogo = sidebar.locator(".size-20")
+	await expect(induscodeLogo).toBeVisible()
 	const chatInputBox = sidebar.getByTestId("chat-input")
 	await expect(chatInputBox).toBeVisible()
 })

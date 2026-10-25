@@ -1,6 +1,6 @@
-import type * as LlmsProviders from "@cline/llms";
+import type * as LlmsProviders from "@induscode/llms";
 
-/** External tools whose session history Cline can import. */
+/** External tools whose session history IndusCode can import. */
 export const SESSION_IMPORT_TOOLS = [
 	"claude-code",
 	"codex",
@@ -39,7 +39,7 @@ export interface ImportableSessionSummary {
 	alreadyImportedSessionId?: string;
 }
 
-/** A source session fully translated to Cline's native message format. */
+/** A source session fully translated to IndusCode's native message format. */
 export interface ConvertedImportedSession {
 	tool: SessionImportTool;
 	sourceId: string;
@@ -77,10 +77,10 @@ export interface SessionImportRequest {
 
 export interface SessionImportOptions {
 	/**
-	 * Cline provider/model the imported sessions should resume with. Opening a
+	 * IndusCode provider/model the imported sessions should resume with. Opening a
 	 * history session adopts the row's provider/model, so without this the
 	 * session would try to run on the source tool's provider (openai-native,
-	 * or an opencode provider id Cline doesn't know) which the user may never
+	 * or an opencode provider id IndusCode doesn't know) which the user may never
 	 * have configured. Both must be set to take effect; the source tool's own
 	 * provider/model are always preserved in metadata.importedFrom and in
 	 * per-message modelInfo.
@@ -93,12 +93,12 @@ export interface SessionImportResult {
 	tool: SessionImportTool;
 	sourceId: string;
 	ok: boolean;
-	/** Cline session id created for this import (on success). */
+	/** IndusCode session id created for this import (on success). */
 	sessionId?: string;
 	title?: string;
 	error?: string;
 	/** Set when the source session had already been imported; sessionId is
-	 * the existing Cline session and nothing new was written. */
+	 * the existing IndusCode session and nothing new was written. */
 	alreadyImported?: boolean;
 }
 

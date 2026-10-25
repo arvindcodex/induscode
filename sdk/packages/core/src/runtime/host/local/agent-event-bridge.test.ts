@@ -1,4 +1,4 @@
-import type { AgentEvent } from "@cline/shared";
+import type { AgentEvent } from "@induscode/shared";
 import { describe, expect, it, vi } from "vitest";
 import type { CoreSessionConfig } from "../../../types/config";
 import type { ActiveSession } from "../../../types/session";
@@ -34,7 +34,7 @@ describe("AgentEventBridge.dispatchAgentEvent", () => {
 		const telemetry = createTelemetryStub();
 		const config = {
 			telemetry,
-			providerId: "cline",
+			providerId: "induscode",
 			modelId: "model-a",
 			mode: "act",
 		} as unknown as CoreSessionConfig;

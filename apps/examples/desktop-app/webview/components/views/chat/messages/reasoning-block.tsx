@@ -1,6 +1,6 @@
 "use client";
 
-import { ThinkingBlock } from "@cline/ui/components/agent-chat";
+import { ThinkingBlock } from "@induscode/ui/components/agent-chat";
 import { MemoizedMarkdown } from "../../../ui/markdown";
 
 /** The shared ThinkingBlock with the app's Markdown pipeline as its body. */

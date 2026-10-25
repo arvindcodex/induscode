@@ -1,8 +1,8 @@
-import type { ClineMessage, TurnState } from "@shared/ExtensionMessage"
+import type { IndusCodeMessage, TurnState } from "@shared/ExtensionMessage"
 import type { PendingResponse, PendingUserMessage } from "../types/chatTypes"
 
 /** The rows the backend writes for text the user submitted. */
-function isUserAuthored(message: ClineMessage): boolean {
+function isUserAuthored(message: IndusCodeMessage): boolean {
 	return message.type === "say" && (message.say === "task" || message.say === "user_feedback")
 }
 
@@ -12,7 +12,7 @@ function isUserAuthored(message: ClineMessage): boolean {
  * sent from a task that failed before it had a session starts a new task, so the optimistic
  * `user_feedback` bubble is confirmed by a `task` row.
  */
-function sameOptimisticMessage(left: ClineMessage, right: ClineMessage): boolean {
+function sameOptimisticMessage(left: IndusCodeMessage, right: IndusCodeMessage): boolean {
 	const leftImages = left.images ?? []
 	const rightImages = right.images ?? []
 	const leftFiles = left.files ?? []
@@ -29,11 +29,11 @@ function sameOptimisticMessage(left: ClineMessage, right: ClineMessage): boolean
 	)
 }
 
-export function hasPendingMessageConfirmation(messages: ClineMessage[], pending: PendingUserMessage): boolean {
+export function hasPendingMessageConfirmation(messages: IndusCodeMessage[], pending: PendingUserMessage): boolean {
 	return messages.some((message) => message.ts > pending.afterTs && sameOptimisticMessage(message, pending.message))
 }
 
-export function withPendingUserMessage(messages: ClineMessage[], pending: PendingUserMessage | undefined): ClineMessage[] {
+export function withPendingUserMessage(messages: IndusCodeMessage[], pending: PendingUserMessage | undefined): IndusCodeMessage[] {
 	return !pending || hasPendingMessageConfirmation(messages, pending) ? messages : [...messages, pending.message]
 }
 

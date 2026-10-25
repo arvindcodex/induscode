@@ -1,5 +1,5 @@
 import { type ModelInfo, openAiModelInfoSafeDefaults } from "@shared/api"
-import type { ProviderConfigResponse } from "@shared/proto/cline/models"
+import type { ProviderConfigResponse } from "@shared/proto/induscode/models"
 import { fromProtobufModelInfo } from "@shared/proto-conversions/models/typeConversion"
 import type { Mode } from "@shared/storage/types"
 import { useCallback } from "react"

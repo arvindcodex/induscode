@@ -32,7 +32,7 @@ const pkg = JSON.parse(readFileSync(join(cliDir, "package.json"), "utf-8"));
 const version: string = pkg.version;
 const repository: unknown = pkg.repository;
 
-console.log(`Building @cline/cli v${version}`);
+console.log(`Building @induscode/cli v${version}`);
 
 const buildOptions = parseBuildOptions(process.argv.slice(2));
 
@@ -80,11 +80,11 @@ if (!buildOptions.skipSdkBuild) {
 	await $`bun run build:sdk`.cwd(rootDir);
 
 	console.log("Building CLI bundle...");
-	await $`bun -F @cline/cli build`.cwd(rootDir);
+	await $`bun -F @induscode/cli build`.cwd(rootDir);
 }
 
-const hubWebviewSource = join(cliDir, "../cline-hub/src/webview");
-const hubWebviewDist = join(cliDir, "../cline-hub/dist/webview");
+const hubWebviewSource = join(cliDir, "../induscode-hub/src/webview");
+const hubWebviewDist = join(cliDir, "../induscode-hub/dist/webview");
 const hubWebviewIndex = join(hubWebviewDist, "index.html");
 
 function newestFileMtimeMs(dir: string): number {
@@ -121,8 +121,8 @@ function shouldBuildHubWebview(): boolean {
 }
 
 if (shouldBuildHubWebview()) {
-	console.log("Building Cline Hub webview...");
-	await $`bun -F @cline/cline-hub build:webview`.cwd(rootDir);
+	console.log("Building IndusCode Hub webview...");
+	await $`bun -F @induscode/induscode-hub build:webview`.cwd(rootDir);
 }
 
 const binaries: Record<string, string> = {};
@@ -148,9 +148,9 @@ function getBunTarget(
 for (const item of targets) {
 	// npm treats "win32" specially in os field, but for package naming use "windows"
 	const displayOs = item.os === "win32" ? "windows" : item.os;
-	const name = `@cline/cli-${displayOs}-${item.arch}`;
+	const name = `@induscode/cli-${displayOs}-${item.arch}`;
 	const dirName = `cli-${displayOs}-${item.arch}`;
-	const binaryName = item.os === "win32" ? "cline.exe" : "cline";
+	const binaryName = item.os === "win32" ? "induscode.exe" : "induscode";
 	const bunTarget = getBunTarget(item);
 
 	console.log(`\nBuilding ${name} (target: ${bunTarget})...`);
@@ -185,18 +185,18 @@ for (const item of targets) {
 			// daemon from this binary in an isolated data dir and confirm it
 			// answers a health probe before shipping.
 			console.log(`  Smoke test: ${outfile} hub start/status/stop`);
-			const smokeHome = mkdtempSync(join(tmpdir(), "cline-smoke-"));
+			const smokeHome = mkdtempSync(join(tmpdir(), "induscode-smoke-"));
 			const smokeEnv = {
 				...process.env,
 				HOME: smokeHome,
 				USERPROFILE: smokeHome,
-				CLINE_DIR: join(smokeHome, ".cline"),
-				CLINE_DATA_DIR: join(smokeHome, "data"),
+				INDUSCODE_DIR: join(smokeHome, ".induscode"),
+				INDUSCODE_DATA_DIR: join(smokeHome, "data"),
 				// Keep clear of a developer's real hub: its discovery record
-				// (which CLINE_HUB_DISCOVERY_PATH can point anywhere) and the
+				// (which INDUSCODE_HUB_DISCOVERY_PATH can point anywhere) and the
 				// default port.
-				CLINE_HUB_DISCOVERY_PATH: join(smokeHome, "hub-discovery.json"),
-				CLINE_HUB_PORT: String(await findFreePort()),
+				INDUSCODE_HUB_DISCOVERY_PATH: join(smokeHome, "hub-discovery.json"),
+				INDUSCODE_HUB_PORT: String(await findFreePort()),
 			};
 			try {
 				await $`${outfile} hub start`.env(smokeEnv).quiet();
@@ -232,8 +232,8 @@ for (const item of targets) {
 	}
 
 	if (existsSync(hubWebviewDist)) {
-		const hubWebviewDest = join(cliDir, `dist/${dirName}/cline-hub/webview`);
-		mkdirSync(join(cliDir, `dist/${dirName}/cline-hub`), {
+		const hubWebviewDest = join(cliDir, `dist/${dirName}/induscode-hub/webview`);
+		mkdirSync(join(cliDir, `dist/${dirName}/induscode-hub`), {
 			recursive: true,
 		});
 		cpSync(hubWebviewDist, hubWebviewDest, { recursive: true });
@@ -246,12 +246,12 @@ for (const item of targets) {
 			{
 				name,
 				version,
-				description: `Cline CLI binary for ${displayOs} ${item.arch}`,
+				description: `IndusCode CLI binary for ${displayOs} ${item.arch}`,
 				os: [item.os],
 				cpu: [item.arch],
 				...(repository ? { repository } : {}),
 				bin: {
-					cline: `bin/${binaryName}`,
+					induscode: `bin/${binaryName}`,
 				},
 			},
 			null,

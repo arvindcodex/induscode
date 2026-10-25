@@ -122,7 +122,7 @@ async function waitForDiscovery(
 }
 
 async function startDaemon(): Promise<ReadyDaemon> {
-	const dataDir = await mkdtemp(join(tmpdir(), "cline-hub-shutdown-e2e-"));
+	const dataDir = await mkdtemp(join(tmpdir(), "induscode-hub-shutdown-e2e-"));
 	tempDirs.add(dataDir);
 	const discoveryPath = join(dataDir, "hub-discovery.json");
 	const entryPath = fileURLToPath(
@@ -135,11 +135,11 @@ async function startDaemon(): Promise<ReadyDaemon> {
 			cwd: dataDir,
 			env: {
 				...process.env,
-				CLINE_BUILD_ENV: "development",
-				CLINE_DATA_DIR: dataDir,
-				CLINE_HUB_DISCOVERY_PATH: discoveryPath,
-				CLINE_HUB_TEST_PORT: "0",
-				CLINE_NO_INTERACTIVE: "1",
+				INDUSCODE_BUILD_ENV: "development",
+				INDUSCODE_DATA_DIR: dataDir,
+				INDUSCODE_HUB_DISCOVERY_PATH: discoveryPath,
+				INDUSCODE_HUB_TEST_PORT: "0",
+				INDUSCODE_NO_INTERACTIVE: "1",
 				NO_COLOR: "1",
 			},
 			stdio: ["ignore", "ignore", "pipe"],
@@ -181,7 +181,7 @@ async function openAuthenticatedSocket(
 	// transient handshake failures within a bounded budget.
 	const deadline = Date.now() + 15_000;
 	for (;;) {
-		const socket = new WebSocket(url, `cline-hub-auth.${authToken}`);
+		const socket = new WebSocket(url, `induscode-hub-auth.${authToken}`);
 		try {
 			await withTimeout(
 				once(socket, "open").then(() => undefined),

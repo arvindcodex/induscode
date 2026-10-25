@@ -1,5 +1,5 @@
-import { EmptyRequest } from "@shared/proto/cline/common"
-import { OpenRouterCompatibleModelInfo } from "@shared/proto/cline/models"
+import { EmptyRequest } from "@shared/proto/induscode/common"
+import { OpenRouterCompatibleModelInfo } from "@shared/proto/induscode/models"
 import { toProtobufModels } from "../../../shared/proto-conversions/models/typeConversion"
 import type { Controller } from "../index"
 import { refreshOpenRouterModels } from "./refreshOpenRouterModels"

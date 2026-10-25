@@ -1,2 +1,2 @@
-export type { ConnectorCatalogEntry } from "@cline/shared";
-export { CONNECTOR_CATALOG, listConnectorCatalog } from "@cline/shared";
+export type { ConnectorCatalogEntry } from "@induscode/shared";
+export { CONNECTOR_CATALOG, listConnectorCatalog } from "@induscode/shared";

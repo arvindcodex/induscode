@@ -1,4 +1,4 @@
-import * as LlmsModels from "@cline/llms";
+import * as LlmsModels from "@induscode/llms";
 import {
 	getPersistedProviderApiKey,
 	isOAuthProvider,

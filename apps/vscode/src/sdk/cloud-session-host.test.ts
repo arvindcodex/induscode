@@ -13,7 +13,7 @@ const runtime = vi.hoisted(() => ({
 	startSession: vi.fn(async (input: { config: { sessionId: string } }) => ({ sessionId: input.config.sessionId })),
 }))
 
-vi.mock("@cline/core", () => ({
+vi.mock("@induscode/core", () => ({
 	RemoteRuntimeHost: class {
 		pendingPrompts = { list: runtime.pendingList, update: runtime.pendingUpdate, delete: runtime.pendingDelete }
 		connect = vi.fn(async () => undefined)
@@ -57,7 +57,7 @@ describe("CloudSessionHost status", () => {
 			taskId: "inner-session",
 			socketUrl: "ws://127.0.0.1:1/session",
 			getAuthToken: async () => "token",
-			restoreConfig: async () => ({ providerId: "cline", modelId: "sandbox-model", systemPrompt: "guidance" }) as never,
+			restoreConfig: async () => ({ providerId: "induscode", modelId: "sandbox-model", systemPrompt: "guidance" }) as never,
 		})
 
 		await host.send({ sessionId: "ses-outer", prompt: "follow-up" })
@@ -81,7 +81,7 @@ describe("CloudSessionHost status", () => {
 			taskId: "inner-session",
 			socketUrl: "ws://127.0.0.1:1/session",
 			getAuthToken: async () => "token",
-			restoreConfig: async () => ({ providerId: "cline", modelId: "sandbox-model" }) as never,
+			restoreConfig: async () => ({ providerId: "induscode", modelId: "sandbox-model" }) as never,
 		})
 		runtime.updateSessionConnection.mockRejectedValueOnce(new Error("connection closed"))
 		await expect(host.send({ sessionId: "ses-outer", prompt: "follow-up" })).rejects.toThrow("connection closed")
@@ -101,7 +101,7 @@ describe("CloudSessionHost status", () => {
 			taskId: "inner-session",
 			socketUrl: "ws://127.0.0.1:1/session",
 			getAuthToken: async () => "token",
-			restoreConfig: async () => ({ providerId: "cline", modelId: "sandbox-model" }) as never,
+			restoreConfig: async () => ({ providerId: "induscode", modelId: "sandbox-model" }) as never,
 		})
 		runtime.runTurn.mockRejectedValueOnce(missing)
 		await expect(host.send({ sessionId: "ses-outer", prompt: "follow-up" })).rejects.toThrow(missing.message)
@@ -170,7 +170,7 @@ describe("CloudSessionHost status", () => {
 			socketUrl: "ws://127.0.0.1:1/session",
 			getAuthToken: async () => "token",
 		})
-		await host.start({ config: { providerId: "cline", modelId: "sandbox-model" }, interactive: true } as never)
+		await host.start({ config: { providerId: "induscode", modelId: "sandbox-model" }, interactive: true } as never)
 
 		// The Hub protocol has no command to change a running session's model,
 		// so the lifecycle must see no capability and the composer must keep

@@ -2,8 +2,8 @@ import { act, fireEvent, render, screen } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 import CreditLimitError from "./CreditLimitError"
 
-vi.mock("@/context/ClineAuthContext", () => ({
-	useClineAuth: () => ({ activeOrganization: undefined }),
+vi.mock("@/context/IndusCodeAuthContext", () => ({
+	useIndusCodeAuth: () => ({ activeOrganization: undefined }),
 }))
 
 vi.mock("@/services/grpc-client", () => ({

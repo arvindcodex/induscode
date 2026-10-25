@@ -15,8 +15,8 @@ import {
 const isWindows = process.platform === "win32";
 const posixTest = it.skipIf(isWindows);
 
-const MARKER_START = "__CLINE_SIDECAR_PATH_START__";
-const MARKER_END = "__CLINE_SIDECAR_PATH_END__";
+const MARKER_START = "__INDUSCODE_SIDECAR_PATH_START__";
+const MARKER_END = "__INDUSCODE_SIDECAR_PATH_END__";
 
 let tempDirs: string[] = [];
 
@@ -29,7 +29,7 @@ function writeFakeShell(
 	script = 'PATH="/opt/homebrew/bin:/usr/bin"; eval "$4"',
 	name = "fake-shell",
 ): string {
-	const dir = mkdtempSync(join(tmpdir(), "cline-shell-path-"));
+	const dir = mkdtempSync(join(tmpdir(), "induscode-shell-path-"));
 	tempDirs.push(dir);
 	const shellPath = join(dir, name);
 	writeFileSync(shellPath, `#!/bin/sh\n${script}\n`);
@@ -176,7 +176,7 @@ describe.skipIf(isWindows)("resolveLoginShellPath", () => {
 	it("waits out a slow profile within the default budget", async () => {
 		// nvm-style profiles can take seconds before the command runs; the
 		// default timeout must survive a multi-second profile instead of
-		// abandoning the PATH (cline/cline#14129).
+		// abandoning the PATH (induscode/induscode#14129).
 		const shell = writeFakeShell(
 			'sleep 3; PATH="/opt/homebrew/bin:/usr/bin"; eval "$4"',
 		);
@@ -253,7 +253,7 @@ describe("ensureLoginShellPath", () => {
 	it("skips when the escape hatch is set", async () => {
 		const env: NodeJS.ProcessEnv = {
 			PATH: "/usr/bin",
-			CLINE_SIDECAR_SKIP_SHELL_PATH: "1",
+			INDUSCODE_SIDECAR_SKIP_SHELL_PATH: "1",
 		};
 		const result = await ensureLoginShellPath({ platform: "darwin", env });
 		expect(result.status).toBe("skipped");

@@ -3,8 +3,8 @@ import { createHash } from "node:crypto"
 import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises"
 import { join, resolve } from "node:path"
 import { promisify } from "node:util"
-import type { ClineCoreStartInput, ITelemetryService, TelemetryProperties } from "@cline/core"
-import type { AgentRuntimeEvent } from "@cline/shared"
+import type { IndusCodeCoreStartInput, ITelemetryService, TelemetryProperties } from "@induscode/core"
+import type { AgentRuntimeEvent } from "@induscode/shared"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { readGitSnapshot, sanitizeGitRemote, VscodeGitTelemetry, VscodeGitTelemetryManager } from "./git-telemetry"
 
@@ -58,12 +58,12 @@ const commit = async () => {
 	await git("commit", "--allow-empty", "-m", "test")
 	return git("rev-parse", "HEAD")
 }
-function observer(config: Partial<ClineCoreStartInput["config"]> = {}) {
+function observer(config: Partial<IndusCodeCoreStartInput["config"]> = {}) {
 	const result = new VscodeGitTelemetry(
 		{
 			sessionId: "task-1",
 			cwd,
-			providerId: "cline",
+			providerId: "induscode",
 			modelId: "test",
 			systemPrompt: "test",
 			enableTools: true,
@@ -100,7 +100,7 @@ async function beginModel(tracker: VscodeGitTelemetry, iteration = 2, waitForCap
 beforeEach(async () => {
 	await mkdir(tmp, { recursive: true })
 	cwd = await mkdtemp(join(tmp, "git-telemetry-"))
-	// Non-repo fixtures must not discover the surrounding Cline checkout.
+	// Non-repo fixtures must not discover the surrounding IndusCode checkout.
 	vi.stubEnv("GIT_CEILING_DIRECTORIES", tmp)
 	await git("init", "-b", "main")
 	await git("config", "user.email", "test@example.test")
@@ -264,10 +264,10 @@ describe("Git snapshots", () => {
 describe("Git telemetry manager", () => {
 	it("disposes late observers without opening them and rejects initialization after disposal", () => {
 		const manager = new VscodeGitTelemetryManager(telemetry)
-		const input: ClineCoreStartInput = {
+		const input: IndusCodeCoreStartInput = {
 			config: {
 				cwd,
-				providerId: "cline",
+				providerId: "induscode",
 				modelId: "test",
 				systemPrompt: "test",
 				enableTools: true,
@@ -375,21 +375,21 @@ describe("conversation Git telemetry", () => {
 	it("preserves config values and uses its identity for telemetry and request matching", async () => {
 		const delegate = vi.fn(async () => new Response("ok", { headers: { "X-Request-ID": "request-1" } }))
 		const providerConfig = {
-			providerId: "cline",
+			providerId: "induscode",
 			modelId: "nested-model",
 			apiKey: "preserved-key",
 			fetch: delegate as unknown as typeof fetch,
 		}
-		const tracker = observer({ sessionId: "custom-task", providerId: "cline-pass", modelId: "top-model", providerConfig })
+		const tracker = observer({ sessionId: "custom-task", providerId: "induscode-pass", modelId: "top-model", providerConfig })
 		const config = tracker.configure()
 		expect(config).toMatchObject({
 			sessionId: "custom-task",
-			providerId: "cline-pass",
+			providerId: "induscode-pass",
 			modelId: "top-model",
 			cwd,
 			systemPrompt: "test",
 		})
-		expect(config.providerConfig).toMatchObject({ providerId: "cline", modelId: "nested-model", apiKey: "preserved-key" })
+		expect(config.providerConfig).toMatchObject({ providerId: "induscode", modelId: "nested-model", apiKey: "preserved-key" })
 		expect(providerConfig.fetch).toBe(delegate)
 		expect(config.providerConfig?.fetch).toBe(delegate)
 		const finish = await beginModel(tracker)
@@ -398,12 +398,12 @@ describe("conversation Git telemetry", () => {
 		expect(events[0].properties).toMatchObject({
 			sessionId: "custom-task",
 			ulid: "custom-task",
-			providerId: "cline-pass",
+			providerId: "induscode-pass",
 			request_id: "request-1",
 			workspace_root_count: 1,
 			git: { dirty: false, staged: false, unstaged: false, untracked: false },
 		})
-		expect(observer({ providerId: "cline-pass" }).configure().providerConfig).toBeUndefined()
+		expect(observer({ providerId: "induscode-pass" }).configure().providerConfig).toBeUndefined()
 	})
 
 	it("reads Git after the response, deduplicates state, and preserves existing hooks", async () => {

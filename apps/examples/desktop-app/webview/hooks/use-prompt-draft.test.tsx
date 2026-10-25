@@ -45,7 +45,7 @@ async function openSession(environmentId = "local") {
 			sessionId: "existing-session",
 			environmentId,
 			status: "completed",
-			provider: "cline",
+			provider: "induscode",
 			model: "test-model",
 			cwd: "/workspace",
 			workspaceRoot: "/workspace",

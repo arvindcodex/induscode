@@ -1,6 +1,6 @@
 {
 	"name": "examples",
-	"description": "Example apps for the Cline SDK",
+	"description": "Example apps for the IndusCode SDK",
 	"type": "module",
 	"private": true,
 	"scripts": {
@@ -14,6 +14,6 @@
 		"typescript": "^5"
 	},
 	"dependencies": {
-		"@cline/core": "workspace:*"
+		"@induscode/core": "workspace:*"
 	}
 }

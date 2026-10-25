@@ -9,8 +9,8 @@ import { telemetryDefineArgs } from "./telemetry-define-args";
 
 // The desktop app ships two runtime artifacts and no app-specific executable:
 //
-// - The Cline CLI, compiled self-contained for this target (Tauri externalBin
-//   `bin/cline-cli`). `cline-cli hub ensure` starts or reuses the CLI-managed
+// - The IndusCode CLI, compiled self-contained for this target (Tauri externalBin
+//   `bin/induscode-cli`). `induscode-cli hub ensure` starts or reuses the CLI-managed
 //   Hub, and the Hub daemon is that same binary.
 // - The desktop backend (sidecar/ sources: the UI command router plus its
 //   HTTP/WebSocket server) as one JS bundle, executed on the CLI's embedded
@@ -22,7 +22,7 @@ import { telemetryDefineArgs } from "./telemetry-define-args";
 const APP_ROOT = fileURLToPath(new URL("..", import.meta.url));
 const REPO_ROOT = fileURLToPath(new URL("../../../../", import.meta.url));
 const BIN_DIR = "src-tauri/bin";
-export const DESKTOP_CLI_NAME = "cline-cli";
+export const DESKTOP_CLI_NAME = "induscode-cli";
 export const DESKTOP_BACKEND_BUNDLE = `${BIN_DIR}/desktop-backend/index.js`;
 export const REMOTE_CLI_DIR = `${BIN_DIR}/remote-helpers`;
 
@@ -83,7 +83,7 @@ const compileDesktopCli = async (
 		// intranet endpoints signed by a corporate CA (LiteLLM proxies, MITM
 		// firewalls) fails with "unable to get local issuer certificate". Bake
 		// --use-system-ca in so the Hub also trusts the OS Keychain/cert store,
-		// as the npm wrapper does. `BUN_BE_BUN=1 cline-cli run` ignores baked-in
+		// as the npm wrapper does. `BUN_BE_BUN=1 induscode-cli run` ignores baked-in
 		// flags, so main.rs passes it again when launching the backend.
 		execArgv: ["--use-system-ca"],
 	});
@@ -94,7 +94,7 @@ const bundleDesktopBackend = async (): Promise<void> => {
 	// Telemetry config must be inlined into the bundle: a packaged app launched
 	// from Finder/the Dock has no OTEL_* env at runtime, so without this the
 	// backend silently ships with telemetry disabled. Verify with
-	// `BUN_BE_BUN=1 cline-cli run <bundle> --telemetry-selfcheck`.
+	// `BUN_BE_BUN=1 induscode-cli run <bundle> --telemetry-selfcheck`.
 	const defines = telemetryDefineArgs();
 	await $`bun build ./sidecar/index.ts --target bun --minify ${defines} --outfile ${DESKTOP_BACKEND_BUNDLE}`;
 };
@@ -124,7 +124,7 @@ const buildRemoteClis = async (): Promise<void> => {
 	]) {
 		await compileDesktopCli(
 			targetTriple,
-			`${REMOTE_CLI_DIR}/cline-${targetTriple}`,
+			`${REMOTE_CLI_DIR}/induscode-${targetTriple}`,
 		);
 	}
 };
@@ -141,13 +141,13 @@ const buildUniversalMacCli = async (): Promise<void> => {
 	await $`lipo -info ${outfile}`;
 };
 
-// Plugin installs drop their @cline/* dependencies because the host provides
+// Plugin installs drop their @induscode/* dependencies because the host provides
 // them, and the plugin worker resolves those from node_modules beside its
 // bootstrap. Nothing like that exists next to the compiled CLI, so ship
 // self-contained builds there. Splitting keeps one shared copy of the SDK,
 // placed in core so every chunk sits inside a `"type": "module"` package.
 const bundlePluginSdkPackages = async (): Promise<void> => {
-	const outdir = `${BIN_DIR}/extensions/node_modules/@cline`;
+	const outdir = `${BIN_DIR}/extensions/node_modules/@induscode`;
 	const packagesRoot = "../../../sdk/packages";
 	const packages = await Promise.all(
 		["sdk", "core", "agents", "llms", "shared"].map(async (name) => {
@@ -155,7 +155,7 @@ const bundlePluginSdkPackages = async (): Promise<void> => {
 			const manifest = (await Bun.file(`${root}/package.json`).json()) as {
 				exports: Record<string, { import: string }>;
 			};
-			// Type-only exports (e.g. @cline/shared/types) have no JS to ship.
+			// Type-only exports (e.g. @induscode/shared/types) have no JS to ship.
 			const exports = Object.fromEntries(
 				Object.entries(manifest.exports)
 					.map(([path, entry]) => [path, entry.import] as const)
@@ -183,7 +183,7 @@ const bundlePluginSdkPackages = async (): Promise<void> => {
 	for (const { name, exports } of packages) {
 		await Bun.write(
 			`${outdir}/${name}/package.json`,
-			JSON.stringify({ name: `@cline/${name}`, type: "module", exports }),
+			JSON.stringify({ name: `@induscode/${name}`, type: "module", exports }),
 		);
 	}
 };

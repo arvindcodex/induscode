@@ -3,7 +3,7 @@ title: "Model Orchestration"
 description: "Use multiple AI models strategically: optimize costs, reduce bias, and leverage model-specific strengths in your workflows"
 ---
 
-Cline CLI's `--config` and `--thinking` flags enable sophisticated multi-model workflows. Instead of using a single model for all tasks, you can route different work to different models based on cost, capability, and specialization.
+IndusCode CLI's `--config` and `--thinking` flags enable sophisticated multi-model workflows. Instead of using a single model for all tasks, you can route different work to different models based on cost, capability, and specialization.
 
 ## Why Orchestrate Multiple Models?
 
@@ -21,7 +21,7 @@ Models differ in what they do well. Security analysis in particular benefits fro
 
 ## Pattern 1: CI/CD Code Review
 
-The [GitHub PR Review](/cli/samples/github-pr-review) sample runs Cline CLI in GitHub Actions to review pull requests, except drafts and pull requests from forks or Dependabot. Its `cline auth` step picks the model, so you can give the review job a stronger model than the rest of your automation.
+The [GitHub PR Review](/cli/samples/github-pr-review) sample runs IndusCode CLI in GitHub Actions to review pull requests, except drafts and pull requests from forks or Dependabot. Its `induscode auth` step picks the model, so you can give the review job a stronger model than the rest of your automation.
 
 ## Pattern 2: Task Phase Optimization
 
@@ -30,35 +30,35 @@ Use different models for different phases of work. Route simple tasks to cheap m
 ### Example: Issue Analysis Pipeline
 
 ```bash
-# Stop if any command, including a cline run, fails
+# Stop if any command, including a induscode run, fails
 set -euo pipefail
 
-# Print only Cline's final answer from --json output
+# Print only IndusCode's final answer from --json output
 final_answer() { jq -r 'select(.type == "run_result") | .text'; }
 
 # Get latest issue content
 ISSUE_CONTENT=$(gh issue view $(gh issue list -L 1 | awk '{print $1}'))
 
 # Phase 1: Quick summary with cheap model
-SUMMARY=$(echo "$ISSUE_CONTENT" | cline --auto-approve true --json --config ~/.cline-haiku \
+SUMMARY=$(echo "$ISSUE_CONTENT" | induscode --auto-approve true --json --config ~/.induscode-haiku \
   "summarize this issue in 2-3 sentences" | final_answer)
 
 # Phase 2: Detailed plan with expensive model + thinking
-PLAN=$(echo "$SUMMARY" | cline --auto-approve true --json --thinking high --config ~/.cline-opus \
+PLAN=$(echo "$SUMMARY" | induscode --auto-approve true --json --thinking high --config ~/.induscode-opus \
   "create detailed implementation plan with edge cases" | final_answer)
 
 # Phase 3: Execute with mid-tier model
-echo "$PLAN" | cline --auto-approve true --config ~/.cline-sonnet \
+echo "$PLAN" | induscode --auto-approve true --config ~/.induscode-sonnet \
   "implement the plan from above"
 ```
 
 <Note>
-Without `--json`, the CLI also prints the model's thinking, and the next phase would read it as part of its input. `--json` with `final_answer` keeps only the answer. Each `cline` command must finish before the next phase starts, so store each result in a shell variable rather than piping one `cline` command into the next.
+Without `--json`, the CLI also prints the model's thinking, and the next phase would read it as part of its input. `--json` with `final_answer` keeps only the answer. Each `induscode` command must finish before the next phase starts, so store each result in a shell variable rather than piping one `induscode` command into the next.
 
-When a run fails, `cline` exits with an error, but `final_answer` still prints the error message. `set -euo pipefail` stops the script there, so that the error message doesn't become the next phase's input.
+When a run fails, `induscode` exits with an error, but `final_answer` still prints the error message. `set -euo pipefail` stops the script there, so that the error message doesn't become the next phase's input.
 </Note>
 
-**Cost impact** (Anthropic list prices per million input tokens, from the model catalog Cline ships):
+**Cost impact** (Anthropic list prices per million input tokens, from the model catalog IndusCode ships):
 - Haiku 4.5: $1
 - Sonnet 5.5: $2
 - Opus 5.5: $4
@@ -67,24 +67,24 @@ This pattern uses Opus only where it needs to reason hard. Check your provider's
 
 ### Setting Up Model Configs
 
-`--config` points Cline at a different configuration directory, and each directory keeps its own provider and model. Set up one directory per model:
+`--config` points IndusCode at a different configuration directory, and each directory keeps its own provider and model. Set up one directory per model:
 
 ```bash
 # Configure each directory with its own model
-cline --config ~/.cline-haiku auth anthropic --apikey "$ANTHROPIC_API_KEY" --modelid claude-haiku-4-5
-cline --config ~/.cline-sonnet auth anthropic --apikey "$ANTHROPIC_API_KEY" --modelid claude-sonnet-5-5
-cline --config ~/.cline-opus auth anthropic --apikey "$ANTHROPIC_API_KEY" --modelid claude-opus-5-5
+induscode --config ~/.induscode-haiku auth anthropic --apikey "$ANTHROPIC_API_KEY" --modelid claude-haiku-4-5
+induscode --config ~/.induscode-sonnet auth anthropic --apikey "$ANTHROPIC_API_KEY" --modelid claude-sonnet-5-5
+induscode --config ~/.induscode-opus auth anthropic --apikey "$ANTHROPIC_API_KEY" --modelid claude-opus-5-5
 
 # Or use different providers entirely
-cline --config ~/.cline-gemini auth gemini --apikey "$GEMINI_API_KEY" --modelid gemini-3.8-flash
-cline --config ~/.cline-gpt auth openai-native --apikey "$OPENAI_API_KEY" --modelid gpt-6.1-sol
+induscode --config ~/.induscode-gemini auth gemini --apikey "$GEMINI_API_KEY" --modelid gemini-3.8-flash
+induscode --config ~/.induscode-gpt auth openai-native --apikey "$OPENAI_API_KEY" --modelid gpt-6.1-sol
 ```
 
 Each directory also keeps its own session history. Now you can switch models per task with `--config`:
 
 ```bash
-cline --config ~/.cline-haiku "quick task"
-cline --config ~/.cline-opus "complex reasoning task"
+induscode --config ~/.induscode-haiku "quick task"
+induscode --config ~/.induscode-opus "complex reasoning task"
 ```
 
 ## Pattern 3: Multi-Model Review & Consensus
@@ -103,19 +103,19 @@ rm -f gemini-review.md gpt-review.md opus-review.md
 DIFF=$(git show)
 
 # Review 1: Gemini's perspective
-echo "$DIFF" | cline --auto-approve true --config ~/.cline-gemini \
+echo "$DIFF" | induscode --auto-approve true --config ~/.induscode-gemini \
     "review this diff and write your analysis to gemini-review.md"
 
 # Review 2: GPT's perspective
-echo "$DIFF" | cline --auto-approve true --config ~/.cline-gpt \
+echo "$DIFF" | induscode --auto-approve true --config ~/.induscode-gpt \
     "review this diff and write your analysis to gpt-review.md"
 
 # Review 3: Opus's perspective
-echo "$DIFF" | cline --auto-approve true --config ~/.cline-opus \
+echo "$DIFF" | induscode --auto-approve true --config ~/.induscode-opus \
     "review this diff and write your analysis to opus-review.md"
 
 # Synthesize all reviews into a consensus
-cat gemini-review.md gpt-review.md opus-review.md | cline --auto-approve true \
+cat gemini-review.md gpt-review.md opus-review.md | induscode --auto-approve true \
     "summarize these 3 reviews and identify: 1) issues all models agree on, 2) issues only one model caught, 3) your final recommendation"
 ```
 
@@ -136,34 +136,34 @@ set -euo pipefail
 rm -f gemini-review.md gpt-review.md opus-review.md
 
 # Run all reviews simultaneously, and save each one's process ID
-git show | cline --auto-approve true --config ~/.cline-gemini "review and save to gemini-review.md" &
+git show | induscode --auto-approve true --config ~/.induscode-gemini "review and save to gemini-review.md" &
 pids=($!)
-git show | cline --auto-approve true --config ~/.cline-gpt "review and save to gpt-review.md" &
+git show | induscode --auto-approve true --config ~/.induscode-gpt "review and save to gpt-review.md" &
 pids+=($!)
-git show | cline --auto-approve true --config ~/.cline-opus "review and save to opus-review.md" &
+git show | induscode --auto-approve true --config ~/.induscode-opus "review and save to opus-review.md" &
 pids+=($!)
 
 # Wait for each review, and stop if one failed
 for pid in "${pids[@]}"; do wait "$pid"; done
 
 # Synthesize
-cat gemini-review.md gpt-review.md opus-review.md | cline --auto-approve true "create consensus review"
+cat gemini-review.md gpt-review.md opus-review.md | induscode --auto-approve true "create consensus review"
 ```
 
 <Note>
-Each `cline` command runs as its own process, so the reviews run at the same time. Give each one a different output file, as above, so that they don't write over each other. `wait` on its own succeeds even when a review fails, so the script saves each review's process ID as it starts and waits for each one. Don't loop over `jobs -p` instead: in the bash 3.2 that macOS ships as `/bin/bash`, it leaves out reviews that have already finished, so a review that fails quickly would be missed.
+Each `induscode` command runs as its own process, so the reviews run at the same time. Give each one a different output file, as above, so that they don't write over each other. `wait` on its own succeeds even when a review fails, so the script saves each review's process ID as it starts and waits for each one. Don't loop over `jobs -p` instead: in the bash 3.2 that macOS ships as `/bin/bash`, it leaves out reviews that have already finished, so a review that fails quickly would be missed.
 </Note>
 
 ## Extended Thinking for Complex Tasks
 
-Use the `--thinking` flag when Cline needs to analyze multiple approaches:
+Use the `--thinking` flag when IndusCode needs to analyze multiple approaches:
 
 ```bash
 # Without thinking: Fast but may miss nuances
-cline --auto-approve true "refactor this codebase"
+induscode --auto-approve true "refactor this codebase"
 
 # With thinking: Slower but more thorough
-cline --auto-approve true --thinking high \
+induscode --auto-approve true --thinking high \
     "refactor this codebase - consider: performance, maintainability, backward compatibility"
 ```
 
@@ -192,12 +192,12 @@ set -euo pipefail
 rm -f issues.md
 
 # Haiku: Quick summary and issue identification
-gh pr diff "$PR" | cline --auto-approve true --config ~/.cline-haiku \
+gh pr diff "$PR" | induscode --auto-approve true --config ~/.induscode-haiku \
     "list the issues to fix in this diff and write them to issues.md. If there are none, don't create the file."
 
 # Opus with thinking: Deep analysis only if issues found
 if [ -s issues.md ]; then
-    cline --auto-approve true --thinking high --config ~/.cline-opus \
+    induscode --auto-approve true --thinking high --config ~/.induscode-opus \
         "analyze the issues in issues.md and recommend fixes"
 fi
 ```
@@ -207,22 +207,22 @@ fi
 ```bash
 set -euo pipefail
 
-# Print only Cline's final answer from --json output
+# Print only IndusCode's final answer from --json output
 final_answer() { jq -r 'select(.type == "run_result") | .text'; }
 
 # Different models have different security perspectives
-git diff main | cline --auto-approve true --json --config ~/.cline-gemini "security review" | final_answer > gemini-sec.md &
+git diff main | induscode --auto-approve true --json --config ~/.induscode-gemini "security review" | final_answer > gemini-sec.md &
 pids=($!)
-git diff main | cline --auto-approve true --json --config ~/.cline-opus "security review" | final_answer > opus-sec.md &
+git diff main | induscode --auto-approve true --json --config ~/.induscode-opus "security review" | final_answer > opus-sec.md &
 pids+=($!)
-git diff main | cline --auto-approve true --json --config ~/.cline-gpt "security review" | final_answer > gpt-sec.md &
+git diff main | induscode --auto-approve true --json --config ~/.induscode-gpt "security review" | final_answer > gpt-sec.md &
 pids+=($!)
 
 # Wait for each review, and stop if one failed
 for pid in "${pids[@]}"; do wait "$pid"; done
 
 # High-priority: Issues all 3 models found
-cat gemini-sec.md opus-sec.md gpt-sec.md | cline --auto-approve true "find security issues all 3 reviews mentioned"
+cat gemini-sec.md opus-sec.md gpt-sec.md | induscode --auto-approve true "find security issues all 3 reviews mentioned"
 ```
 
 ## Related Documentation
@@ -233,14 +233,14 @@ cat gemini-sec.md opus-sec.md gpt-sec.md | cline --auto-approve true "find secur
   </Card>
   
   <Card title="Headless Mode" icon="robot" href="/usage/cli-overview#headless-mode">
-    Run Cline autonomously in scripts, CI/CD pipelines, and automated workflows.
+    Run IndusCode autonomously in scripts, CI/CD pipelines, and automated workflows.
   </Card>
   
-  <Card title="Cline Provider" icon="brain" href="/getting-started/cline-provider">
+  <Card title="IndusCode Provider" icon="brain" href="/getting-started/induscode-provider">
     Fastest built-in model access setup and account workflow
   </Card>
   
   <Card title="CI/CD Integration" icon="github" href="/cli/samples/github-integration">
-    Automate GitHub workflows with Cline CLI
+    Automate GitHub workflows with IndusCode CLI
   </Card>
 </Columns>

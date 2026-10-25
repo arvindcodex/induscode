@@ -2,23 +2,23 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const hoisted = vi.hoisted(() => ({
 	loginLocalProvider: vi.fn(),
-	startClineDeviceAuth: vi.fn(),
-	completeClineDeviceAuth: vi.fn(),
+	startIndusCodeDeviceAuth: vi.fn(),
+	completeIndusCodeDeviceAuth: vi.fn(),
 	saveLocalProviderOAuthCredentials: vi.fn(),
 	identifyFeatureFlagsAccount: vi.fn(async () => {}),
 	openMock: vi.fn(() => Promise.resolve()),
 }));
 
-vi.mock("@cline/core", () => ({
+vi.mock("@induscode/core", () => ({
 	loginLocalProvider: hoisted.loginLocalProvider,
-	startClineDeviceAuth: hoisted.startClineDeviceAuth,
-	completeClineDeviceAuth: hoisted.completeClineDeviceAuth,
+	startIndusCodeDeviceAuth: hoisted.startIndusCodeDeviceAuth,
+	completeIndusCodeDeviceAuth: hoisted.completeIndusCodeDeviceAuth,
 	saveLocalProviderOAuthCredentials: hoisted.saveLocalProviderOAuthCredentials,
 	ProviderSettingsManager: class {},
 }));
 
-vi.mock("@cline/shared", () => ({
-	getClineEnvironmentConfig: () => ({ apiBaseUrl: "https://api.example" }),
+vi.mock("@induscode/shared", () => ({
+	getIndusCodeEnvironmentConfig: () => ({ apiBaseUrl: "https://api.example" }),
 }));
 
 vi.mock("../../../utils/open", () => ({ default: hoisted.openMock }));
@@ -47,8 +47,8 @@ function makeManager() {
 describe("onboarding auth telemetry forwarding", () => {
 	beforeEach(() => {
 		hoisted.loginLocalProvider.mockReset();
-		hoisted.startClineDeviceAuth.mockReset();
-		hoisted.completeClineDeviceAuth.mockReset();
+		hoisted.startIndusCodeDeviceAuth.mockReset();
+		hoisted.completeIndusCodeDeviceAuth.mockReset();
 		hoisted.saveLocalProviderOAuthCredentials.mockReset();
 		hoisted.identifyFeatureFlagsAccount.mockReset();
 		hoisted.identifyFeatureFlagsAccount.mockResolvedValue(undefined);
@@ -116,8 +116,8 @@ describe("onboarding auth telemetry forwarding", () => {
 		expect(telemetryArg).toBeUndefined();
 	});
 
-	it("forwards telemetry into completeClineDeviceAuth for the device-code flow", async () => {
-		hoisted.startClineDeviceAuth.mockResolvedValueOnce({
+	it("forwards telemetry into completeIndusCodeDeviceAuth for the device-code flow", async () => {
+		hoisted.startIndusCodeDeviceAuth.mockResolvedValueOnce({
 			deviceCode: "dc",
 			userCode: "uc",
 			verificationUri: "https://verify",
@@ -125,7 +125,7 @@ describe("onboarding auth telemetry forwarding", () => {
 			expiresInSeconds: 600,
 			pollIntervalSeconds: 5,
 		});
-		hoisted.completeClineDeviceAuth.mockResolvedValueOnce({
+		hoisted.completeIndusCodeDeviceAuth.mockResolvedValueOnce({
 			access: "a",
 			refresh: "r",
 			expires: 0,
@@ -134,7 +134,7 @@ describe("onboarding auth telemetry forwarding", () => {
 		});
 
 		runDeviceCodeAuthFlow({
-			providerId: "cline",
+			providerId: "induscode",
 			providerSettingsManager: makeManager(),
 			isAborted: () => false,
 			setUserCode: vi.fn(),
@@ -149,13 +149,13 @@ describe("onboarding auth telemetry forwarding", () => {
 		await Promise.resolve();
 		await Promise.resolve();
 
-		expect(hoisted.completeClineDeviceAuth).toHaveBeenCalledTimes(1);
-		const [opts] = hoisted.completeClineDeviceAuth.mock.calls[0];
+		expect(hoisted.completeIndusCodeDeviceAuth).toHaveBeenCalledTimes(1);
+		const [opts] = hoisted.completeIndusCodeDeviceAuth.mock.calls[0];
 		expect(opts.telemetry).toBe(fakeTelemetry);
-		// We do NOT forward telemetry to startClineDeviceAuth — auth_started is
-		// emitted by completeClineDeviceAuth, so passing telemetry to the start
+		// We do NOT forward telemetry to startIndusCodeDeviceAuth — auth_started is
+		// emitted by completeIndusCodeDeviceAuth, so passing telemetry to the start
 		// helper would double-emit the event.
-		expect(hoisted.startClineDeviceAuth).toHaveBeenCalledWith();
+		expect(hoisted.startIndusCodeDeviceAuth).toHaveBeenCalledWith();
 		expect(hoisted.identifyFeatureFlagsAccount).toHaveBeenCalledWith({
 			id: "acct-1",
 			email: "user@example.com",
@@ -168,7 +168,7 @@ describe("onboarding auth telemetry forwarding", () => {
 
 	it("falls back to displaying the device auth URL when browser open fails", async () => {
 		hoisted.openMock.mockRejectedValueOnce(new Error("no browser"));
-		hoisted.startClineDeviceAuth.mockResolvedValueOnce({
+		hoisted.startIndusCodeDeviceAuth.mockResolvedValueOnce({
 			deviceCode: "dc",
 			userCode: "uc",
 			verificationUri: "https://verify",
@@ -176,7 +176,7 @@ describe("onboarding auth telemetry forwarding", () => {
 			expiresInSeconds: 600,
 			pollIntervalSeconds: 5,
 		});
-		hoisted.completeClineDeviceAuth.mockResolvedValueOnce({
+		hoisted.completeIndusCodeDeviceAuth.mockResolvedValueOnce({
 			access: "a",
 			refresh: "r",
 			expires: 0,
@@ -184,7 +184,7 @@ describe("onboarding auth telemetry forwarding", () => {
 		const setStatus = vi.fn();
 
 		runDeviceCodeAuthFlow({
-			providerId: "cline",
+			providerId: "induscode",
 			providerSettingsManager: makeManager(),
 			isAborted: () => false,
 			setUserCode: vi.fn(),

@@ -5,7 +5,7 @@ import * as path from "node:path"
 import { type ElectronApplication, expect, type Frame, type Page, test } from "@playwright/test"
 import { downloadAndUnzipVSCode, SilentReporter } from "@vscode/test-electron"
 import { _electron } from "playwright"
-import { ClineApiServerMock } from "../fixtures/server"
+import { IndusCodeApiServerMock } from "../fixtures/server"
 
 interface E2ETestDirectories {
 	workspaceDir: string
@@ -88,7 +88,7 @@ export class E2ETestHelper {
 
 				try {
 					const title = await frame.title()
-					if (title.startsWith("Cline")) {
+					if (title.startsWith("IndusCode")) {
 						this.cachedFrame = frame
 						return frame
 					}
@@ -253,10 +253,10 @@ export class E2ETestHelper {
 	}
 
 	public async signin(webview: Frame): Promise<void> {
-		await webview.getByRole("button", { name: "Login to Cline" }).click({ delay: 100 })
+		await webview.getByRole("button", { name: "Login to IndusCode" }).click({ delay: 100 })
 
 		// Verify start up page is no longer visible
-		await expect(webview.getByRole("button", { name: "Login to Cline" })).not.toBeVisible()
+		await expect(webview.getByRole("button", { name: "Login to IndusCode" })).not.toBeVisible()
 
 		const closeButton = webview.getByRole("button", { name: "Close" })
 		let shouldCloseModal = false
@@ -271,8 +271,8 @@ export class E2ETestHelper {
 		}
 	}
 
-	public static async openClineSidebar(page: Page): Promise<void> {
-		await page.getByRole("tab", { name: /Cline/ }).locator("a").click()
+	public static async openIndusCodeSidebar(page: Page): Promise<void> {
+		await page.getByRole("tab", { name: /IndusCode/ }).locator("a").click()
 	}
 
 	public static async runCommandPalette(page: Page, command: string): Promise<void> {
@@ -293,11 +293,11 @@ export class E2ETestHelper {
 }
 
 /**
- * NOTE: Use the `e2e` test fixture for all E2E tests to test the Cline extension.
+ * NOTE: Use the `e2e` test fixture for all E2E tests to test the IndusCode extension.
  *
- * Extended Playwright test configuration for Cline E2E testing.
+ * Extended Playwright test configuration for IndusCode E2E testing.
  *
- * This test configuration provides a comprehensive setup for end-to-end testing of the Cline VS Code extension,
+ * This test configuration provides a comprehensive setup for end-to-end testing of the IndusCode VS Code extension,
  * including server mocking, temporary directories, VS Code instance management, and helper utilities.
  *
  * NOTE: Default to run in single-root workspace; use `e2eMultiRoot` for multi-root workspace tests.
@@ -305,26 +305,26 @@ export class E2ETestHelper {
  * @extends test - Base Playwright test with multiple fixture extensions
  *
  * Fixtures provided:
- * - `server`: Shared ClineApiServerMock instance for API mocking (reused across all tests)
+ * - `server`: Shared IndusCodeApiServerMock instance for API mocking (reused across all tests)
  * - `workspaceDir`: Path to the test workspace directory
  * - `userDataDir`: Temporary directory for VS Code user data
  * - `extensionsDir`: Temporary directory for VS Code extensions
  * - `openVSCode`: Function that returns a Promise resolving to an ElectronApplication instance
  * - `app`: ElectronApplication instance with automatic cleanup
  * - `helper`: E2ETestHelper instance for test utilities
- * - `page`: Playwright Page object representing the main VS Code window with Cline sidebar opened
- * - `sidebar`: Playwright Frame object representing the Cline extension's sidebar iframe
+ * - `page`: Playwright Page object representing the main VS Code window with IndusCode sidebar opened
+ * - `sidebar`: Playwright Frame object representing the IndusCode extension's sidebar iframe
  *
  * @returns Extended test object with all fixtures available for E2E test scenarios:
- * - **server**: Automatically starts and manages a ClineApiServerMock instance
+ * - **server**: Automatically starts and manages a IndusCodeApiServerMock instance
  * - **workspaceDir**: Sets up a test workspace directory from fixtures
  * - **userDataDir**: Creates a temporary directory for VS Code user data
  * - **extensionsDir**: Creates a temporary directory for VS Code extensions
  * - **openVSCode**: Factory function that launches VS Code with proper configuration for testing
  * - **app**: Manages the VS Code ElectronApplication lifecycle with automatic cleanup
  * - **helper**: Provides E2ETestHelper utilities for test operations
- * - **page**: Configures the main VS Code window with notifications disabled and Cline sidebar open
- * - **sidebar**: Provides access to the Cline extension's sidebar frame
+ * - **page**: Configures the main VS Code window with notifications disabled and IndusCode sidebar open
+ * - **sidebar**: Provides access to the IndusCode extension's sidebar frame
  *
  * @example
  * ```typescript
@@ -335,19 +335,19 @@ export class E2ETestHelper {
  *
  * @remarks
  * - Automatically handles VS Code download and setup
- * - Installs the Cline extension in development mode
+ * - Installs the IndusCode extension in development mode
  * - Records test videos for debugging
  * - Performs cleanup of temporary directories after each test
  * - Configures VS Code with disabled updates, workspace trust, and welcome screens
  */
 export const e2e = test
-	.extend<{ server: ClineApiServerMock | null }>({
+	.extend<{ server: IndusCodeApiServerMock | null }>({
 		server: async ({}, use) => {
 			// Start server if it doesn't exist
-			if (!ClineApiServerMock.globalSharedServer) {
-				await ClineApiServerMock.startGlobalServer()
+			if (!IndusCodeApiServerMock.globalSharedServer) {
+				await IndusCodeApiServerMock.startGlobalServer()
 			}
-			await use(ClineApiServerMock.globalSharedServer)
+			await use(IndusCodeApiServerMock.globalSharedServer)
 		},
 	})
 	.extend<E2ETestDirectories>({
@@ -384,9 +384,9 @@ export const e2e = test
 			const executablePath = await downloadAndUnzipVSCode(channel, undefined, new SilentReporter())
 
 			await use(async (workspacePath: string) => {
-				// Create isolated Cline data directory for this test
-				const clineTestDir = mkdtempSync(path.join(os.tmpdir(), "cline-e2e-"))
-				const clineDataDir = path.join(clineTestDir, "data")
+				// Create isolated IndusCode data directory for this test
+				const induscodeTestDir = mkdtempSync(path.join(os.tmpdir(), "induscode-e2e-"))
+				const induscodeDataDir = path.join(induscodeTestDir, "data")
 
 				const app = await _electron.launch({
 					executablePath,
@@ -394,11 +394,11 @@ export const e2e = test
 						...process.env,
 						TEMP_PROFILE: "true",
 						E2E_TEST: "true",
-						CLINE_ENVIRONMENT: "local",
+						INDUSCODE_ENVIRONMENT: "local",
 						// Prevent OAuth E2E from launching a browser that can outlive VS Code on Linux.
-						CLINE_CAPTURE_BROWSER: "true",
-						CLINE_DIR: clineTestDir, // Isolate test data from user's ~/.cline
-						CLINE_DATA_DIR: clineDataDir, // Keep SDK/shared storage off the user's real Cline data dir
+						INDUSCODE_CAPTURE_BROWSER: "true",
+						INDUSCODE_DIR: induscodeTestDir, // Isolate test data from user's ~/.induscode
+						INDUSCODE_DATA_DIR: induscodeDataDir, // Keep SDK/shared storage off the user's real IndusCode data dir
 						GRPC_RECORDER_FILE_NAME: E2ETestHelper.generateTestFileName(testInfo.title, testInfo.project.name),
 						// GRPC_RECORDER_ENABLED: "true",
 						// GRPC_RECORDER_TESTS_FILTERS_ENABLED: "true"
@@ -431,7 +431,7 @@ export const e2e = test
 			})
 		},
 	})
-	.extend<{ app: ElectronApplication; clineTestDir: string }>({
+	.extend<{ app: ElectronApplication; induscodeTestDir: string }>({
 		app: async ({ openVSCode, userDataDir, extensionsDir, workspaceType, workspaceDir, multiRootWorkspaceDir }, use) => {
 			const workspacePath = workspaceType === "single" ? workspaceDir : multiRootWorkspaceDir
 
@@ -447,13 +447,13 @@ export const e2e = test
 					E2ETestHelper.rmForRetries(extensionsDir, { recursive: true }),
 				]
 
-				// Clean up the isolated Cline data directory
+				// Clean up the isolated IndusCode data directory
 				// Find all temp directories matching our pattern
 				const tmpDir = os.tmpdir()
 				try {
 					const entries = readdirSync(tmpDir)
 					for (const entry of entries) {
-						if (entry.startsWith("cline-e2e-")) {
+						if (entry.startsWith("induscode-e2e-")) {
 							cleanupTasks.push(E2ETestHelper.rmForRetries(path.join(tmpDir, entry), { recursive: true }))
 						}
 					}
@@ -464,7 +464,7 @@ export const e2e = test
 				await Promise.allSettled(cleanupTasks)
 			}
 		},
-		clineTestDir: async ({}, use) => {
+		induscodeTestDir: async ({}, use) => {
 			// This will be set by the openVSCode fixture
 			await use("")
 		},
@@ -489,7 +489,7 @@ export const e2e = test
 	})
 	.extend<{ sidebar: Frame }>({
 		sidebar: async ({ page, helper, server }, use) => {
-			await E2ETestHelper.openClineSidebar(page)
+			await E2ETestHelper.openIndusCodeSidebar(page)
 			const sidebar = await helper.getSidebar(page)
 			await use(sidebar)
 		},

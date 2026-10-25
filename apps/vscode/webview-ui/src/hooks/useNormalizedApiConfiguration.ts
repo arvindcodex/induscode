@@ -1,6 +1,6 @@
 import type { ApiProvider, ModelInfo } from "@shared/api"
 import { toLegacyApiProvider } from "@shared/model-catalog/provider-helpers"
-import { ResolveModelInfoRequest } from "@shared/proto/cline/models"
+import { ResolveModelInfoRequest } from "@shared/proto/induscode/models"
 import { fromProtobufModelInfo } from "@shared/proto-conversions/models/typeConversion"
 import type { Mode } from "@shared/storage/types"
 import { useEffect, useMemo, useState } from "react"
@@ -41,8 +41,8 @@ function getActiveProviderAndModelId(apiConfiguration: ReturnType<typeof useExte
 	const modeFields = getModeSpecificFields(apiConfiguration, mode)
 
 	const providerSpecificModelIds: Partial<Record<string, string | undefined>> = {
-		cline: modeFields.clineModelId,
-		"cline-pass": modeFields.clinePassModelId,
+		induscode: modeFields.induscodeModelId,
+		"induscode-pass": modeFields.induscodePassModelId,
 		deepseek: modeFields.apiModelId,
 		openai: modeFields.openAiModelId,
 		openrouter: modeFields.openRouterModelId,

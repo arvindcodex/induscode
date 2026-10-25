@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 
-// Publishes cline and all platform-specific binary packages to npm.
+// Publishes induscode and all platform-specific binary packages to npm.
 //
 // Usage:
 //   bun script/publish-npm.ts                 # publish with "latest" tag
@@ -30,23 +30,23 @@ const { values } = parseArgs({
 
 const dryRun = values["dry-run"] ?? false;
 const npmTag = values.tag ?? "latest";
-const wrapperPackageName = "cline";
+const wrapperPackageName = "induscode";
 
 const expectedPlatformPackages = [
-	"@cline/cli-darwin-arm64",
-	"@cline/cli-darwin-x64",
-	"@cline/cli-linux-arm64",
-	"@cline/cli-linux-x64",
-	"@cline/cli-windows-arm64",
-	"@cline/cli-windows-x64",
+	"@induscode/cli-darwin-arm64",
+	"@induscode/cli-darwin-x64",
+	"@induscode/cli-linux-arm64",
+	"@induscode/cli-linux-x64",
+	"@induscode/cli-windows-arm64",
+	"@induscode/cli-windows-x64",
 ] as const;
 
 const hostSdkPackages = [
-	{ name: "@cline/sdk", directory: "sdk" },
-	{ name: "@cline/core", directory: "core" },
-	{ name: "@cline/agents", directory: "agents" },
-	{ name: "@cline/llms", directory: "llms" },
-	{ name: "@cline/shared", directory: "shared" },
+	{ name: "@induscode/sdk", directory: "sdk" },
+	{ name: "@induscode/core", directory: "core" },
+	{ name: "@induscode/agents", directory: "agents" },
+	{ name: "@induscode/llms", directory: "llms" },
+	{ name: "@induscode/shared", directory: "shared" },
 ] as const;
 
 interface PlatformPackageManifest {
@@ -244,7 +244,7 @@ console.log("\nPublishing platform packages...");
 const platformTasks = Object.keys(binaries)
 	.sort()
 	.map(async (name) => {
-		const dirName = name.replace("@cline/", "");
+		const dirName = name.replace("@induscode/", "");
 		const pkgDir = join(cliDir, "dist", dirName);
 
 		await publishPackage({
@@ -312,7 +312,7 @@ const bugs = "bugs" in mainPkgRecord ? mainPkgRecord.bugs : undefined;
 const wrapperPackageJson = {
 	name: wrapperPackageName,
 	version,
-	description: description || "Cline CLI",
+	description: description || "IndusCode CLI",
 	license: license || "Apache-2.0",
 	...(keywords ? { keywords } : {}),
 	...(author ? { author } : {}),
@@ -320,7 +320,7 @@ const wrapperPackageJson = {
 	...(bugs ? { bugs } : {}),
 	...(sourceRepository ? { repository: sourceRepository } : {}),
 	bin: {
-		cline: "./bin/cline",
+		induscode: "./bin/induscode",
 	},
 	scripts: {
 		postinstall: "node ./postinstall.mjs || true",

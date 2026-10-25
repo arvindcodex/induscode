@@ -1,7 +1,7 @@
 "use client";
 
-import type { GeneratedMedia } from "@cline/shared/browser";
-import { GeneratedMediaContent } from "@cline/ui";
+import type { GeneratedMedia } from "@induscode/shared/browser";
+import { GeneratedMediaContent } from "@induscode/ui";
 import { GitBranchIcon, Loader2Icon, PlusIcon, Trash2Icon } from "lucide-react";
 import { nanoid } from "nanoid";
 import {
@@ -1047,7 +1047,7 @@ export default function Chat() {
 				<div className="flex items-center justify-between border-b px-4 py-3">
 					<div className="min-w-0">
 						<p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-							Cline
+							IndusCode
 						</p>
 					</div>
 					<div className="flex items-center gap-2">

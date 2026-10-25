@@ -11,13 +11,13 @@ import {
 	LocalRuntimeHost,
 	SqliteSessionStore,
 	startHubWebSocketServer,
-} from "@cline/core"
-import type { MessageWithMetadata as SdkMessage } from "@cline/llms"
+} from "@induscode/core"
+import type { MessageWithMetadata as SdkMessage } from "@induscode/llms"
 import WebSocket, { type RawData, WebSocketServer } from "ws"
-import type { UserResponse } from "@/shared/ClineAccount"
+import type { UserResponse } from "@/shared/IndusCodeAccount"
 
 const LOOPBACK_HOST = "127.0.0.1"
-const HUB_AUTH_PROTOCOL_PREFIX = "cline-hub-auth."
+const HUB_AUTH_PROTOCOL_PREFIX = "induscode-hub-auth."
 const FIXTURE_USER_ID = "local-cloud-user"
 const FIXTURE_ORGANIZATION = {
 	organizationId: "local-cloud-organization",
@@ -28,15 +28,15 @@ const FIXTURE_ORGANIZATION = {
 const PERSONAL_REPOSITORY = {
 	id: 1,
 	name: "fixture",
-	full_name: "cline/fixture",
-	html_url: "https://github.com/cline/fixture",
+	full_name: "induscode/fixture",
+	html_url: "https://github.com/induscode/fixture",
 	default_branch: "main",
 }
 const ORGANIZATION_REPOSITORY = {
 	id: 2,
 	name: "organization-fixture",
-	full_name: "cline/organization-fixture",
-	html_url: "https://github.com/cline/organization-fixture",
+	full_name: "induscode/organization-fixture",
+	html_url: "https://github.com/induscode/organization-fixture",
 	default_branch: "main",
 }
 
@@ -141,7 +141,7 @@ function archivedTranscript(taskId: string, capturedAt: number): SdkMessage[] {
 			role: "assistant",
 			content: [{ type: "text", text: "cloud fixture reply" }],
 			sessionId: taskId,
-			modelInfo: { id: "fixture-model", provider: "cline" },
+			modelInfo: { id: "fixture-model", provider: "induscode" },
 			metrics: { inputTokens: 1, outputTokens: 3 },
 			ts: capturedAt + 1_000,
 		},
@@ -154,7 +154,7 @@ function scriptedModelFetch(options: {
 }): typeof fetch {
 	const fetchImpl = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
 		const url = new URL(typeof input === "string" ? input : input instanceof URL ? input : input.url)
-		if (url.hostname !== "api.cline.bot" || url.pathname !== "/api/v1/chat/completions") {
+		if (url.hostname !== "api.induscode.bot" || url.pathname !== "/api/v1/chat/completions") {
 			throw new Error(`Local cloud fixture blocked unexpected model request to ${url.toString()}`)
 		}
 		if (init?.signal?.aborted) throw init.signal.reason
@@ -200,7 +200,7 @@ export async function startLocalCloudEnvironment(
 		beforeResponse: options.beforeModelResponse,
 		insufficientCredits: options.insufficientCredits,
 	})
-	const root = await mkdtemp(path.join(options.tempDir ?? tmpdir(), "cline-local-cloud-"))
+	const root = await mkdtemp(path.join(options.tempDir ?? tmpdir(), "induscode-local-cloud-"))
 	const sessions = new Map<string, OwnedSandbox>()
 	if (options.seedExpiredSessions) {
 		// The hosted control plane leaves an expired session's stored status as it
@@ -406,9 +406,9 @@ export async function startLocalCloudEnvironment(
 						data: [{ name: repository.default_branch }, { name: repository.name }],
 					})
 				}
-				// CLINE_LOCAL_CLOUD_NO_REPOSITORIES=1 reproduces a connected GitHub App with
+				// INDUSCODE_LOCAL_CLOUD_NO_REPOSITORIES=1 reproduces a connected GitHub App with
 				// no accessible repositories, so Cloud can be selected without a repository.
-				if (process.env.CLINE_LOCAL_CLOUD_NO_REPOSITORIES === "1") {
+				if (process.env.INDUSCODE_LOCAL_CLOUD_NO_REPOSITORIES === "1") {
 					return json(res, 200, { success: true, data: [] })
 				}
 				return json(res, 200, { success: true, data: [repository] })

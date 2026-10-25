@@ -1,6 +1,6 @@
 import assert from "node:assert/strict"
 import { DEFAULT_AUTO_APPROVAL_SETTINGS } from "@shared/AutoApprovalSettings"
-import { AutoApprovalSettingsRequest } from "@shared/proto/cline/state"
+import { AutoApprovalSettingsRequest } from "@shared/proto/induscode/state"
 import { describe, it, vi } from "vitest"
 import type { Controller } from ".."
 import { updateAutoApprovalSettings } from "./updateAutoApprovalSettings"

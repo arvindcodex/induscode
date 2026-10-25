@@ -15,7 +15,7 @@ import { McpHub } from "../McpHub"
 // Tests bypass the constructor's watcher via Object.create(McpHub.prototype),
 // matching McpHub.callTool.test.ts.
 describe("McpHub.addRemoteServer", () => {
-	const envVar = "CLINE_TEST_MCP_URL_SECRET"
+	const envVar = "INDUSCODE_TEST_MCP_URL_SECRET"
 	const originalIsDev = process.env.IS_DEV
 	let tempDir: string
 	let hub: McpHub
@@ -28,7 +28,7 @@ describe("McpHub.addRemoteServer", () => {
 	beforeEach(async () => {
 		tempDir = path.join(os.tmpdir(), `mcp-add-remote-test-${Date.now()}-${Math.random().toString(36).slice(2)}`)
 		await fs.mkdir(tempDir, { recursive: true })
-		settingsPath = path.join(tempDir, "cline_mcp_settings.json")
+		settingsPath = path.join(tempDir, "induscode_mcp_settings.json")
 		await fs.writeFile(settingsPath, JSON.stringify({ mcpServers: {} }))
 		hub = Object.create(McpHub.prototype) as McpHub
 		;(hub as any).getSettingsDirectoryPath = async () => tempDir

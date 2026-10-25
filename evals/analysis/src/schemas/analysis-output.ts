@@ -1,5 +1,5 @@
 /**
- * Type definitions for Cline Analysis Framework output
+ * Type definitions for IndusCode Analysis Framework output
  * These schemas define the structured JSON output from our analysis tools
  */
 
@@ -20,7 +20,7 @@ export interface AnalysisMetadata {
 	analysis_version: string // Package version (from package.json)
 	job_id: string // Job directory name (e.g., "2025-01-25__10-30-00")
 	model: string // Model used for the run
-	agent: string // Agent name (e.g., "cline-cli")
+	agent: string // Agent name (e.g., "induscode-cli")
 	environment: string // "docker" | "daytona"
 }
 
@@ -71,7 +71,7 @@ export interface FailureInfo {
 }
 
 export type FailureCategory =
-	| "provider_bug" // Cline integration bugs (Gemini #7974, Claude #7998)
+	| "provider_bug" // IndusCode integration bugs (Gemini #7974, Claude #7998)
 	| "transient" // Rate limits, network timeouts, service unavailable
 	| "harness" // Test harness or verification script failure
 	| "environment" // Docker/Daytona setup failure

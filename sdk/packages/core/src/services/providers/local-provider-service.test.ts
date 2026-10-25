@@ -1,15 +1,15 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import * as LlmsModels from "@cline/llms";
-import { CLINE_DEFAULT_MODEL_ID } from "@cline/shared";
+import * as LlmsModels from "@induscode/llms";
+import { INDUSCODE_DEFAULT_MODEL_ID } from "@induscode/shared";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
-	FALLBACK_CLINE_RECOMMENDED_MODELS,
-	getCachedClineRecommendedModels,
+	FALLBACK_INDUSCODE_RECOMMENDED_MODELS,
+	getCachedIndusCodeRecommendedModels,
 	idSlug,
-	resetClineRecommendedModelsCacheForTests,
-} from "../llms/cline-recommended-models";
+	resetIndusCodeRecommendedModelsCacheForTests,
+} from "../llms/induscode-recommended-models";
 import {
 	clearLiveModelsCatalogCache,
 	clearPrivateModelsCatalogCache,
@@ -34,7 +34,7 @@ import {
 	markLocalProviderEnabled,
 	normalizeOAuthProvider,
 	refreshProviderModelsFromSource,
-	resolveLocalClineAuthToken,
+	resolveLocalIndusCodeAuthToken,
 	saveLocalProviderSettings,
 	saveVoiceInputSettings,
 	transcribeConfiguredVoiceInput,
@@ -69,7 +69,7 @@ function makeTempManager(): {
 afterEach(() => {
 	clearLiveModelsCatalogCache();
 	clearPrivateModelsCatalogCache();
-	resetClineRecommendedModelsCacheForTests();
+	resetIndusCodeRecommendedModelsCacheForTests();
 	LlmsModels.resetRegistry();
 	vi.restoreAllMocks();
 	vi.unstubAllGlobals();
@@ -145,7 +145,7 @@ describe("live provider model loading", () => {
 		expect(
 			fetchMock.mock.calls.filter(([url]) => url.includes("models.dev")),
 		).toHaveLength(1);
-		// One shared models.dev request plus the Cline recommendation feed.
+		// One shared models.dev request plus the IndusCode recommendation feed.
 		expect(fetchMock).toHaveBeenCalledTimes(2);
 	});
 
@@ -874,8 +874,8 @@ describe("addLocalProvider – model ID parsing via modelsSourceUrl", () => {
 		expect(models.map((m) => m.id).sort()).toEqual(["llama3.1", "qwen3:8b"]);
 	});
 
-	it("merges live Cline models into the registered catalog", async () => {
-		const liveModelId = "vendor/live-cline-model";
+	it("merges live IndusCode models into the registered catalog", async () => {
+		const liveModelId = "vendor/live-induscode-model";
 		const fetchMock = vi.fn(async (url: string) => {
 			if (url === "https://models.dev/api.json") {
 				return new Response(
@@ -883,7 +883,7 @@ describe("addLocalProvider – model ID parsing via modelsSourceUrl", () => {
 						openrouter: {
 							models: {
 								[liveModelId]: {
-									name: "Live Cline Model",
+									name: "Live IndusCode Model",
 									tool_call: true,
 									reasoning: true,
 									limit: {
@@ -913,7 +913,7 @@ describe("addLocalProvider – model ID parsing via modelsSourceUrl", () => {
 						},
 					],
 					free: [],
-					clinePass: [],
+					induscodePass: [],
 				}),
 				{
 					status: 200,
@@ -923,21 +923,21 @@ describe("addLocalProvider – model ID parsing via modelsSourceUrl", () => {
 		});
 		vi.stubGlobal("fetch", fetchMock);
 
-		const { models } = await getLocalProviderModels("cline");
+		const { models } = await getLocalProviderModels("induscode");
 
 		// models.dev and the recommended feed populate the live catalog; the
 		// recommended feed is fetched once more for the featured-tier overlay.
 		expect(fetchMock).toHaveBeenCalledTimes(3);
 		expect(models.find((model) => model.id === liveModelId)).toMatchObject({
 			id: liveModelId,
-			name: "Live Cline Model",
+			name: "Live IndusCode Model",
 			supportsReasoning: true,
 			description: "Fresh from the live catalog",
 			featured: { tier: "recommended", rank: 0, tags: ["NEW"] },
 		});
 	});
 
-	it("uses only live ClinePass models when live models are found", async () => {
+	it("uses only live IndusCodePass models when live models are found", async () => {
 		const fetchMock = vi.fn(async (url: string) => {
 			if (url === "https://models.dev/api.json") {
 				return new Response(
@@ -968,13 +968,13 @@ describe("addLocalProvider – model ID parsing via modelsSourceUrl", () => {
 
 			return new Response(
 				JSON.stringify({
-					clinePass: [
+					induscodePass: [
 						{
-							id: "cline-pass/live-pass-model",
+							id: "induscode-pass/live-pass-model",
 							name: "vendor/live-pass-model",
 						},
 					],
-					free: [{ id: "cline-free/live-free-model" }],
+					free: [{ id: "induscode-free/live-free-model" }],
 				}),
 				{
 					status: 200,
@@ -984,7 +984,7 @@ describe("addLocalProvider – model ID parsing via modelsSourceUrl", () => {
 		});
 		vi.stubGlobal("fetch", fetchMock);
 
-		const { models } = await getLocalProviderModels("cline-pass");
+		const { models } = await getLocalProviderModels("induscode-pass");
 
 		// models.dev, the recommended-models feed via the live catalog, and
 		// the recommended-models feed again for the featured-tier overlay
@@ -992,27 +992,27 @@ describe("addLocalProvider – model ID parsing via modelsSourceUrl", () => {
 		expect(fetchMock).toHaveBeenCalledTimes(3);
 		expect(models.map((model) => model.id)).toEqual(
 			expect.arrayContaining([
-				"cline-pass/live-pass-model",
-				"cline-free/live-free-model",
+				"induscode-pass/live-pass-model",
+				"induscode-free/live-free-model",
 			]),
 		);
 		expect(
-			models.find((model) => model.id === "cline-pass/live-pass-model"),
+			models.find((model) => model.id === "induscode-pass/live-pass-model"),
 		).toMatchObject({
-			id: "cline-pass/live-pass-model",
+			id: "induscode-pass/live-pass-model",
 			name: "Live Pass Model",
 			supportsReasoning: true,
 		});
 		expect(
-			models.find((model) => model.id === "cline-free/live-free-model"),
+			models.find((model) => model.id === "induscode-free/live-free-model"),
 		).toMatchObject({
-			id: "cline-free/live-free-model",
+			id: "induscode-free/live-free-model",
 			name: "Live Free Model (free)",
 			supportsReasoning: true,
 		});
 	});
 
-	it("adds live Cline Cloud models to the Cline provider", async () => {
+	it("adds live IndusCode Cloud models to the IndusCode provider", async () => {
 		const fetchMock = vi.fn(async (url: string) => {
 			if (url === "https://models.dev/api.json") {
 				return new Response(JSON.stringify({}), { status: 200 });
@@ -1022,13 +1022,13 @@ describe("addLocalProvider – model ID parsing via modelsSourceUrl", () => {
 				JSON.stringify({
 					free: [
 						{
-							id: "cline-free/live-free-model",
+							id: "induscode-free/live-free-model",
 							name: "Live Free Model",
 						},
 					],
-					clineCloud: [
+					induscodeCloud: [
 						{
-							id: "cline-cloud/claude-sonnet-4.6",
+							id: "induscode-cloud/claude-sonnet-4.6",
 							name: "Claude Sonnet 4.6",
 						},
 					],
@@ -1038,26 +1038,26 @@ describe("addLocalProvider – model ID parsing via modelsSourceUrl", () => {
 		});
 		vi.stubGlobal("fetch", fetchMock);
 
-		const { models } = await getLocalProviderModels("cline", undefined, {
+		const { models } = await getLocalProviderModels("induscode", undefined, {
 			loadLatest: true,
 		});
 
 		expect(fetchMock).toHaveBeenCalledTimes(3);
 		expect(models).toContainEqual(
 			expect.objectContaining({
-				id: "cline-cloud/claude-sonnet-4.6",
+				id: "induscode-cloud/claude-sonnet-4.6",
 				name: "Claude Sonnet 4.6",
 			}),
 		);
 		expect(models).toContainEqual(
 			expect.objectContaining({
-				id: "cline-free/live-free-model",
+				id: "induscode-free/live-free-model",
 				featured: expect.objectContaining({ tier: "free" }),
 			}),
 		);
 	});
 
-	it("falls back to generated ClinePass models when no live ClinePass models are found", async () => {
+	it("falls back to generated IndusCodePass models when no live IndusCodePass models are found", async () => {
 		const fetchMock = vi.fn(async (url: string) => {
 			if (url === "https://models.dev/api.json") {
 				return new Response(
@@ -1078,21 +1078,21 @@ describe("addLocalProvider – model ID parsing via modelsSourceUrl", () => {
 				);
 			}
 
-			return new Response(JSON.stringify({ clinePass: [] }), {
+			return new Response(JSON.stringify({ induscodePass: [] }), {
 				status: 200,
 				headers: { "content-type": "application/json" },
 			});
 		});
 		vi.stubGlobal("fetch", fetchMock);
 
-		const { models } = await getLocalProviderModels("cline-pass");
+		const { models } = await getLocalProviderModels("induscode-pass");
 
 		// models.dev, the recommended-models feed via the live catalog, and
 		// the recommended-models feed again for the featured-tier overlay
 		// (separately cached; both caches are cold here).
 		expect(fetchMock).toHaveBeenCalledTimes(3);
 		expect(models.map((model) => model.id)).toContain(
-			"cline-pass/mimo-v2.5-pro",
+			"induscode-pass/mimo-v2.5-pro",
 		);
 		expect(models.map((model) => model.id)).not.toContain(
 			"vendor/live-openrouter-model",
@@ -1986,7 +1986,7 @@ describe("models.json model overlays", () => {
 					{
 						version: 1,
 						providers: {
-							cline: {
+							induscode: {
 								models: {
 									"openai/gpt-5.5": {
 										id: "openai/gpt-5.5",
@@ -2005,16 +2005,16 @@ describe("models.json model overlays", () => {
 				filePath: path.join(settingsDir, "providers.json"),
 			});
 
-			const provider = await LlmsModels.getProvider("cline");
+			const provider = await LlmsModels.getProvider("induscode");
 			expect(provider).toMatchObject({
-				id: "cline",
-				baseUrl: "https://api.cline.bot/api/v1",
+				id: "induscode",
+				baseUrl: "https://api.induscode.bot/api/v1",
 				defaultModelId:
-					LlmsModels.GENERATED_CLINE_RECOMMENDED_MODELS.recommended?.[0]?.id ??
-					CLINE_DEFAULT_MODEL_ID,
+					LlmsModels.GENERATED_INDUSCODE_RECOMMENDED_MODELS.recommended?.[0]?.id ??
+					INDUSCODE_DEFAULT_MODEL_ID,
 			});
 
-			const { models } = await getLocalProviderModels("cline");
+			const { models } = await getLocalProviderModels("induscode");
 			expect(
 				models.find((model) => model.id === "openai/gpt-5.5"),
 			).toMatchObject({
@@ -2830,20 +2830,20 @@ describe("listLocalProviders", () => {
 		expect(ids).toContain("list-provider-b");
 	});
 
-	it("hides ClinePass when the ClinePass feature flag is disabled", async () => {
+	it("hides IndusCodePass when the IndusCodePass feature flag is disabled", async () => {
 		const { providers } = await listLocalProviders(manager, {
-			isClinePassEnabled: false,
+			isIndusCodePassEnabled: false,
 		});
 
-		expect(providers.map((p) => p.id)).not.toContain("cline-pass");
+		expect(providers.map((p) => p.id)).not.toContain("induscode-pass");
 	});
 
-	it("includes ClinePass when the ClinePass feature flag is enabled", async () => {
+	it("includes IndusCodePass when the IndusCodePass feature flag is enabled", async () => {
 		const { providers } = await listLocalProviders(manager, {
-			isClinePassEnabled: true,
+			isIndusCodePassEnabled: true,
 		});
 
-		expect(providers.map((p) => p.id)).toContain("cline-pass");
+		expect(providers.map((p) => p.id)).toContain("induscode-pass");
 	});
 
 	it("stamps featured tiers from the bundled fallback without a feed fetch", async () => {
@@ -2852,7 +2852,7 @@ describe("listLocalProviders", () => {
 
 		const { providers } = await listLocalProviders(manager);
 		const modelList =
-			providers.find((provider) => provider.id === "cline")?.modelList ?? [];
+			providers.find((provider) => provider.id === "induscode")?.modelList ?? [];
 		// Compare by slug: the bundled feed can spell a vendor differently from
 		// the catalog ("spacexai/grok-4.7" vs "x-ai/grok-4.7"), in which case the
 		// matcher stamps the catalog's id through its slug fallback.
@@ -2860,7 +2860,7 @@ describe("listLocalProviders", () => {
 			.filter((model) => model.featured?.tier === "recommended")
 			.map((model) => idSlug(model.id));
 		const modelSlugs = new Set(modelList.map((model) => idSlug(model.id)));
-		const expectedSlugs = FALLBACK_CLINE_RECOMMENDED_MODELS.recommended
+		const expectedSlugs = FALLBACK_INDUSCODE_RECOMMENDED_MODELS.recommended
 			.map((model) => idSlug(model.id))
 			.filter((slug) => modelSlugs.has(slug));
 
@@ -2873,11 +2873,11 @@ describe("listLocalProviders", () => {
 	});
 
 	it("stamps featured tiers from the cached live feed once warmed", async () => {
-		const clineModelIds = Object.keys(
-			await LlmsModels.getModelsForProvider("cline"),
+		const induscodeModelIds = Object.keys(
+			await LlmsModels.getModelsForProvider("induscode"),
 		);
-		const [recommendedId, freeId] = clineModelIds;
-		await getCachedClineRecommendedModels({
+		const [recommendedId, freeId] = induscodeModelIds;
+		await getCachedIndusCodeRecommendedModels({
 			baseUrl: "https://api.example.test",
 			fetchImpl: async () =>
 				new Response(
@@ -2891,7 +2891,7 @@ describe("listLocalProviders", () => {
 							},
 						],
 						free: [{ id: freeId, name: "Live Free", description: "" }],
-						clinePass: [],
+						induscodePass: [],
 					}),
 					{ status: 200, headers: { "Content-Type": "application/json" } },
 				),
@@ -2900,7 +2900,7 @@ describe("listLocalProviders", () => {
 
 		const { providers } = await listLocalProviders(manager);
 		const modelList =
-			providers.find((provider) => provider.id === "cline")?.modelList ?? [];
+			providers.find((provider) => provider.id === "induscode")?.modelList ?? [];
 
 		expect(
 			modelList.find((model) => model.id === recommendedId)?.featured,
@@ -2944,7 +2944,7 @@ describe("listLocalProviders", () => {
 	it("marks alias providers enabled without copying shared OAuth credentials", async () => {
 		manager.saveProviderSettings(
 			{
-				provider: "cline",
+				provider: "induscode",
 				auth: {
 					accessToken: "shared-token",
 					refreshToken: "shared-refresh",
@@ -2953,19 +2953,19 @@ describe("listLocalProviders", () => {
 			{ setLastUsed: false, tokenSource: "oauth" },
 		);
 
-		markLocalProviderEnabled(manager, "cline-pass", { tokenSource: "oauth" });
+		markLocalProviderEnabled(manager, "induscode-pass", { tokenSource: "oauth" });
 
 		const state = manager.read();
-		expect(state.providers["cline-pass"]?.settings).toEqual({
-			provider: "cline-pass",
+		expect(state.providers["induscode-pass"]?.settings).toEqual({
+			provider: "induscode-pass",
 		});
-		expect(state.providers["cline-pass"]?.tokenSource).toBe("oauth");
+		expect(state.providers["induscode-pass"]?.tokenSource).toBe("oauth");
 	});
 
-	it("resolves shared OAuth metadata for ClinePass catalog entries", async () => {
+	it("resolves shared OAuth metadata for IndusCodePass catalog entries", async () => {
 		manager.saveProviderSettings(
 			{
-				provider: "cline",
+				provider: "induscode",
 				auth: {
 					accessToken: "shared-token",
 					refreshToken: "shared-refresh",
@@ -2973,28 +2973,28 @@ describe("listLocalProviders", () => {
 			},
 			{ setLastUsed: false, tokenSource: "oauth" },
 		);
-		markLocalProviderEnabled(manager, "cline-pass", { tokenSource: "oauth" });
+		markLocalProviderEnabled(manager, "induscode-pass", { tokenSource: "oauth" });
 
 		const { providers } = await listLocalProviders(manager, {
-			isClinePassEnabled: true,
+			isIndusCodePassEnabled: true,
 		});
-		const clinePass = providers.find(
-			(provider) => provider.id === "cline-pass",
+		const induscodePass = providers.find(
+			(provider) => provider.id === "induscode-pass",
 		);
 
-		expect(clinePass).toMatchObject({
+		expect(induscodePass).toMatchObject({
 			enabled: true,
 			oauthAccessTokenPresent: true,
 		});
 	});
 
-	it("enables ClinePass from a Cline sign-in that never wrote a ClinePass entry", async () => {
-		// Desktop onboarding signs in as "cline" only; the shared credentials
-		// make ClinePass usable, so it must surface as enabled without its own
+	it("enables IndusCodePass from a IndusCode sign-in that never wrote a IndusCodePass entry", async () => {
+		// Desktop onboarding signs in as "induscode" only; the shared credentials
+		// make IndusCodePass usable, so it must surface as enabled without its own
 		// providers.json entry.
 		manager.saveProviderSettings(
 			{
-				provider: "cline",
+				provider: "induscode",
 				auth: {
 					accessToken: "shared-token",
 					refreshToken: "shared-refresh",
@@ -3004,29 +3004,29 @@ describe("listLocalProviders", () => {
 		);
 
 		const { providers } = await listLocalProviders(manager, {
-			isClinePassEnabled: true,
+			isIndusCodePassEnabled: true,
 		});
-		const clinePass = providers.find(
-			(provider) => provider.id === "cline-pass",
+		const induscodePass = providers.find(
+			(provider) => provider.id === "induscode-pass",
 		);
 
-		expect(manager.read().providers["cline-pass"]).toBeUndefined();
-		expect(clinePass).toMatchObject({
+		expect(manager.read().providers["induscode-pass"]).toBeUndefined();
+		expect(induscodePass).toMatchObject({
 			enabled: true,
 			configured: true,
 			oauthAccessTokenPresent: true,
 		});
 	});
 
-	it("keeps ClinePass disabled when Cline has no entry", async () => {
+	it("keeps IndusCodePass disabled when IndusCode has no entry", async () => {
 		const { providers } = await listLocalProviders(manager, {
-			isClinePassEnabled: true,
+			isIndusCodePassEnabled: true,
 		});
-		const clinePass = providers.find(
-			(provider) => provider.id === "cline-pass",
+		const induscodePass = providers.find(
+			(provider) => provider.id === "induscode-pass",
 		);
 
-		expect(clinePass?.enabled).toBe(false);
+		expect(induscodePass?.enabled).toBe(false);
 	});
 
 	it("exposes model count", async () => {
@@ -3103,32 +3103,32 @@ describe("listLocalProviders", () => {
 		).toBe(false);
 	});
 
-	it("uses Cline-specific Z.ai aliases in the built-in model list", async () => {
+	it("uses IndusCode-specific Z.ai aliases in the built-in model list", async () => {
 		manager.saveProviderSettings(
 			{
-				provider: "cline",
+				provider: "induscode",
 				apiKey: "test-key",
-				baseUrl: "https://api.cline.bot/api/v1",
+				baseUrl: "https://api.induscode.bot/api/v1",
 				model: "anthropic/claude-sonnet-4.6",
 			},
 			{ setLastUsed: false },
 		);
 
 		const { providers } = await listLocalProviders(manager);
-		const cline = providers.find((provider) => provider.id === "cline");
+		const induscode = providers.find((provider) => provider.id === "induscode");
 		const openrouter = providers.find(
 			(provider) => provider.id === "openrouter",
 		);
-		const clineModelIds = new Set(
-			cline?.modelList?.map((model) => model.id) ?? [],
+		const induscodeModelIds = new Set(
+			induscode?.modelList?.map((model) => model.id) ?? [],
 		);
 		const openrouterModelIds = new Set(
 			openrouter?.modelList?.map((model) => model.id) ?? [],
 		);
 
-		expect(cline?.modelList?.length).toBeGreaterThan(0);
-		expect(clineModelIds).toContain("zai/glm-5.2");
-		expect(clineModelIds).not.toContain("z-ai/glm-5.2");
+		expect(induscode?.modelList?.length).toBeGreaterThan(0);
+		expect(induscodeModelIds).toContain("zai/glm-5.2");
+		expect(induscodeModelIds).not.toContain("z-ai/glm-5.2");
 		expect(openrouterModelIds).toContain("z-ai/glm-5.2");
 	});
 
@@ -3172,9 +3172,9 @@ describe("listLocalProviders", () => {
 // ===========================================================================
 
 describe("normalizeOAuthProvider", () => {
-	it("normalizes 'cline' to 'cline'", () => {
-		expect(normalizeOAuthProvider("cline")).toBe("cline");
-		expect(normalizeOAuthProvider("  CLINE  ")).toBe("cline");
+	it("normalizes 'induscode' to 'induscode'", () => {
+		expect(normalizeOAuthProvider("induscode")).toBe("induscode");
+		expect(normalizeOAuthProvider("  INDUSCODE  ")).toBe("induscode");
 	});
 
 	it("normalizes 'oca' to 'oca'", () => {
@@ -3196,18 +3196,18 @@ describe("normalizeOAuthProvider", () => {
 });
 
 // ===========================================================================
-// resolveLocalClineAuthToken
+// resolveLocalIndusCodeAuthToken
 // ===========================================================================
 
-describe("resolveLocalClineAuthToken", () => {
+describe("resolveLocalIndusCodeAuthToken", () => {
 	it("returns undefined when settings is undefined", () => {
-		expect(resolveLocalClineAuthToken(undefined)).toBeUndefined();
+		expect(resolveLocalIndusCodeAuthToken(undefined)).toBeUndefined();
 	});
 
 	it("returns accessToken when present", () => {
 		expect(
-			resolveLocalClineAuthToken({
-				provider: "cline" as never,
+			resolveLocalIndusCodeAuthToken({
+				provider: "induscode" as never,
 				auth: { accessToken: "tok123" },
 			}),
 		).toBe("tok123");
@@ -3215,8 +3215,8 @@ describe("resolveLocalClineAuthToken", () => {
 
 	it("falls back to apiKey when accessToken is absent", () => {
 		expect(
-			resolveLocalClineAuthToken({
-				provider: "cline" as never,
+			resolveLocalIndusCodeAuthToken({
+				provider: "induscode" as never,
 				apiKey: "api-key-456",
 			}),
 		).toBe("api-key-456");
@@ -3224,8 +3224,8 @@ describe("resolveLocalClineAuthToken", () => {
 
 	it("prefers accessToken over apiKey", () => {
 		expect(
-			resolveLocalClineAuthToken({
-				provider: "cline" as never,
+			resolveLocalIndusCodeAuthToken({
+				provider: "induscode" as never,
 				apiKey: "api-key",
 				auth: { accessToken: "access-token" },
 			}),
@@ -3234,8 +3234,8 @@ describe("resolveLocalClineAuthToken", () => {
 
 	it("returns undefined when both accessToken and apiKey are empty strings", () => {
 		expect(
-			resolveLocalClineAuthToken({
-				provider: "cline" as never,
+			resolveLocalIndusCodeAuthToken({
+				provider: "induscode" as never,
 				apiKey: "   ",
 				auth: { accessToken: "  " },
 			}),
@@ -3244,7 +3244,7 @@ describe("resolveLocalClineAuthToken", () => {
 
 	it("returns undefined when both fields are absent", () => {
 		expect(
-			resolveLocalClineAuthToken({ provider: "cline" as never }),
+			resolveLocalIndusCodeAuthToken({ provider: "induscode" as never }),
 		).toBeUndefined();
 	});
 });

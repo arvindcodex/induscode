@@ -37,17 +37,17 @@ describe("workspace paths", () => {
 	});
 
 	it("normalizes trailing separators and Windows path casing", () => {
-		expect(normalizeWorkspacePath(" /workspace/cline/ ")).toBe(
-			"/workspace/cline",
+		expect(normalizeWorkspacePath(" /workspace/induscode/ ")).toBe(
+			"/workspace/induscode",
 		);
-		expect(normalizeWorkspacePath("C:\\Users\\Saoud\\Cline\\")).toBe(
-			"c:\\users\\saoud\\cline",
+		expect(normalizeWorkspacePath("C:\\Users\\Saoud\\IndusCode\\")).toBe(
+			"c:\\users\\saoud\\induscode",
 		);
 		expect(normalizeWorkspacePath("/")).toBe("/");
 	});
 
 	it("detects absolute file paths across platforms", () => {
-		expect(isAbsoluteFilePath("/Users/renee/cline/docs/a.mdx")).toBe(true);
+		expect(isAbsoluteFilePath("/Users/renee/induscode/docs/a.mdx")).toBe(true);
 		expect(isAbsoluteFilePath("C:\\Users\\renee\\a.mdx")).toBe(true);
 		expect(isAbsoluteFilePath("C:/Users/renee/a.mdx")).toBe(true);
 		expect(isAbsoluteFilePath("\\\\server\\share\\a.mdx")).toBe(true);
@@ -56,15 +56,15 @@ describe("workspace paths", () => {
 	});
 
 	it("resolves relative diff paths against the session cwd", () => {
-		expect(resolveWorkspaceFilePath("docs/a.mdx", "/Users/renee/cline")).toBe(
-			"/Users/renee/cline/docs/a.mdx",
+		expect(resolveWorkspaceFilePath("docs/a.mdx", "/Users/renee/induscode")).toBe(
+			"/Users/renee/induscode/docs/a.mdx",
 		);
 		expect(
-			resolveWorkspaceFilePath("./docs/a.mdx", "/Users/renee/cline/"),
-		).toBe("/Users/renee/cline/docs/a.mdx");
+			resolveWorkspaceFilePath("./docs/a.mdx", "/Users/renee/induscode/"),
+		).toBe("/Users/renee/induscode/docs/a.mdx");
 		expect(
-			resolveWorkspaceFilePath("/Users/renee/cline/docs/a.mdx", "/elsewhere"),
-		).toBe("/Users/renee/cline/docs/a.mdx");
+			resolveWorkspaceFilePath("/Users/renee/induscode/docs/a.mdx", "/elsewhere"),
+		).toBe("/Users/renee/induscode/docs/a.mdx");
 		expect(resolveWorkspaceFilePath("docs/a.mdx", undefined)).toBe(
 			"docs/a.mdx",
 		);
@@ -256,17 +256,17 @@ describe("workspace paths", () => {
 		});
 	});
 
-	it("excludes .cline-internal paths from the workspace catalog", () => {
+	it("excludes .induscode-internal paths from the workspace catalog", () => {
 		expect(
-			isExcludedWorkspacePath("/Users/beatrix/.cline/worktrees/5e0b3/sdk-wip"),
+			isExcludedWorkspacePath("/Users/beatrix/.induscode/worktrees/5e0b3/sdk-wip"),
 		).toBe(true);
 		expect(
 			isExcludedWorkspacePath(
-				"/Users/beatrix/.cline/plugins/_installed/git/github.com/example-plugin",
+				"/Users/beatrix/.induscode/plugins/_installed/git/github.com/example-plugin",
 			),
 		).toBe(true);
 		expect(
-			isExcludedWorkspacePath("C:\\Users\\Saoud\\.cline\\worktrees\\abc"),
+			isExcludedWorkspacePath("C:\\Users\\Saoud\\.induscode\\worktrees\\abc"),
 		).toBe(true);
 	});
 
@@ -274,34 +274,34 @@ describe("workspace paths", () => {
 		try {
 			// Nothing is a task worktree until the sidecar has said where they live.
 			expect(
-				isTaskWorktreePath("/Users/beatrix/.cline/worktrees/5e0b3/sdk-wip"),
+				isTaskWorktreePath("/Users/beatrix/.induscode/worktrees/5e0b3/sdk-wip"),
 			).toBe(false);
 
-			// A custom CLINE_DIR moves the root away from ~/.cline.
-			registerTaskWorktreeRoot("/srv/cline-dir/worktrees/");
-			expect(isTaskWorktreePath("/srv/cline-dir/worktrees/5e0b3/sdk-wip")).toBe(
+			// A custom INDUSCODE_DIR moves the root away from ~/.induscode.
+			registerTaskWorktreeRoot("/srv/induscode-dir/worktrees/");
+			expect(isTaskWorktreePath("/srv/induscode-dir/worktrees/5e0b3/sdk-wip")).toBe(
 				true,
 			);
 			expect(
-				isTaskWorktreePath("/Users/beatrix/.cline/worktrees/5e0b3/sdk-wip"),
+				isTaskWorktreePath("/Users/beatrix/.induscode/worktrees/5e0b3/sdk-wip"),
 			).toBe(false);
 			// Only the exact <root>/<id>/<repo> shape: not the <id> dir, not deeper.
-			expect(isTaskWorktreePath("/srv/cline-dir/worktrees/5e0b3")).toBe(false);
+			expect(isTaskWorktreePath("/srv/induscode-dir/worktrees/5e0b3")).toBe(false);
 			expect(
-				isTaskWorktreePath("/srv/cline-dir/worktrees/5e0b3/sdk-wip/packages"),
+				isTaskWorktreePath("/srv/induscode-dir/worktrees/5e0b3/sdk-wip/packages"),
 			).toBe(false);
-			expect(isTaskWorktreePath("/srv/cline-dir/worktrees-old/5e0b3/x")).toBe(
+			expect(isTaskWorktreePath("/srv/induscode-dir/worktrees-old/5e0b3/x")).toBe(
 				false,
 			);
 			// A real project that happens to contain the literal segments.
-			expect(isTaskWorktreePath("/projects/example/.cline/worktrees/app")).toBe(
+			expect(isTaskWorktreePath("/projects/example/.induscode/worktrees/app")).toBe(
 				false,
 			);
 			expect(isTaskWorktreePath("")).toBe(false);
 
-			registerTaskWorktreeRoot("C:\\Users\\Saoud\\.cline\\worktrees");
+			registerTaskWorktreeRoot("C:\\Users\\Saoud\\.induscode\\worktrees");
 			expect(
-				isTaskWorktreePath("C:\\Users\\Saoud\\.cline\\worktrees\\abc12\\app\\"),
+				isTaskWorktreePath("C:\\Users\\Saoud\\.induscode\\worktrees\\abc12\\app\\"),
 			).toBe(true);
 			expect(isTaskWorktreePath("C:\\Users\\Saoud\\projects\\app")).toBe(false);
 		} finally {
@@ -310,7 +310,7 @@ describe("workspace paths", () => {
 	});
 
 	it("excludes the SDK chat workspace from discovery and stored selections", () => {
-		const temporaryWorkspace = "/home/host/.cline/data/workspaces/chat";
+		const temporaryWorkspace = "/home/host/.induscode/data/workspaces/chat";
 
 		expect(isExcludedWorkspacePath(temporaryWorkspace)).toBe(true);
 		expect(
@@ -361,7 +361,7 @@ describe("workspace paths", () => {
 
 			expect(isExcludedWorkspacePath("d:\\homes\\bea\\")).toBe(true);
 			expect(isExcludedWorkspacePath("D:\\Homes\\Bea\\Desktop")).toBe(true);
-			expect(isExcludedWorkspacePath("D:\\Homes\\Bea\\cline")).toBe(false);
+			expect(isExcludedWorkspacePath("D:\\Homes\\Bea\\induscode")).toBe(false);
 		});
 	});
 
@@ -373,13 +373,13 @@ describe("workspace paths", () => {
 		expect(isExcludedWorkspacePath("C:\\Users\\Saoud")).toBe(true);
 		expect(isExcludedWorkspacePath("C:\\Users\\Saoud\\Desktop")).toBe(true);
 
-		expect(isExcludedWorkspacePath("/Users/beatrix/dev/cline")).toBe(false);
+		expect(isExcludedWorkspacePath("/Users/beatrix/dev/induscode")).toBe(false);
 		expect(isExcludedWorkspacePath("/Users/beatrix/Desktop/my-app")).toBe(
 			false,
 		);
 		expect(isExcludedWorkspacePath("/home/beatrix/projects")).toBe(false);
-		expect(isExcludedWorkspacePath("/workspace/cline")).toBe(false);
-		expect(isExcludedWorkspacePath("C:\\Users\\Saoud\\Cline")).toBe(false);
+		expect(isExcludedWorkspacePath("/workspace/induscode")).toBe(false);
+		expect(isExcludedWorkspacePath("C:\\Users\\Saoud\\IndusCode")).toBe(false);
 	});
 
 	it("filters excluded paths out of session-derived workspaces", () => {
@@ -387,7 +387,7 @@ describe("workspace paths", () => {
 			[
 				{ workspaceRoot: "/projects/app", environmentId: "local" },
 				{
-					workspaceRoot: "/Users/beatrix/.cline/worktrees/97815/sdk-wip",
+					workspaceRoot: "/Users/beatrix/.induscode/worktrees/97815/sdk-wip",
 					environmentId: "local",
 				},
 				{ cwd: "/Users/beatrix/Desktop", environmentId: "local" },
@@ -409,7 +409,7 @@ describe("workspace paths", () => {
 							lastWorkspace: "/Users/beatrix/Desktop",
 							workspaces: [
 								"/projects/one",
-								"/Users/beatrix/.cline/worktrees/5e0b3/sdk-wip",
+								"/Users/beatrix/.induscode/worktrees/5e0b3/sdk-wip",
 								"/Users/beatrix",
 							],
 						},

@@ -5,12 +5,12 @@ import {
 	createLocalHubScheduleRuntimeHandlers,
 	ensureHubWebSocketServer,
 	resolveSharedHubOwnerContext,
-} from "@cline/core/hub";
+} from "@induscode/core/hub";
 import {
-	createClineTelemetryServiceConfig,
-	createClineTelemetryServiceMetadata,
+	createIndusCodeTelemetryServiceConfig,
+	createIndusCodeTelemetryServiceMetadata,
 	type TelemetryMetadata,
-} from "@cline/shared";
+} from "@induscode/shared";
 
 type DetachedHubDaemonConfig = {
 	workspaceRoot: string;
@@ -53,10 +53,10 @@ function createDaemonTelemetry(
 	if (!metadata || Object.keys(metadata).length === 0) {
 		return undefined;
 	}
-	const config = createClineTelemetryServiceConfig({
-		metadata: createClineTelemetryServiceMetadata({
+	const config = createIndusCodeTelemetryServiceConfig({
+		metadata: createIndusCodeTelemetryServiceMetadata({
 			extension_version: metadata.extension_version,
-			cline_type: metadata.cline_type,
+			induscode_type: metadata.induscode_type,
 			platform: metadata.platform,
 			platform_version: metadata.platform_version,
 			os_type: metadata.os_type ?? os.platform(),
@@ -103,7 +103,7 @@ async function main(): Promise<void> {
 
 void main().catch((error) => {
 	process.stderr.write(
-		`[cline-vscode hub-daemon] ${error instanceof Error ? (error.stack ?? error.message) : String(error)}\n`,
+		`[induscode-vscode hub-daemon] ${error instanceof Error ? (error.stack ?? error.message) : String(error)}\n`,
 	);
 	process.exit(1);
 });

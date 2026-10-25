@@ -26,7 +26,7 @@ import {
 	ProviderListing as ProviderListingProto,
 	ProviderModelsResponse,
 	WriteProviderConfigPatch,
-} from "@/shared/proto/cline/models"
+} from "@/shared/proto/induscode/models"
 import { fromProtobufModelOverrides, toProtobufModelOverrides } from "@/shared/proto-conversions/models/modelOverrides"
 import { toProtobufModelInfo } from "@/shared/proto-conversions/models/typeConversion"
 import type { GlobalStateAndSettings } from "@/shared/storage/state-keys"

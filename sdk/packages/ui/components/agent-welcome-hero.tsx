@@ -11,7 +11,7 @@ export interface AgentWelcomeHeroProps {
 	variant?: "full" | "grid-only" | "bot-only";
 }
 
-/** Cline bot illustration and grid backdrop used on agent welcome surfaces. */
+/** IndusCode bot illustration and grid backdrop used on agent welcome surfaces. */
 export function AgentWelcomeHero({
 	interactive,
 	layout = "default",
@@ -26,7 +26,7 @@ export function AgentWelcomeHero({
 	return (
 		<div
 			aria-hidden="true"
-			className="cline-ui-agent-welcome-hero"
+			className="induscode-ui-agent-welcome-hero"
 			data-welcome-hero
 			data-welcome-hero-interactive={tracksPointer}
 			data-welcome-hero-layout={layout}
@@ -35,30 +35,30 @@ export function AgentWelcomeHero({
 		>
 			{showsGrid ? (
 				<div
-					className="cline-ui-agent-welcome-hero__grid"
+					className="induscode-ui-agent-welcome-hero__grid"
 					data-welcome-hero-layer="grid"
 				/>
 			) : null}
 			{showsBot ? (
 				<>
 					<span
-						className="cline-ui-agent-welcome-hero__inner"
+						className="induscode-ui-agent-welcome-hero__inner"
 						data-welcome-hero-layer="inner"
 					/>
 					<span
-						className="cline-ui-agent-welcome-hero__bot-fill"
+						className="induscode-ui-agent-welcome-hero__bot-fill"
 						data-welcome-hero-layer="bot-fill"
 					/>
 					<span
-						className="cline-ui-agent-welcome-hero__bot-outline"
+						className="induscode-ui-agent-welcome-hero__bot-outline"
 						data-welcome-hero-layer="bot-outline"
 					/>
 					<span
-						className="cline-ui-agent-welcome-hero__eye cline-ui-agent-welcome-hero__eye--left"
+						className="induscode-ui-agent-welcome-hero__eye induscode-ui-agent-welcome-hero__eye--left"
 						data-welcome-hero-eye="left"
 					/>
 					<span
-						className="cline-ui-agent-welcome-hero__eye cline-ui-agent-welcome-hero__eye--right"
+						className="induscode-ui-agent-welcome-hero__eye induscode-ui-agent-welcome-hero__eye--right"
 						data-welcome-hero-eye="right"
 					/>
 				</>

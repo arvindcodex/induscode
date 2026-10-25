@@ -142,7 +142,7 @@ describe("DiffView file actions", () => {
 		await act(async () => {
 			root.render(
 				<DiffView
-					cwd="/Users/renee/cline"
+					cwd="/Users/renee/induscode"
 					environmentId="local"
 					fileDiffs={[FILE_DIFF]}
 					onClose={vi.fn()}
@@ -152,14 +152,14 @@ describe("DiffView file actions", () => {
 
 		await click(buttonWithLabel("Copy file path for docs/a.mdx"));
 
-		expect(writeText).toHaveBeenCalledWith("/Users/renee/cline/docs/a.mdx");
+		expect(writeText).toHaveBeenCalledWith("/Users/renee/induscode/docs/a.mdx");
 	});
 
 	it("opens the file in a chosen editor through the desktop backend", async () => {
 		await act(async () => {
 			root.render(
 				<DiffView
-					cwd="/Users/renee/cline"
+					cwd="/Users/renee/induscode"
 					environmentId="local"
 					fileDiffs={[FILE_DIFF]}
 					onClose={vi.fn()}
@@ -180,7 +180,7 @@ describe("DiffView file actions", () => {
 		expect(invokeMock).toHaveBeenCalledWith("open_file_in_editor", {
 			environmentId: "local",
 			path: "docs/a.mdx",
-			cwd: "/Users/renee/cline",
+			cwd: "/Users/renee/induscode",
 			editor: "vscode",
 		});
 	});
@@ -287,7 +287,7 @@ describe("DiffView hunk rendering", () => {
 			container.querySelector('[data-slot="scroll-area-viewport"]'),
 		).not.toBeNull();
 		await click(
-			container.querySelector(".cline-ui-agent-changes__toggle") as Element,
+			container.querySelector(".induscode-ui-agent-changes__toggle") as Element,
 		);
 		expect(diffContainers()).toHaveLength(1);
 	});

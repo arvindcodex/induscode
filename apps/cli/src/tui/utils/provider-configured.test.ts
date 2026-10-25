@@ -9,7 +9,7 @@ import {
 } from "./provider-configured";
 
 const ENV_KEY = "OPENROUTER_API_KEY";
-const SETTINGS_PATH_KEY = "CLINE_PROVIDER_SETTINGS_PATH";
+const SETTINGS_PATH_KEY = "INDUSCODE_PROVIDER_SETTINGS_PATH";
 const previous = process.env[ENV_KEY];
 const previousSettingsPath = process.env[SETTINGS_PATH_KEY];
 let settingsDir: string;
@@ -25,7 +25,7 @@ function restore(key: string, value: string | undefined): void {
 
 describe("isProviderConfigured", () => {
 	beforeEach(() => {
-		settingsDir = mkdtempSync(join(tmpdir(), "cline-provider-configured-"));
+		settingsDir = mkdtempSync(join(tmpdir(), "induscode-provider-configured-"));
 		process.env[SETTINGS_PATH_KEY] = join(settingsDir, "providers.json");
 	});
 

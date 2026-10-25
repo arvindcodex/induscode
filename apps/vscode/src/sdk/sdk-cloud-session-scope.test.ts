@@ -116,18 +116,18 @@ function fixture(waitPoint: WaitPoint, organizationId?: string) {
 	const options = {
 		cloudSessions: service,
 		stateManager: {
-			getApiConfiguration: () => ({ actModeApiProvider: "cline", actModeClineModelId: "fixture-model" }),
+			getApiConfiguration: () => ({ actModeApiProvider: "induscode", actModeIndusCodeModelId: "fixture-model" }),
 			getGlobalSettingsKey: () => "act",
 			getGlobalStateKey: () => ({}),
 			setGlobalState: vi.fn(),
 		},
 		sessionConfigBuilder: {
 			build: vi.fn(async () => ({
-				providerId: "cline",
+				providerId: "induscode",
 				modelId: "fixture-model",
 				apiKey: "fixture-key",
 				providerConfig: {
-					providerId: "cline",
+					providerId: "induscode",
 					modelId: "fixture-model",
 					apiKey: "fixture-key",
 					knownModels: { "catalog-model": { id: "catalog-model" } },
@@ -135,7 +135,7 @@ function fixture(waitPoint: WaitPoint, organizationId?: string) {
 				knownModels: { "catalog-model": { id: "catalog-model" } },
 				cwd: "/workspace",
 				workspaceRoot: "/workspace",
-				systemPrompt: "normal Cline guidance",
+				systemPrompt: "normal IndusCode guidance",
 				enableTools: true,
 				enableSpawnAgent: false,
 				enableAgentTeams: false,
@@ -204,7 +204,7 @@ function fixture(waitPoint: WaitPoint, organizationId?: string) {
 	}
 }
 
-const startInput = { prompt: "fixture task", repoUrl: "https://github.com/cline/fixture" }
+const startInput = { prompt: "fixture task", repoUrl: "https://github.com/induscode/fixture" }
 afterEach(() => {
 	vi.restoreAllMocks()
 	vi.clearAllMocks()
@@ -342,14 +342,14 @@ describe("originating-account cloud cleanup", () => {
 			workspaceRoot: "/workspace",
 			mode: "act",
 			runtime: {
-				modelSelection: { providerId: "cline", modelId: "fixture-model" },
+				modelSelection: { providerId: "induscode", modelId: "fixture-model" },
 				platform: "linux",
 			},
 		})
 		expect(f.host.start).toHaveBeenCalledWith(
 			expect.objectContaining({
 				config: expect.objectContaining({
-					systemPrompt: "normal Cline guidance",
+					systemPrompt: "normal IndusCode guidance",
 					mode: "act",
 					checkpoint: { enabled: false },
 				}),
@@ -369,7 +369,7 @@ describe("originating-account cloud cleanup", () => {
 		f.barrier.resolve()
 		expect(await starting).toBe(f.record.id)
 		const config = vi.mocked(f.host.start).mock.calls[0]?.[0]?.config
-		expect(config?.providerConfig).toMatchObject({ providerId: "cline", modelId: "fixture-model" })
+		expect(config?.providerConfig).toMatchObject({ providerId: "induscode", modelId: "fixture-model" })
 		expect(JSON.stringify(config)).not.toContain("fixture-key")
 		expect(JSON.stringify(config)).not.toContain("catalog-model")
 		await f.coordinator.dispose()

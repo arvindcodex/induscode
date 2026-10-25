@@ -43,7 +43,7 @@ export const InputSection: React.FC<InputSectionProps> = ({
 	} = chatState
 
 	const { isAtBottom, scrollToBottomAuto } = scrollBehavior
-	const { turnState, cloudSessionsEnabled, cloudTaskTarget, currentCloudTask, clineMessages = [] } = useExtensionState()
+	const { turnState, cloudSessionsEnabled, cloudTaskTarget, currentCloudTask, induscodeMessages = [] } = useExtensionState()
 	const legacyTaskRunning =
 		turnState === undefined &&
 		(lastMessage?.partial === true || (lastMessage?.type === "say" && lastMessage.say === "api_req_started"))
@@ -52,7 +52,7 @@ export const InputSection: React.FC<InputSectionProps> = ({
 		turnState?.phase === "awaiting_approval" ||
 		(messageHandlers.errorRecoveryAvailable && pendingResponse === undefined && !messageHandlers.recoveryActionInFlight) ||
 		legacyTaskRunning
-	const cloudSelectedForNewTask = clineMessages.length === 0 && !!cloudSessionsEnabled && cloudTaskTarget?.target === "cloud"
+	const cloudSelectedForNewTask = induscodeMessages.length === 0 && !!cloudSessionsEnabled && cloudTaskTarget?.target === "cloud"
 	// The task-target panel above the composer shows what is still missing.
 	const cloudTargetIncomplete = cloudSelectedForNewTask && !isCloudTargetReady(cloudTaskTarget)
 	// Local file paths cannot be read from a cloud sandbox. Refuse the send

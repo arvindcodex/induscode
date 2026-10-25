@@ -1,5 +1,5 @@
 import { EventEmitter } from "node:events";
-import type { ConnectorCliLaunchSpec } from "@cline/shared";
+import type { ConnectorCliLaunchSpec } from "@induscode/shared";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
 	ConnectorSupervisor,
@@ -175,7 +175,7 @@ describe("ConnectorSupervisor", () => {
 
 		const result = await harness.supervisor.start({
 			channel: "slack",
-			instanceId: "cline-slack",
+			instanceId: "induscode-slack",
 			args: ["--bot-token", "xoxb"],
 		});
 
@@ -198,13 +198,13 @@ describe("ConnectorSupervisor", () => {
 		const harness = createHarness();
 		await harness.supervisor.start({
 			channel: "slack",
-			instanceId: "cline-slack",
+			instanceId: "induscode-slack",
 			args: ["--bot-token", "xoxb"],
 		});
 
 		const second = await harness.supervisor.start({
 			channel: "slack",
-			instanceId: "cline-slack",
+			instanceId: "induscode-slack",
 			args: ["--bot-token", "xoxb"],
 		});
 
@@ -218,13 +218,13 @@ describe("ConnectorSupervisor", () => {
 		const harness = createHarness();
 		await harness.supervisor.start({
 			channel: "slack",
-			instanceId: "cline-slack",
+			instanceId: "induscode-slack",
 			args: ["--bot-token", "old"],
 		});
 
 		const restarted = await harness.supervisor.start({
 			channel: "slack",
-			instanceId: "cline-slack",
+			instanceId: "induscode-slack",
 			args: ["--bot-token", "new"],
 			restart: true,
 		});
@@ -237,29 +237,29 @@ describe("ConnectorSupervisor", () => {
 	});
 
 	it("strips daemon and connector-child markers from the child environment", async () => {
-		process.env.CLINE_RUN_AS_HUB_DAEMON = "1";
-		process.env.CLINE_SLACK_CONNECT_CHILD = "1";
-		process.env.CLINE_CONNECTOR_DETACHED_CHILD = "1";
-		process.env.CLINE_CONNECTOR_STARTING_INSTANCE = '{"channel":"slack"}';
+		process.env.INDUSCODE_RUN_AS_HUB_DAEMON = "1";
+		process.env.INDUSCODE_SLACK_CONNECT_CHILD = "1";
+		process.env.INDUSCODE_CONNECTOR_DETACHED_CHILD = "1";
+		process.env.INDUSCODE_CONNECTOR_STARTING_INSTANCE = '{"channel":"slack"}';
 		try {
 			const harness = createHarness();
 			await harness.supervisor.start({
 				channel: "slack",
-				instanceId: "cline-slack",
+				instanceId: "induscode-slack",
 				args: [],
 			});
 
 			const env = harness.spawned[0]?.options.env ?? {};
-			expect(env.CLINE_RUN_AS_HUB_DAEMON).toBeUndefined();
-			expect(env.CLINE_SLACK_CONNECT_CHILD).toBeUndefined();
-			expect(env.CLINE_CONNECTOR_DETACHED_CHILD).toBeUndefined();
-			expect(env.CLINE_CONNECTOR_STARTING_INSTANCE).toBeUndefined();
+			expect(env.INDUSCODE_RUN_AS_HUB_DAEMON).toBeUndefined();
+			expect(env.INDUSCODE_SLACK_CONNECT_CHILD).toBeUndefined();
+			expect(env.INDUSCODE_CONNECTOR_DETACHED_CHILD).toBeUndefined();
+			expect(env.INDUSCODE_CONNECTOR_STARTING_INSTANCE).toBeUndefined();
 			expect(env.PATH).toBe(process.env.PATH);
 		} finally {
-			delete process.env.CLINE_RUN_AS_HUB_DAEMON;
-			delete process.env.CLINE_SLACK_CONNECT_CHILD;
-			delete process.env.CLINE_CONNECTOR_DETACHED_CHILD;
-			delete process.env.CLINE_CONNECTOR_STARTING_INSTANCE;
+			delete process.env.INDUSCODE_RUN_AS_HUB_DAEMON;
+			delete process.env.INDUSCODE_SLACK_CONNECT_CHILD;
+			delete process.env.INDUSCODE_CONNECTOR_DETACHED_CHILD;
+			delete process.env.INDUSCODE_CONNECTOR_STARTING_INSTANCE;
 		}
 	});
 
@@ -269,7 +269,7 @@ describe("ConnectorSupervisor", () => {
 		const harness = createHarness({ children: [first, second] });
 		await harness.supervisor.start({
 			channel: "slack",
-			instanceId: "cline-slack",
+			instanceId: "induscode-slack",
 			args: ["--bot-token", "xoxb"],
 		});
 
@@ -277,7 +277,7 @@ describe("ConnectorSupervisor", () => {
 		await flush();
 
 		// Reaping is what keeps Slack threads from pointing at dead sessions.
-		expect(harness.cleanups).toEqual(["slack:cline-slack"]);
+		expect(harness.cleanups).toEqual(["slack:induscode-slack"]);
 		expect(harness.supervisor.list()[0]?.state).toBe("backoff");
 		expect(harness.nextDelay()).toBe(RESTART_BASE_DELAY_MS);
 
@@ -298,7 +298,7 @@ describe("ConnectorSupervisor", () => {
 		const harness = createHarness({ children });
 		await harness.supervisor.start({
 			channel: "slack",
-			instanceId: "cline-slack",
+			instanceId: "induscode-slack",
 			args: [],
 		});
 
@@ -329,7 +329,7 @@ describe("ConnectorSupervisor", () => {
 		const harness = createHarness({ children });
 		await harness.supervisor.start({
 			channel: "slack",
-			instanceId: "cline-slack",
+			instanceId: "induscode-slack",
 			args: [],
 		});
 
@@ -356,7 +356,7 @@ describe("ConnectorSupervisor", () => {
 		const harness = createHarness({ children });
 		await harness.supervisor.start({
 			channel: "slack",
-			instanceId: "cline-slack",
+			instanceId: "induscode-slack",
 			args: [],
 		});
 
@@ -376,7 +376,7 @@ describe("ConnectorSupervisor", () => {
 	});
 
 	it("cancels a pending backoff restart when a new start replaces the entry", async () => {
-		// A user runs `cline connect` while the instance is waiting out its
+		// A user runs `induscode connect` while the instance is waiting out its
 		// backoff. The old entry's timer must not survive the replacement: it
 		// holds a closure over the old entry, so firing it would spawn a second
 		// process for the same instance — untracked by the map, so invisible to
@@ -389,7 +389,7 @@ describe("ConnectorSupervisor", () => {
 		const harness = createHarness({ children });
 		await harness.supervisor.start({
 			channel: "slack",
-			instanceId: "cline-slack",
+			instanceId: "induscode-slack",
 			args: ["--bot-token", "xoxb"],
 		});
 
@@ -400,7 +400,7 @@ describe("ConnectorSupervisor", () => {
 
 		const second = await harness.supervisor.start({
 			channel: "slack",
-			instanceId: "cline-slack",
+			instanceId: "induscode-slack",
 			args: ["--bot-token", "xoxb"],
 		});
 
@@ -418,13 +418,13 @@ describe("ConnectorSupervisor", () => {
 	it("serialises a boot-time restart with a concurrent user start", async () => {
 		// Observed live: a new hub's boot reconnect restarts an adopted survivor
 		// — which suspends inside stop() waiting on the CLI cleanup — while a
-		// user `cline connect` for the same instance arrives over the hub.
+		// user `induscode connect` for the same instance arrives over the hub.
 		// Unserialised, both spawned: the map tracked one process while the other
 		// lived on untracked, holding the connector's webhook port, and the
 		// tracked chain crash-looped on EADDRINUSE until it gave up.
 		mocks.getPersistedConnectorConnection.mockReturnValue({
 			channel: "slack",
-			instanceId: "cline-slack",
+			instanceId: "induscode-slack",
 			connectArgs: ["--bot-token", "stored"],
 			lastSuccessfulArgs: [],
 			enabled: true,
@@ -432,7 +432,7 @@ describe("ConnectorSupervisor", () => {
 			lastConnectedAt: "",
 		});
 		const harness = createHarness({
-			active: [{ type: "slack", instanceId: "cline-slack", pid: 700 }],
+			active: [{ type: "slack", instanceId: "induscode-slack", pid: 700 }],
 		});
 		harness.alivePids.add(700);
 		harness.supervisor.adoptRunningConnectors();
@@ -440,13 +440,13 @@ describe("ConnectorSupervisor", () => {
 		const [restarted, userStart] = await Promise.all([
 			harness.supervisor.start({
 				channel: "slack",
-				instanceId: "cline-slack",
+				instanceId: "induscode-slack",
 				args: ["--bot-token", "stored"],
 				restart: true,
 			}),
 			harness.supervisor.start({
 				channel: "slack",
-				instanceId: "cline-slack",
+				instanceId: "induscode-slack",
 				args: ["--bot-token", "stored"],
 			}),
 		]);
@@ -478,13 +478,13 @@ describe("ConnectorSupervisor", () => {
 		});
 		await harness.supervisor.start({
 			channel: "slack",
-			instanceId: "cline-slack",
+			instanceId: "induscode-slack",
 			args: [],
 		});
 
 		let resolved = false;
 		const pending = harness.supervisor
-			.stop({ channel: "slack", instanceId: "cline-slack" })
+			.stop({ channel: "slack", instanceId: "induscode-slack" })
 			.then((stopped) => {
 				resolved = true;
 				return stopped;
@@ -514,7 +514,7 @@ describe("ConnectorSupervisor", () => {
 		const harness = createHarness({ children });
 		await harness.supervisor.start({
 			channel: "slack",
-			instanceId: "cline-slack",
+			instanceId: "induscode-slack",
 			args: ["--bot-token", "xoxb"],
 		});
 
@@ -522,7 +522,7 @@ describe("ConnectorSupervisor", () => {
 		// No flush: the cleanup chain has not completed when the start arrives.
 		const second = await harness.supervisor.start({
 			channel: "slack",
-			instanceId: "cline-slack",
+			instanceId: "induscode-slack",
 			args: ["--bot-token", "xoxb"],
 		});
 		await flush();
@@ -542,7 +542,7 @@ describe("ConnectorSupervisor", () => {
 		const harness = createHarness({ children });
 		await harness.supervisor.start({
 			channel: "slack",
-			instanceId: "cline-slack",
+			instanceId: "induscode-slack",
 			args: [],
 		});
 
@@ -568,14 +568,14 @@ describe("ConnectorSupervisor", () => {
 		});
 		await harness.supervisor.start({
 			channel: "slack",
-			instanceId: "cline-slack",
+			instanceId: "induscode-slack",
 			args: [],
 		});
 
 		child.exit(0);
 		await flush();
 
-		expect(harness.cleanups).toEqual(["slack:cline-slack"]);
+		expect(harness.cleanups).toEqual(["slack:induscode-slack"]);
 		expect(harness.pendingTimers()).toBe(0);
 		expect(harness.supervisor.list()).toEqual([]);
 	});
@@ -585,13 +585,13 @@ describe("ConnectorSupervisor", () => {
 		const harness = createHarness({ children: [child] });
 		await harness.supervisor.start({
 			channel: "slack",
-			instanceId: "cline-slack",
+			instanceId: "induscode-slack",
 			args: [],
 		});
 
 		const stopped = await harness.supervisor.stop({
 			channel: "slack",
-			instanceId: "cline-slack",
+			instanceId: "induscode-slack",
 		});
 		child.exit(null, "SIGTERM");
 		await flush();
@@ -599,7 +599,7 @@ describe("ConnectorSupervisor", () => {
 		expect(stopped).toBe(true);
 		expect(mocks.disableConnectorAutostart).toHaveBeenCalledWith(
 			"slack",
-			"cline-slack",
+			"induscode-slack",
 		);
 		expect(harness.supervisor.list()).toEqual([]);
 		expect(harness.pendingTimers()).toBe(0);
@@ -608,7 +608,7 @@ describe("ConnectorSupervisor", () => {
 	it("adopts connectors that predate this hub and polls them for death", async () => {
 		mocks.getPersistedConnectorConnection.mockReturnValue({
 			channel: "slack",
-			instanceId: "cline-slack",
+			instanceId: "induscode-slack",
 			connectArgs: ["--bot-token", "stored"],
 			lastSuccessfulArgs: [],
 			enabled: true,
@@ -616,7 +616,7 @@ describe("ConnectorSupervisor", () => {
 			lastConnectedAt: "",
 		});
 		const harness = createHarness({
-			active: [{ type: "slack", instanceId: "cline-slack", pid: 700 }],
+			active: [{ type: "slack", instanceId: "induscode-slack", pid: 700 }],
 		});
 		harness.alivePids.add(700);
 
@@ -630,7 +630,7 @@ describe("ConnectorSupervisor", () => {
 		harness.advance(10_000);
 		await flush();
 
-		expect(harness.cleanups).toEqual(["slack:cline-slack"]);
+		expect(harness.cleanups).toEqual(["slack:induscode-slack"]);
 		harness.advance(RESTART_BASE_DELAY_MS);
 		await flush();
 
@@ -647,11 +647,11 @@ describe("ConnectorSupervisor", () => {
 
 	it("does not adopt an instance it already supervises", async () => {
 		const harness = createHarness({
-			active: [{ type: "slack", instanceId: "cline-slack", pid: 800 }],
+			active: [{ type: "slack", instanceId: "induscode-slack", pid: 800 }],
 		});
 		await harness.supervisor.start({
 			channel: "slack",
-			instanceId: "cline-slack",
+			instanceId: "induscode-slack",
 			args: [],
 		});
 
@@ -664,7 +664,7 @@ describe("ConnectorSupervisor", () => {
 
 		const result = await harness.supervisor.start({
 			channel: "slack",
-			instanceId: "cline-slack",
+			instanceId: "induscode-slack",
 			args: [],
 		});
 
@@ -676,7 +676,7 @@ describe("ConnectorSupervisor", () => {
 	it("cannot restart an adopted connector with no stored arguments", async () => {
 		mocks.getPersistedConnectorConnection.mockReturnValue(undefined);
 		const harness = createHarness({
-			active: [{ type: "slack", instanceId: "cline-slack", pid: 900 }],
+			active: [{ type: "slack", instanceId: "induscode-slack", pid: 900 }],
 		});
 		harness.alivePids.add(900);
 		harness.supervisor.adoptRunningConnectors();
@@ -696,7 +696,7 @@ describe("ConnectorSupervisor", () => {
 		const harness = createHarness({ children: [child] });
 		await harness.supervisor.start({
 			channel: "slack",
-			instanceId: "cline-slack",
+			instanceId: "induscode-slack",
 			args: [],
 		});
 

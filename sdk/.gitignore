@@ -12,7 +12,7 @@ tmp
 
 pnpm-lock.yaml
 
-.clineignore
+.induscodeignore
 .venv
 .actrc
 CLAUDE.local.md
@@ -60,10 +60,10 @@ tests/**/cache
 
 
 # SDK Session files / User data
-.cline/data
-.cline/tmp
+.induscode/data
+.induscode/tmp
 *.db
 *.db-shm
 *.db-wal
-.cline/**/managed.json
-.cline/**/bundle.json
+.induscode/**/managed.json
+.induscode/**/bundle.json

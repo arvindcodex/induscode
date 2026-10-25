@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { resolveClineDataDir } from "@cline/shared/storage";
+import { resolveIndusCodeDataDir } from "@induscode/shared/storage";
 
 /**
  * Legacy VS Code extension secrets.json keys that the legacy import in
@@ -8,7 +8,7 @@ import { resolveClineDataDir } from "@cline/shared/storage";
  */
 const LEGACY_SECRET_KEYS_BY_PROVIDER: Record<string, string[]> = {
 	"openai-codex": ["openai-codex-oauth-credentials"],
-	cline: ["cline:clineAccountId", "clineApiKey"],
+	induscode: ["induscode:induscodeAccountId", "induscodeApiKey"],
 };
 
 /**
@@ -25,7 +25,7 @@ const LEGACY_SECRET_KEYS_BY_PROVIDER: Record<string, string[]> = {
  */
 export function clearLegacyProviderCredentials(
 	providerId: string,
-	dataDir: string = resolveClineDataDir(),
+	dataDir: string = resolveIndusCodeDataDir(),
 ): boolean {
 	const keys = LEGACY_SECRET_KEYS_BY_PROVIDER[providerId];
 	const secretsPath = join(dataDir, "secrets.json");

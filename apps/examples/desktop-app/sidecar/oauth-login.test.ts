@@ -1,4 +1,4 @@
-import type { ProviderSettingsManager } from "@cline/core";
+import type { ProviderSettingsManager } from "@induscode/core";
 import { describe, expect, it, vi } from "vitest";
 import {
 	cancelProviderOAuthLogin,
@@ -25,7 +25,7 @@ function makeDependencies(overrides: {
 	const save =
 		overrides.save ??
 		vi.fn(() => ({
-			provider: "cline",
+			provider: "induscode",
 			auth: { accessToken: "saved-token" },
 		}));
 	return {
@@ -46,14 +46,14 @@ describe("runCancellableProviderOAuthLogin", () => {
 
 		const result = await runCancellableProviderOAuthLogin(
 			makeManager(),
-			"cline",
+			"induscode",
 			() => undefined,
 			{},
 			dependencies,
 		);
 
 		expect(save).toHaveBeenCalledTimes(1);
-		expect(result).toEqual({ provider: "cline", accessToken: "saved-token" });
+		expect(result).toEqual({ provider: "induscode", accessToken: "saved-token" });
 	});
 
 	it("aborts the login on cancel and never persists a late completion", async () => {
@@ -70,14 +70,14 @@ describe("runCancellableProviderOAuthLogin", () => {
 
 		const pending = runCancellableProviderOAuthLogin(
 			makeManager(),
-			"cline",
+			"induscode",
 			() => undefined,
 			{},
 			dependencies,
 		);
 		// Cancellation must reject the pending login right away, without
 		// waiting for the browser round-trip to finish.
-		expect(cancelProviderOAuthLogin("cline")).toBe(true);
+		expect(cancelProviderOAuthLogin("induscode")).toBe(true);
 		expect(signal?.aborted).toBe(true);
 		await expect(pending).rejects.toBeInstanceOf(OAuthLoginCancelledError);
 
@@ -89,18 +89,18 @@ describe("runCancellableProviderOAuthLogin", () => {
 	});
 
 	it("reports when there is no pending login to cancel", () => {
-		expect(cancelProviderOAuthLogin("cline")).toBe(false);
+		expect(cancelProviderOAuthLogin("induscode")).toBe(false);
 	});
 
 	it("cancels a dangling attempt when a new login starts for the provider", async () => {
 		let resolveFirstLogin: (credentials: Credentials) => void = () => undefined;
 		const firstSave = vi.fn(() => ({
-			provider: "cline",
+			provider: "induscode",
 			auth: { accessToken: "first-token" },
 		}));
 		const first = runCancellableProviderOAuthLogin(
 			makeManager(),
-			"cline",
+			"induscode",
 			() => undefined,
 			{},
 			makeDependencies({
@@ -118,7 +118,7 @@ describe("runCancellableProviderOAuthLogin", () => {
 			});
 		const second = runCancellableProviderOAuthLogin(
 			makeManager(),
-			"cline",
+			"induscode",
 			() => undefined,
 			{},
 			secondDependencies,
@@ -126,7 +126,7 @@ describe("runCancellableProviderOAuthLogin", () => {
 
 		await expect(first).rejects.toBeInstanceOf(OAuthLoginCancelledError);
 		await expect(second).resolves.toEqual({
-			provider: "cline",
+			provider: "induscode",
 			accessToken: "saved-token",
 		});
 
@@ -149,7 +149,7 @@ describe("runCancellableProviderOAuthLogin", () => {
 
 		const pending = runCancellableProviderOAuthLogin(
 			makeManager(),
-			"cline",
+			"induscode",
 			() => undefined,
 			{ owner: connection },
 			dependencies,

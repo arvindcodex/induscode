@@ -14,7 +14,7 @@ import { Logger } from "@/shared/services/Logger"
  * - Authorization endpoint: https://auth.openai.com/oauth/authorize
  * - Token endpoint: https://auth.openai.com/oauth/token
  * - Fixed callback port: 1455
- * - Codex-specific params: codex_cli_simplified_flow=true, originator=cline
+ * - Codex-specific params: codex_cli_simplified_flow=true, originator=induscode
  */
 const OPENAI_CODEX_OAUTH_CONFIG = {
 	authorizationEndpoint: "https://auth.openai.com/oauth/authorize",
@@ -319,7 +319,7 @@ function buildAuthorizationUrl(codeChallenge: string, state: string): string {
 		state,
 		// Codex-specific parameters
 		codex_cli_simplified_flow: "true",
-		originator: "cline",
+		originator: "induscode",
 	})
 
 	return `${OPENAI_CODEX_OAUTH_CONFIG.authorizationEndpoint}?${params.toString()}`

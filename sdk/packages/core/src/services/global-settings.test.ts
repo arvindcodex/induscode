@@ -1,7 +1,7 @@
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { ITelemetryService } from "@cline/shared";
+import type { ITelemetryService } from "@induscode/shared";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
 	GlobalSettingsSchema,
@@ -28,10 +28,10 @@ import {
 } from "./global-settings";
 
 describe("global-settings", () => {
-	const previousGlobalSettingsPath = process.env.CLINE_GLOBAL_SETTINGS_PATH;
+	const previousGlobalSettingsPath = process.env.INDUSCODE_GLOBAL_SETTINGS_PATH;
 
 	afterEach(() => {
-		process.env.CLINE_GLOBAL_SETTINGS_PATH = previousGlobalSettingsPath;
+		process.env.INDUSCODE_GLOBAL_SETTINGS_PATH = previousGlobalSettingsPath;
 	});
 
 	it("defines the global settings file schema", () => {
@@ -94,7 +94,7 @@ describe("global-settings", () => {
 		const root = await mkdtemp(join(tmpdir(), "core-global-settings-"));
 		try {
 			const settingsPath = join(root, "global-settings.json");
-			process.env.CLINE_GLOBAL_SETTINGS_PATH = settingsPath;
+			process.env.INDUSCODE_GLOBAL_SETTINGS_PATH = settingsPath;
 
 			writeGlobalSettings({
 				disabledTools: [" editor ", "read_files", "editor"],
@@ -147,7 +147,7 @@ describe("global-settings", () => {
 		const root = await mkdtemp(join(tmpdir(), "core-global-settings-"));
 		try {
 			const settingsPath = join(root, "global-settings.json");
-			process.env.CLINE_GLOBAL_SETTINGS_PATH = settingsPath;
+			process.env.INDUSCODE_GLOBAL_SETTINGS_PATH = settingsPath;
 
 			setDisabledPlugin("/plugins/example.js", true);
 			setDisabledAgentPlugin("portable-review", true);
@@ -180,7 +180,7 @@ describe("global-settings", () => {
 	it("stores provider-executed tool preferences in the scalable tools map", async () => {
 		const root = await mkdtemp(join(tmpdir(), "core-global-settings-"));
 		try {
-			process.env.CLINE_GLOBAL_SETTINGS_PATH = join(
+			process.env.INDUSCODE_GLOBAL_SETTINGS_PATH = join(
 				root,
 				"global-settings.json",
 			);
@@ -205,11 +205,11 @@ describe("global-settings", () => {
 		const root = await mkdtemp(join(tmpdir(), "core-global-settings-"));
 		try {
 			const malformedSettingsPath = join(root, "malformed.json");
-			process.env.CLINE_GLOBAL_SETTINGS_PATH = malformedSettingsPath;
+			process.env.INDUSCODE_GLOBAL_SETTINGS_PATH = malformedSettingsPath;
 			await writeFile(malformedSettingsPath, "{not json");
 			expect(isModelToolEnabledGlobally("web_search")).toBe(false);
 
-			process.env.CLINE_GLOBAL_SETTINGS_PATH = root;
+			process.env.INDUSCODE_GLOBAL_SETTINGS_PATH = root;
 			expect(isModelToolEnabledGlobally("web_search")).toBe(false);
 		} finally {
 			await rm(root, { recursive: true, force: true });
@@ -220,7 +220,7 @@ describe("global-settings", () => {
 		const root = await mkdtemp(join(tmpdir(), "core-global-settings-"));
 		try {
 			const settingsPath = join(root, "global-settings.json");
-			process.env.CLINE_GLOBAL_SETTINGS_PATH = settingsPath;
+			process.env.INDUSCODE_GLOBAL_SETTINGS_PATH = settingsPath;
 			const captureRequired = vi.fn();
 			const telemetry = {
 				captureRequired,
@@ -245,7 +245,7 @@ describe("global-settings", () => {
 		const root = await mkdtemp(join(tmpdir(), "core-global-settings-"));
 		try {
 			const settingsPath = join(root, "global-settings.json");
-			process.env.CLINE_GLOBAL_SETTINGS_PATH = settingsPath;
+			process.env.INDUSCODE_GLOBAL_SETTINGS_PATH = settingsPath;
 
 			writeGlobalSettings({
 				disabledTools: ["editor"],
@@ -267,7 +267,7 @@ describe("global-settings", () => {
 		const root = await mkdtemp(join(tmpdir(), "core-global-settings-"));
 		try {
 			const settingsPath = join(root, "global-settings.json");
-			process.env.CLINE_GLOBAL_SETTINGS_PATH = settingsPath;
+			process.env.INDUSCODE_GLOBAL_SETTINGS_PATH = settingsPath;
 
 			expect(readCompactionStrategyGlobally()).toBe("agentic");
 			setCompactionStrategyGlobally("agentic");
@@ -308,7 +308,7 @@ describe("global-settings", () => {
 		const root = await mkdtemp(join(tmpdir(), "core-global-settings-"));
 		try {
 			const settingsPath = join(root, "global-settings.json");
-			process.env.CLINE_GLOBAL_SETTINGS_PATH = settingsPath;
+			process.env.INDUSCODE_GLOBAL_SETTINGS_PATH = settingsPath;
 
 			expect(readPlanActModeGlobally()).toBeUndefined();
 			setPlanActModeGlobally("plan");
@@ -329,7 +329,7 @@ describe("global-settings", () => {
 		const root = await mkdtemp(join(tmpdir(), "core-global-settings-"));
 		try {
 			const settingsPath = join(root, "global-settings.json");
-			process.env.CLINE_GLOBAL_SETTINGS_PATH = settingsPath;
+			process.env.INDUSCODE_GLOBAL_SETTINGS_PATH = settingsPath;
 
 			expect(readToolAutoApproveGlobally()).toBeUndefined();
 			setToolAutoApproveGlobally(false);
@@ -345,7 +345,7 @@ describe("global-settings", () => {
 		const root = await mkdtemp(join(tmpdir(), "core-global-settings-"));
 		try {
 			const settingsPath = join(root, "global-settings.json");
-			process.env.CLINE_GLOBAL_SETTINGS_PATH = settingsPath;
+			process.env.INDUSCODE_GLOBAL_SETTINGS_PATH = settingsPath;
 
 			expect(readTuiThemeGlobally()).toBeUndefined();
 			setTuiThemeGlobally("tokyo-night");
@@ -368,7 +368,7 @@ describe("global-settings", () => {
 		const root = await mkdtemp(join(tmpdir(), "core-global-settings-"));
 		try {
 			const settingsPath = join(root, "global-settings.json");
-			process.env.CLINE_GLOBAL_SETTINGS_PATH = settingsPath;
+			process.env.INDUSCODE_GLOBAL_SETTINGS_PATH = settingsPath;
 
 			expect(readCompactionModeGlobally()).toBeUndefined();
 
@@ -404,7 +404,7 @@ describe("global-settings", () => {
 			const root = await mkdtemp(join(tmpdir(), "core-global-settings-"));
 			try {
 				const settingsPath = join(root, "global-settings.json");
-				process.env.CLINE_GLOBAL_SETTINGS_PATH = settingsPath;
+				process.env.INDUSCODE_GLOBAL_SETTINGS_PATH = settingsPath;
 				writeGlobalSettings({ disabledTools: ["editor"] });
 				readGlobalSettings();
 
@@ -424,7 +424,7 @@ describe("global-settings", () => {
 			const root = await mkdtemp(join(tmpdir(), "core-global-settings-"));
 			try {
 				const settingsPath = join(root, "global-settings.json");
-				process.env.CLINE_GLOBAL_SETTINGS_PATH = settingsPath;
+				process.env.INDUSCODE_GLOBAL_SETTINGS_PATH = settingsPath;
 				writeGlobalSettings({ disabledTools: ["editor"] });
 				readGlobalSettings();
 
@@ -450,7 +450,7 @@ describe("global-settings", () => {
 				const pathA = join(rootA, "global-settings.json");
 				const pathB = join(rootB, "global-settings.json");
 
-				process.env.CLINE_GLOBAL_SETTINGS_PATH = pathA;
+				process.env.INDUSCODE_GLOBAL_SETTINGS_PATH = pathA;
 				writeGlobalSettings({ disabledTools: ["editor"] });
 				expect(readGlobalSettings()).toEqual({
 					autoUpdateEnabled: true,
@@ -458,7 +458,7 @@ describe("global-settings", () => {
 					telemetryOptOut: false,
 				});
 
-				process.env.CLINE_GLOBAL_SETTINGS_PATH = pathB;
+				process.env.INDUSCODE_GLOBAL_SETTINGS_PATH = pathB;
 				writeGlobalSettings({ disabledTools: ["read_files"] });
 				expect(readGlobalSettings()).toEqual({
 					autoUpdateEnabled: true,
@@ -466,7 +466,7 @@ describe("global-settings", () => {
 					telemetryOptOut: false,
 				});
 
-				process.env.CLINE_GLOBAL_SETTINGS_PATH = pathA;
+				process.env.INDUSCODE_GLOBAL_SETTINGS_PATH = pathA;
 				expect(readGlobalSettings()).toEqual({
 					autoUpdateEnabled: true,
 					disabledTools: ["editor"],
@@ -482,7 +482,7 @@ describe("global-settings", () => {
 			const root = await mkdtemp(join(tmpdir(), "core-global-settings-"));
 			try {
 				const settingsPath = join(root, "missing-global-settings.json");
-				process.env.CLINE_GLOBAL_SETTINGS_PATH = settingsPath;
+				process.env.INDUSCODE_GLOBAL_SETTINGS_PATH = settingsPath;
 
 				expect(readGlobalSettings()).toEqual({
 					autoUpdateEnabled: true,
@@ -501,7 +501,7 @@ describe("global-settings", () => {
 			const root = await mkdtemp(join(tmpdir(), "core-global-settings-"));
 			try {
 				const settingsPath = join(root, "global-settings.json");
-				process.env.CLINE_GLOBAL_SETTINGS_PATH = settingsPath;
+				process.env.INDUSCODE_GLOBAL_SETTINGS_PATH = settingsPath;
 				writeGlobalSettings({
 					disabledAgentPlugins: ["portable-review"],
 					disabledTools: ["editor"],
@@ -530,7 +530,7 @@ describe("global-settings", () => {
 			const root = await mkdtemp(join(tmpdir(), "core-global-settings-"));
 			try {
 				const settingsPath = join(root, "global-settings.json");
-				process.env.CLINE_GLOBAL_SETTINGS_PATH = settingsPath;
+				process.env.INDUSCODE_GLOBAL_SETTINGS_PATH = settingsPath;
 
 				expect(readGlobalSettings()).toEqual({
 					autoUpdateEnabled: true,

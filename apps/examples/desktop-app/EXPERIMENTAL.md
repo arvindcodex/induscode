@@ -1,19 +1,19 @@
 # Desktop Experimental Branch & Beta Channel
 
 How experimental desktop features are developed on the `desktop-experimental`
-branch, shipped to users as **Cline Beta**, and graduated into `main`.
+branch, shipped to users as **IndusCode Beta**, and graduated into `main`.
 The release mechanics (workflow internals, secrets) live in
 [`.github/workflows/desktop-publish.yml`](../../../.github/workflows/desktop-publish.yml)
 and the `publish-desktop` skill
-([`.cline/skills/publish-desktop/SKILL.md`](../../../.cline/skills/publish-desktop/SKILL.md));
+([`.induscode/skills/publish-desktop/SKILL.md`](../../../.induscode/skills/publish-desktop/SKILL.md));
 this doc is the process.
 
 ## What the beta channel is
 
 The beta is a **separate app**, not a mode of the stable app:
 
-- Product name `Cline Beta`, bundle identifier `bot.cline.app.beta`
-  (stable is `Cline` / `bot.cline.app`) — set by
+- Product name `IndusCode Beta`, bundle identifier `bot.induscode.app.beta`
+  (stable is `IndusCode` / `bot.induscode.app`) — set by
   [`src-tauri/tauri.beta.conf.json`](./src-tauri/tauri.beta.conf.json), which
   is layered over `tauri.release.conf.json` at build time.
 - Both apps install and run **side by side**, so people can compare beta
@@ -30,7 +30,7 @@ The beta is a **separate app**, not a mode of the stable app:
   dead feed forever. Renaming would mean maintaining both feeds for as long
   as any pre-rename install exists, i.e. permanently. Same applies to
   `desktop-beta` once the first beta ships.
-- Both apps share `~/.cline` (provider credentials, global settings, hub
+- Both apps share `~/.induscode` (provider credentials, global settings, hub
   daemon — the hub is multi-client by design, same as running the CLI and the
   app together). A beta that requires a newer hub build can trigger the
   hub-update-required flow in the stable app or vice versa; that's expected

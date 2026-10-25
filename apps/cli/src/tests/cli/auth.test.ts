@@ -1,30 +1,30 @@
 // ---------------------------------------------------------------------------
-// cline auth - CLI flag and contract tests
+// induscode auth - CLI flag and contract tests
 //
-// These tests cover the `cline auth` subcommand behavior:
+// These tests cover the `induscode auth` subcommand behavior:
 //   - Interactive auth screen navigation
-//   - `cline auth -p <provider> -k <apiKey> -m <modelId>` golden path
+//   - `induscode auth -p <provider> -k <apiKey> -m <modelId>` golden path
 //   - Invalid provider / key / model error handling
 //   - Partial-flag error handling (exit with failure)
-//   - `cline auth --help`
+//   - `induscode auth --help`
 // ---------------------------------------------------------------------------
 
 import { test } from "@microsoft/tui-test";
 import {
-	CLINE_BIN,
+	INDUSCODE_BIN,
 	EXIT_CODE_FAIL,
 	EXIT_CODE_SUCCESS,
 	TERMINAL_WIDE,
 } from "../helpers/constants.js";
-import { clineEnv } from "../helpers/env.js";
+import { induscodeEnv } from "../helpers/env.js";
 import { waitForAuthScreen } from "../helpers/page-objects/auth.js";
 import { expectExitCode, expectVisible } from "../helpers/terminal.js";
 
-test.describe("cline auth (interactive screen)", () => {
+test.describe("induscode auth (interactive screen)", () => {
 	test.use({
-		program: { file: CLINE_BIN, args: ["auth"] },
+		program: { file: INDUSCODE_BIN, args: ["auth"] },
 		...TERMINAL_WIDE,
-		env: clineEnv("unauthenticated"),
+		env: induscodeEnv("unauthenticated"),
 	});
 
 	test("shows all auth options", async ({ terminal }) => {
@@ -35,15 +35,15 @@ test.describe("cline auth (interactive screen)", () => {
 		await waitForAuthScreen(terminal);
 		terminal.keyDown();
 		terminal.keyUp();
-		await expectVisible(terminal, "Sign in with Cline");
+		await expectVisible(terminal, "Sign in with IndusCode");
 	});
 });
 
-test.describe("cline auth --help", () => {
+test.describe("induscode auth --help", () => {
 	test.use({
-		program: { file: CLINE_BIN, args: ["auth", "--help"] },
+		program: { file: INDUSCODE_BIN, args: ["auth", "--help"] },
 		...TERMINAL_WIDE,
-		env: clineEnv("unauthenticated"),
+		env: induscodeEnv("unauthenticated"),
 	});
 
 	test("shows auth help page", async ({ terminal }) => {
@@ -58,13 +58,13 @@ test.describe("cline auth --help", () => {
 });
 
 // ---------------------------------------------------------------------------
-// cline auth with only partial flags -> exits with error
+// induscode auth with only partial flags -> exits with error
 // ---------------------------------------------------------------------------
-test.describe("cline auth --provider only (partial flags)", () => {
+test.describe("induscode auth --provider only (partial flags)", () => {
 	test.use({
-		program: { file: CLINE_BIN, args: ["auth", "--provider", "openai"] },
+		program: { file: INDUSCODE_BIN, args: ["auth", "--provider", "openai"] },
 		...TERMINAL_WIDE,
-		env: clineEnv("unauthenticated"),
+		env: induscodeEnv("unauthenticated"),
 	});
 
 	test("exits with failure", async ({ terminal }) => {
@@ -73,14 +73,14 @@ test.describe("cline auth --provider only (partial flags)", () => {
 	});
 });
 
-test.describe("cline auth --apikey only (partial flags)", () => {
+test.describe("induscode auth --apikey only (partial flags)", () => {
 	test.use({
 		program: {
-			file: CLINE_BIN,
+			file: INDUSCODE_BIN,
 			args: ["auth", "--apikey", "sk-test-key"],
 		},
 		...TERMINAL_WIDE,
-		env: clineEnv("unauthenticated"),
+		env: induscodeEnv("unauthenticated"),
 	});
 
 	test("exits with error requiring --provider", async ({ terminal }) => {
@@ -89,14 +89,14 @@ test.describe("cline auth --apikey only (partial flags)", () => {
 	});
 });
 
-test.describe("cline auth --modelid only (partial flags)", () => {
+test.describe("induscode auth --modelid only (partial flags)", () => {
 	test.use({
 		program: {
-			file: CLINE_BIN,
+			file: INDUSCODE_BIN,
 			args: ["auth", "--modelid", "gpt-4o"],
 		},
 		...TERMINAL_WIDE,
-		env: clineEnv("unauthenticated"),
+		env: induscodeEnv("unauthenticated"),
 	});
 
 	test("exits with error requiring --provider", async ({ terminal }) => {
@@ -105,14 +105,14 @@ test.describe("cline auth --modelid only (partial flags)", () => {
 	});
 });
 
-test.describe("cline auth --baseurl only (partial flags)", () => {
+test.describe("induscode auth --baseurl only (partial flags)", () => {
 	test.use({
 		program: {
-			file: CLINE_BIN,
+			file: INDUSCODE_BIN,
 			args: ["auth", "--baseurl", "https://api.example.com"],
 		},
 		...TERMINAL_WIDE,
-		env: clineEnv("unauthenticated"),
+		env: induscodeEnv("unauthenticated"),
 	});
 
 	test("exits with error requiring --provider", async ({ terminal }) => {
@@ -121,14 +121,14 @@ test.describe("cline auth --baseurl only (partial flags)", () => {
 	});
 });
 
-test.describe("cline auth --verbose only", () => {
+test.describe("induscode auth --verbose only", () => {
 	test.use({
 		program: {
-			file: CLINE_BIN,
+			file: INDUSCODE_BIN,
 			args: ["auth", "--verbose"],
 		},
 		...TERMINAL_WIDE,
-		env: clineEnv("unauthenticated"),
+		env: induscodeEnv("unauthenticated"),
 	});
 
 	test("accepts --verbose and shows interactive auth screen", async ({
@@ -138,14 +138,14 @@ test.describe("cline auth --verbose only", () => {
 	});
 });
 
-test.describe("cline auth --cwd", () => {
+test.describe("induscode auth --cwd", () => {
 	test.use({
 		program: {
-			file: CLINE_BIN,
+			file: INDUSCODE_BIN,
 			args: ["auth", "--cwd", "/tmp"],
 		},
 		...TERMINAL_WIDE,
-		env: clineEnv("unauthenticated"),
+		env: induscodeEnv("unauthenticated"),
 	});
 
 	test("accepts --cwd and shows interactive auth screen", async ({
@@ -155,14 +155,14 @@ test.describe("cline auth --cwd", () => {
 	});
 });
 
-test.describe("cline auth --config", () => {
+test.describe("induscode auth --config", () => {
 	test.use({
 		program: {
-			file: CLINE_BIN,
+			file: INDUSCODE_BIN,
 			args: ["auth", "--config", "configs/unauthenticated"],
 		},
 		...TERMINAL_WIDE,
-		env: clineEnv("unauthenticated"),
+		env: induscodeEnv("unauthenticated"),
 	});
 
 	test("accepts --config and shows interactive auth screen", async ({
@@ -172,10 +172,10 @@ test.describe("cline auth --config", () => {
 	});
 });
 
-test.describe("cline auth -p -k -m (golden path)", () => {
+test.describe("induscode auth -p -k -m (golden path)", () => {
 	test.use({
 		program: {
-			file: CLINE_BIN,
+			file: INDUSCODE_BIN,
 			args: [
 				"auth",
 				"--provider",
@@ -187,7 +187,7 @@ test.describe("cline auth -p -k -m (golden path)", () => {
 			],
 		},
 		...TERMINAL_WIDE,
-		env: clineEnv("unauthenticated"),
+		env: induscodeEnv("unauthenticated"),
 	});
 
 	test("exits successfully with valid provider, key, and model", async ({
@@ -198,10 +198,10 @@ test.describe("cline auth -p -k -m (golden path)", () => {
 	});
 });
 
-test.describe("cline auth with invalid key (still exits 0)", () => {
+test.describe("induscode auth with invalid key (still exits 0)", () => {
 	test.use({
 		program: {
-			file: CLINE_BIN,
+			file: INDUSCODE_BIN,
 			args: [
 				"auth",
 				"--provider",
@@ -213,7 +213,7 @@ test.describe("cline auth with invalid key (still exits 0)", () => {
 			],
 		},
 		...TERMINAL_WIDE,
-		env: clineEnv("unauthenticated"),
+		env: induscodeEnv("unauthenticated"),
 	});
 
 	test("accepts invalid key without error at auth time", async ({
@@ -223,10 +223,10 @@ test.describe("cline auth with invalid key (still exits 0)", () => {
 	});
 });
 
-test.describe("cline auth -p -k -m -b (golden path with baseUrl)", () => {
+test.describe("induscode auth -p -k -m -b (golden path with baseUrl)", () => {
 	test.use({
 		program: {
-			file: CLINE_BIN,
+			file: INDUSCODE_BIN,
 			args: [
 				"auth",
 				"--provider",
@@ -240,7 +240,7 @@ test.describe("cline auth -p -k -m -b (golden path with baseUrl)", () => {
 			],
 		},
 		...TERMINAL_WIDE,
-		env: clineEnv("unauthenticated"),
+		env: induscodeEnv("unauthenticated"),
 	});
 
 	test("exits successfully with baseUrl for OpenAI Compatible provider", async ({
@@ -250,10 +250,10 @@ test.describe("cline auth -p -k -m -b (golden path with baseUrl)", () => {
 	});
 });
 
-test.describe("cline auth --baseurl with non-OpenAI-compatible provider", () => {
+test.describe("induscode auth --baseurl with non-OpenAI-compatible provider", () => {
 	test.use({
 		program: {
-			file: CLINE_BIN,
+			file: INDUSCODE_BIN,
 			args: [
 				"auth",
 				"--provider",
@@ -267,7 +267,7 @@ test.describe("cline auth --baseurl with non-OpenAI-compatible provider", () => 
 			],
 		},
 		...TERMINAL_WIDE,
-		env: clineEnv("unauthenticated"),
+		env: induscodeEnv("unauthenticated"),
 	});
 
 	test("shows error for baseUrl with non-OpenAI provider", async ({
@@ -280,10 +280,10 @@ test.describe("cline auth --baseurl with non-OpenAI-compatible provider", () => 
 	});
 });
 
-test.describe("cline auth with invalid provider", () => {
+test.describe("induscode auth with invalid provider", () => {
 	test.use({
 		program: {
-			file: CLINE_BIN,
+			file: INDUSCODE_BIN,
 			args: [
 				"auth",
 				"--provider",
@@ -295,7 +295,7 @@ test.describe("cline auth with invalid provider", () => {
 			],
 		},
 		...TERMINAL_WIDE,
-		env: clineEnv("unauthenticated"),
+		env: induscodeEnv("unauthenticated"),
 	});
 
 	test("shows invalid provider error", async ({ terminal }) => {

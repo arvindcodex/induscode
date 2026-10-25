@@ -263,7 +263,7 @@ describe("MemoizedMarkdown interactions", () => {
 		).not.toBeNull();
 		// Header shows the filename, not Streamdown's literal "mermaid" label.
 		expect(
-			container.querySelector(".cline-mermaid__filename")?.textContent,
+			container.querySelector(".induscode-mermaid__filename")?.textContent,
 		).toBe("app-infrastructure-architecture.mmd");
 		expect(container.querySelector('button[title="Copy Code"]')).toBeNull();
 		expect(getLabelledButton("Zoom in")).toBeDefined();
@@ -380,7 +380,7 @@ describe("MemoizedMarkdown interactions", () => {
 	test("zooms with the toolbar and resets", async () => {
 		await renderReadyDiagram("flowchart LR\nA --> B");
 		const canvas = () =>
-			container.querySelector<HTMLElement>(".cline-mermaid__canvas");
+			container.querySelector<HTMLElement>(".induscode-mermaid__canvas");
 		expect(canvas()?.style.transform).toContain("scale(1)");
 		await click(getLabelledButton("Zoom in"));
 		expect(canvas()?.style.transform).toContain("scale(1.25)");
@@ -396,7 +396,7 @@ describe("MemoizedMarkdown interactions", () => {
 		});
 		await waitFor(() => {
 			expect(
-				container.querySelector(".cline-mermaid__skeleton")?.textContent,
+				container.querySelector(".induscode-mermaid__skeleton")?.textContent,
 			).toContain("Drawing diagram");
 		});
 		expect(mermaidMocks.render).not.toHaveBeenCalled();
@@ -404,7 +404,7 @@ describe("MemoizedMarkdown interactions", () => {
 		// Streamdown hands the renderer the fence `meta` while the block is still
 		// streaming, so the header already shows the model-provided name.
 		expect(
-			container.querySelector(".cline-mermaid__filename")?.textContent,
+			container.querySelector(".induscode-mermaid__filename")?.textContent,
 		).toBe("partial.mmd");
 	});
 
@@ -521,13 +521,13 @@ describe("MemoizedMarkdown interactions", () => {
 	});
 
 	// Desktop webview tests colocate beside the component under test (unlike
-	// `@cline/ui`, which keeps a package-level `tests/` directory), so this
+	// `@induscode/ui`, which keeps a package-level `tests/` directory), so this
 	// coverage lives next to `markdown.tsx`.
 	//
 	// Mermaid renders `click <node> "https://…"` directives as live anchors
 	// inside the SVG, and Streamdown injects that SVG with
 	// `dangerouslySetInnerHTML` — so those anchors never pass through
-	// SafeMarkdownLink. @cline/ui strips the navigable href; these assert the
+	// SafeMarkdownLink. @induscode/ui strips the navigable href; these assert the
 	// desktop surface reattaches them to the confirmation flow instead of
 	// letting a diagram click navigate the webview away from the app.
 	async function renderDiagramWithLink(
@@ -541,7 +541,7 @@ describe("MemoizedMarkdown interactions", () => {
 		});
 		await act(async () => {
 			render.resolve({
-				svg: `<svg xmlns="http://www.w3.org/2000/svg"><a xlink:href="${href}" data-testid="diagram-link"><text>Official Cline Docs</text></a></svg>`,
+				svg: `<svg xmlns="http://www.w3.org/2000/svg"><a xlink:href="${href}" data-testid="diagram-link"><text>Official IndusCode Docs</text></a></svg>`,
 			});
 			await render.promise;
 		});
@@ -557,7 +557,7 @@ describe("MemoizedMarkdown interactions", () => {
 
 		expect(anchor.getAttribute("xlink:href")).toBeNull();
 		expect(anchor.getAttribute("href")).toBeNull();
-		expect(anchor.getAttribute("data-cline-diagram-href")).toBe(
+		expect(anchor.getAttribute("data-induscode-diagram-href")).toBe(
 			"https://evil.example.com/harvest?t=1",
 		);
 	});
@@ -654,7 +654,7 @@ describe("MemoizedMarkdown interactions", () => {
 	test("never surfaces a non-http(s) diagram destination", async () => {
 		const anchor = await renderDiagramWithLink("javascript:alert(1)");
 
-		expect(anchor.getAttribute("data-cline-diagram-href")).toBeNull();
+		expect(anchor.getAttribute("data-induscode-diagram-href")).toBeNull();
 		await click(anchor);
 		expect(document.querySelector('[role="alertdialog"]')).toBeNull();
 		expect(openWindow).not.toHaveBeenCalled();
@@ -682,7 +682,7 @@ describe("MemoizedMarkdown interactions", () => {
 	});
 
 	test("opens honest external links directly in the default browser", async () => {
-		const url = "https://example.com/review?source=cline";
+		const url = "https://example.com/review?source=induscode";
 		await renderMarkdown({ content: `[Review docs](${url})` });
 		const link = await vi.waitFor(() => {
 			const renderedLink = container.querySelector<HTMLAnchorElement>(
@@ -705,8 +705,8 @@ describe("MemoizedMarkdown interactions", () => {
 	});
 
 	test("requires confirmation before opening a deceptive external link", async () => {
-		const url = "https://example.com/review?source=cline";
-		await renderMarkdown({ content: `[github.com/cline](${url})` });
+		const url = "https://example.com/review?source=induscode";
+		await renderMarkdown({ content: `[github.com/induscode](${url})` });
 		const link = await vi.waitFor(() => {
 			const renderedLink = container.querySelector<HTMLElement>(
 				'[data-streamdown="link"]',
@@ -771,7 +771,7 @@ describe("MemoizedMarkdown interactions", () => {
 	});
 
 	test("opens mailto links directly through the external opener", async () => {
-		await renderMarkdown({ content: "[Email us](mailto:hi@cline.bot)" });
+		await renderMarkdown({ content: "[Email us](mailto:hi@induscode.bot)" });
 		const link = await vi.waitFor(() => {
 			const renderedLink = container.querySelector<HTMLElement>(
 				'[data-streamdown="link"]',
@@ -784,7 +784,7 @@ describe("MemoizedMarkdown interactions", () => {
 		await click(link);
 		expect(document.querySelector('[role="alertdialog"]')).toBeNull();
 		expect(openWindow).toHaveBeenCalledWith(
-			"mailto:hi@cline.bot",
+			"mailto:hi@induscode.bot",
 			"_blank",
 			"noopener,noreferrer",
 		);
@@ -823,7 +823,7 @@ describe("MemoizedMarkdown interactions", () => {
 
 	// With lineNumbers off, Streamdown emits one bare inline <span> per Shiki
 	// token line with no newline text between non-empty lines; the shared
-	// @cline/ui markdown.css turns those direct line spans into blocks. This
+	// @induscode/ui markdown.css turns those direct line spans into blocks. This
 	// asserts the one-span-per-line structure that CSS contract depends on,
 	// after the async Shiki highlight replaces the raw fallback render (the
 	// SSR tests never exercise that client-side path).

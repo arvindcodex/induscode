@@ -864,7 +864,7 @@ describe("createMermaidService", () => {
 		expect(svg).not.toMatch(/\s(?:xlink:)?href\s*=/);
 		expect(svg).not.toMatch(/\starget\s*=/);
 		expect(svg).toContain(
-			'data-cline-diagram-href="https://evil.example.com/"',
+			'data-induscode-diagram-href="https://evil.example.com/"',
 		);
 		expect(svg).not.toContain("javascript:");
 	});

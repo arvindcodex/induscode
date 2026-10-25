@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import type { ImageContent } from "@cline/shared";
+import type { ImageContent } from "@induscode/shared";
 import YAML from "yaml";
 
 export const TOOL_RESULT_CACHE_MAX_BYTES = 16 * 1024 * 1024;
@@ -41,7 +41,7 @@ export class ToolResultCache {
 			this.remove(oldest);
 		}
 		const id = randomUUID();
-		const uri = `cline://cache/${encodeURIComponent(this.sessionId)}/${id}.result.txt`;
+		const uri = `induscode://cache/${encodeURIComponent(this.sessionId)}/${id}.result.txt`;
 		this.entries.set(id, {
 			text,
 			bytes,
@@ -57,7 +57,7 @@ export class ToolResultCache {
 	}
 
 	read(uri: string): string {
-		const match = /^cline:\/\/cache\/([^/]+)\/([a-f0-9-]+)\.result\.txt$/.exec(
+		const match = /^induscode:\/\/cache\/([^/]+)\/([a-f0-9-]+)\.result\.txt$/.exec(
 			uri,
 		);
 		if (!match || decodeURIComponent(match[1]) !== this.sessionId) {

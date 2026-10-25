@@ -1,12 +1,12 @@
 import {
-	fetchClineRecommendedModels,
+	fetchIndusCodeRecommendedModels,
 	getProviderConfigFields,
 	Llms,
 	ProviderSettingsManager,
 	refreshProviderModelsFromSource,
 	resolveProviderConfig,
-} from "@cline/core";
-import { isClineProvider } from "@cline/shared";
+} from "@induscode/core";
+import { isIndusCodeProvider } from "@induscode/shared";
 import type { ChoiceContext } from "@opentui-ui/dialog";
 import type { DialogActions } from "@opentui-ui/dialog/react";
 import { useCallback } from "react";
@@ -19,7 +19,7 @@ import {
 import type { Config } from "../../utils/types";
 import { withLoadingDialog } from "../components/dialogs/loading-dialog";
 import {
-	ClinePassSubscriptionContent,
+	IndusCodePassSubscriptionContent,
 	type ExistingProviderOption,
 	LocalCliStatusContent,
 	OAuthApiKeyInputContent,
@@ -29,11 +29,11 @@ import {
 	ProviderPickerContent,
 	UseExistingOrReconfigureContent,
 } from "../components/dialogs/provider-picker";
-import { buildFeaturedModelEntries } from "../components/model-selector/cline-model-picker";
+import { buildFeaturedModelEntries } from "../components/model-selector/induscode-model-picker";
 import {
 	BROWSE_ALL_ACTION,
-	ClineModelSelectorDialogContent,
-} from "../components/model-selector/cline-model-selector";
+	IndusCodeModelSelectorDialogContent,
+} from "../components/model-selector/induscode-model-selector";
 import {
 	buildModelOptions,
 	CHANGE_PROVIDER_ACTION,
@@ -134,7 +134,7 @@ function providerToExistingProviderOptions(input: {
 	dialog: DialogActions;
 	termHeight: number;
 }): ExistingProviderOption[] {
-	if (input.providerId !== "cline-pass") {
+	if (input.providerId !== "induscode-pass") {
 		return [];
 	}
 
@@ -147,7 +147,7 @@ function providerToExistingProviderOptions(input: {
 					style: { maxHeight: input.termHeight - 2 },
 					closeOnEscape: false,
 					content: (ctx: ChoiceContext<boolean>) => (
-						<ClinePassSubscriptionContent
+						<IndusCodePassSubscriptionContent
 							{...ctx}
 							providerName={input.providerName}
 						/>
@@ -184,8 +184,8 @@ async function runProviderChange(
 	const localCliProvider = getLocalCliInfo(newProviderId);
 
 	// Manual API key entry is the escape hatch for when OAuth login isn't
-	// working; only the Cline providers accept a dashboard API key.
-	const supportsManualApiKey = isClineProvider(newProviderId);
+	// working; only the IndusCode providers accept a dashboard API key.
+	const supportsManualApiKey = isIndusCodeProvider(newProviderId);
 	const openManualApiKeyDialog = async (): Promise<boolean | undefined> =>
 		await dialog.choice<boolean>({
 			style: { maxHeight: termHeight - 2 },
@@ -439,37 +439,37 @@ export function useModelSelector(opts: {
 				}
 
 				if (
-					config.providerId === "cline" ||
-					config.providerId === "cline-pass"
+					config.providerId === "induscode" ||
+					config.providerId === "induscode-pass"
 				) {
-					// ClinePass gets the same sectioned picker with Subscribed/Free
-					// sections — free models are selectable while staying on ClinePass
+					// IndusCodePass gets the same sectioned picker with Subscribed/Free
+					// sections — free models are selectable while staying on IndusCodePass
 					const featuredProviderId = config.providerId;
-					const clineResult = await dialog.choice<string>({
+					const induscodeResult = await dialog.choice<string>({
 						style: { maxHeight: termHeight - 2 },
 						content: (ctx: ChoiceContext<string>) => (
-							<ClineModelSelectorDialogContent
+							<IndusCodeModelSelectorDialogContent
 								{...ctx}
 								currentModel={config.modelId}
 								currentProviderName={providerDisplayName}
 								loadEntries={async () =>
 									buildFeaturedModelEntries(
 										featuredProviderId,
-										await fetchClineRecommendedModels(),
+										await fetchIndusCodeRecommendedModels(),
 									)
 								}
 							/>
 						),
 					});
-					if (!clineResult) {
+					if (!induscodeResult) {
 						await handleCancel();
 						return;
 					}
-					if (clineResult === CHANGE_PROVIDER_ACTION) {
+					if (induscodeResult === CHANGE_PROVIDER_ACTION) {
 						await changeProvider();
 						continue;
 					}
-					if (clineResult === BROWSE_ALL_ACTION) {
+					if (induscodeResult === BROWSE_ALL_ACTION) {
 						const browseResult = await dialog.choice<string>({
 							style: { maxHeight: termHeight - 2 },
 							content: (ctx: ChoiceContext<string>) => (
@@ -478,7 +478,7 @@ export function useModelSelector(opts: {
 									currentModel={config.modelId}
 									currentProviderName={providerDisplayName}
 									models={modelOptions}
-									showCustomModelId={config.providerId !== "cline-pass"}
+									showCustomModelId={config.providerId !== "induscode-pass"}
 								/>
 							),
 						});
@@ -524,9 +524,9 @@ export function useModelSelector(opts: {
 						continue;
 					}
 
-					config.modelId = clineResult;
+					config.modelId = induscodeResult;
 					const selectedModel = modelOptions.find(
-						(m: ModelOption) => m.key === clineResult,
+						(m: ModelOption) => m.key === induscodeResult,
 					);
 					if (selectedModel?.supportsReasoning) {
 						const currentLevel: ThinkingLevel = config.reasoningEffort
@@ -569,7 +569,7 @@ export function useModelSelector(opts: {
 							currentModel={config.modelId}
 							currentProviderName={providerDisplayName}
 							models={modelOptions}
-							showCustomModelId={config.providerId !== "cline-pass"}
+							showCustomModelId={config.providerId !== "induscode-pass"}
 						/>
 					),
 				});

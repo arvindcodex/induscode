@@ -19,7 +19,7 @@ const mocks = vi.hoisted(() => ({
 	getProviderSettings: vi.fn((): any => undefined),
 }))
 
-vi.mock("@cline/core", async (importOriginal: any) => {
+vi.mock("@induscode/core", async (importOriginal: any) => {
 	const actual = await importOriginal()
 	return {
 		...actual,
@@ -55,7 +55,7 @@ type TestReader = ProviderConfigReader & {
 }
 
 // Warm the catalog module graph once before any test runs. catalog.ts statically
-// pulls in @cline/core, @cline/llms and @cline/shared, so the first test to call
+// pulls in @induscode/core, @induscode/llms and @induscode/shared, so the first test to call
 // `await import("./catalog")` otherwise pays the entire (>5s on CI) import cost
 // inside its own 5s test timeout and flakily fails. Importing here moves that cost
 // outside any per-test clock (hooks get a generous timeout of their own).
@@ -551,7 +551,7 @@ describe("ProviderCatalog Phase 3.5 listProviders", () => {
 		})
 		expect(listings[0]).not.toHaveProperty("models")
 		expect(mocks.listLocalProviders).toHaveBeenCalledTimes(1)
-		expect(mocks.listLocalProviders).toHaveBeenCalledWith(expect.anything(), { isClinePassEnabled: true })
+		expect(mocks.listLocalProviders).toHaveBeenCalledWith(expect.anything(), { isIndusCodePassEnabled: true })
 	})
 
 	it("passes the SDK's subscription usage-cost display through to listings", async () => {
@@ -615,21 +615,21 @@ describe("ProviderCatalog Phase 3.5 listProviders", () => {
 		const { createProviderCatalog } = await import("./catalog")
 		mocks.listLocalProviders
 			.mockResolvedValueOnce({
-				providers: [{ id: "cline", name: "Cline", protocol: "anthropic", client: "anthropic", source: "system" }],
+				providers: [{ id: "induscode", name: "IndusCode", protocol: "anthropic", client: "anthropic", source: "system" }],
 			})
 			.mockResolvedValueOnce({
 				providers: [
-					{ id: "cline-pass", name: "ClinePass", protocol: "anthropic", client: "anthropic", source: "system" },
+					{ id: "induscode-pass", name: "IndusCodePass", protocol: "anthropic", client: "anthropic", source: "system" },
 				],
 			})
-		const catalog = createProviderCatalog(makeReader({ providerId: parseProviderId("cline") }))
+		const catalog = createProviderCatalog(makeReader({ providerId: parseProviderId("induscode") }))
 
 		const first = await catalog.listProviders()
 		catalog.invalidateProviderListings()
 		const second = await catalog.listProviders()
 
-		expect(first[0]?.id).toBe("cline")
-		expect(second[0]?.id).toBe("cline-pass")
+		expect(first[0]?.id).toBe("induscode")
+		expect(second[0]?.id).toBe("induscode-pass")
 		expect(mocks.listLocalProviders).toHaveBeenCalledTimes(2)
 	})
 

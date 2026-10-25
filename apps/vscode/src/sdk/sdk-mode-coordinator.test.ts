@@ -1,4 +1,4 @@
-import type { ClineMessage } from "@shared/ExtensionMessage"
+import type { IndusCodeMessage } from "@shared/ExtensionMessage"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import type { StateManager } from "@/core/storage/StateManager"
 import { SdkModeCoordinator, type SdkModeCoordinatorOptions } from "./sdk-mode-coordinator"
@@ -13,7 +13,7 @@ vi.mock("@/shared/services/Logger", () => ({
 }))
 
 vi.mock("@core/storage/disk", () => ({
-	saveClineMessages: vi.fn().mockResolvedValue(undefined),
+	saveIndusCodeMessages: vi.fn().mockResolvedValue(undefined),
 }))
 
 describe("SdkModeCoordinator", () => {
@@ -555,7 +555,7 @@ describe("SdkModeCoordinator", () => {
 		)
 	})
 
-	it("preserves composer content when the rebuild aborts on a cline auth error", async () => {
+	it("preserves composer content when the rebuild aborts on a induscode auth error", async () => {
 		const activeSession = makeActiveSession()
 		const task = makeTask("old-session", planMessages())
 		const { coordinator, options, state } = makeCoordinator({
@@ -564,8 +564,8 @@ describe("SdkModeCoordinator", () => {
 			mode: "plan",
 			turnPhase: "awaiting_followup",
 			config: {
-				providerId: "cline",
-				modelId: "cline-model",
+				providerId: "induscode",
+				modelId: "induscode-model",
 				apiKey: undefined,
 			},
 		})
@@ -580,7 +580,7 @@ describe("SdkModeCoordinator", () => {
 			}),
 		).resolves.toBe(false)
 
-		expect(options.emitClineAuthError).toHaveBeenCalledOnce()
+		expect(options.emitIndusCodeAuthError).toHaveBeenCalledOnce()
 		expect(options.sessions.fireAndForgetSend).not.toHaveBeenCalled()
 		expect(options.messages.appendAndEmit).not.toHaveBeenCalled()
 		// The old plan session is still active, so the mode setting rolls back.
@@ -615,20 +615,20 @@ describe("SdkModeCoordinator", () => {
 		)
 	})
 
-	it("emits an auth error and skips replacement when the target cline provider has no token", async () => {
+	it("emits an auth error and skips replacement when the target induscode provider has no token", async () => {
 		const activeSession = makeActiveSession()
 		const { coordinator, options, state } = makeCoordinator({
 			activeSession,
 			config: {
-				providerId: "cline",
-				modelId: "cline-model",
+				providerId: "induscode",
+				modelId: "induscode-model",
 				apiKey: undefined,
 			},
 		})
 
 		await coordinator.rebuildSessionForMode("act")
 
-		expect(options.emitClineAuthError).toHaveBeenCalledOnce()
+		expect(options.emitIndusCodeAuthError).toHaveBeenCalledOnce()
 		expect(options.sessions.replaceActiveSession).not.toHaveBeenCalled()
 		expect(options.postStateToWebview).toHaveBeenCalledTimes(2)
 		expect(state.mode).toBe("plan")
@@ -645,7 +645,7 @@ describe("SdkModeCoordinator", () => {
 		expect(options.messages.cancelPendingSave).toHaveBeenCalledOnce()
 		expect(activeSession.sdkHost.abort).toHaveBeenCalledWith("old-session")
 		expect(options.sessions.setRunning).toHaveBeenCalledWith(false)
-		expect(options.messages.finalizeMessagesForSave).toHaveBeenCalledWith(task.messageStateHandler.getClineMessages())
+		expect(options.messages.finalizeMessagesForSave).toHaveBeenCalledWith(task.messageStateHandler.getIndusCodeMessages())
 		expect(options.messages.appendMessages).toHaveBeenCalledWith([{ ts: 1, type: "say", say: "text", text: "done" }])
 		// The finalized messages ride on the state post, so a post must land
 		// after the append or the webview keeps showing the aborted partial.
@@ -815,7 +815,7 @@ function makeCoordinator(input: Partial<MakeCoordinatorInput> = {}) {
 		getWorkspaceRoot: vi.fn().mockResolvedValue("/workspace"),
 		loadInitialMessages: vi.fn().mockResolvedValue([{ role: "user", content: "hello" }]),
 		buildStartSessionInput: vi.fn(() => ({ prompt: "start" })),
-		emitClineAuthError: vi.fn(),
+		emitIndusCodeAuthError: vi.fn(),
 		resetMessageTranslator: vi.fn(),
 		postStateToWebview: vi.fn().mockResolvedValue(undefined),
 		getTurnPhase: vi.fn(() => input.turnPhase ?? "idle"),
@@ -853,7 +853,7 @@ function makeCoordinator(input: Partial<MakeCoordinatorInput> = {}) {
 		getWorkspaceRoot: ReturnType<typeof vi.fn>
 		loadInitialMessages: ReturnType<typeof vi.fn>
 		buildStartSessionInput: ReturnType<typeof vi.fn>
-		emitClineAuthError: ReturnType<typeof vi.fn>
+		emitIndusCodeAuthError: ReturnType<typeof vi.fn>
 		resetMessageTranslator: ReturnType<typeof vi.fn>
 		postStateToWebview: ReturnType<typeof vi.fn>
 		getTurnPhase: ReturnType<typeof vi.fn>
@@ -897,18 +897,18 @@ function makeActiveSession(input: { isRunning?: boolean } = {}) {
 	}
 }
 
-function makeTask(taskId: string, messages: Array<Partial<ClineMessage>> = []) {
+function makeTask(taskId: string, messages: Array<Partial<IndusCodeMessage>> = []) {
 	return {
 		taskId,
 		messageStateHandler: {
-			getClineMessages: vi.fn(() => messages as ClineMessage[]),
+			getIndusCodeMessages: vi.fn(() => messages as IndusCodeMessage[]),
 		},
 	} as unknown as {
 		taskId: string
-		messageStateHandler: { getClineMessages: () => ClineMessage[] }
+		messageStateHandler: { getIndusCodeMessages: () => IndusCodeMessage[] }
 	}
 }
 
-function planMessages(): Array<Partial<ClineMessage>> {
+function planMessages(): Array<Partial<IndusCodeMessage>> {
 	return [{ ts: 1, type: "say", say: "plan_completion_result", text: "Implement the approved change.", partial: false }]
 }

@@ -8,7 +8,7 @@
  * (see standalone/runtime-files/vscode/vscode-impls.js).
  *
  * The setting lives in shared file-backed global state (see storage.md), which is
- * readable by any client pointed at the same `~/.cline` data directory. A value of
+ * readable by any client pointed at the same `~/.induscode` data directory. A value of
  * `vscodeTerminal` saved while running in the real VS Code extension therefore can
  * leak into a standalone session reading that same store. Clamp to `backgroundExec`
  * whenever this is not the real VS Code extension host, rather than trusting the

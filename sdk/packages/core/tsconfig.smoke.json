@@ -7,11 +7,11 @@
 		"noUnusedLocals": false,
 		"noUnusedParameters": false,
 		"paths": {
-			"@cline/agents": ["../agents/src/index.ts"],
-			"@cline/agents/*": ["../agents/src/*", "../agents/src/*/index.ts"],
-			"@cline/llms": ["../llms/src/index.ts"],
-			"@cline/shared": ["../shared/src/index.ts"],
-			"@cline/shared/*": ["../shared/src/*", "../shared/src/*/index.ts"]
+			"@induscode/agents": ["../agents/src/index.ts"],
+			"@induscode/agents/*": ["../agents/src/*", "../agents/src/*/index.ts"],
+			"@induscode/llms": ["../llms/src/index.ts"],
+			"@induscode/shared": ["../shared/src/index.ts"],
+			"@induscode/shared/*": ["../shared/src/*", "../shared/src/*/index.ts"]
 		}
 	},
 	"include": ["scripts/**/*", "src/**/*"]

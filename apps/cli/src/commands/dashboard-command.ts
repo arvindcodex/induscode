@@ -6,12 +6,12 @@ export function createDashboardCommand(
 	setExitCode: (code: number) => void,
 ): Command {
 	const dashboardCmd = new Command("dashboard")
-		.description("Start the Cline Hub dashboard and open it in a browser")
+		.description("Start the IndusCode Hub dashboard and open it in a browser")
 		.option("--config <dir>", "configuration directory")
 		.option("-c, --cwd <path>", "Workspace root", process.cwd())
 		.option(
 			"--data-dir <dir>",
-			"Use isolated local state at <dir> instead of ~/.cline (enables sandbox mode)",
+			"Use isolated local state at <dir> instead of ~/.induscode (enables sandbox mode)",
 		)
 		.option("--host <host>", "Dashboard bind host")
 		.option("--port <port>", "Dashboard HTTP/WebSocket port")

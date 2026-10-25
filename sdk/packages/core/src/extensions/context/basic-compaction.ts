@@ -2,7 +2,7 @@ import type {
 	BasicLogger,
 	ContentBlock,
 	MessageWithMetadata,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { getUserRunSpan } from "../../session/user-run-messages";
 import type {
 	CoreCompactionContext,

@@ -8,14 +8,14 @@ import {
 	refreshProviderModelsFromSource,
 	resolveProviderConfig,
 	saveLocalProviderSettings,
-} from "@cline/core";
-import { isClineProvider } from "@cline/shared";
+} from "@induscode/core";
+import { isIndusCodeProvider } from "@induscode/shared";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { isChatProviderModel } from "../../../utils/chat-models";
 import {
 	getCliSubscriptionUrl,
 	getIndividualPlanFeatures,
-} from "../../../utils/cline-pass-errors";
+} from "../../../utils/induscode-pass-errors";
 import {
 	checkLocalCliInstalled,
 	getLocalCliInfo,
@@ -29,12 +29,12 @@ import { getCliTelemetryService } from "../../../utils/telemetry";
 import {
 	loadCurrentUserPlanFromProviderSettings,
 	loadIndividualSubscriptionPlansFromProviderSettings,
-} from "../../cline-account";
+} from "../../induscode-account";
 import {
 	buildFeaturedModelEntries,
-	type ClineModelPickerEntry,
-	useClineRecommendedModels,
-} from "../../components/model-selector/cline-model-picker";
+	type IndusCodeModelPickerEntry,
+	useIndusCodeRecommendedModels,
+} from "../../components/model-selector/induscode-model-picker";
 import {
 	type SearchableItem,
 	useSearchableList,
@@ -58,8 +58,8 @@ import {
 import { FIELD_ORDER } from "./fields";
 import { useOnboardingKeyboard } from "./keyboard";
 import {
-	CLINE_PASS_SUBSCRIPTION_OPTIONS,
-	type ClinePassSubscriptionStatus,
+	INDUSCODE_PASS_SUBSCRIPTION_OPTIONS,
+	type IndusCodePassSubscriptionStatus,
 	canContinueLocalCliSetup,
 	DEFAULT_THINKING_LEVEL_INDEX,
 	getMainMenuOptions,
@@ -69,7 +69,7 @@ import {
 	type ProviderEntry,
 	type ReasoningEffort,
 	resolveProviderSetupRoute,
-	shouldUseFeaturedClineModelPicker,
+	shouldUseFeaturedIndusCodeModelPicker,
 	type ThinkingLevel,
 	toModelEntriesFromKnownModels,
 	toModelEntry,
@@ -94,7 +94,7 @@ export function useOnboardingController(props: OnboardingControllerProps) {
 	const menuOptions = useMemo(
 		() =>
 			getMainMenuOptions({
-				isClinePassEnabled: true,
+				isIndusCodePassEnabled: true,
 			}),
 		[],
 	);
@@ -171,19 +171,19 @@ export function useOnboardingController(props: OnboardingControllerProps) {
 	const [modelsDefaultId, setModelsDefaultId] = useState("");
 	const [customModelId, setCustomModelId] = useState("");
 	const [customModelError, setCustomModelError] = useState("");
-	const [clinePassSubscriptionStatus, setClinePassSubscriptionStatus] =
-		useState<ClinePassSubscriptionStatus>("loading");
-	const [clinePassSubscriptionError, setClinePassSubscriptionError] =
+	const [induscodePassSubscriptionStatus, setIndusCodePassSubscriptionStatus] =
+		useState<IndusCodePassSubscriptionStatus>("loading");
+	const [induscodePassSubscriptionError, setIndusCodePassSubscriptionError] =
 		useState("");
-	const [clinePassCurrentPlanName, setClinePassCurrentPlanName] = useState("");
-	const [clinePassPlanFeatures, setClinePassPlanFeatures] = useState<string[]>(
+	const [induscodePassCurrentPlanName, setIndusCodePassCurrentPlanName] = useState("");
+	const [induscodePassPlanFeatures, setIndusCodePassPlanFeatures] = useState<string[]>(
 		[],
 	);
-	const [clinePassSubscriptionSelected, setClinePassSubscriptionSelected] =
+	const [induscodePassSubscriptionSelected, setIndusCodePassSubscriptionSelected] =
 		useState(0);
-	const [clinePassSubscriptionOpenStatus, setClinePassSubscriptionOpenStatus] =
+	const [induscodePassSubscriptionOpenStatus, setIndusCodePassSubscriptionOpenStatus] =
 		useState("");
-	const clinePassSubscriptionUrl = useMemo(() => getCliSubscriptionUrl(), []);
+	const induscodePassSubscriptionUrl = useMemo(() => getCliSubscriptionUrl(), []);
 
 	const modelItems: SearchableItem[] = useMemo(
 		() =>
@@ -199,7 +199,7 @@ export function useOnboardingController(props: OnboardingControllerProps) {
 
 	const createCustomModelItem = useCallback(
 		(_search: string, filteredItems: SearchableItem[]) => {
-			if (activeProviderId === "cline-pass") {
+			if (activeProviderId === "induscode-pass") {
 				return undefined;
 			}
 			if (filteredItems.some((item) => item.key === CUSTOM_MODEL_ID_ACTION)) {
@@ -217,26 +217,26 @@ export function useOnboardingController(props: OnboardingControllerProps) {
 
 	const modelList = useSearchableList(modelItems, createCustomModelItem);
 
-	// Cline featured model picker (ClinePass gets Subscribed/Free sections)
-	const recommended = useClineRecommendedModels();
-	const clineEntries: ClineModelPickerEntry[] = useMemo(
+	// IndusCode featured model picker (IndusCodePass gets Subscribed/Free sections)
+	const recommended = useIndusCodeRecommendedModels();
+	const induscodeEntries: IndusCodeModelPickerEntry[] = useMemo(
 		() =>
 			recommended.data
 				? buildFeaturedModelEntries(activeProviderId, recommended.data)
 				: [],
 		[recommended.data, activeProviderId],
 	);
-	const [clineModelSelected, setClineModelSelected] = useState(0);
-	const [clineModelReasoningIds, setClineModelReasoningIds] = useState<
+	const [induscodeModelSelected, setIndusCodeModelSelected] = useState(0);
+	const [induscodeModelReasoningIds, setIndusCodeModelReasoningIds] = useState<
 		Set<string>
 	>(new Set());
 
 	useEffect(() => {
-		// The featured picker serves both cline and cline-pass, so pool
+		// The featured picker serves both induscode and induscode-pass, so pool
 		// reasoning support from both catalogs. Display names need no catalog
-		// here: fetchClineRecommendedModels resolves them.
+		// here: fetchIndusCodeRecommendedModels resolves them.
 		void Promise.allSettled(
-			["cline", "cline-pass"].map((providerId) =>
+			["induscode", "induscode-pass"].map((providerId) =>
 				getLocalProviderModels(providerId),
 			),
 		).then((results) => {
@@ -247,7 +247,7 @@ export function useOnboardingController(props: OnboardingControllerProps) {
 					if (m.supportsReasoning) ids.add(m.id);
 				}
 			}
-			setClineModelReasoningIds(ids);
+			setIndusCodeModelReasoningIds(ids);
 		});
 	}, []);
 
@@ -304,11 +304,11 @@ export function useOnboardingController(props: OnboardingControllerProps) {
 		[providerSettingsManager],
 	);
 
-	const refreshClinePassSubscriptionStatus = useCallback(() => {
-		setClinePassSubscriptionStatus("loading");
-		setClinePassSubscriptionError("");
-		setClinePassCurrentPlanName("");
-		setClinePassSubscriptionOpenStatus("");
+	const refreshIndusCodePassSubscriptionStatus = useCallback(() => {
+		setIndusCodePassSubscriptionStatus("loading");
+		setIndusCodePassSubscriptionError("");
+		setIndusCodePassCurrentPlanName("");
+		setIndusCodePassSubscriptionOpenStatus("");
 
 		loadCurrentUserPlanFromProviderSettings({ providerSettingsManager })
 			.then(
@@ -330,7 +330,7 @@ export function useOnboardingController(props: OnboardingControllerProps) {
 			)
 			.then(({ currentPlanResult, availablePlansResult }) => {
 				if (availablePlansResult.status === "fulfilled") {
-					setClinePassPlanFeatures(
+					setIndusCodePassPlanFeatures(
 						getIndividualPlanFeatures(availablePlansResult.value),
 					);
 				}
@@ -340,22 +340,22 @@ export function useOnboardingController(props: OnboardingControllerProps) {
 					const message =
 						error instanceof Error ? error.message : String(error);
 					if (message.trim().toLowerCase() === "no plan found for user") {
-						setClinePassSubscriptionStatus("unsubscribed");
+						setIndusCodePassSubscriptionStatus("unsubscribed");
 						return;
 					}
-					setClinePassSubscriptionError(message);
-					setClinePassSubscriptionStatus("error");
+					setIndusCodePassSubscriptionError(message);
+					setIndusCodePassSubscriptionStatus("error");
 					return;
 				}
 
 				const plan = currentPlanResult.value?.plan;
 				if (plan) {
-					setClinePassCurrentPlanName(
-						plan.displayName || plan.name || plan.id || "ClinePass",
+					setIndusCodePassCurrentPlanName(
+						plan.displayName || plan.name || plan.id || "IndusCodePass",
 					);
-					setClinePassSubscriptionStatus("subscribed");
+					setIndusCodePassSubscriptionStatus("subscribed");
 				} else {
-					setClinePassSubscriptionStatus("unsubscribed");
+					setIndusCodePassSubscriptionStatus("unsubscribed");
 				}
 			});
 	}, [providerSettingsManager]);
@@ -366,9 +366,9 @@ export function useOnboardingController(props: OnboardingControllerProps) {
 			const provider = providers.find((p) => p.id === providerId);
 			setActiveProviderName(provider?.name ?? providerId);
 			setModelsDefaultId(provider?.defaultModelId ?? "");
-			if (shouldUseFeaturedClineModelPicker(providerId)) {
-				setClineModelSelected(0);
-				setStep("cline_model");
+			if (shouldUseFeaturedIndusCodeModelPicker(providerId)) {
+				setIndusCodeModelSelected(0);
+				setStep("induscode_model");
 			} else if (providerId === "openai-compatible") {
 				const existing =
 					providerSettingsManager.getProviderSettings(providerId);
@@ -383,25 +383,25 @@ export function useOnboardingController(props: OnboardingControllerProps) {
 		[providers, loadModelsForProvider, providerSettingsManager],
 	);
 
-	const transitionToClinePassSubscription = useCallback(() => {
-		setActiveProviderId("cline-pass");
-		const provider = providers.find((p) => p.id === "cline-pass");
-		setActiveProviderName(provider?.name ?? "ClinePass");
+	const transitionToIndusCodePassSubscription = useCallback(() => {
+		setActiveProviderId("induscode-pass");
+		const provider = providers.find((p) => p.id === "induscode-pass");
+		setActiveProviderName(provider?.name ?? "IndusCodePass");
 		setModelsDefaultId(provider?.defaultModelId ?? "");
-		setClinePassSubscriptionSelected(0);
-		setStep("cline_pass_subscription");
-		refreshClinePassSubscriptionStatus();
-	}, [providers, refreshClinePassSubscriptionStatus]);
+		setIndusCodePassSubscriptionSelected(0);
+		setStep("induscode_pass_subscription");
+		refreshIndusCodePassSubscriptionStatus();
+	}, [providers, refreshIndusCodePassSubscriptionStatus]);
 
 	const handleAuthComplete = useCallback(
 		(providerId: OnboardingOAuthProviderId) => {
-			if (providerId === "cline-pass") {
-				transitionToClinePassSubscription();
+			if (providerId === "induscode-pass") {
+				transitionToIndusCodePassSubscription();
 				return;
 			}
 			transitionToModelPicker(providerId);
 		},
-		[transitionToClinePassSubscription, transitionToModelPicker],
+		[transitionToIndusCodePassSubscription, transitionToModelPicker],
 	);
 
 	const resetAuth = useCallback(() => {
@@ -438,7 +438,7 @@ export function useOnboardingController(props: OnboardingControllerProps) {
 
 	const startOAuthFlow = useCallback(
 		(providerId: OnboardingOAuthProviderId) => {
-			if (isClineProvider(providerId)) {
+			if (isIndusCodeProvider(providerId)) {
 				startDeviceCodeFlow(providerId);
 				return;
 			}
@@ -467,33 +467,33 @@ export function useOnboardingController(props: OnboardingControllerProps) {
 		],
 	);
 
-	const continueFromClinePassSubscription = useCallback(() => {
-		transitionToModelPicker("cline-pass");
+	const continueFromIndusCodePassSubscription = useCallback(() => {
+		transitionToModelPicker("induscode-pass");
 	}, [transitionToModelPicker]);
 
-	const openClinePassSubscriptionPage = useCallback(() => {
-		setClinePassSubscriptionOpenStatus("Opening subscription page...");
-		void open(clinePassSubscriptionUrl, { wait: false })
+	const openIndusCodePassSubscriptionPage = useCallback(() => {
+		setIndusCodePassSubscriptionOpenStatus("Opening subscription page...");
+		void open(induscodePassSubscriptionUrl, { wait: false })
 			.then(() => {
-				setClinePassSubscriptionOpenStatus(
+				setIndusCodePassSubscriptionOpenStatus(
 					"Opened subscription page in your browser.",
 				);
 			})
 			.catch(() => {
-				setClinePassSubscriptionOpenStatus(
-					`Could not open browser automatically. Open ${clinePassSubscriptionUrl}`,
+				setIndusCodePassSubscriptionOpenStatus(
+					`Could not open browser automatically. Open ${induscodePassSubscriptionUrl}`,
 				);
 			});
-	}, [clinePassSubscriptionUrl]);
+	}, [induscodePassSubscriptionUrl]);
 
 	useEffect(() => {
 		if (
-			step === "cline_pass_subscription" &&
-			clinePassSubscriptionStatus === "subscribed"
+			step === "induscode_pass_subscription" &&
+			induscodePassSubscriptionStatus === "subscribed"
 		) {
-			transitionToModelPicker("cline-pass");
+			transitionToModelPicker("induscode-pass");
 		}
-	}, [step, clinePassSubscriptionStatus, transitionToModelPicker]);
+	}, [step, induscodePassSubscriptionStatus, transitionToModelPicker]);
 
 	const refreshLocalCliStatus = useCallback((provider: ProviderLocalCli) => {
 		// Probing spawns the provider's CLI, so a result can land long after the
@@ -722,7 +722,7 @@ export function useOnboardingController(props: OnboardingControllerProps) {
 		completeModelSelection(modelId);
 	}, [customModelId, completeModelSelection]);
 
-	const saveClineModelSelection = useCallback(
+	const saveIndusCodeModelSelection = useCallback(
 		(modelId: string, modelName: string) => {
 			const existing =
 				providerSettingsManager.getProviderSettings(activeProviderId);
@@ -734,7 +734,7 @@ export function useOnboardingController(props: OnboardingControllerProps) {
 				{ setLastUsed: true },
 			);
 			setSelectedModelId(modelId);
-			if (clineModelReasoningIds.has(modelId)) {
+			if (induscodeModelReasoningIds.has(modelId)) {
 				setSelectedModelName(modelName);
 				setThinkingSelected(DEFAULT_THINKING_LEVEL_INDEX);
 				setStep("thinking_level");
@@ -742,7 +742,7 @@ export function useOnboardingController(props: OnboardingControllerProps) {
 				setStep("done");
 			}
 		},
-		[activeProviderId, clineModelReasoningIds, providerSettingsManager],
+		[activeProviderId, induscodeModelReasoningIds, providerSettingsManager],
 	);
 
 	const saveThinkingLevel = useCallback(
@@ -802,11 +802,11 @@ export function useOnboardingController(props: OnboardingControllerProps) {
 		menuSelected,
 		providerList,
 		modelList,
-		clineEntries,
-		clineModelSelected,
-		clinePassSubscriptionStatus,
-		clinePassSubscriptionOptions: CLINE_PASS_SUBSCRIPTION_OPTIONS,
-		clinePassSubscriptionSelected,
+		induscodeEntries,
+		induscodeModelSelected,
+		induscodePassSubscriptionStatus,
+		induscodePassSubscriptionOptions: INDUSCODE_PASS_SUBSCRIPTION_OPTIONS,
+		induscodePassSubscriptionSelected,
 		thinkingSelected,
 		setStep,
 		setMenuSelected,
@@ -822,12 +822,12 @@ export function useOnboardingController(props: OnboardingControllerProps) {
 		setDeviceVerifyUrl,
 		setDeviceError,
 		setDeviceStatus,
-		setClineModelSelected,
-		setClinePassSubscriptionSelected,
+		setIndusCodeModelSelected,
+		setIndusCodePassSubscriptionSelected,
 		setThinkingSelected,
-		continueFromClinePassSubscription,
-		refreshClinePassSubscriptionStatus,
-		openClinePassSubscriptionPage,
+		continueFromIndusCodePassSubscription,
+		refreshIndusCodePassSubscriptionStatus,
+		openIndusCodePassSubscriptionPage,
 		abortOAuth: () => {
 			authAbortRef.current = true;
 		},
@@ -840,7 +840,7 @@ export function useOnboardingController(props: OnboardingControllerProps) {
 		startDeviceCodeFlow,
 		selectProvider,
 		loadModelsForProvider,
-		saveClineModelSelection,
+		saveIndusCodeModelSelection,
 		saveLocalCliConfig,
 		saveByoConfig,
 		saveModelSelection,
@@ -861,16 +861,16 @@ export function useOnboardingController(props: OnboardingControllerProps) {
 		localCli,
 		localCliChecking,
 		localCliStatus,
-		clineEntries,
-		clineModelSelected,
-		clinePassCurrentPlanName,
-		clinePassPlanFeatures,
-		clinePassSubscriptionError,
-		clinePassSubscriptionOpenStatus,
-		clinePassSubscriptionOptions: CLINE_PASS_SUBSCRIPTION_OPTIONS,
-		clinePassSubscriptionSelected,
-		clinePassSubscriptionStatus,
-		clinePassSubscriptionUrl,
+		induscodeEntries,
+		induscodeModelSelected,
+		induscodePassCurrentPlanName,
+		induscodePassPlanFeatures,
+		induscodePassSubscriptionError,
+		induscodePassSubscriptionOpenStatus,
+		induscodePassSubscriptionOptions: INDUSCODE_PASS_SUBSCRIPTION_OPTIONS,
+		induscodePassSubscriptionSelected,
+		induscodePassSubscriptionStatus,
+		induscodePassSubscriptionUrl,
 		deviceError,
 		deviceStatus,
 		deviceUserCode,

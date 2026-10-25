@@ -23,7 +23,7 @@ describe("createPluginCommandService", () => {
 	}> {
 		const workspacePath = await mkdtemp(join(tmpdir(), "plugin-commands-"));
 		tempRoots.push(workspacePath);
-		const pluginsDir = join(workspacePath, ".cline", "plugins");
+		const pluginsDir = join(workspacePath, ".induscode", "plugins");
 		await mkdir(pluginsDir, { recursive: true });
 		const pluginPath = join(pluginsDir, "goalish.js");
 		await writeFile(

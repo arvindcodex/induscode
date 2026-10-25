@@ -48,7 +48,7 @@ async function installNodeDependencies() {
 	await cpr(RUNTIME_DEPS_DIR, BUILD_DIR)
 
 	// This is an ISOLATED runtime install inside the standalone distribution
-	// directory (dist-standalone), driven by the "cline-core" runtime-files
+	// directory (dist-standalone), driven by the "induscode-core" runtime-files
 	// manifest — it is NOT part of the monorepo workspace install. TARGET_NODE_VERSION
 	// and the prebuild-install calls below target the Node ABI of the bundled
 	// runtime (matching the JetBrains-packaged Node), not the build tooling.
@@ -65,7 +65,7 @@ async function installNodeDependencies() {
  * to download the binary.
  *
  * The modules are downloaded to dist-standalone/binaries/{os}-{platform}/.
- * When cline-core is installed, the installer should use the correct module for the current platform.
+ * When induscode-core is installed, the installer should use the correct module for the current platform.
  */
 async function packageAllBinaryDeps() {
 	// Check for native .node modules.
@@ -85,7 +85,7 @@ async function packageAllBinaryDeps() {
 		console.log(`Installing binaries for ${module}...`)
 		const src = path.join(BUILD_DIR, "node_modules", module)
 		if (!fs.existsSync(src)) {
-			console.warn(`Warning: Trying to install binaries for the module '${module}', but it is not being used by cline.`)
+			console.warn(`Warning: Trying to install binaries for the module '${module}', but it is not being used by induscode.`)
 			continue
 		}
 
@@ -100,7 +100,7 @@ async function packageAllBinaryDeps() {
 			// Download the binary libs.
 			// `--target=${TARGET_NODE_VERSION}` selects the Node ABI of the bundled
 			// standalone runtime (NOT the bun/build tooling) so the prebuilt native
-			// `.node` binaries load in the Node that runs cline-core.
+			// `.node` binaries load in the Node that runs induscode-core.
 			const v = IS_VERBOSE ? "--verbose" : ""
 			const cmd = `npx prebuild-install --platform=${platform} --arch=${arch} --target=${TARGET_NODE_VERSION} ${v}`
 			log_verbose(`${module}: ${cmd}`)
@@ -144,7 +144,7 @@ async function zipDistribution() {
 	// Also ignore the dist directory, the build directory for the extension.
 	const isIgnored = createIsIgnored(["dist/**"])
 
-	// Add the whole cline directory under "extension", except the for the ignored files.
+	// Add the whole induscode directory under "extension", except the for the ignored files.
 	archive.directory(process.cwd(), "extension", (entry) => {
 		if (isIgnored(entry.name)) {
 			//log_verbose("Ignoring", entry.name)

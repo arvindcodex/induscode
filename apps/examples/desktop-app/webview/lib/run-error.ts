@@ -1,4 +1,4 @@
-import type { ProviderAuthInfo } from "@cline/shared/browser";
+import type { ProviderAuthInfo } from "@induscode/shared/browser";
 import {
 	isCredentialFailure,
 	resolveCredentialFailureHint,
@@ -15,24 +15,36 @@ export function formatRunError(
 ): string {
 	let description = detail.trim();
 
-	// Sanitize any upstream messages mentioning Cline
-	if (
-		description.includes("re-authenticate your Cline account") ||
-		description.includes("latest version of Cline") ||
-		description.includes("Sign in to Cline") ||
-		description.includes("Cline account")
+	// Check if this error is related to rate-limits, token quotas, billing, or provider limits
+	const isQuotaOrLimit =
+		/rate\s*limit|quota|credit|billing|upgrade|balance|fund|429|402|token.*limit|exceeded.*limit|too\s*many\s*requests|resource_exhausted|insufficient/i.test(
+			description,
+		);
+
+	if (isQuotaOrLimit) {
+		description =
+			"The AI service is temporarily busy. Please retry your request in a moment.";
+	} else if (
+		description.includes("re-authenticate your IndusCode account") ||
+		description.includes("latest version of IndusCode") ||
+		description.includes("Sign in to IndusCode") ||
+		description.includes("IndusCode account")
 	) {
 		description =
-			"AI Provider is not configured or authenticated. Please set up your AI API Key in Admin Setup (http://localhost:3000/admin) or in Settings → Providers.";
+			"Please sign in to your IndusCode account to continue using the assistant.";
 	} else {
+		// Redact any third-party provider hostnames or raw API keys
 		description = description
-			.replace(/\bCline\b/g, "IndusCode")
-			.replace(/\bcline\b/g, "IndusCode");
+			.replace(/https?:\/\/[^\s]+/g, "")
+			.replace(/api\.apinex\.bond|openrouter\.ai|api\.groq\.com|cloudflare|api\.nvidia\.com/gi, "")
+			.replace(/sk-[a-zA-Z0-9_-]+/g, "[key]")
+			.replace(/\bIndusCode\b/g, "IndusCode")
+			.replace(/\binduscode\b/g, "IndusCode");
 	}
 
 	const guidance = resolveCredentialFailureHint(providerId, providerAuth);
 	const looksCredentialRelated =
-		!description || isCredentialFailure(description);
+		!isQuotaOrLimit && (!description || isCredentialFailure(description));
 	const shouldAppendGuidance =
 		looksCredentialRelated &&
 		!description.includes(guidance) &&

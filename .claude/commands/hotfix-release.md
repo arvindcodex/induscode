@@ -1,1 +1,1 @@
-../../.clinerules/workflows/hotfix-release.md
+../../.induscoderules/workflows/hotfix-release.md

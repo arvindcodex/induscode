@@ -8,7 +8,7 @@ import {
 function apiCallError(responseHeaders?: Record<string, string>) {
 	return new APICallError({
 		message: "Bad Gateway",
-		url: "https://api.cline.bot/api/v1/chat/completions",
+		url: "https://api.induscode.bot/api/v1/chat/completions",
 		requestBodyValues: {},
 		statusCode: 502,
 		responseHeaders,

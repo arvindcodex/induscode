@@ -193,7 +193,7 @@ function fakeStream(): {
 function request(requestId: string, isStreaming: boolean) {
 	return {
 		requestId,
-		service: "cline.TestService",
+		service: "induscode.TestService",
 		method: isStreaming ? "testStreaming" : "testUnary",
 		messageJson: "{}",
 		isStreaming,

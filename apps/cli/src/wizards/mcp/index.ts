@@ -1,5 +1,5 @@
 import * as p from "@clack/prompts";
-import { parseMcpHeaders } from "@cline/core";
+import { parseMcpHeaders } from "@induscode/core";
 import { authorizeMcpServerOAuthWithBrowser as authorizeOAuth } from "./oauth";
 import {
 	addServer,
@@ -177,7 +177,7 @@ function warnIfPlaceholder(header: string): void {
 }
 
 /**
- * Ask for one header per prompt, parsed exactly as `cline mcp add --header`
+ * Ask for one header per prompt, parsed exactly as `induscode mcp add --header`
  * parses each flag. Prefilled headers come first, and clearing one drops only
  * that header. Returns null when the user cancels.
  */

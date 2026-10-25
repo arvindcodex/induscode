@@ -1,11 +1,11 @@
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
-import { Llms } from "@cline/core";
-import { type ProviderLocalCli, resolveProviderLocalCli } from "@cline/shared";
+import { Llms } from "@induscode/core";
+import { type ProviderLocalCli, resolveProviderLocalCli } from "@induscode/shared";
 
 const execFileAsync = promisify(execFile);
 
-export type { ProviderLocalCli } from "@cline/shared";
+export type { ProviderLocalCli } from "@induscode/shared";
 
 export type LocalCliStatus =
 	| {

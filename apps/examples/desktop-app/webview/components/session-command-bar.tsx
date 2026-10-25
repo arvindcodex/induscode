@@ -3,7 +3,7 @@
 import {
 	formatSessionSearchPreview,
 	formatSessionSearchTitle,
-} from "@cline/shared/browser";
+} from "@induscode/shared/browser";
 import { Loader2 } from "lucide-react";
 import { type UIEvent, useEffect, useState } from "react";
 import {

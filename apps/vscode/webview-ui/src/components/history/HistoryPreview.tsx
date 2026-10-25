@@ -1,4 +1,4 @@
-import { StringRequest } from "@shared/proto/cline/common"
+import { StringRequest } from "@shared/proto/induscode/common"
 import { memo, useMemo } from "react"
 import { CloudStatusPill } from "@/components/cloud/CloudStatusPill"
 import { useExtensionState } from "@/context/ExtensionStateContext"

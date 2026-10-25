@@ -1,4 +1,4 @@
-import type { ProviderSettings } from "@cline/core";
+import type { ProviderSettings } from "@induscode/core";
 import type { CliReasoningEffort } from "./types";
 
 type ActiveCliReasoningEffort = Exclude<CliReasoningEffort, "none">;

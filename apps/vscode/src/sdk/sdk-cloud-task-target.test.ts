@@ -21,11 +21,11 @@ afterEach(() => {
 	mocks.workspaceDefaults.mockResolvedValue({})
 })
 
-const cline: CloudRepository = {
+const induscode: CloudRepository = {
 	id: 7,
-	name: "cline",
-	fullName: "cline/cline",
-	url: "https://github.com/cline/cline",
+	name: "induscode",
+	fullName: "induscode/induscode",
+	url: "https://github.com/induscode/induscode",
 	defaultBranch: "main",
 }
 const other: CloudRepository = {
@@ -49,7 +49,7 @@ function makeStateManager(globalState: Record<string, unknown> = {}) {
 function makeTarget(overrides: Partial<SdkCloudTaskTargetOptions> = {}) {
 	const globalState: Record<string, unknown> = {}
 	const cloudSessions = {
-		getGitHubConnection: vi.fn(async () => ({ connected: true, connectUrl: "", repositories: [cline, other] })),
+		getGitHubConnection: vi.fn(async () => ({ connected: true, connectUrl: "", repositories: [induscode, other] })),
 		listBranches: vi.fn(async (_repositoryId: number, query?: string) => (query ? [query] : ["main"])),
 		githubConnectUrl: () => "https://app.test/connect",
 	}
@@ -76,7 +76,7 @@ async function settle() {
 describe("SdkCloudTaskTarget", () => {
 	it("stores only the user's choice and resolves the rest on read", async () => {
 		const { target, globalState } = makeTarget()
-		mocks.workspaceDefaults.mockResolvedValue({ repoUrl: "https://github.com/cline/cline", branch: "feature/x" })
+		mocks.workspaceDefaults.mockResolvedValue({ repoUrl: "https://github.com/induscode/induscode", branch: "feature/x" })
 
 		await target.choose({ target: "cloud" })
 		expect(globalState.cloudTaskTarget).toEqual({ target: "cloud" })
@@ -92,9 +92,9 @@ describe("SdkCloudTaskTarget", () => {
 		expect(target.view()).toEqual({
 			target: "cloud",
 			repositoryId: 7,
-			repoUrl: "https://github.com/cline/cline",
+			repoUrl: "https://github.com/induscode/induscode",
 			branch: "feature/x",
-			workspaceRepoUrl: "https://github.com/cline/cline",
+			workspaceRepoUrl: "https://github.com/induscode/induscode",
 		})
 	})
 
@@ -103,7 +103,7 @@ describe("SdkCloudTaskTarget", () => {
 		let release!: () => void
 		cloudSessions.getGitHubConnection.mockReturnValue(
 			new Promise((resolve) => {
-				release = () => resolve({ connected: true, connectUrl: "", repositories: [cline] })
+				release = () => resolve({ connected: true, connectUrl: "", repositories: [induscode] })
 			}),
 		)
 		await target.choose({ target: "cloud" })
@@ -126,19 +126,19 @@ describe("SdkCloudTaskTarget", () => {
 		await settle()
 		expect(first.target.view()).toMatchObject({ repositoryId: other.id, branch: "release" })
 
-		// Same install, another account: only cline/cline is reachable.
+		// Same install, another account: only induscode/induscode is reachable.
 		const second = makeTarget({ stateManager: makeStateManager(globalState), getAccountScope: () => "user-2:" })
-		second.cloudSessions.getGitHubConnection.mockResolvedValue({ connected: true, connectUrl: "", repositories: [cline] })
+		second.cloudSessions.getGitHubConnection.mockResolvedValue({ connected: true, connectUrl: "", repositories: [induscode] })
 		second.target.view()
 		await settle()
 
-		expect(second.target.view()).toMatchObject({ repositoryId: cline.id, branch: "main" })
+		expect(second.target.view()).toMatchObject({ repositoryId: induscode.id, branch: "main" })
 		expect(globalState.cloudTaskTarget).toEqual({ target: "cloud", repositoryId: other.id, branch: "release" })
 	})
 
 	it("suggests the workspace branch only once GitHub confirms it, and retries a failed check later", async () => {
 		const { target, cloudSessions, advance } = makeTarget()
-		mocks.workspaceDefaults.mockResolvedValue({ repoUrl: "https://github.com/cline/cline", branch: "feature/gone" })
+		mocks.workspaceDefaults.mockResolvedValue({ repoUrl: "https://github.com/induscode/induscode", branch: "feature/gone" })
 		cloudSessions.listBranches.mockRejectedValueOnce(new Error("offline"))
 		await target.choose({ target: "cloud" })
 		target.view()
@@ -188,7 +188,7 @@ describe("SdkCloudTaskTarget", () => {
 
 	it("re-reads repositories and the workspace checkout once they age, keeping the old answer meanwhile", async () => {
 		const { target, cloudSessions, advance } = makeTarget()
-		mocks.workspaceDefaults.mockResolvedValue({ repoUrl: "https://github.com/cline/cline", branch: "feature/a" })
+		mocks.workspaceDefaults.mockResolvedValue({ repoUrl: "https://github.com/induscode/induscode", branch: "feature/a" })
 		await target.choose({ target: "cloud" })
 		target.view()
 		await settle()
@@ -200,7 +200,7 @@ describe("SdkCloudTaskTarget", () => {
 
 		// The user checks out another branch in the terminal and revokes the
 		// GitHub App's access to the repository in the browser.
-		mocks.workspaceDefaults.mockResolvedValue({ repoUrl: "https://github.com/cline/cline", branch: "feature/b" })
+		mocks.workspaceDefaults.mockResolvedValue({ repoUrl: "https://github.com/induscode/induscode", branch: "feature/b" })
 		cloudSessions.getGitHubConnection.mockResolvedValue({ connected: true, connectUrl: "", repositories: [other] })
 
 		advance(WORKSPACE_MAX_AGE_MS)

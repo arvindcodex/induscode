@@ -1,10 +1,10 @@
 {
-	"name": "@cline/shared",
+	"name": "@induscode/shared",
 	"version": "0.0.95",
-	"description": "Shared utilities, types, and schemas for Cline packages",
+	"description": "Shared utilities, types, and schemas for IndusCode packages",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/cline/cline",
+		"url": "https://github.com/induscode/induscode",
 		"directory": "sdk/packages/shared"
 	},
 	"type": "module",

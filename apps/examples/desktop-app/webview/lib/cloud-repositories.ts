@@ -1,17 +1,17 @@
 import type {
 	CloudBranchListOptions,
 	CloudBranchListResult,
-} from "@cline/core/cloud";
+} from "@induscode/core/cloud";
 
 export type {
 	CloudBranchListOptions,
 	CloudBranchListResult,
 	CloudRepositoryListResult,
 	CloudRepositoryOption,
-} from "@cline/core/cloud";
+} from "@induscode/core/cloud";
 
 type CloudRepositorySelection = { repoUrl: string; branch: string };
-const SELECTION_KEY = "cline.code.cloud-repository.v1:";
+const SELECTION_KEY = "induscode.code.cloud-repository.v1:";
 
 export function readCloudRepositorySelection(
 	scope: string,

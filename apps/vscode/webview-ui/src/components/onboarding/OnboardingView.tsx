@@ -1,10 +1,10 @@
-import { buildModelInfoNameMap, type ModelInfo, openAiModelInfoSafeDefaults, resolveClinePassModelInfo } from "@shared/api"
-import { StringRequest } from "@shared/proto/cline/common"
-import type { OnboardingModel, OnboardingModelGroup, OpenRouterModelInfo } from "@shared/proto/index.cline"
+import { buildModelInfoNameMap, type ModelInfo, openAiModelInfoSafeDefaults, resolveIndusCodePassModelInfo } from "@shared/api"
+import { StringRequest } from "@shared/proto/induscode/common"
+import type { OnboardingModel, OnboardingModelGroup, OpenRouterModelInfo } from "@shared/proto/index.induscode"
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react"
 import { AlertCircleIcon, CircleCheckIcon, CircleIcon, ListIcon, LoaderCircleIcon, ZapIcon } from "lucide-react"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import ClineLogoWhite from "@/assets/ClineLogoWhite"
+import IndusCodeLogoWhite from "@/assets/IndusCodeLogoWhite"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -17,11 +17,11 @@ import { AccountServiceClient, StateServiceClient, UiServiceClient } from "@/ser
 import ApiConfigurationSection from "../settings/sections/ApiConfigurationSection"
 import { useApiConfigurationHandlers } from "../settings/utils/useApiConfigurationHandlers"
 import WelcomeView from "../welcome/WelcomeView"
-import { setPendingClinePassSubscribe } from "./clinePassSubscribe"
+import { setPendingIndusCodePassSubscribe } from "./induscodePassSubscribe"
 import {
-	CLINEPASS_GROUP,
+	INDUSCODEPASS_GROUP,
 	getCapabilities,
-	getClineUIOnboardingGroups,
+	getIndusCodeUIOnboardingGroups,
 	getOnboardingGroupDisplayName,
 	getPriceRange,
 	getSpeedLabel,
@@ -55,7 +55,7 @@ const getOnboardingPage = (step: number, userType: NEW_USER_TYPE): OnboardingPag
 }
 
 type ModelSelectionProps = {
-	userType: NEW_USER_TYPE.FREE | NEW_USER_TYPE.POWER | NEW_USER_TYPE.CLINE_PASS
+	userType: NEW_USER_TYPE.FREE | NEW_USER_TYPE.POWER | NEW_USER_TYPE.INDUSCODE_PASS
 	selectedModelId: string
 	onSelectModel: (modelId: string) => void
 	onboardingModels: OnboardingModelsByGroup
@@ -65,8 +65,8 @@ type ModelSelectionProps = {
 }
 
 function getModelGroupKey(userType: ModelSelectionProps["userType"]): keyof OnboardingModelsByGroup {
-	if (userType === NEW_USER_TYPE.CLINE_PASS) {
-		return "clinePass"
+	if (userType === NEW_USER_TYPE.INDUSCODE_PASS) {
+		return "induscodePass"
 	}
 	return userType === NEW_USER_TYPE.FREE ? "free" : "power"
 }
@@ -80,10 +80,10 @@ const ModelSelection = ({
 	setSearchTerm,
 	onboardingModels,
 }: ModelSelectionProps) => {
-	const isClinePass = userType === NEW_USER_TYPE.CLINE_PASS
+	const isIndusCodePass = userType === NEW_USER_TYPE.INDUSCODE_PASS
 	const modelGroups = onboardingModels[getModelGroupKey(userType)]
-	// ClinePass costs are covered by the subscription, so prices are hidden.
-	const hidePrice = isClinePass
+	// IndusCodePass costs are covered by the subscription, so prices are hidden.
+	const hidePrice = isIndusCodePass
 
 	const searchedModels = useMemo(() => {
 		if (!models || !searchTerm) {
@@ -150,11 +150,11 @@ const ModelSelection = ({
 		)
 	}
 
-	// No curated ClinePass models available: show an empty state rather than other models.
-	if (isClinePass && modelGroups.length === 0) {
+	// No curated IndusCodePass models available: show an empty state rather than other models.
+	if (isIndusCodePass && modelGroups.length === 0) {
 		return (
 			<div className="flex w-full max-w-lg flex-col items-center justify-center my-8 px-2 text-center">
-				<p className="text-foreground text-sm m-0">No ClinePass models are available right now.</p>
+				<p className="text-foreground text-sm m-0">No IndusCodePass models are available right now.</p>
 				<p className="text-foreground/70 text-sm mt-1">Please choose another option or try again later.</p>
 			</div>
 		)
@@ -164,13 +164,13 @@ const ModelSelection = ({
 		<div className="flex flex-col w-full items-center px-2">
 			<div className="flex w-full max-w-lg flex-col gap-6 my-4">
 				{modelGroups.map((group) => {
-					const isClinePassGroup = group.group === CLINEPASS_GROUP
+					const isIndusCodePassGroup = group.group === INDUSCODEPASS_GROUP
 					return (
 						<div className="flex flex-col gap-3" key={group.group}>
 							<h4
 								className={cn(
 									"text-sm font-bold text-foreground/70 mb-2",
-									isClinePassGroup ? "normal-case" : "uppercase",
+									isIndusCodePassGroup ? "normal-case" : "uppercase",
 								)}>
 								{getOnboardingGroupDisplayName(group.group)}
 							</h4>
@@ -182,8 +182,8 @@ const ModelSelection = ({
 				})}
 			</div>
 
-			{/* SEARCH MODEL — hidden for ClinePass, whose selection is constrained to the curated list. */}
-			{!isClinePass && (
+			{/* SEARCH MODEL — hidden for IndusCodePass, whose selection is constrained to the curated list. */}
+			{!isIndusCodePass && (
 				<div className="flex w-full max-w-lg flex-col gap-6 my-4 border-t border-muted-foreground">
 					<div className="flex flex-col gap-3 mt-6" key="search-results">
 						<h4 className="text-sm font-bold text-foreground/70 uppercase mb-2">other options</h4>
@@ -336,7 +336,7 @@ const OnboardingStepContent = ({
 	if (step === 2) {
 		return null
 	}
-	if (userType === NEW_USER_TYPE.FREE || userType === NEW_USER_TYPE.POWER || userType === NEW_USER_TYPE.CLINE_PASS) {
+	if (userType === NEW_USER_TYPE.FREE || userType === NEW_USER_TYPE.POWER || userType === NEW_USER_TYPE.INDUSCODE_PASS) {
 		return (
 			<ModelSelection
 				models={models}
@@ -356,8 +356,8 @@ const OnboardingStepContent = ({
 const OnboardingViewContent = ({ onboardingModels }: { onboardingModels: OnboardingModelGroup }) => {
 	const { handleFieldsChange } = useApiConfigurationHandlers()
 	const { openRouterModels, hideSettings, hideAccount, setShowWelcome } = useExtensionState()
-	const { models: clineModels } = useProviderModels("cline")
-	const { commitSelection } = useProviderConfig("cline")
+	const { models: induscodeModels } = useProviderModels("induscode")
+	const { commitSelection } = useProviderConfig("induscode")
 	const loginAttemptIdRef = useRef(0)
 	const loginLoadingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 	const viewedPageTelemetryKeysRef = useRef<Set<string>>(new Set())
@@ -369,12 +369,12 @@ const OnboardingViewContent = ({ onboardingModels }: { onboardingModels: Onboard
 	const [selectedModelId, setSelectedModelId] = useState("")
 	const [searchTerm, setSearchTerm] = useState("")
 
-	const models = useMemo(() => getClineUIOnboardingGroups(onboardingModels), [onboardingModels])
+	const models = useMemo(() => getIndusCodeUIOnboardingGroups(onboardingModels), [onboardingModels])
 	// Gate on models so a fallback/empty response can't route users into the dead-end empty step.
-	const showClinePass = models.clinePass.length > 0
-	const userTypeSelections = useMemo(() => getUserTypeSelections(showClinePass), [showClinePass])
-	// ClinePass model IDs (e.g. "cline-pass/glm-5.2") aren't keyed in openRouterModels,
-	// so resolve their info via the slug-based lookup used by ClinePassProvider.
+	const showIndusCodePass = models.induscodePass.length > 0
+	const userTypeSelections = useMemo(() => getUserTypeSelections(showIndusCodePass), [showIndusCodePass])
+	// IndusCodePass model IDs (e.g. "induscode-pass/glm-5.2") aren't keyed in openRouterModels,
+	// so resolve their info via the slug-based lookup used by IndusCodePassProvider.
 	const openRouterModelsByName = useMemo(() => buildModelInfoNameMap(openRouterModels), [openRouterModels])
 	const onboardingModelById = useMemo(() => {
 		return new Map(onboardingModels.models.map((model) => [model.id, model]))
@@ -383,10 +383,10 @@ const OnboardingViewContent = ({ onboardingModels }: { onboardingModels: Onboard
 
 	useEffect(() => {
 		setSearchTerm("")
-		const groupKey = userType === NEW_USER_TYPE.CLINE_PASS ? "clinePass" : userType === NEW_USER_TYPE.POWER ? "power" : "free"
-		// ClinePass must stay within its curated list (never fall back to a free/OpenRouter model
-		// under the cline-pass provider). Free/Frontier fall back to free if their group is empty.
-		const modelGroup = userType === NEW_USER_TYPE.CLINE_PASS ? models[groupKey][0] : (models[groupKey][0] ?? models.free[0])
+		const groupKey = userType === NEW_USER_TYPE.INDUSCODE_PASS ? "induscodePass" : userType === NEW_USER_TYPE.POWER ? "power" : "free"
+		// IndusCodePass must stay within its curated list (never fall back to a free/OpenRouter model
+		// under the induscode-pass provider). Free/Frontier fall back to free if their group is empty.
+		const modelGroup = userType === NEW_USER_TYPE.INDUSCODE_PASS ? models[groupKey][0] : (models[groupKey][0] ?? models.free[0])
 		const userGroupInitModel = modelGroup?.models[0]
 		setSelectedModelId(userGroupInitModel?.id ?? "")
 	}, [userType, models])
@@ -447,21 +447,21 @@ const OnboardingViewContent = ({ onboardingModels }: { onboardingModels: Onboard
 	const finishOnboarding = useCallback(
 		async (updateModelId: boolean, step: number, markCompleted = true) => {
 			const modelSelected = (updateModelId && selectedModelId) || undefined
-			// Guard: never save a non-ClinePass model id under the cline-pass provider.
-			const isClinePassModel = selectedModelId.startsWith("cline-pass/")
+			// Guard: never save a non-IndusCodePass model id under the induscode-pass provider.
+			const isIndusCodePassModel = selectedModelId.startsWith("induscode-pass/")
 			if (modelSelected) {
-				if (userType === NEW_USER_TYPE.CLINE_PASS && isClinePassModel) {
-					const clinePassModelInfo = resolveClinePassModelInfo(selectedModelId, openRouterModelsByName)
+				if (userType === NEW_USER_TYPE.INDUSCODE_PASS && isIndusCodePassModel) {
+					const induscodePassModelInfo = resolveIndusCodePassModelInfo(selectedModelId, openRouterModelsByName)
 					await handleFieldsChange({
-						planModeClinePassModelId: selectedModelId,
-						actModeClinePassModelId: selectedModelId,
-						planModeClinePassModelInfo: clinePassModelInfo,
-						actModeClinePassModelInfo: clinePassModelInfo,
-						planModeApiProvider: "cline-pass",
-						actModeApiProvider: "cline-pass",
+						planModeIndusCodePassModelId: selectedModelId,
+						actModeIndusCodePassModelId: selectedModelId,
+						planModeIndusCodePassModelInfo: induscodePassModelInfo,
+						actModeIndusCodePassModelInfo: induscodePassModelInfo,
+						planModeApiProvider: "induscode-pass",
+						actModeApiProvider: "induscode-pass",
 					})
-				} else if (userType !== NEW_USER_TYPE.CLINE_PASS) {
-					const selectedModelInfo = clineModels[selectedModelId] ??
+				} else if (userType !== NEW_USER_TYPE.INDUSCODE_PASS) {
+					const selectedModelInfo = induscodeModels[selectedModelId] ??
 						onboardingModelById.get(selectedModelId)?.info ?? {
 							...openAiModelInfoSafeDefaults,
 							name: selectedModelId,
@@ -469,27 +469,27 @@ const OnboardingViewContent = ({ onboardingModels }: { onboardingModels: Onboard
 
 					await Promise.all([
 						commitSelection("plan", {
-							providerId: "cline",
+							providerId: "induscode",
 							modelId: selectedModelId,
 						}),
 						commitSelection("act", {
-							providerId: "cline",
+							providerId: "induscode",
 							modelId: selectedModelId,
 						}),
 					])
 
 					await handleFieldsChange({
-						planModeClineModelId: selectedModelId,
-						actModeClineModelId: selectedModelId,
-						planModeClineModelInfo: selectedModelInfo,
-						actModeClineModelInfo: selectedModelInfo,
-						planModeApiProvider: "cline",
-						actModeApiProvider: "cline",
+						planModeIndusCodeModelId: selectedModelId,
+						actModeIndusCodeModelId: selectedModelId,
+						planModeIndusCodeModelInfo: selectedModelInfo,
+						actModeIndusCodeModelInfo: selectedModelInfo,
+						planModeApiProvider: "induscode",
+						actModeApiProvider: "induscode",
 					})
 				} else {
-					// ClinePass selected but the id isn't a cline-pass/ model: skip the write
+					// IndusCodePass selected but the id isn't a induscode-pass/ model: skip the write
 					// (avoids a bad provider config) and log so the no-op is observable.
-					console.error(`Skipped ClinePass provider setup: unexpected model id "${selectedModelId}"`)
+					console.error(`Skipped IndusCodePass provider setup: unexpected model id "${selectedModelId}"`)
 				}
 			}
 
@@ -515,7 +515,7 @@ const OnboardingViewContent = ({ onboardingModels }: { onboardingModels: Onboard
 			selectedModelId,
 			openRouterModels,
 			openRouterModelsByName,
-			clineModels,
+			induscodeModels,
 			onboardingModelById,
 			commitSelection,
 			setShowWelcome,
@@ -578,15 +578,15 @@ const OnboardingViewContent = ({ onboardingModels }: { onboardingModels: Onboard
 
 			switch (action) {
 				case "signup":
-					// ClinePass: record the intent so App opens the subscription page once auth
+					// IndusCodePass: record the intent so App opens the subscription page once auth
 					// completes (App outlives this view, which unmounts on auth). Login flow unchanged.
-					setPendingClinePassSubscribe(userType === NEW_USER_TYPE.CLINE_PASS)
+					setPendingIndusCodePassSubscribe(userType === NEW_USER_TYPE.INDUSCODE_PASS)
 					captureNavigation("signup_clicked", stepNumber + 1)
 					setStepNumber(stepNumber + 1)
 					await loginAndFinishOnboarding(true, stepNumber + 1)
 					break
 				case "signin":
-					setPendingClinePassSubscribe(false)
+					setPendingIndusCodePassSubscribe(false)
 					captureNavigation("signin_clicked")
 					await loginAndFinishOnboarding(true, stepNumber)
 					break
@@ -595,8 +595,8 @@ const OnboardingViewContent = ({ onboardingModels }: { onboardingModels: Onboard
 					setStepNumber(stepNumber + 1)
 					break
 				case "back":
-					// Abandon any pending ClinePass subscription redirect when the user goes back.
-					setPendingClinePassSubscribe(false)
+					// Abandon any pending IndusCodePass subscription redirect when the user goes back.
+					setPendingIndusCodePassSubscribe(false)
 					captureNavigation("back_clicked", stepNumber - 1)
 					setStepNumber(stepNumber - 1)
 					break
@@ -619,7 +619,7 @@ const OnboardingViewContent = ({ onboardingModels }: { onboardingModels: Onboard
 	return (
 		<div className="fixed inset-0 p-0 flex flex-col w-full">
 			<div className="h-full px-5 xs:mx-10 overflow-auto flex flex-col gap-4 items-center justify-center">
-				<ClineLogoWhite className="size-16 flex-shrink-0" />
+				<IndusCodeLogoWhite className="size-16 flex-shrink-0" />
 				<h2 className="text-lg font-semibold p-0 flex-shrink-0">{stepDisplayInfo.title}</h2>
 				{stepNumber === 2 && (
 					<div className="flex w-full max-w-lg flex-col gap-6 my-4 items-center ">
@@ -632,7 +632,7 @@ const OnboardingViewContent = ({ onboardingModels }: { onboardingModels: Onboard
 
 				<div className="flex-1 w-full flex max-w-lg overflow-y-auto min-h-0">
 					<OnboardingStepContent
-						models={Object.keys(clineModels).length > 0 ? clineModels : openRouterModels}
+						models={Object.keys(induscodeModels).length > 0 ? induscodeModels : openRouterModels}
 						onboardingModels={models}
 						onSelectModel={onModelClick}
 						onSelectUserType={onUserTypeClick}
@@ -647,12 +647,12 @@ const OnboardingViewContent = ({ onboardingModels }: { onboardingModels: Onboard
 
 				<footer className="flex w-full max-w-lg flex-col gap-3 my-2 px-2 overflow-hidden flex-shrink-0">
 					{stepDisplayInfo.buttons.map((btn) => {
-						// Block ClinePass signup when no ClinePass model is selected (e.g. empty list).
+						// Block IndusCodePass signup when no IndusCodePass model is selected (e.g. empty list).
 						const isLoginAction = btn.action === "signin" || btn.action === "signup"
 						const showSpinner = isActionLoading && isLoginAction
 						const disabled =
 							isActionLoading ||
-							(btn.action === "signup" && userType === NEW_USER_TYPE.CLINE_PASS && !selectedModelId)
+							(btn.action === "signup" && userType === NEW_USER_TYPE.INDUSCODE_PASS && !selectedModelId)
 						return (
 							<Button
 								className={`w-full rounded-xs ${isActionLoading ? "animate-pulse" : ""}`}

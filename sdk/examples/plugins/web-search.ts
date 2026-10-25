@@ -4,15 +4,15 @@
  * Registers a `web_search` tool backed by Exa.
  *
  * CLI usage:
- *   cline plugin install https://github.com/cline/cline/blob/main/sdk/examples/plugins/web-search.ts --cwd .
- *   EXA_API_KEY=... cline "Search the web for recent TypeScript 6 updates"
+ *   induscode plugin install https://github.com/induscode/induscode/blob/main/sdk/examples/plugins/web-search.ts --cwd .
+ *   EXA_API_KEY=... induscode "Search the web for recent TypeScript 6 updates"
  *
  * Provider key:
  *   EXA_API_KEY              Enables Exa search. A separate model provider key
  *                            is still required for CLI inference.
  */
 
-import { type AgentPlugin, createTool } from "@cline/core";
+import { type AgentPlugin, createTool } from "@induscode/core";
 
 export interface WebSearchInput {
 	query: string;

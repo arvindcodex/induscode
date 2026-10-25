@@ -1,4 +1,4 @@
-import { ApiFormat } from "@shared/proto/cline/models"
+import { ApiFormat } from "@shared/proto/induscode/models"
 import { act, fireEvent, render, screen } from "@testing-library/react"
 import type { ChangeEventHandler, ReactNode } from "react"
 import { beforeEach, describe, expect, it, vi } from "vitest"

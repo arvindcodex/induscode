@@ -1,6 +1,6 @@
-# Cline Plugin Examples
+# IndusCode Plugin Examples
 
-A plugin is a single file (or directory) that extends any Cline agent — CLI, Kanban, VS Code, JetBrains, or anything built on the Core SDK. Drop one in, get new tools, hooks, providers, or message rewriters everywhere.
+A plugin is a single file (or directory) that extends any IndusCode agent — CLI, Kanban, VS Code, JetBrains, or anything built on the Core SDK. Drop one in, get new tools, hooks, providers, or message rewriters everywhere.
 
 What a plugin can do:
 
@@ -18,11 +18,11 @@ What a plugin can do:
 | [mac-notify.ts](./mac-notify.ts) | macOS Notification Center alert via `afterRun` | Sends a native macOS notification when a run completes successfully, using the final output text or iteration count as the notification body. Non-macOS hosts no-op. |
 | [custom-compaction.ts](./custom-compaction.ts) | Provider-message compaction via `registerMessageBuilder` | Rewrites oversized provider-bound message history by preserving the first user message and recent context, then replacing older middle history with a structured summary of roles, tools, files, and highlights. |
 | [background-terminal.ts](./background-terminal.ts) | Detached shell jobs with persisted logs and session steering | Registers `start_background_command`, `get_background_command`, and `delete_background_command` so agents can launch long-running shell commands, poll stdout/stderr tails, clean up job metadata, and receive completion summaries as steer messages. |
-| [automation-events.ts](./automation-events.ts) | Plugin-emitted automation events | Registers a normalized `local.plugin_event` automation event type and, when `CLINE_LOCAL_EVENT_INTERVAL_MS` is set, periodically emits demo events into Cline automation. |
+| [automation-events.ts](./automation-events.ts) | Plugin-emitted automation events | Registers a normalized `local.plugin_event` automation event type and, when `INDUSCODE_LOCAL_EVENT_INTERVAL_MS` is set, periodically emits demo events into IndusCode automation. |
 | [gitignore-read-files-guard.ts](./gitignore-read-files-guard.ts) | Runtime hook policy for workspace `.gitignore` boundaries | Uses `beforeTool` to inspect `read_files`, `editor`, and `apply_patch` requests and skips them when target paths match workspace `.gitignore` rules, preventing ignored files from being read or modified. |
 | [env-blocker.ts](./env-blocker.ts) | Deterministic secret protection via `beforeTool` | Uses `beforeTool` to block `read_files` and `run_commands` (e.g. `cat .env`) calls that read `.env` secret files, while leaving `.env.example`/`.env.sample`/`.env.template` readable. A hard guarantee where an AGENTS.md rule is only a suggestion. |
 | [web-search.ts](./web-search.ts) | `web_search` tool backed by an Exa API key | Adds a `web_search` tool that queries Exa for current public web results, with optional result limits, domain filters, recency windows, and country localization. Requires `EXA_API_KEY`. |
-| [openrouter-provider.ts](./openrouter-provider.ts) | Custom model provider via `registerProvider` | Registers an OpenAI-compatible model provider (pointed at OpenRouter) plus its model catalog so the agent can run inference against it. Swap the base URL, API key env var, and models to add any OpenAI-compatible endpoint Cline does not bundle. Requires `OPENROUTER_API_KEY`. |
+| [openrouter-provider.ts](./openrouter-provider.ts) | Custom model provider via `registerProvider` | Registers an OpenAI-compatible model provider (pointed at OpenRouter) plus its model catalog so the agent can run inference against it. Swap the base URL, API key env var, and models to add any OpenAI-compatible endpoint IndusCode does not bundle. Requires `OPENROUTER_API_KEY`. |
 | [typescript-lsp/](./typescript-lsp/) | `goto_definition` tool powered by the TypeScript Language Service | Adds `goto_definition(file, line)` for TypeScript/JavaScript projects. It loads the target project’s own TypeScript version, finds identifiers on a line, and resolves definitions through imports, re-exports, aliases, and other language-service semantics. |
 | [agents-squad/](./agents-squad/) | Multi-agent team — spin up subagents with their own models and personalities | Adds tools for starting, messaging, polling, and coordinating background subagents. It includes bundled agent presets, skill discovery/loading, and a shared handoff store for passing notes between subagents in the same conversation. Reports subagent lifecycle outcomes through `ctx.logger` and `ctx.telemetry` (start counters, completion events, turn-duration histograms). |
 
@@ -30,11 +30,11 @@ The runtime-hook variant of compaction lives in [../hooks/custom-compaction-hook
 
 ## Try it with the CLI
 
-The CLI auto-discovers plugins from `.cline/plugins` in the workspace, `~/.cline/plugins`, and the system Plugins folder. Use `cline plugin install` for local files, GitHub file URLs, package directories, git repos, and npm packages:
+The CLI auto-discovers plugins from `.induscode/plugins` in the workspace, `~/.induscode/plugins`, and the system Plugins folder. Use `induscode plugin install` for local files, GitHub file URLs, package directories, git repos, and npm packages:
 
 ```bash
-cline plugin install https://github.com/cline/cline/blob/main/sdk/examples/plugins/weather-metrics.ts --cwd .
-cline -i "What's the weather like in Tokyo and Paris?"
+induscode plugin install https://github.com/induscode/induscode/blob/main/sdk/examples/plugins/weather-metrics.ts --cwd .
+induscode -i "What's the weather like in Tokyo and Paris?"
 ```
 
 Swap the GitHub URL for any other single-file example.
@@ -42,28 +42,28 @@ Swap the GitHub URL for any other single-file example.
 To block file access for paths ignored by workspace `.gitignore` files:
 
 ```bash
-cline plugin install https://github.com/cline/cline/blob/main/sdk/examples/plugins/gitignore-read-files-guard.ts --cwd .
-cline -i "Read the ignored .env file"
+induscode plugin install https://github.com/induscode/induscode/blob/main/sdk/examples/plugins/gitignore-read-files-guard.ts --cwd .
+induscode -i "Read the ignored .env file"
 ```
 
 The guard uses the `beforeTool` runtime hook. When a `read_files`, `editor`, or `apply_patch` call targets an ignored workspace file, the hook returns `{ skip: true }`, so the tool result records a policy error and the file is not accessed.
 
-For a plugin that lives in a directory (with its own `package.json`), use `cline plugin install`:
+For a plugin that lives in a directory (with its own `package.json`), use `induscode plugin install`:
 
 ```bash
-cline plugin install ./examples/plugins/agents-squad
+induscode plugin install ./examples/plugins/agents-squad
 ```
 
 To add web search through a normal plugin tool:
 
 ```bash
-cline plugin install https://github.com/cline/cline/blob/main/sdk/examples/plugins/web-search.ts --cwd .
+induscode plugin install https://github.com/induscode/induscode/blob/main/sdk/examples/plugins/web-search.ts --cwd .
 
 export EXA_API_KEY=...
 export OPENROUTER_API_KEY=...
 
-cline auth --provider openrouter --apikey "$OPENROUTER_API_KEY" --modelid anthropic/claude-sonnet-4.6
-cline -P openrouter -m anthropic/claude-sonnet-4.6 "Search the web for recent Bun release notes, then fetch the most relevant page"
+induscode auth --provider openrouter --apikey "$OPENROUTER_API_KEY" --modelid anthropic/claude-sonnet-4.6
+induscode -P openrouter -m anthropic/claude-sonnet-4.6 "Search the web for recent Bun release notes, then fetch the most relevant page"
 ```
 
 The plugin registers `web_search`, which returns normalized search results from
@@ -82,8 +82,8 @@ ANTHROPIC_API_KEY=sk-... bun run examples/plugins/weather-metrics.ts
 ## Anatomy of a plugin
 
 ```ts
-import type { AgentPlugin } from "@cline/core";
-import { createTool } from "@cline/core";
+import type { AgentPlugin } from "@induscode/core";
+import { createTool } from "@induscode/core";
 
 const myPlugin: AgentPlugin = {
   name: "my-plugin",
@@ -109,9 +109,9 @@ Pass it to the SDK:
 
 ```ts
 import plugin from "./my-plugin";
-import { ClineCore } from "@cline/core";
+import { IndusCodeCore } from "@induscode/core";
 
-const host = await ClineCore.create({ backendMode: "local" });
+const host = await IndusCodeCore.create({ backendMode: "local" });
 await host.start({
   config: {
     providerId: "anthropic",
@@ -152,7 +152,7 @@ Discovered plugins run in a session-owned subprocess. An idle subprocess is
 reclaimed after 30 minutes without an active plugin call, and the next tool,
 hook, command, rule, or message-builder call transparently starts a fresh
 process and runs plugin setup again. Hosts can tune the idle period with
-`CLINE_PLUGIN_IDLE_TIMEOUT_MS` (milliseconds). Active calls are never evicted.
+`INDUSCODE_PLUGIN_IDLE_TIMEOUT_MS` (milliseconds). Active calls are never evicted.
 
 Treat module-level variables as a cache, not durable storage: they reset after
 idle eviction, a hub restart, or a sandbox crash. Persist state that must survive
@@ -161,7 +161,7 @@ safe to run again for the same session.
 
 ## Runtime hooks
 
-Hooks are typed, in-process callbacks on the same hook layer as `@cline/agents`. They run inside the agent loop with full type information.
+Hooks are typed, in-process callbacks on the same hook layer as `@induscode/agents`. They run inside the agent loop with full type information.
 
 | Hook          | When it fires |
 | ------------- | ------------- |
@@ -177,7 +177,7 @@ Hooks are typed, in-process callbacks on the same hook layer as `@cline/agents`.
 
 ### Plugin hooks vs file hooks
 
-File hooks are external scripts in `.cline/hooks` that the runtime invokes with serialized JSON payloads. Plugin runtime hooks are typed callbacks inside the agent loop. Core adapts file hooks onto the runtime hook layer.
+File hooks are external scripts in `.induscode/hooks` that the runtime invokes with serialized JSON payloads. Plugin runtime hooks are typed callbacks inside the agent loop. Core adapts file hooks onto the runtime hook layer.
 
 | File hook | File event | Backed by runtime hook |
 | --------- | ---------- | ---------------------- |
@@ -212,7 +212,7 @@ Reach for `beforeModel` only when you need the runtime snapshot or want to mutat
 
 | Tool | Purpose |
 | ---- | ------- |
-| `start_background_command` | starts a detached shell command, returns a job id immediately, captures stdout/stderr under Cline's data directory |
+| `start_background_command` | starts a detached shell command, returns a job id immediately, captures stdout/stderr under IndusCode's data directory |
 | `get_background_command` | reads job status plus recent stdout/stderr tails |
 | `delete_background_command` | deletes saved job metadata, optionally deletes captured logs |
 

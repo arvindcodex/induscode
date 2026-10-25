@@ -2,7 +2,7 @@ import type {
 	GatewayProviderContext,
 	GatewayStreamRequest,
 	ModelReasoningOption,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { describe, expect, it } from "vitest";
 import { buildAiSdkStreamConfig } from "./ai-sdk";
 import {
@@ -154,7 +154,7 @@ describe("resolvePortableReasoning", () => {
 });
 
 function wire(
-	adapter: "cline" | "openai-compatible" | "anthropic",
+	adapter: "induscode" | "openai-compatible" | "anthropic",
 	reasoningOptions: readonly ModelReasoningOption[] | undefined,
 ) {
 	return {
@@ -191,11 +191,11 @@ describe("resolvePortableReasoning against an advertised effort ladder", () => {
 		).toBe(expected);
 	});
 
-	it("snaps for the Cline gateway adapter too", () => {
+	it("snaps for the IndusCode gateway adapter too", () => {
 		expect(
 			resolvePortableReasoning(
-				{ ...request({ effort: "minimal" }), providerId: "cline" },
-				wire("cline", throughXhigh),
+				{ ...request({ effort: "minimal" }), providerId: "induscode" },
+				wire("induscode", throughXhigh),
 			),
 		).toBe("low");
 	});

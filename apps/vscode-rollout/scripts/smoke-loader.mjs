@@ -7,7 +7,7 @@
  *   2. cached cohort "next"            -> activates next, scoped context paths
  *   3. the flag refresh caches a TWO-WAY assignment for the next window
  *      (rollout on promotes, rollout off demotes a cached "next")
- *   4. CLINE_BUNDLE_OVERRIDE / the cline.rollout.bundleOverride setting
+ *   4. INDUSCODE_BUNDLE_OVERRIDE / the induscode.rollout.bundleOverride setting
  *      force a bundle in either direction
  *   5. next activation throws          -> disposes partial registrations, falls
  *                                         back to legacy, pins version, and
@@ -16,7 +16,7 @@
  *      authoritative attempted/actual/fallback record (and its absence is
  *      tolerated); the loader's own loader_decision capture fires exactly
  *      once per window
- *   7. the nightly identity (manifest name cline-nightly) switches the
+ *   7. the nightly identity (manifest name induscode-nightly) switches the
  *      setting section + context key namespace and shows the status bar
  *      bundle indicator
  *   8. both bundles throwing surfaces the failure and captures a
@@ -187,7 +187,7 @@ function makeSandbox({
 	legacyThrows = false,
 	omitReportExport = false,
 } = {}) {
-	const sandbox = mkdtempSync(path.join(tmpdir(), "cline-ab-smoke-"));
+	const sandbox = mkdtempSync(path.join(tmpdir(), "induscode-ab-smoke-"));
 	cpSync(
 		path.join(staging, "extension.js"),
 		path.join(sandbox, "extension.js"),
@@ -220,7 +220,7 @@ function makeSandbox({
 	mkdirSync(path.join(sandbox, "data"), { recursive: true });
 	writeFileSync(
 		path.join(sandbox, "data", "globalState.json"),
-		JSON.stringify({ "cline.generatedMachineId": "smoke-machine" }),
+		JSON.stringify({ "induscode.generatedMachineId": "smoke-machine" }),
 	);
 	return sandbox;
 }
@@ -257,7 +257,7 @@ async function runScenario(
 
 	const previousEnv = {};
 	const scenarioEnv = {
-		CLINE_DIR: sandbox,
+		INDUSCODE_DIR: sandbox,
 		// A dev build leaves this lookup dynamic; production builds inline the
 		// real PostHog key. Either way, the smoke must exercise refreshCohort.
 		TELEMETRY_SERVICE_API_KEY: "smoke-posthog-project-key",
@@ -351,7 +351,7 @@ await runScenario("default cohort -> legacy", {}, async ({ api, sandbox }) => {
 	);
 	assert.deepEqual(executedCommands[0], [
 		"setContext",
-		"cline.sdkBundle",
+		"induscode.sdkBundle",
 		false,
 	]);
 	assert.deepEqual(global.__smoke.deactivated, []);
@@ -371,7 +371,7 @@ await runScenario("default cohort -> legacy", {}, async ({ api, sandbox }) => {
 
 await runScenario(
 	"cached next -> next with scoped paths",
-	{ seed: { "cline.rollout.bundle": "next" } },
+	{ seed: { "induscode.rollout.bundle": "next" } },
 	async ({ api, sandbox }) => {
 		assert.deepEqual(api, { bundle: "next" });
 		const activation = global.__smoke.activated[0];
@@ -382,7 +382,7 @@ await runScenario(
 		);
 		assert.deepEqual(executedCommands[0], [
 			"setContext",
-			"cline.sdkBundle",
+			"induscode.sdkBundle",
 			true,
 		]);
 		assert.deepEqual(global.__smoke.reports, [
@@ -406,7 +406,7 @@ await runScenario(
 		// This window already decided legacy from the (empty) cache; the refresh
 		// promotes the NEXT window.
 		assert.deepEqual(api, { bundle: "legacy" });
-		assert.equal(context.globalState._dump()["cline.rollout.bundle"], "next");
+		assert.equal(context.globalState._dump()["induscode.rollout.bundle"], "next");
 		const [featureFlagCalled] = featureFlagCalledCaptures(fetchCalls);
 		assert.ok(featureFlagCalled, "rollout refresh must emit the PostHog feature-flag exposure event");
 		assert.equal(featureFlagCalled.properties.$feature_flag, "ext-sdk-bundle-rollout");
@@ -417,14 +417,14 @@ await runScenario(
 await runScenario(
 	"rollout flag off demotes a cached next for the NEXT window (two-way)",
 	{
-		seed: { "cline.rollout.bundle": "next" },
+		seed: { "induscode.rollout.bundle": "next" },
 		fetchController: makeFlagFetch({ rollout: false }),
 	},
 	async ({ context, api, fetchCalls }) => {
 		// This window already ran next; dialing the flag down moves the machine
 		// back to legacy on its next reload.
 		assert.deepEqual(api, { bundle: "next" });
-		assert.equal(context.globalState._dump()["cline.rollout.bundle"], "legacy");
+		assert.equal(context.globalState._dump()["induscode.rollout.bundle"], "legacy");
 		const [featureFlagCalled] = featureFlagCalledCaptures(fetchCalls);
 		assert.ok(featureFlagCalled, "rollout refresh must emit the PostHog feature-flag exposure event");
 		assert.equal(featureFlagCalled.event, "$feature_flag_called");
@@ -435,7 +435,7 @@ await runScenario(
 
 await runScenario(
 	"env override forces next",
-	{ env: { CLINE_BUNDLE_OVERRIDE: "next" } },
+	{ env: { INDUSCODE_BUNDLE_OVERRIDE: "next" } },
 	async ({ api }) => {
 		assert.deepEqual(api, { bundle: "next" });
 	},
@@ -444,8 +444,8 @@ await runScenario(
 await runScenario(
 	"user setting overrides to legacy despite cached next",
 	{
-		seed: { "cline.rollout.bundle": "next" },
-		settings: { "cline.rollout.bundleOverride": "legacy" },
+		seed: { "induscode.rollout.bundle": "next" },
+		settings: { "induscode.rollout.bundleOverride": "legacy" },
 	},
 	async ({ api }) => {
 		assert.deepEqual(api, { bundle: "legacy" });
@@ -455,8 +455,8 @@ await runScenario(
 await runScenario(
 	"user setting overrides to next despite a cached legacy assignment",
 	{
-		seed: { "cline.rollout.bundle": "legacy" },
-		settings: { "cline.rollout.bundleOverride": "next" },
+		seed: { "induscode.rollout.bundle": "legacy" },
+		settings: { "induscode.rollout.bundleOverride": "next" },
 	},
 	async ({ api }) => {
 		assert.deepEqual(api, { bundle: "next" });
@@ -467,7 +467,7 @@ const failedNextRefresh = makeDeferredFlagFetch({ rollout: true });
 await runScenario(
 	"next activation failure falls back to legacy",
 	{
-		seed: { "cline.rollout.bundle": "next" },
+		seed: { "induscode.rollout.bundle": "next" },
 		nextThrows: true,
 		fetchController: failedNextRefresh,
 		expectRefresh: false,
@@ -485,9 +485,9 @@ await runScenario(
 			"partial registrations disposed",
 		);
 		const state = context.globalState._dump();
-		assert.equal(state["cline.rollout.bundle"], "legacy");
+		assert.equal(state["induscode.rollout.bundle"], "legacy");
 		assert.equal(
-			state["cline.rollout.nextActivationFailedVersion"],
+			state["induscode.rollout.nextActivationFailedVersion"],
 			"4.1.0-smoke",
 		);
 		assert.equal(
@@ -498,7 +498,7 @@ await runScenario(
 		// setContext flipped back for the legacy UI
 		assert.deepEqual(executedCommands.at(-1), [
 			"setContext",
-			"cline.sdkBundle",
+			"induscode.sdkBundle",
 			false,
 		]);
 		// The LEGACY bundle (the one whose telemetry pipeline is alive) received
@@ -526,14 +526,14 @@ await runScenario(
 			0,
 			"crash fallback must not refresh the failed cohort",
 		);
-		assert.equal(context.globalState._dump()["cline.rollout.bundle"], "legacy");
+		assert.equal(context.globalState._dump()["induscode.rollout.bundle"], "legacy");
 	},
 );
 
 await runScenario(
 	"loader_decision capture carries the loader-side metadata",
 	{
-		env: { CLINE_BUNDLE_OVERRIDE: "next" },
+		env: { INDUSCODE_BUNDLE_OVERRIDE: "next" },
 		telemetryEnabled: true,
 		contextPackageJSON: { name: "claude-dev" },
 	},
@@ -558,7 +558,7 @@ await runScenario(
 await runScenario(
 	"crash fallback captures exactly one loader_decision event",
 	{
-		seed: { "cline.rollout.bundle": "next" },
+		seed: { "induscode.rollout.bundle": "next" },
 		nextThrows: true,
 		telemetryEnabled: true,
 		expectRefresh: false,
@@ -598,20 +598,20 @@ await runScenario(
 await runScenario(
 	"nightly identity: namespaced setting + context key, status bar indicator",
 	{
-		contextPackageJSON: { name: "cline-nightly" },
-		settings: { "cline-nightly.rollout.bundleOverride": "next" },
+		contextPackageJSON: { name: "induscode-nightly" },
+		settings: { "induscode-nightly.rollout.bundleOverride": "next" },
 	},
 	async ({ api, context }) => {
 		assert.deepEqual(api, { bundle: "next" });
 		assert.deepEqual(executedCommands[0], [
 			"setContext",
-			"cline-nightly.sdkBundle",
+			"induscode-nightly.sdkBundle",
 			true,
 		]);
 		assert.equal(statusBarItems.length, 1);
 		const [item] = statusBarItems;
 		assert.equal(item.shown, true);
-		assert.equal(item.text, "Cline: Next");
+		assert.equal(item.text, "IndusCode: Next");
 		assert.match(item.tooltip, /bundleOverride setting/);
 		assert.ok(
 			context.subscriptions.includes(item),
@@ -623,7 +623,7 @@ await runScenario(
 await runScenario(
 	"double failure: both bundles throw, loader reports and rethrows",
 	{
-		seed: { "cline.rollout.bundle": "next" },
+		seed: { "induscode.rollout.bundle": "next" },
 		nextThrows: true,
 		legacyThrows: true,
 		telemetryEnabled: true,

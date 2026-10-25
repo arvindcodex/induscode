@@ -5,12 +5,12 @@ import type {
 	RuntimeHostMode,
 	SessionHistoryRecord,
 	SessionRecord,
-} from "@cline/core";
+} from "@induscode/core";
 import {
-	ClineCore,
+	IndusCodeCore,
 	listSessionHistoryFromBackend,
 	resolveSessionBackend,
-} from "@cline/core";
+} from "@induscode/core";
 import {
 	createCliMessagesArtifactUploader,
 	prepareCliEnterpriseIntegration,
@@ -34,7 +34,7 @@ export async function createCliCore(options?: {
 	forceLocalBackend?: boolean;
 	cwd?: string;
 	workspaceRoot?: string;
-}): Promise<ClineCore> {
+}): Promise<IndusCodeCore> {
 	const explicitBackendMode = options?.forceLocalBackend
 		? "local"
 		: options?.backendMode;
@@ -46,7 +46,7 @@ export async function createCliCore(options?: {
 		logger: options?.logger,
 		telemetry,
 	});
-	const core = await ClineCore.create({
+	const core = await IndusCodeCore.create({
 		...(explicitBackendMode ? { backendMode: explicitBackendMode } : {}),
 		...(options?.forceLocalBackend !== true
 			? {
@@ -54,7 +54,7 @@ export async function createCliCore(options?: {
 						cwd,
 						workspaceRoot,
 						clientType: "cli",
-						displayName: "Cline CLI",
+						displayName: "IndusCode CLI",
 					},
 				}
 			: {}),
@@ -79,7 +79,7 @@ export async function createCliCore(options?: {
 }
 
 async function withCliCore<T>(
-	run: (core: ClineCore) => Promise<T>,
+	run: (core: IndusCodeCore) => Promise<T>,
 	options?: {
 		forceLocalBackend?: boolean;
 		logger?: BasicLogger;
@@ -164,7 +164,7 @@ export async function getLatestSessionRow(): Promise<unknown | undefined> {
 }
 
 export async function handleSessionHookEvent(
-	payload: Parameters<ClineCore["ingestHookEvent"]>[0],
+	payload: Parameters<IndusCodeCore["ingestHookEvent"]>[0],
 ): Promise<void> {
 	await withCliCore(
 		async (core) => {

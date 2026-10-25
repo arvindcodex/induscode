@@ -1,5 +1,5 @@
-import * as Llms from "@cline/llms";
-import { ReasoningLevelSchema } from "@cline/shared";
+import * as Llms from "@induscode/llms";
+import { ReasoningLevelSchema } from "@induscode/shared";
 import { z } from "zod";
 import {
 	DEFAULT_EXTERNAL_OCA_BASE_URL,
@@ -129,7 +129,7 @@ export type OcaSettings = z.infer<typeof OcaSettingsSchema>;
 
 export const ModelCatalogSettingsSchema = z.object({
 	loadLatestOnInit: z.boolean().optional(),
-	includeClineCloudModels: z.boolean().optional(),
+	includeIndusCodeCloudModels: z.boolean().optional(),
 	loadPrivateOnAuth: z.boolean().optional(),
 	url: z.string().url().optional(),
 	cacheTtlMs: z.number().int().positive().optional(),
@@ -298,8 +298,8 @@ export function toProviderConfig(
 		modelCatalog: settings.modelCatalog
 			? {
 					loadLatestOnInit: settings.modelCatalog.loadLatestOnInit,
-					includeClineCloudModels:
-						settings.modelCatalog.includeClineCloudModels,
+					includeIndusCodeCloudModels:
+						settings.modelCatalog.includeIndusCodeCloudModels,
 					loadPrivateOnAuth: settings.modelCatalog.loadPrivateOnAuth,
 					url: settings.modelCatalog.url,
 					cacheTtlMs: settings.modelCatalog.cacheTtlMs,

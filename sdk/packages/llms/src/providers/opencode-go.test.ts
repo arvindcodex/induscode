@@ -1,4 +1,4 @@
-import type { AgentModelEvent, AgentToolDefinition } from "@cline/shared";
+import type { AgentModelEvent, AgentToolDefinition } from "@induscode/shared";
 import { describe, expect, it, vi } from "vitest";
 import { createGateway } from "./gateway";
 
@@ -248,7 +248,7 @@ describe("OpenCode Go HTTP integration", () => {
 			);
 			const headers = new Headers(init?.headers);
 			expect(headers.get("x-opencode-session")).toBe(sessionId);
-			expect(headers.get("user-agent")).toContain("Cline/");
+			expect(headers.get("user-agent")).toContain("IndusCode/");
 			expect(
 				headers.get(endpoint === "messages" ? "x-api-key" : "authorization"),
 			).toBe(endpoint === "messages" ? "test-key" : "Bearer test-key");

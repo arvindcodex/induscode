@@ -1,5 +1,5 @@
 import { Worker } from "node:worker_threads";
-import { withResolvedClineBuildEnv } from "@cline/shared";
+import { withResolvedIndusCodeBuildEnv } from "@induscode/shared";
 import type { SandboxCallOptions } from "./subprocess-sandbox";
 import {
 	MAX_NODE_TIMER_DELAY_MS,
@@ -271,7 +271,7 @@ export class WorkerSandbox {
 			eval: evalScript,
 			stdout: true,
 			stderr: true,
-			env: withResolvedClineBuildEnv(process.env),
+			env: withResolvedIndusCodeBuildEnv(process.env),
 		};
 	}
 

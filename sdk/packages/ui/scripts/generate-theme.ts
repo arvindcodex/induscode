@@ -27,7 +27,7 @@ const componentThemeHeader = `/*
  */
 
 `;
-const paletteImport = '@import "@cline/ui/theme/palette.css";';
+const paletteImport = '@import "@induscode/ui/theme/palette.css";';
 
 function stripContractComment(source: string, sourcePath: string): string {
 	const withoutHeader = source.replace(/^\/\*[\s\S]*?\*\/\s*/, "");
@@ -73,14 +73,14 @@ function declarationNames(source: string): string[] {
 
 function componentThemeName(rawName: string): string {
 	if (rawName.startsWith("--font-weight-")) {
-		return rawName.replace("--font-weight-", "--font-weight-cline-ui-");
+		return rawName.replace("--font-weight-", "--font-weight-induscode-ui-");
 	}
 	if (rawName.startsWith("--font-")) {
-		return rawName.replace("--font-", "--font-cline-ui-");
+		return rawName.replace("--font-", "--font-induscode-ui-");
 	}
 	if (rawName.startsWith("--text-")) {
 		const [size, ...companions] = rawName.slice("--text-".length).split("--");
-		return `--text-cline-ui-${size}${companions.length ? `--${companions.join("--")}` : ""}`;
+		return `--text-induscode-ui-${size}${companions.length ? `--${companions.join("--")}` : ""}`;
 	}
 	throw new Error(`Unsupported component typography token ${rawName}`);
 }
@@ -107,7 +107,7 @@ function generateComponentTheme(tokens: string, theme: string): string {
 		...colorNames.map((name) => {
 			const rawName = name.replace("--color-", "--");
 			return mappedDeclaration(
-				name.replace("--color-", "--color-cline-ui-"),
+				name.replace("--color-", "--color-induscode-ui-"),
 				rawName,
 			);
 		}),
@@ -117,17 +117,17 @@ function generateComponentTheme(tokens: string, theme: string): string {
 		),
 		"",
 		...radiusNames.map((name) =>
-			mappedDeclaration(name.replace("--radius-", "--radius-cline-ui-"), name),
+			mappedDeclaration(name.replace("--radius-", "--radius-induscode-ui-"), name),
 		),
 	];
 
-	return `${componentThemeHeader}@custom-variant cline-ui-dark (&:is(.dark *));\n\n@theme inline {\n${declarations.join("\n")}\n}\n`;
+	return `${componentThemeHeader}@custom-variant induscode-ui-dark (&:is(.dark *));\n\n@theme inline {\n${declarations.join("\n")}\n}\n`;
 }
 
 function scopeVariableBlocks(source: string, sourcePath: string): string {
 	const sharedSelector = ":root,\n.dark";
 	const scopedSharedSelector =
-		".cline-ui-theme,\n.dark .cline-ui-theme,\n.cline-ui-theme.dark";
+		".induscode-ui-theme,\n.dark .induscode-ui-theme,\n.induscode-ui-theme.dark";
 	const withSharedScope = source.includes(`${sharedSelector} {`)
 		? replaceSelectorOnce(
 				source,
@@ -140,11 +140,11 @@ function scopeVariableBlocks(source: string, sourcePath: string): string {
 		replaceSelectorOnce(
 			withSharedScope,
 			":root",
-			".cline-ui-theme",
+			".induscode-ui-theme",
 			sourcePath,
 		),
 		".dark",
-		".dark .cline-ui-theme,\n.cline-ui-theme.dark",
+		".dark .induscode-ui-theme,\n.induscode-ui-theme.dark",
 		sourcePath,
 	);
 }
@@ -185,10 +185,10 @@ if (checkOnly) {
 			throw new Error(`${outputPath} is out of date`);
 		}
 	}
-	console.log("@cline/ui generated theme files are current");
+	console.log("@induscode/ui generated theme files are current");
 } else {
 	for (const [outputPath, generated] of outputs) {
 		writeFileSync(outputPath, generated);
 	}
-	console.log("Generated @cline/ui scoped and component themes");
+	console.log("Generated @induscode/ui scoped and component themes");
 }

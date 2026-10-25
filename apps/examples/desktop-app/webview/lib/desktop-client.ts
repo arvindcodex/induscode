@@ -8,7 +8,7 @@ import type {
 	DesktopDebugLogPayload,
 	HubTaskCreateInput,
 	HubTaskUpdateInput,
-} from "@cline/shared";
+} from "@induscode/shared";
 import type {
 	DesktopTransportEvent,
 	DesktopTransportMessage,
@@ -187,7 +187,7 @@ const RECONNECT_MAX_DELAY_MS = 4_000;
  * How long invoke() waits for a usable transport before failing the command.
  * At app launch the sidecar may still be booting (login-shell PATH probe,
  * hub-runtime spawn) or being respawned after a failed first start, and the
- * Tauri endpoint command reports "not ready" until then (cline/cline#14201,
+ * Tauri endpoint command reports "not ready" until then (induscode/induscode#14201,
  * #14129). Each connect attempt can itself block for the Tauri shell's 30s
  * endpoint wait, so this budget covers a couple of full attempts.
  */
@@ -239,13 +239,13 @@ function webviewDebugLoggingEnabled(): boolean {
 	try {
 		runtimeEnabled =
 			typeof window !== "undefined" &&
-			window.localStorage.getItem("cline.debugLogs") === "1";
+			window.localStorage.getItem("induscode.debugLogs") === "1";
 	} catch {
 		// Some embedded/privacy contexts deny localStorage access.
 	}
 	return (
 		process.env.NODE_ENV !== "production" ||
-		process.env.NEXT_PUBLIC_CLINE_DEBUG_LOGS === "1" ||
+		process.env.NEXT_PUBLIC_INDUSCODE_DEBUG_LOGS === "1" ||
 		runtimeEnabled
 	);
 }

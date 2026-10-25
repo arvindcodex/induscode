@@ -15,9 +15,9 @@ import {
 //   - "auto" adapts to the terminal: it detects light/dark from the terminal's
 //     reported background and keeps that background untouched (the pre-theme
 //     behavior, and still the default).
-//   - "dark" / "light" force the corresponding Cline palette and paint a
+//   - "dark" / "light" force the corresponding IndusCode palette and paint a
 //     matching background, for terminals whose reported colors are missing or
-//     wrong (see cline/cline#12872).
+//     wrong (see induscode/induscode#12872).
 //   - Named themes (Tokyo Night, Gruvbox, ...) paint their canonical
 //     background and bring their own accent + syntax palettes.
 
@@ -157,15 +157,15 @@ export const THEMES: readonly ThemeDefinition[] = [
 	},
 	{
 		id: "dark",
-		label: "Cline Dark",
-		description: "Cline's accents on deep charcoal",
+		label: "IndusCode Dark",
+		description: "IndusCode's accents on deep charcoal",
 		variant: "dark",
 		background: "#14161b",
 		foreground: "#e8eaed",
 	},
 	{
 		id: "light",
-		label: "Cline Light",
+		label: "IndusCode Light",
 		description: "Crisp white, high-contrast accents",
 		variant: "light",
 		background: "#ffffff",

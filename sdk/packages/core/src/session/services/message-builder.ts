@@ -23,7 +23,7 @@ import {
 	type TextContent,
 	type ToolResultContent,
 	validateAndReserveImageMedia,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { prepareToolResultPreview } from "./tool-result-cache";
 
 export const DEFAULT_MAX_TOOL_RESULT_CHARS = 8_000;
@@ -42,9 +42,9 @@ const MIN_TOTAL_BUDGET_TOOL_RESULT_BYTES = 2_000;
 const MIN_TOTAL_BUDGET_ASSISTANT_TEXT_BYTES = 40_000;
 const REPEATED_TOOL_CALL_MARKUP_THRESHOLD = 8;
 export const MESSAGE_BUILDER_LIMIT_ENV = {
-	maxToolResultChars: "CLINE_MESSAGE_BUILDER_MAX_TOOL_RESULT_CHARS",
-	maxTotalTextBytes: "CLINE_MESSAGE_BUILDER_MAX_TOTAL_TEXT_BYTES",
-	minOutdatedRewriteBytes: "CLINE_MESSAGE_BUILDER_MIN_OUTDATED_REWRITE_BYTES",
+	maxToolResultChars: "INDUSCODE_MESSAGE_BUILDER_MAX_TOOL_RESULT_CHARS",
+	maxTotalTextBytes: "INDUSCODE_MESSAGE_BUILDER_MAX_TOTAL_TEXT_BYTES",
+	minOutdatedRewriteBytes: "INDUSCODE_MESSAGE_BUILDER_MIN_OUTDATED_REWRITE_BYTES",
 } as const;
 const READ_TOOL_NAMES = new Set(["read", "read_files"]);
 const OUTDATED_FILE_CONTENT = "[outdated - see the latest file content]";

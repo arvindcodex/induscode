@@ -1,8 +1,8 @@
 import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { AgentTool } from "@cline/shared";
-import { setHomeDir } from "@cline/shared/storage";
+import type { AgentTool } from "@induscode/shared";
+import { setHomeDir } from "@induscode/shared/storage";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
 	PluginRegistry,
@@ -13,8 +13,8 @@ import { listPluginToolsWithDiagnostics } from "./plugin-tools";
 describe("listPluginToolsWithDiagnostics", () => {
 	const envSnapshot = {
 		HOME: process.env.HOME,
-		CLINE_GLOBAL_SETTINGS_PATH: process.env.CLINE_GLOBAL_SETTINGS_PATH,
-		CLINE_PLUGIN_MODE: process.env.CLINE_PLUGIN_MODE,
+		INDUSCODE_GLOBAL_SETTINGS_PATH: process.env.INDUSCODE_GLOBAL_SETTINGS_PATH,
+		INDUSCODE_PLUGIN_MODE: process.env.INDUSCODE_PLUGIN_MODE,
 	};
 	let root: string;
 	let registry: PluginRegistry;
@@ -23,13 +23,13 @@ describe("listPluginToolsWithDiagnostics", () => {
 		root = await mkdtemp(join(tmpdir(), "core-plugin-tools-"));
 		process.env.HOME = root;
 		setHomeDir(root);
-		process.env.CLINE_GLOBAL_SETTINGS_PATH = join(root, "settings.json");
+		process.env.INDUSCODE_GLOBAL_SETTINGS_PATH = join(root, "settings.json");
 		registry = new PluginRegistry({
 			failureThreshold: 1,
 			importTimeoutMs: 15_000,
 		});
 		resetProcessPluginRegistryForTests(registry);
-		await mkdir(join(root, ".cline", "plugins"), { recursive: true });
+		await mkdir(join(root, ".induscode", "plugins"), { recursive: true });
 	});
 
 	afterEach(async () => {
@@ -43,7 +43,7 @@ describe("listPluginToolsWithDiagnostics", () => {
 	});
 
 	const writePlugin = async (name: string, execute = '() => "ok"') => {
-		const path = join(root, ".cline", "plugins", `${name}.js`);
+		const path = join(root, ".induscode", "plugins", `${name}.js`);
 		await writeFile(
 			path,
 			`export default {
@@ -99,7 +99,7 @@ describe("listPluginToolsWithDiagnostics", () => {
 
 	it("inspects plugins through the sandbox in sandbox mode", async () => {
 		await writePlugin("sandboxed");
-		process.env.CLINE_PLUGIN_MODE = "sandbox";
+		process.env.INDUSCODE_PLUGIN_MODE = "sandbox";
 
 		const result = await listPluginToolsWithDiagnostics({
 			workspacePath: root,

@@ -1,4 +1,4 @@
-export const HUB_THEME_STORAGE_KEY = "cline-hub-theme";
+export const HUB_THEME_STORAGE_KEY = "induscode-hub-theme";
 
 export type HubTheme = "light" | "dark";
 
@@ -35,7 +35,7 @@ export const HUB_THEME_BOOTSTRAP_SCRIPT = `(() => {
 		theme = ${JSON.stringify(DEFAULT_HUB_THEME)};
 	}
 	root.classList.toggle("dark", theme === "dark");
-	root.dataset.clineHubTheme = theme;
+	root.dataset.induscodeHubTheme = theme;
 })();`;
 
 export function readStoredHubTheme(): HubTheme | null {
@@ -70,7 +70,7 @@ export function readSystemHubTheme(): HubTheme {
 
 export function applyHubTheme(theme: HubTheme): HubTheme {
 	document.documentElement.classList.toggle("dark", theme === "dark");
-	document.documentElement.dataset.clineHubTheme = theme;
+	document.documentElement.dataset.induscodeHubTheme = theme;
 	return theme;
 }
 
@@ -87,12 +87,12 @@ export function setStoredHubTheme(theme: HubTheme): HubTheme {
 	return applyHubTheme(theme);
 }
 
-export const HUB_ACCENT_STORAGE_KEY = "cline.code.accent.v1";
+export const HUB_ACCENT_STORAGE_KEY = "induscode.code.accent.v1";
 
 /**
  * Accent palettes selectable in Settings. "violet" is the built-in brand
- * accent from @cline/ui tokens; the others override the interactive tokens
- * via `[data-cline-accent]` blocks in globals.css.
+ * accent from @induscode/ui tokens; the others override the interactive tokens
+ * via `[data-induscode-accent]` blocks in globals.css.
  */
 export const HUB_ACCENTS = [
 	"violet",
@@ -125,9 +125,9 @@ export function readStoredHubAccent(): HubAccent {
 
 export function applyHubAccent(accent: HubAccent): HubAccent {
 	if (accent === DEFAULT_HUB_ACCENT) {
-		delete document.documentElement.dataset.clineAccent;
+		delete document.documentElement.dataset.induscodeAccent;
 	} else {
-		document.documentElement.dataset.clineAccent = accent;
+		document.documentElement.dataset.induscodeAccent = accent;
 	}
 	return accent;
 }

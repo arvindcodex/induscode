@@ -34,8 +34,8 @@ export const AgentComposer = forwardRef<HTMLDivElement, AgentComposerProps>(
 					ref={ref}
 					className={clsx(
 						variant === "welcome"
-							? "overflow-visible rounded-cline-ui-xl border border-cline-ui-border/90 bg-cline-ui-surface-1/40 shadow-[0_24px_80px_-56px_color-mix(in_oklab,var(--primary)_72%,transparent)] backdrop-blur-md"
-							: "overflow-visible rounded-cline-ui-xl border border-cline-ui-border bg-cline-ui-surface-2 backdrop-blur-sm focus-within:border-cline-ui-primary/50 focus-within:ring-1 focus-within:ring-cline-ui-primary/20",
+							? "overflow-visible rounded-induscode-ui-xl border border-induscode-ui-border/90 bg-induscode-ui-surface-1/40 shadow-[0_24px_80px_-56px_color-mix(in_oklab,var(--primary)_72%,transparent)] backdrop-blur-md"
+							: "overflow-visible rounded-induscode-ui-xl border border-induscode-ui-border bg-induscode-ui-surface-2 backdrop-blur-sm focus-within:border-induscode-ui-primary/50 focus-within:ring-1 focus-within:ring-induscode-ui-primary/20",
 						className,
 					)}
 				/>
@@ -88,8 +88,8 @@ export const AgentComposerField = forwardRef<
 			ref={ref}
 			className={clsx(
 				variant === "welcome"
-					? "flex items-end gap-2 border-cline-ui-border focus-within:border-cline-ui-primary/50 focus-within:ring-cline-ui-primary/20 min-h-16 rounded-none border-0 bg-transparent px-0 py-0 focus-within:ring-0"
-					: "flex gap-2 border-cline-ui-border focus-within:ring-cline-ui-primary/20 min-h-24 items-start rounded-none border-0 bg-transparent px-0 py-0 focus-within:border-transparent focus-within:ring-0",
+					? "flex items-end gap-2 border-induscode-ui-border focus-within:border-induscode-ui-primary/50 focus-within:ring-induscode-ui-primary/20 min-h-16 rounded-none border-0 bg-transparent px-0 py-0 focus-within:ring-0"
+					: "flex gap-2 border-induscode-ui-border focus-within:ring-induscode-ui-primary/20 min-h-24 items-start rounded-none border-0 bg-transparent px-0 py-0 focus-within:border-transparent focus-within:ring-0",
 				className,
 			)}
 		/>
@@ -113,8 +113,8 @@ export const AgentComposerTextarea = forwardRef<
 			ref={ref}
 			className={clsx(
 				variant === "welcome"
-					? "field-sizing-content flex-1 resize-none overflow-y-auto bg-transparent text-cline-ui-sm leading-5 text-cline-ui-foreground placeholder:text-cline-ui-muted-foreground outline-none self-start"
-					: "field-sizing-content flex-1 resize-none overflow-y-auto bg-transparent text-cline-ui-sm leading-5 text-cline-ui-foreground placeholder:text-cline-ui-muted-foreground outline-none",
+					? "field-sizing-content flex-1 resize-none overflow-y-auto bg-transparent text-induscode-ui-sm leading-5 text-induscode-ui-foreground placeholder:text-induscode-ui-muted-foreground outline-none self-start"
+					: "field-sizing-content flex-1 resize-none overflow-y-auto bg-transparent text-induscode-ui-sm leading-5 text-induscode-ui-foreground placeholder:text-induscode-ui-muted-foreground outline-none",
 				className,
 			)}
 		/>
@@ -162,10 +162,10 @@ export const AgentComposerStopButton = forwardRef<
 			{...props}
 			ref={ref}
 			className={clsx(
-				"inline-flex size-7 shrink-0 items-center justify-center transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cline-ui-focus-ring",
+				"inline-flex size-7 shrink-0 items-center justify-center transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-induscode-ui-focus-ring",
 				variant === "welcome"
-					? "bg-cline-ui-foreground p-1 text-cline-ui-background hover:bg-cline-ui-destructive hover:text-cline-ui-destructive-foreground rounded-cline-ui-md active:scale-95"
-					: "bg-cline-ui-foreground p-1 text-cline-ui-background hover:bg-cline-ui-destructive hover:text-cline-ui-destructive-foreground rounded-full active:scale-95",
+					? "bg-induscode-ui-foreground p-1 text-induscode-ui-background hover:bg-induscode-ui-destructive hover:text-induscode-ui-destructive-foreground rounded-induscode-ui-md active:scale-95"
+					: "bg-induscode-ui-foreground p-1 text-induscode-ui-background hover:bg-induscode-ui-destructive hover:text-induscode-ui-destructive-foreground rounded-full active:scale-95",
 				className,
 			)}
 		/>
@@ -188,10 +188,10 @@ export const AgentComposerSendButton = forwardRef<
 			{...props}
 			ref={ref}
 			className={clsx(
-				"inline-flex size-7 shrink-0 items-center justify-center transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cline-ui-focus-ring disabled:cursor-not-allowed",
+				"inline-flex size-7 shrink-0 items-center justify-center transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-induscode-ui-focus-ring disabled:cursor-not-allowed",
 				variant === "welcome"
-					? "rounded-cline-ui-md bg-cline-ui-primary text-cline-ui-primary-foreground shadow-sm hover:opacity-90 active:scale-95 disabled:bg-cline-ui-muted/60 disabled:text-cline-ui-muted-foreground/40 disabled:shadow-none disabled:active:scale-100"
-					: "rounded-full bg-cline-ui-primary text-cline-ui-primary-foreground shadow-sm hover:opacity-90 active:scale-95 disabled:bg-cline-ui-muted/60 disabled:text-cline-ui-muted-foreground/40 disabled:shadow-none disabled:active:scale-100",
+					? "rounded-induscode-ui-md bg-induscode-ui-primary text-induscode-ui-primary-foreground shadow-sm hover:opacity-90 active:scale-95 disabled:bg-induscode-ui-muted/60 disabled:text-induscode-ui-muted-foreground/40 disabled:shadow-none disabled:active:scale-100"
+					: "rounded-full bg-induscode-ui-primary text-induscode-ui-primary-foreground shadow-sm hover:opacity-90 active:scale-95 disabled:bg-induscode-ui-muted/60 disabled:text-induscode-ui-muted-foreground/40 disabled:shadow-none disabled:active:scale-100",
 				className,
 			)}
 		/>
@@ -224,7 +224,7 @@ export const AgentComposerSettings = forwardRef<
 			{...props}
 			ref={ref}
 			className={clsx(
-				"flex min-w-0 items-center justify-between gap-x-3 gap-y-2 rounded-b-cline-ui-xl border-t border-cline-ui-border bg-cline-ui-muted/20 px-2 py-2 text-cline-ui-sm text-cline-ui-muted-foreground",
+				"flex min-w-0 items-center justify-between gap-x-3 gap-y-2 rounded-b-induscode-ui-xl border-t border-induscode-ui-border bg-induscode-ui-muted/20 px-2 py-2 text-induscode-ui-sm text-induscode-ui-muted-foreground",
 				className,
 			)}
 		/>

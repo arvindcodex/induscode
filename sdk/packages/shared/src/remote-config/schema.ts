@@ -62,15 +62,15 @@ export const AwsBedrockSettingsSchema = z.object({
 	awsBedrockEndpoint: z.string().optional(),
 });
 
-// Cline Provider model schema with per-model settings
-export const ClineModelSchema = z.object({
+// IndusCode Provider model schema with per-model settings
+export const IndusCodeModelSchema = z.object({
 	id: z.string(), // The model ID is required
 });
 
-// Cline Provider specific settings
-export const ClineSettingsSchema = z.object({
+// IndusCode Provider specific settings
+export const IndusCodeSettingsSchema = z.object({
 	// A list of the allowed models with their settings
-	models: z.array(ClineModelSchema).optional(),
+	models: z.array(IndusCodeModelSchema).optional(),
 });
 
 // Vertex Provider model schema with per-model settings
@@ -113,7 +113,7 @@ export const AnthropicSchema = z.object({
 const ProviderSettingsSchema = z.object({
 	OpenAiCompatible: OpenAiCompatibleSchema.optional(),
 	AwsBedrock: AwsBedrockSettingsSchema.optional(),
-	Cline: ClineSettingsSchema.optional(),
+	IndusCode: IndusCodeSettingsSchema.optional(),
 	Vertex: VertexSettingsSchema.optional(),
 	LiteLLM: LiteLLMSchema.optional(),
 	Anthropic: AnthropicSchema.optional(),
@@ -135,7 +135,7 @@ export const RemoteMCPServerSchema = z.object({
 	headers: z.record(z.string(), z.string()).optional(),
 });
 
-// Settings for a global cline rules or workflow file.
+// Settings for a global induscode rules or workflow file.
 export const GlobalInstructionsFileSchema = z.object({
 	// When this is enabled, the user cannot turn off this rule or workflow.
 	alwaysEnabled: z.boolean(),

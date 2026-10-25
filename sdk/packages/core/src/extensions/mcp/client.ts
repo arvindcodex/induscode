@@ -5,7 +5,7 @@ import {
 	type AgentToolContext,
 	formatMcpTimeoutErrorMessage,
 	isMcpTimeoutConfigured,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import type { FetchLike } from "@modelcontextprotocol/sdk/shared/transport.js";
 import {
@@ -253,7 +253,7 @@ class StdioMcpClient implements McpServerClient {
 		const initializeParams = {
 			protocolVersion: MCP_PROTOCOL_VERSION,
 			capabilities: {},
-			clientInfo: { name: "@cline/core", version: "0.0.0" },
+			clientInfo: { name: "@induscode/core", version: "0.0.0" },
 		};
 		await this.ensureAgentPluginDataDirectory();
 		this.spawnProcess("newline");

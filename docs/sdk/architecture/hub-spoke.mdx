@@ -24,7 +24,7 @@ The hub-spoke model solves all of these by separating coordination from executio
     Singleton daemon per machine. Coordinates sessions, routes events and approvals, manages schedules, brokers capabilities between clients. Does not run the agent loop.
   </Card>
   <Card title="Spoke" icon="gear">
-    Worker process running `@cline/core`. Executes the agent loop, calls tools, streams output. Reports events back to the hub. Owned by the daemon, not by any client.
+    Worker process running `@induscode/core`. Executes the agent loop, calls tools, streams output. Reports events back to the hub. Owned by the daemon, not by any client.
   </Card>
   <Card title="Client" icon="display">
     CLI, VS Code, JetBrains, or any custom app. Discovers the hub, registers over WebSocket, attaches to sessions, sends user input, receives streamed events.
@@ -39,7 +39,7 @@ Clients connect to the hub over WebSocket. The hub routes commands and streams e
 
 <Steps>
   <Step title="Client discovers or starts the hub">
-    The hub is a singleton daemon per machine. If one isn't running, `ClineCore` starts it automatically. Discovery uses lock files at `~/.cline/data/locks/hub/owners/`.
+    The hub is a singleton daemon per machine. If one isn't running, `IndusCodeCore` starts it automatically. Discovery uses lock files at `~/.induscode/data/locks/hub/owners/`.
   </Step>
   <Step title="Client registers and attaches to a session">
     The client sends a `client.register` command over WebSocket, advertising its capabilities (shell access, file editing, diff viewing, etc.). It then creates or attaches to a session.
@@ -57,10 +57,10 @@ Clients connect to the hub over WebSocket. The hub routes commands and streams e
 
 ## Backend Modes
 
-`ClineCore` selects the execution mode based on configuration:
+`IndusCodeCore` selects the execution mode based on configuration:
 
 ```typescript
-const cline = await ClineCore.create({
+const induscode = await IndusCodeCore.create({
   clientName: "my-app",
   backendMode: "auto",
 })
@@ -103,7 +103,7 @@ This means a session gets richer as more clients join. A CLI session can later b
 Sessions are stored with full conversation history, tool call records, and metadata. The hub keeps a SQLite index for listing sessions, and a folder for each session with its metadata and messages.
 
 ```
-~/.cline/data/
+~/.induscode/data/
   db/
     sessions.db                  # SQLite session index
   sessions/
@@ -116,18 +116,18 @@ Sessions can have multiple participants, each tracked with a role (`creator`, `p
 
 ## Managing the Hub
 
-The hub starts automatically when `ClineCore` needs it. You can also manage it manually:
+The hub starts automatically when `IndusCodeCore` needs it. You can also manage it manually:
 
 ```bash
-cline hub start      # Start the hub daemon
-cline hub stop       # Stop it
-cline hub status     # Check if running
-cline hub ensure     # Start if not running, return URL
-cline hub drain      # Refuse new work while accepted runs finish (--off lifts it)
-cline hub upgrade    # Drain the hub and restart it; does not wait for --zen or scheduled tasks
+induscode hub start      # Start the hub daemon
+induscode hub stop       # Stop it
+induscode hub status     # Check if running
+induscode hub ensure     # Start if not running, return URL
+induscode hub drain      # Refuse new work while accepted runs finish (--off lifts it)
+induscode hub upgrade    # Drain the hub and restart it; does not wait for --zen or scheduled tasks
 ```
 
-The hub listens on `127.0.0.1:25463` by default (set `CLINE_HUB_PORT` to change the port) and logs to `~/.cline/data/logs/hub-daemon.log`.
+The hub listens on `127.0.0.1:25463` by default (set `INDUSCODE_HUB_PORT` to change the port) and logs to `~/.induscode/data/logs/hub-daemon.log`.
 
 ## Multi-Client Access
 
@@ -135,12 +135,12 @@ Multiple clients can connect to the same hub and attach to the same session simu
 
 ```bash
 # Terminal 1: start a task
-cline "Work on feature X"
+induscode "Work on feature X"
 
 # Terminal 2: attach to the same session from VS Code or another CLI
 
 # Terminal 3: Telegram connector
-cline connect telegram -k $TOKEN
+induscode connect telegram -k $TOKEN
 
 # All three share the same hub and can access the same sessions
 ```

@@ -1,4 +1,4 @@
-// Converts Cline SDK messages (@cline/llms `Message`) into VS Code Language
+// Converts IndusCode SDK messages (@induscode/llms `Message`) into VS Code Language
 // Model API messages (`vscode.LanguageModelChatMessage`).
 //
 // SDK content blocks (text / image / tool_use / tool_result) map onto VS Code LM
@@ -6,7 +6,7 @@
 // placeholder. Tool calls and tool results round-trip as
 // `LanguageModelToolCallPart` / `LanguageModelToolResultPart`.
 
-import type { ContentBlock, Message } from "@cline/llms"
+import type { ContentBlock, Message } from "@induscode/llms"
 import * as vscode from "vscode"
 import { Logger } from "@/shared/services/Logger"
 import { extractToolOutputText } from "../message-translator"
@@ -29,7 +29,7 @@ export function asObjectSafe(value: unknown): object {
 		}
 		return {}
 	} catch (error) {
-		Logger.warn("Cline <Language Model API>: Failed to parse object:", error)
+		Logger.warn("IndusCode <Language Model API>: Failed to parse object:", error)
 		return {}
 	}
 }

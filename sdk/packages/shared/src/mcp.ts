@@ -1,7 +1,7 @@
 /**
  * Per-server MCP request timeout contract, in seconds.
  *
- * The `timeout` field in cline_mcp_settings.json is in SECONDS. Every client
+ * The `timeout` field in induscode_mcp_settings.json is in SECONDS. Every client
  * (VSCode extension, CLI, JetBrains) resolves it through this module so all
  * apply the same default and bounds. Values above MAX are almost always a
  * milliseconds/seconds mix-up (e.g. `timeout: 60000` meaning 60s), so they
@@ -46,6 +46,6 @@ export function formatMcpTimeoutErrorMessage(
 	const seconds = Math.round(timeoutMs / 100) / 10;
 	return (
 		`MCP request to "${serverName}"${methodText} timed out after ${seconds}s. ` +
-		`Increase the "timeout" field (in seconds) for this server in cline_mcp_settings.json.`
+		`Increase the "timeout" field (in seconds) for this server in induscode_mcp_settings.json.`
 	);
 }

@@ -4,10 +4,10 @@
  * Reproduces updatePackageJson() from apps/vscode/scripts/publish-nightly.mjs
  * (the same script exists on BOTH main and legacy-extension — those copies are
  * the source of truth for the mutation; if they change, change this too):
- *   - textual rewrites: "claude-dev" -> "cline-nightly" everywhere, and every
- *     `"cline.` ID prefix -> `"cline-nightly.` (commands, settings, view IDs,
+ *   - textual rewrites: "claude-dev" -> "induscode-nightly" everywhere, and every
+ *     `"induscode.` ID prefix -> `"induscode-nightly.` (commands, settings, view IDs,
  *     when-clauses that START with the key — mid-string references like
- *     `config.cline.x` are NOT rewritten, same as the standalone nightly)
+ *     `config.induscode.x` are NOT rewritten, same as the standalone nightly)
  *   - name / displayName / activity bar title / version
  *
  * Differences from publish-nightly.mjs, on purpose:
@@ -27,8 +27,8 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
-export const NIGHTLY_NAME = "cline-nightly";
-export const NIGHTLY_DISPLAY_NAME = "Cline (Nightly)";
+export const NIGHTLY_NAME = "induscode-nightly";
+export const NIGHTLY_DISPLAY_NAME = "IndusCode (Nightly)";
 
 export function nightlifyPackageJson(rawContent, version) {
 	if (!version) {
@@ -36,7 +36,7 @@ export function nightlifyPackageJson(rawContent, version) {
 	}
 	const content = rawContent
 		.replaceAll("claude-dev", NIGHTLY_NAME)
-		.replaceAll('"cline.', `"${NIGHTLY_NAME}.`);
+		.replaceAll('"induscode.', `"${NIGHTLY_NAME}.`);
 	const pkg = JSON.parse(content);
 
 	pkg.name = NIGHTLY_NAME;

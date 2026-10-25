@@ -76,9 +76,9 @@ export async function migrateCustomInstructionsToGlobalRules(context: vscode.Ext
 		const customInstructions = (await context.globalState.get("customInstructions")) as string | undefined
 
 		if (customInstructions?.trim()) {
-			Logger.log("Migrating custom instructions to global Cline rules...")
+			Logger.log("Migrating custom instructions to global IndusCode rules...")
 
-			// Create global .clinerules directory if it doesn't exist
+			// Create global .induscoderules directory if it doesn't exist
 			const globalRulesDir = await ensureRulesDirectoryExists()
 
 			// Use a fixed filename for custom instructions
@@ -108,7 +108,7 @@ export async function migrateCustomInstructionsToGlobalRules(context: vscode.Ext
 
 			// Remove customInstructions from global state only after successful file creation
 			await context.globalState.update("customInstructions", undefined)
-			Logger.log("Successfully migrated custom instructions to global Cline rules")
+			Logger.log("Successfully migrated custom instructions to global IndusCode rules")
 		}
 	} catch (error) {
 		Logger.error("Failed to migrate custom instructions to global rules:", error)
@@ -127,7 +127,7 @@ export async function migrateWelcomeViewCompleted(context: vscode.ExtensionConte
 			// Fetch API keys directly from secrets
 			const apiKey = await context.secrets.get("apiKey")
 			const openRouterApiKey = await context.secrets.get("openRouterApiKey")
-			const clineAccountId = await context.secrets.get("clineAccountId")
+			const induscodeAccountId = await context.secrets.get("induscodeAccountId")
 			const openAiApiKey = await context.secrets.get("openAiApiKey")
 			const ollamaApiKey = await context.secrets.get("ollamaApiKey")
 			const liteLlmApiKey = await context.secrets.get("liteLlmApiKey")
@@ -159,7 +159,7 @@ export async function migrateWelcomeViewCompleted(context: vscode.ExtensionConte
 			const actModeVsCodeLmModelSelector = context.globalState.get("actModeVsCodeLmModelSelector")
 
 			// ENG-2346: The live 4.x extension persists provider config in the shared
-			// file-backed stores (~/.cline/data/globalState.json + secrets.json), not in
+			// file-backed stores (~/.induscode/data/globalState.json + secrets.json), not in
 			// VS Code storage — so for users upgrading from it, every value above is
 			// undefined. Also consider the file-backed stores (same signals: the
 			// completed flag itself, any provider secret, or the keyless provider
@@ -204,7 +204,7 @@ export async function migrateWelcomeViewCompleted(context: vscode.ExtensionConte
 				mistralApiKey,
 				planModeVsCodeLmModelSelector,
 				actModeVsCodeLmModelSelector,
-				clineAccountId,
+				induscodeAccountId,
 				asksageApiKey,
 				xaiApiKey,
 				sambanovaApiKey,
@@ -251,8 +251,8 @@ export async function cleanupOldApiKey(context: vscode.ExtensionContext) {
 		// Old API Keys were introduced in March 2025 and later replaced with tokens
 		// Now that we have new API keys that are prefixed with `sk_`,
 		// we need to clean up the old ones to free the secret storage
-		await context.secrets.delete("clineApiKey")
+		await context.secrets.delete("induscodeApiKey")
 	} catch (error) {
-		Logger.error("Failed to cleanup old clineApiKey", error)
+		Logger.error("Failed to cleanup old induscodeApiKey", error)
 	}
 }

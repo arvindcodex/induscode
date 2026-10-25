@@ -1,5 +1,5 @@
 {
-	"name": "@cline/menubar",
+	"name": "@induscode/menubar",
 	"version": "0.1.0",
 	"private": true,
 	"type": "module",
@@ -13,8 +13,8 @@
 		"clean": "rm -rf node_modules dist src-tauri/target"
 	},
 	"dependencies": {
-		"@cline/core": "workspace:*",
-		"@cline/shared": "workspace:*"
+		"@induscode/core": "workspace:*",
+		"@induscode/shared": "workspace:*"
 	},
 	"devDependencies": {
 		"@tauri-apps/cli": "^2.0.0",

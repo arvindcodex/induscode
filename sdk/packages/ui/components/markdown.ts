@@ -25,12 +25,12 @@ import { readMermaidTheme } from "./mermaid-dom.js";
  * wrapper (link policy, image policy, extra plugins) and pass these in:
  *
  *   <Streamdown
- *     className="cline-markdown"
+ *     className="induscode-markdown"
  *     controls={agentMarkdownControls}
  *     plugins={{ code: markdownCodeHighlighter }}
  *   >
  *
- * Pair with `@cline/ui/components/markdown.css` for the matching visual
+ * Pair with `@induscode/ui/components/markdown.css` for the matching visual
  * treatment (single quiet code blocks with a hover copy control, chat-scale
  * headings, table cards).
  *
@@ -85,9 +85,9 @@ export const DEFAULT_MERMAID_CONFIG: MermaidConfig =
  * Creates a Streamdown Mermaid *diagram plugin* (Streamdown's built-in block
  * chrome). Hosts that want the owned block (filename header, PNG/MMD
  * downloads, themed PNGs) register `createMermaidRenderer` from
- * `@cline/ui/components/mermaid-block` instead.
+ * `@induscode/ui/components/mermaid-block` instead.
  *
- * The default config is resolved from the live Cline design tokens at render
+ * The default config is resolved from the live IndusCode design tokens at render
  * time (falling back to the palette without a DOM) and re-applied when the
  * resolved theme changes; configs supplied through `getMermaid(config)` layer
  * on top, with `securityLevel` always forced to `strict`.

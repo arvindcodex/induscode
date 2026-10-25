@@ -1,6 +1,6 @@
 !include "Win\RestartManager.nsh"
 
-; The bundled cline-cli.exe runs the desktop backend and, as a detached
+; The bundled induscode-cli.exe runs the desktop backend and, as a detached
 ; daemon, the Hub, which outlives the desktop. Stop users of every installed
 ; executable before replacing any: stopping only the CLI first leaves the
 ; desktop able to spawn it again. code-sidecar.exe is the backend and Hub
@@ -28,7 +28,7 @@
       Goto end_session
     ${EndIf}
 
-    !insertmacro RestartManager_RegisterFile $1 "$INSTDIR\cline-cli.exe"
+    !insertmacro RestartManager_RegisterFile $1 "$INSTDIR\induscode-cli.exe"
     ${If} $0 != 0
       Goto end_session
     ${EndIf}
@@ -55,13 +55,13 @@
     ${EndIf}
 
   failed:
-    DetailPrint "Could not stop Cline processes in $INSTDIR (Restart Manager error $0)."
+    DetailPrint "Could not stop IndusCode processes in $INSTDIR (Restart Manager error $0)."
     ; Tauri's updater runs the installer passive (/P): the user who clicked
     ; "Restart now" is watching, and NSIS's own write-failure dialog would
     ; have shown in that mode anyway, so offer a retry. Silent (/S) takes
     ; the default and fails closed. Aborting rather than continuing keeps
     ; the install from ending half-replaced.
-    MessageBox MB_RETRYCANCEL|MB_ICONSTOP "Could not stop Cline processes using files in:$\r$\n$INSTDIR$\r$\n$\r$\nClose Cline and its background tasks, then retry. Windows error: $0." /SD IDCANCEL IDRETRY retry
+    MessageBox MB_RETRYCANCEL|MB_ICONSTOP "Could not stop IndusCode processes using files in:$\r$\n$INSTDIR$\r$\n$\r$\nClose IndusCode and its background tasks, then retry. Windows error: $0." /SD IDCANCEL IDRETRY retry
     Pop $4
     Pop $3
     Pop $2

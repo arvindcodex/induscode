@@ -6,13 +6,13 @@ const CLIPBOARD_COMMAND_TIMEOUT_MS = 1500;
 // Skipping the fallback inside SSH sessions is the safe default: OSC52 is the
 // mechanism that targets the user's local terminal clipboard, while the
 // fallback would write to the remote host instead. Setting
-// CLINE_CLIPBOARD_FALLBACK_REMOTE=1 opts back in for users who explicitly
+// INDUSCODE_CLIPBOARD_FALLBACK_REMOTE=1 opts back in for users who explicitly
 // want the remote machine's clipboard.
-const CLIPBOARD_FALLBACK_REMOTE_ENV = "CLINE_CLIPBOARD_FALLBACK_REMOTE";
+const CLIPBOARD_FALLBACK_REMOTE_ENV = "INDUSCODE_CLIPBOARD_FALLBACK_REMOTE";
 
-// Setting CLINE_DEBUG_CLIPBOARD=1 logs why the fallback skipped or which
+// Setting INDUSCODE_DEBUG_CLIPBOARD=1 logs why the fallback skipped or which
 // command failed; off by default so the TUI canvas stays clean.
-const CLIPBOARD_DEBUG_ENV = "CLINE_DEBUG_CLIPBOARD";
+const CLIPBOARD_DEBUG_ENV = "INDUSCODE_DEBUG_CLIPBOARD";
 
 function debugLog(env: NodeJS.ProcessEnv, message: string): void {
 	if (env[CLIPBOARD_DEBUG_ENV]?.trim() === "1") {

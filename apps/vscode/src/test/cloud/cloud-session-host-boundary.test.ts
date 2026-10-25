@@ -1,5 +1,5 @@
-import { SessionSource } from "@cline/core"
-import { CLOUD_SESSION_SYSTEM_PROMPT } from "@cline/core/cloud"
+import { SessionSource } from "@induscode/core"
+import { CLOUD_SESSION_SYSTEM_PROMPT } from "@induscode/core/cloud"
 import { afterEach, describe, expect, it } from "vitest"
 import { CloudSessionHost } from "@/sdk/cloud-session-host"
 import { CloudSessionsService } from "@/services/cloud/CloudSessionsService"
@@ -42,7 +42,7 @@ describe("CloudSessionHost real Hub boundary", () => {
 		})
 		const record = await service.createSession({
 			modelId: "fixture-model",
-			repoUrl: "https://github.com/cline/fixture",
+			repoUrl: "https://github.com/induscode/fixture",
 			branch: "main",
 		})
 		const owned = await environment.activateSession(record.id)
@@ -64,10 +64,10 @@ describe("CloudSessionHost real Hub boundary", () => {
 			interactive: true,
 			prompt: undefined,
 			config: {
-				providerId: "cline",
+				providerId: "induscode",
 				modelId: "fixture-model",
 				apiKey: "fixture-key",
-				systemPrompt: "normal Cline guidance",
+				systemPrompt: "normal IndusCode guidance",
 				enableTools: false,
 				enableSpawnAgent: false,
 				enableAgentTeams: false,
@@ -87,8 +87,8 @@ describe("CloudSessionHost real Hub boundary", () => {
 		expect(JSON.stringify(messages)).toContain("reply from the fixture")
 		const created = owned.sessionStore?.get(taskId)
 		expect(created?.metadata?.systemPrompt).toEqual(expect.stringContaining(CLOUD_SESSION_SYSTEM_PROMPT))
-		expect(created?.metadata?.systemPrompt).toContain(`cline/${taskId.slice(-8).toLowerCase()}`)
-		expect(created?.metadata?.systemPrompt).toContain("normal Cline guidance")
+		expect(created?.metadata?.systemPrompt).toContain(`induscode/${taskId.slice(-8).toLowerCase()}`)
+		expect(created?.metadata?.systemPrompt).toContain("normal IndusCode guidance")
 
 		// A status-only connection has no turn subscription. Re-read its snapshot
 		// when another client resumes the same canonical task.
@@ -129,7 +129,7 @@ describe("CloudSessionHost real Hub boundary", () => {
 		})
 		const record = await service.createSession({
 			modelId: "fixture-model",
-			repoUrl: "https://github.com/cline/fixture",
+			repoUrl: "https://github.com/induscode/fixture",
 		})
 		const taskId = record.metadata.taskId
 		if (!taskId) throw new Error("Local cloud session did not return a task id")

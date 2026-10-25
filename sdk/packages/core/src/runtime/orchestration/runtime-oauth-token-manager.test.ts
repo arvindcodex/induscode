@@ -10,11 +10,11 @@ import {
 
 const {
 	getValidOpenAICodexCredentials,
-	getValidClineCredentials,
+	getValidIndusCodeCredentials,
 	getValidOcaCredentials,
 } = vi.hoisted(() => ({
 	getValidOpenAICodexCredentials: vi.fn(),
-	getValidClineCredentials: vi.fn(),
+	getValidIndusCodeCredentials: vi.fn(),
 	getValidOcaCredentials: vi.fn(),
 }));
 
@@ -22,8 +22,8 @@ vi.mock("../../auth/codex", () => ({
 	getValidOpenAICodexCredentials,
 }));
 
-vi.mock("../../auth/cline", () => ({
-	getValidClineCredentials,
+vi.mock("../../auth/induscode", () => ({
+	getValidIndusCodeCredentials,
 }));
 
 vi.mock("../../auth/oca", () => ({
@@ -87,10 +87,10 @@ describe("RuntimeOAuthTokenManager", () => {
 		);
 	});
 
-	it("resolves ClinePass OAuth using Cline storage and WorkOS formatting", async () => {
+	it("resolves IndusCodePass OAuth using IndusCode storage and WorkOS formatting", async () => {
 		const getProviderSettings = vi.fn().mockReturnValue({
-			provider: "cline",
-			baseUrl: "https://api.cline.test",
+			provider: "induscode",
+			baseUrl: "https://api.induscode.test",
 			auth: {
 				accessToken: "workos:access-old",
 				refreshToken: "refresh-old",
@@ -100,7 +100,7 @@ describe("RuntimeOAuthTokenManager", () => {
 		});
 		const saveProviderSettings = vi.fn();
 
-		getValidClineCredentials.mockResolvedValueOnce({
+		getValidIndusCodeCredentials.mockResolvedValueOnce({
 			access: "access-new",
 			refresh: "refresh-new",
 			expires: 4_000_000_000_000,
@@ -116,16 +116,16 @@ describe("RuntimeOAuthTokenManager", () => {
 		});
 
 		const result = await manager.resolveProviderApiKey({
-			providerId: "cline-pass",
+			providerId: "induscode-pass",
 		});
 
-		expect(getProviderSettings).toHaveBeenCalledWith("cline");
-		expect(getValidClineCredentials).toHaveBeenCalledWith(
+		expect(getProviderSettings).toHaveBeenCalledWith("induscode");
+		expect(getValidIndusCodeCredentials).toHaveBeenCalledWith(
 			expect.objectContaining({
 				access: "access-old",
 				refresh: "refresh-old",
 			}),
-			expect.objectContaining({ apiBaseUrl: "https://api.cline.test" }),
+			expect.objectContaining({ apiBaseUrl: "https://api.induscode.test" }),
 			{ forceRefresh: false },
 		);
 		expect(result).toMatchObject({
@@ -135,7 +135,7 @@ describe("RuntimeOAuthTokenManager", () => {
 		});
 		expect(saveProviderSettings).toHaveBeenCalledWith(
 			expect.objectContaining({
-				provider: "cline",
+				provider: "induscode",
 				auth: expect.objectContaining({
 					accessToken: "workos:access-new",
 					refreshToken: "refresh-new",
@@ -209,7 +209,7 @@ describe("RuntimeOAuthTokenManager", () => {
 			filePath: join(testDir, "providers.json"),
 		});
 		settings.saveProviderSettings({
-			provider: "cline",
+			provider: "induscode",
 			auth: {
 				accessToken: "old",
 				refreshToken: "single-use",
@@ -218,7 +218,7 @@ describe("RuntimeOAuthTokenManager", () => {
 			},
 		});
 		let finish!: () => void;
-		getValidClineCredentials.mockImplementation(
+		getValidIndusCodeCredentials.mockImplementation(
 			async (credentials, _options, { forceRefresh }) => {
 				if (!forceRefresh && credentials.access === "new") return credentials;
 				await new Promise<void>((resolve) => {
@@ -239,19 +239,19 @@ describe("RuntimeOAuthTokenManager", () => {
 			providerSettingsManager: settings,
 		});
 		const a = first.resolveProviderApiKey({
-			providerId: "cline",
+			providerId: "induscode",
 			forceRefresh: true,
 		});
 		await vi.waitFor(() => expect(finish).toBeTypeOf("function"));
 		const b = second.resolveProviderApiKey({
-			providerId: "cline-pass",
+			providerId: "induscode-pass",
 			forceRefresh: true,
 		});
 		finish();
 		expect((await Promise.all([a, b])).map((result) => result?.apiKey)).toEqual(
 			["workos:new", "workos:new"],
 		);
-		expect(getValidClineCredentials.mock.calls[1][2]).toEqual({
+		expect(getValidIndusCodeCredentials.mock.calls[1][2]).toEqual({
 			forceRefresh: false,
 		});
 	});
@@ -261,7 +261,7 @@ describe("RuntimeOAuthTokenManager", () => {
 			filePath: join(testDir, "providers.json"),
 		});
 		settings.saveProviderSettings({
-			provider: "cline",
+			provider: "induscode",
 			auth: {
 				accessToken: "old",
 				refreshToken: "single-use",
@@ -270,7 +270,7 @@ describe("RuntimeOAuthTokenManager", () => {
 			},
 		});
 		let finish!: () => void;
-		getValidClineCredentials.mockImplementation(async () => {
+		getValidIndusCodeCredentials.mockImplementation(async () => {
 			await new Promise<void>((resolve) => {
 				finish = resolve;
 			});
@@ -284,13 +284,13 @@ describe("RuntimeOAuthTokenManager", () => {
 		const manager = new RuntimeOAuthTokenManager({
 			providerSettingsManager: settings,
 		});
-		const result = manager.resolveProviderApiKey({ providerId: "cline" });
+		const result = manager.resolveProviderApiKey({ providerId: "induscode" });
 		await vi.waitFor(() => expect(finish).toBeTypeOf("function"));
-		settings.saveProviderSettings({ provider: "cline", auth: {} });
+		settings.saveProviderSettings({ provider: "induscode", auth: {} });
 		finish();
 		expect(await result).toBeNull();
 		expect(
-			settings.getProviderSettings("cline")?.auth?.accessToken,
+			settings.getProviderSettings("induscode")?.auth?.accessToken,
 		).toBeUndefined();
 	});
 });

@@ -1,7 +1,7 @@
-import { getProviderAuthStorageId } from "@cline/core"
-import { createModeSwitchNoticeTracker, type ModeSwitchNotice, type ModeSwitchNoticeTracker } from "@cline/shared"
+import { getProviderAuthStorageId } from "@induscode/core"
+import { createModeSwitchNoticeTracker, type ModeSwitchNotice, type ModeSwitchNoticeTracker } from "@induscode/shared"
 import type { ChatContent } from "@shared/ChatContent"
-import type { ClineMessage, TurnPhase } from "@shared/ExtensionMessage"
+import type { IndusCodeMessage, TurnPhase } from "@shared/ExtensionMessage"
 import type { Mode } from "@shared/storage/types"
 import type { StateManager } from "@/core/storage/StateManager"
 import { Logger } from "@/shared/services/Logger"
@@ -19,8 +19,8 @@ type StartInput = Parameters<VscodeSessionHost["start"]>[0]
 type InitialMessages = StartInput["initialMessages"]
 type SessionConfig = Awaited<ReturnType<SdkSessionConfigBuilder["build"]>>
 
-function usesClineAccountAuth(providerId: string): boolean {
-	return getProviderAuthStorageId(providerId) === "cline"
+function usesIndusCodeAccountAuth(providerId: string): boolean {
+	return getProviderAuthStorageId(providerId) === "induscode"
 }
 
 export { ACT_MODE_CONTINUATION_PROMPT }
@@ -35,7 +35,7 @@ export interface SdkModeCoordinatorOptions {
 	getWorkspaceRoot: () => Promise<string>
 	loadInitialMessages: (sdkHost: SdkSessionHost, sessionId: string) => Promise<unknown[]>
 	buildStartSessionInput: (config: SessionConfig, input: { cwd: string; mode: Mode }) => StartInput
-	emitClineAuthError: () => void
+	emitIndusCodeAuthError: () => void
 	resetMessageTranslator: () => void
 	postStateToWebview: () => Promise<void>
 	/** Authoritative phase of the current turn, from the controller's TurnStateTracker. */
@@ -70,7 +70,7 @@ export class SdkModeCoordinator {
 	/**
 	 * Pending user-initiated mode switch, stamped as a <mode_notice> onto the
 	 * next outbound message by SdkSessionLifecycle.fireAndForgetSend. Shares the
-	 * CLI's round-trip-cancelling tracker (@cline/shared), scoped to the session
+	 * CLI's round-trip-cancelling tracker (@induscode/shared), scoped to the session
 	 * it was recorded for: unlike the CLI, the extension hops between tasks, and
 	 * a notice recorded while looking at task A must not leak onto a message
 	 * sent to task B (whose transcript never saw the "from" mode).
@@ -131,8 +131,8 @@ export class SdkModeCoordinator {
 			// Comparing both plan and act results prevents an accidental
 			// act -> plan -> act round trip from starting work on a stale plan.
 			const task = this.options.getTask()
-			const clineMessages = task?.messageStateHandler.getClineMessages() ?? []
-			const latestAssistantResult = [...clineMessages]
+			const induscodeMessages = task?.messageStateHandler.getIndusCodeMessages() ?? []
+			const latestAssistantResult = [...induscodeMessages]
 				.reverse()
 				.find(
 					(message) =>
@@ -236,14 +236,14 @@ export class SdkModeCoordinator {
 			)
 			config.sessionId = oldSessionId
 
-			if (usesClineAccountAuth(config.providerId) && !config.apiKey) {
+			if (usesIndusCodeAccountAuth(config.providerId) && !config.apiKey) {
 				Logger.warn(
-					`[SdkController] Mode rebuild: new mode '${newMode}' provider is '${config.providerId}' but no Cline auth token - emitting auth error`,
+					`[SdkController] Mode rebuild: new mode '${newMode}' provider is '${config.providerId}' but no IndusCode auth token - emitting auth error`,
 				)
 				// The session still runs with the old mode's tools, so roll the
 				// setting back to keep the UI toggle coherent with it.
 				this.options.stateManager.setGlobalState("mode", previousMode)
-				this.options.emitClineAuthError()
+				this.options.emitIndusCodeAuthError()
 				await this.options.postStateToWebview()
 				return false
 			}
@@ -302,7 +302,7 @@ export class SdkModeCoordinator {
 				// leave an echoed-but-never-sent user message in the transcript.
 				const prompt = userPrompt ? await this.options.resolveContextMentions(userPrompt) : ACT_MODE_CONTINUATION_PROMPT
 				if (userPrompt || userImages?.length || userFiles?.length) {
-					const userMessage: ClineMessage = {
+					const userMessage: IndusCodeMessage = {
 						ts: Date.now(),
 						type: "say",
 						say: "user_feedback",
@@ -324,7 +324,7 @@ export class SdkModeCoordinator {
 			}
 			// The early pre-rebuild post already showed the new mode, but state can
 			// change during the rebuild: aborting a running turn appends finalized
-			// messages (clineMessages ride on the state post), and auto-continue
+			// messages (induscodeMessages ride on the state post), and auto-continue
 			// flips the running flag and turn phase. Post again so the webview
 			// converges on the post-rebuild state.
 			await this.options.postStateToWebview()
@@ -353,7 +353,7 @@ export class SdkModeCoordinator {
 				this.options.sessions.setRunning(false)
 				this.options.onAutoContinueFailed()
 			}
-			const errorMessage: ClineMessage = {
+			const errorMessage: IndusCodeMessage = {
 				ts: Date.now(),
 				type: "say",
 				say: "error",
@@ -383,7 +383,7 @@ export class SdkModeCoordinator {
 
 		const task = this.options.getTask()
 		if (task?.messageStateHandler) {
-			const current = task.messageStateHandler.getClineMessages()
+			const current = task.messageStateHandler.getIndusCodeMessages()
 			const finalized = this.options.messages.finalizeMessagesForSave(current)
 			this.options.messages.appendMessages(finalized)
 		}
@@ -396,7 +396,7 @@ export class SdkModeCoordinator {
 		// or dead approval buttons (aborted while awaiting approval). When the
 		// rebuild auto-continues, onAutoContinueStarting flips the phase back to
 		// streaming before anything is sent.
-		const resumeMessage: ClineMessage = {
+		const resumeMessage: IndusCodeMessage = {
 			ts: Date.now(),
 			type: "ask",
 			ask: "resume_task",

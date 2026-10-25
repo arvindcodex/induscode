@@ -14,7 +14,7 @@ const meta: Meta<typeof AgentApprovalCard> = {
 		},
 	},
 	args: {
-		description: "Cline wants to run a command in the current workspace.",
+		description: "IndusCode wants to run a command in the current workspace.",
 		detail: "bun run test:unit",
 		meta: "Terminal",
 		onApprove: () => {},

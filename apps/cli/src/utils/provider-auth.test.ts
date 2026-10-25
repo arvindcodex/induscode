@@ -1,4 +1,4 @@
-import type { ProviderSettings } from "@cline/core";
+import type { ProviderSettings } from "@induscode/core";
 import { describe, expect, it } from "vitest";
 import { isProviderConfigured } from "./provider-auth";
 
@@ -52,16 +52,16 @@ describe("isProviderConfigured", () => {
 		).toBe(true);
 	});
 
-	it("requires an OAuth access token for cline", () => {
+	it("requires an OAuth access token for induscode", () => {
 		expect(
-			isProviderConfigured("cline", {
-				provider: "cline",
+			isProviderConfigured("induscode", {
+				provider: "induscode",
 			} satisfies ProviderSettings),
 		).toBe(false);
 
 		expect(
-			isProviderConfigured("cline", {
-				provider: "cline",
+			isProviderConfigured("induscode", {
+				provider: "induscode",
 				auth: { accessToken: "workos:abc" },
 			} satisfies ProviderSettings),
 		).toBe(true);

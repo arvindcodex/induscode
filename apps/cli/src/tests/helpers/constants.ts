@@ -8,18 +8,18 @@
 import fs from "node:fs";
 import path from "node:path";
 
-function resolveClineBin(): string {
+function resolveIndusCodeBin(): string {
 	const localBin = path.resolve(process.cwd(), "..", "..", "dist", "index.js");
 	if (fs.existsSync(localBin)) {
 		return localBin;
 	}
 
 	throw new Error(
-		"Unable to resolve cline binary. Run bun -F @cline/cli build",
+		"Unable to resolve induscode binary. Run bun -F @induscode/cli build",
 	);
 }
 
-export const CLINE_BIN = resolveClineBin();
+export const INDUSCODE_BIN = resolveIndusCodeBin();
 
 // Standard terminal dimensions used across test suites
 export const TERMINAL_WIDE = { columns: 120, rows: 50 } as const;

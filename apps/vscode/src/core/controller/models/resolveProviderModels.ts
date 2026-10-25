@@ -1,4 +1,4 @@
-import { ProviderModelsResponse, ResolveProviderModelsRequest } from "@/shared/proto/cline/models"
+import { ProviderModelsResponse, ResolveProviderModelsRequest } from "@/shared/proto/induscode/models"
 import { type ProviderCatalogController, parseProviderIdRequest, toProviderModelsResponse } from "./providerCatalogShared"
 
 export async function resolveProviderModels(

@@ -11,18 +11,18 @@ const state = vi.hoisted(() => ({
 	setGlobalState: vi.fn(),
 }))
 
-vi.mock("@cline/core", () => ({
+vi.mock("@induscode/core", () => ({
 	readGlobalSettings: () => {
-		const filePath = process.env.CLINE_GLOBAL_SETTINGS_PATH
+		const filePath = process.env.INDUSCODE_GLOBAL_SETTINGS_PATH
 		if (!filePath || !existsSync(filePath)) {
 			return { autoUpdateEnabled: true, telemetryOptOut: false }
 		}
 		return { autoUpdateEnabled: true, telemetryOptOut: false, ...JSON.parse(readFileSync(filePath, "utf8")) }
 	},
 	setTelemetryOptOutGlobally: (telemetryOptOut: boolean) => {
-		const filePath = process.env.CLINE_GLOBAL_SETTINGS_PATH
+		const filePath = process.env.INDUSCODE_GLOBAL_SETTINGS_PATH
 		if (!filePath) {
-			throw new Error("CLINE_GLOBAL_SETTINGS_PATH is not set")
+			throw new Error("INDUSCODE_GLOBAL_SETTINGS_PATH is not set")
 		}
 		mkdirSync(dirname(filePath), { recursive: true })
 		writeFileSync(filePath, `${JSON.stringify({ autoUpdateEnabled: true, telemetryOptOut }, null, 2)}\n`)
@@ -43,10 +43,10 @@ describe("syncTelemetrySettingFromSharedGlobalSettings", () => {
 	let settingsPath: string
 
 	beforeEach(() => {
-		previousSettingsPath = process.env.CLINE_GLOBAL_SETTINGS_PATH
-		tempDir = mkdtempSync(join(tmpdir(), "cline-vscode-telemetry-sync-"))
+		previousSettingsPath = process.env.INDUSCODE_GLOBAL_SETTINGS_PATH
+		tempDir = mkdtempSync(join(tmpdir(), "induscode-vscode-telemetry-sync-"))
 		settingsPath = join(tempDir, "global-settings.json")
-		process.env.CLINE_GLOBAL_SETTINGS_PATH = settingsPath
+		process.env.INDUSCODE_GLOBAL_SETTINGS_PATH = settingsPath
 		state.telemetrySetting = undefined
 		state.remoteTelemetrySetting = undefined
 		state.setGlobalState.mockReset()
@@ -54,9 +54,9 @@ describe("syncTelemetrySettingFromSharedGlobalSettings", () => {
 
 	afterEach(() => {
 		if (previousSettingsPath === undefined) {
-			delete process.env.CLINE_GLOBAL_SETTINGS_PATH
+			delete process.env.INDUSCODE_GLOBAL_SETTINGS_PATH
 		} else {
-			process.env.CLINE_GLOBAL_SETTINGS_PATH = previousSettingsPath
+			process.env.INDUSCODE_GLOBAL_SETTINGS_PATH = previousSettingsPath
 		}
 		rmSync(tempDir, { force: true, recursive: true })
 	})

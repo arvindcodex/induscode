@@ -1,8 +1,8 @@
-import { type AgentEvent, buildClineClientHeaders } from "@cline/core";
-import { getClineEnvironmentConfig } from "@cline/shared";
+import { type AgentEvent, buildIndusCodeClientHeaders } from "@induscode/core";
+import { getIndusCodeEnvironmentConfig } from "@induscode/shared";
 import type { Config } from "./types";
 
-const CLINE_RECOMMENDED_MODELS_TIMEOUT_MS = 5_000;
+const INDUSCODE_RECOMMENDED_MODELS_TIMEOUT_MS = 5_000;
 const freeModelIdsByBaseUrl = new Map<
 	string,
 	Promise<readonly string[] | undefined>
@@ -19,25 +19,25 @@ function modelIdsMatch(selectedModelId: string, freeModelId: string): boolean {
 	return selected === free;
 }
 
-function resolveClineRecommendedModelsUrl(baseUrl: string): string {
+function resolveIndusCodeRecommendedModelsUrl(baseUrl: string): string {
 	const normalizedBaseUrl = baseUrl.trim().replace(/\/+$/, "");
 	const apiBaseUrl = normalizedBaseUrl.endsWith("/api/v1")
 		? normalizedBaseUrl.slice(0, -"/api/v1".length)
 		: normalizedBaseUrl;
-	return `${apiBaseUrl}/api/v1/ai/cline/recommended-models`;
+	return `${apiBaseUrl}/api/v1/ai/induscode/recommended-models`;
 }
 
-async function fetchClineFreeModelIds(
+async function fetchIndusCodeFreeModelIds(
 	baseUrl: string,
 ): Promise<readonly string[] | undefined> {
 	const controller = new AbortController();
 	const timeout = setTimeout(
 		() => controller.abort(),
-		CLINE_RECOMMENDED_MODELS_TIMEOUT_MS,
+		INDUSCODE_RECOMMENDED_MODELS_TIMEOUT_MS,
 	);
 	try {
-		const response = await fetch(resolveClineRecommendedModelsUrl(baseUrl), {
-			headers: buildClineClientHeaders(),
+		const response = await fetch(resolveIndusCodeRecommendedModelsUrl(baseUrl), {
+			headers: buildIndusCodeClientHeaders(),
 			signal: controller.signal,
 		});
 		if (!response.ok) return undefined;
@@ -58,11 +58,11 @@ async function fetchClineFreeModelIds(
 	}
 }
 
-function getClineFreeModelIds(baseUrl: string): Promise<readonly string[]> {
+function getIndusCodeFreeModelIds(baseUrl: string): Promise<readonly string[]> {
 	const cacheKey = baseUrl.trim();
 	let cached = freeModelIdsByBaseUrl.get(cacheKey);
 	if (!cached) {
-		cached = fetchClineFreeModelIds(cacheKey).then((ids) => {
+		cached = fetchIndusCodeFreeModelIds(cacheKey).then((ids) => {
 			if (!ids) freeModelIdsByBaseUrl.delete(cacheKey);
 			return ids;
 		});
@@ -71,18 +71,18 @@ function getClineFreeModelIds(baseUrl: string): Promise<readonly string[]> {
 	return cached.then((ids) => ids ?? []);
 }
 
-export async function shouldZeroClineFreeModelCost(
+export async function shouldZeroIndusCodeFreeModelCost(
 	config: Pick<Config, "providerId" | "modelId" | "baseUrl">,
 ): Promise<boolean> {
-	// Free models are also selectable on ClinePass — they ride usage billing at $0
-	if (config.providerId !== "cline" && config.providerId !== "cline-pass")
+	// Free models are also selectable on IndusCodePass — they ride usage billing at $0
+	if (config.providerId !== "induscode" && config.providerId !== "induscode-pass")
 		return false;
 	const modelId = normalizeModelId(config.modelId);
 	if (!modelId) return false;
 
 	const baseUrl =
-		config.baseUrl?.trim() || getClineEnvironmentConfig().apiBaseUrl;
-	const freeModelIds = await getClineFreeModelIds(baseUrl);
+		config.baseUrl?.trim() || getIndusCodeEnvironmentConfig().apiBaseUrl;
+	const freeModelIds = await getIndusCodeFreeModelIds(baseUrl);
 	return freeModelIds.some((freeModelId) =>
 		modelIdsMatch(modelId, freeModelId),
 	);
@@ -121,6 +121,6 @@ export function zeroCliAgentEventCost(
 	return next as unknown as AgentEvent;
 }
 
-export function clearClineFreeModelCostCache(): void {
+export function clearIndusCodeFreeModelCostCache(): void {
 	freeModelIdsByBaseUrl.clear();
 }

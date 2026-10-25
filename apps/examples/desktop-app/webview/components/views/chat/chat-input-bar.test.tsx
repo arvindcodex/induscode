@@ -94,7 +94,7 @@ vi.mock("@/lib/provider-model-catalog", () => ({
 	subscribeToProviderCatalogInvalidation:
 		subscribeToProviderCatalogInvalidationMock,
 	subscribeToProviderModels: subscribeToProviderModelsMock,
-	VOICE_INPUT_SETTINGS_CHANGED_EVENT: "cline:test-voice-input-settings-changed",
+	VOICE_INPUT_SETTINGS_CHANGED_EVENT: "induscode:test-voice-input-settings-changed",
 }));
 
 vi.mock("@/lib/streaming-transcription", () => ({
@@ -117,9 +117,9 @@ beforeEach(() => {
 	window.localStorage.removeItem(REASONING_SELECTION_STORAGE_KEY);
 	loadProviderModelCatalogMock.mockReset().mockResolvedValue({
 		providers: [],
-		enabledProviderIds: ["cline"],
-		providerModels: { cline: ["test-model"] },
-		providerReasoningModels: { cline: [] },
+		enabledProviderIds: ["induscode"],
+		providerModels: { induscode: ["test-model"] },
+		providerReasoningModels: { induscode: [] },
 		voiceInput: null,
 	});
 	loadProviderModelsMock.mockReset().mockResolvedValue([]);
@@ -150,9 +150,9 @@ afterEach(async () => {
 });
 
 const workspaceValue = {
-	workspaceRoot: "/workspace/cline",
-	workspaces: ["/workspace/cline"],
-	listWorkspaces: vi.fn(async () => ["/workspace/cline"]),
+	workspaceRoot: "/workspace/induscode",
+	workspaces: ["/workspace/induscode"],
+	listWorkspaces: vi.fn(async () => ["/workspace/induscode"]),
 	refreshWorkspaces: vi.fn(async () => undefined),
 	switchWorkspace: vi.fn(async () => true),
 	pickWorkspaceDirectory: vi.fn(async () => null),
@@ -170,9 +170,9 @@ function providerCatalog(
 ) {
 	return {
 		providers: [],
-		enabledProviderIds: ["cline"],
-		providerModels: { cline: ["test-model"] },
-		providerReasoningModels: { cline: [] },
+		enabledProviderIds: ["induscode"],
+		providerModels: { induscode: ["test-model"] },
+		providerReasoningModels: { induscode: [] },
 		voiceInput,
 	};
 }
@@ -242,7 +242,7 @@ async function renderVoiceComposer({
 					onSwitchGitBranch={vi.fn(async () => true)}
 					promptDraft={{ version: promptVersion, value: prompt }}
 					promptsInQueue={[]}
-					provider="cline"
+					provider="induscode"
 					reasoningEffort="low"
 					status={status}
 					summary={{ toolCalls: 0, tokensIn: 0, tokensOut: 0 }}
@@ -295,7 +295,7 @@ function DraftComposer({
 				onSwitchGitBranch={vi.fn(async () => true)}
 				promptDraft={promptDraft}
 				promptsInQueue={[]}
-				provider="cline"
+				provider="induscode"
 				reasoningEffort="low"
 				status="idle"
 				summary={{ toolCalls: 0, tokensIn: 0, tokensOut: 0 }}
@@ -406,7 +406,7 @@ describe("ChatInputBar", () => {
 			model: "text-only",
 		});
 		await act(async () => {
-			subscribeToProviderModelsMock.mock.calls.at(-1)?.[0]("cline", [
+			subscribeToProviderModelsMock.mock.calls.at(-1)?.[0]("induscode", [
 				{ id: "text-only", name: "Text only", inputModalities: ["text"] },
 			]);
 		});
@@ -563,7 +563,7 @@ describe("ChatInputBar", () => {
 		loadProviderModelCatalogMock.mockResolvedValue({
 			...providerCatalog(null),
 			providerModelDetails: {
-				cline: [
+				induscode: [
 					{ id: "test-model", name: "Text only", inputModalities: ["text"] },
 				],
 			},
@@ -679,18 +679,18 @@ describe("ChatInputBar", () => {
 	it("allows cloud image and model selection without replacing local defaults", async () => {
 		loadProviderModelCatalogMock.mockResolvedValue({
 			providers: [],
-			enabledProviderIds: ["cline", "cline-pass", "cline-cloud"],
+			enabledProviderIds: ["induscode", "induscode-pass", "induscode-cloud"],
 			providerNames: {
-				cline: "Cline Usage-Billing",
-				"cline-pass": "ClinePass",
-				"cline-cloud": "ClineFree",
+				induscode: "IndusCode Usage-Billing",
+				"induscode-pass": "IndusCodePass",
+				"induscode-cloud": "IndusCodeFree",
 			},
 			providerModels: {
-				"cline-pass": ["cline-pass/pass-model"],
-				"cline-cloud": ["cline-cloud/free-model"],
-				cline: ["cline-test", "cline-alt"],
+				"induscode-pass": ["induscode-pass/pass-model"],
+				"induscode-cloud": ["induscode-cloud/free-model"],
+				induscode: ["induscode-test", "induscode-alt"],
 			},
-			providerReasoningModels: { anthropic: [], cline: [] },
+			providerReasoningModels: { anthropic: [], induscode: [] },
 		});
 		const localSelection = {
 			lastProvider: "anthropic",
@@ -745,7 +745,7 @@ describe("ChatInputBar", () => {
 						promptsInQueue={[]}
 						provider="anthropic"
 						reasoningEffort="low"
-						repoUrl="https://github.com/cline/cline"
+						repoUrl="https://github.com/induscode/induscode"
 						status="idle"
 						summary={{ toolCalls: 0, tokensIn: 0, tokensOut: 0 }}
 						thinking
@@ -757,7 +757,7 @@ describe("ChatInputBar", () => {
 		});
 
 		await vi.waitFor(() => {
-			expect(onProviderChange).toHaveBeenCalledWith("cline");
+			expect(onProviderChange).toHaveBeenCalledWith("induscode");
 		});
 		const initialCatalogLoads = loadProviderModelCatalogMock.mock.calls.length;
 		const catalogInvalidated =
@@ -775,7 +775,7 @@ describe("ChatInputBar", () => {
 		const providerModelsListener =
 			subscribeToProviderModelsMock.mock.calls[0]?.[0];
 		await act(async () => {
-			providerModelsListener?.("cline", [
+			providerModelsListener?.("induscode", [
 				{ id: "local-only-model", name: "Local only" },
 			]);
 		});
@@ -787,7 +787,7 @@ describe("ChatInputBar", () => {
 			container.querySelector<HTMLInputElement>('input[type="file"]')?.accept,
 		).toBe("image/*");
 		expect(container.querySelector("#git-branch-btn")).toBeNull();
-		expect(container.textContent).toContain("cline/cline / feature/cloud");
+		expect(container.textContent).toContain("induscode/induscode / feature/cloud");
 		expect(
 			container.querySelector<HTMLButtonElement>(
 				'[aria-label="Model and provider"]',
@@ -814,21 +814,21 @@ describe("ChatInputBar", () => {
 		expect(loadProviderModelsMock).not.toHaveBeenCalled();
 		const alternateModel = Array.from(
 			container.querySelectorAll<HTMLButtonElement>(
-				".cline-ui-search-combobox__option",
+				".induscode-ui-search-combobox__option",
 			),
-		).find((button) => button.textContent?.includes("cline-alt"));
+		).find((button) => button.textContent?.includes("induscode-alt"));
 		expect(alternateModel).not.toBeUndefined();
 		expect(container.textContent).not.toContain("Local only");
 		await act(async () => alternateModel?.click());
-		expect(onModelChange).toHaveBeenCalledWith("cline-alt");
+		expect(onModelChange).toHaveBeenCalledWith("induscode-alt");
 		for (const [label, model] of [
-			["ClinePass", "cline-pass/pass-model"],
-			["ClineFree", "cline-cloud/free-model"],
+			["IndusCodePass", "induscode-pass/pass-model"],
+			["IndusCodeFree", "induscode-cloud/free-model"],
 		]) {
 			await act(async () =>
 				container
 					.querySelector<HTMLButtonElement>(
-						'[aria-label="Provider: Cline Usage-Billing"]',
+						'[aria-label="Provider: IndusCode Usage-Billing"]',
 					)
 					?.click(),
 			);
@@ -840,7 +840,7 @@ describe("ChatInputBar", () => {
 			expect(onModelChange).toHaveBeenLastCalledWith(model);
 		}
 		expect(
-			onProviderChange.mock.calls.every(([provider]) => provider === "cline"),
+			onProviderChange.mock.calls.every(([provider]) => provider === "induscode"),
 		).toBe(true);
 		expect(
 			JSON.parse(
@@ -902,7 +902,7 @@ describe("ChatInputBar", () => {
 							onSwitchGitBranch={vi.fn(async () => false)}
 							promptDraft={{ version: 0, value: prompt }}
 							promptsInQueue={[]}
-							provider="cline"
+							provider="induscode"
 							reasoningEffort="low"
 							repoUrl={repoUrl}
 							status="idle"
@@ -933,7 +933,7 @@ describe("ChatInputBar", () => {
 		});
 		expect(onSend).not.toHaveBeenCalled();
 
-		await render("https://github.com/cline/cline");
+		await render("https://github.com/induscode/induscode");
 		expect(sendButton?.disabled).toBe(true);
 		await act(async () =>
 			promptInput?.dispatchEvent(
@@ -952,7 +952,7 @@ describe("ChatInputBar", () => {
 		expect(onSend).toHaveBeenCalledWith("Continue in cloud");
 
 		onSend.mockClear();
-		await render("https://github.com/cline/cline", "", [
+		await render("https://github.com/induscode/induscode", "", [
 			{ id: "image-1", name: "image.png", isImage: true },
 		]);
 		const imageOnlySendButton = container.querySelector<HTMLButtonElement>(
@@ -968,9 +968,9 @@ describe("ChatInputBar", () => {
 			root.render(
 				<WorkspaceProvider
 					value={{
-						workspaceRoot: "/workspace/cline",
-						workspaces: ["/workspace/cline"],
-						listWorkspaces: vi.fn(async () => ["/workspace/cline"]),
+						workspaceRoot: "/workspace/induscode",
+						workspaces: ["/workspace/induscode"],
+						listWorkspaces: vi.fn(async () => ["/workspace/induscode"]),
 						refreshWorkspaces: vi.fn(async () => undefined),
 						switchWorkspace: vi.fn(async () => true),
 						pickWorkspaceDirectory: vi.fn(async () => null),
@@ -1001,7 +1001,7 @@ describe("ChatInputBar", () => {
 						onSwitchGitBranch={vi.fn(async () => true)}
 						promptDraft={{ version: 0, value: "" }}
 						promptsInQueue={[]}
-						provider="cline"
+						provider="induscode"
 						reasoningEffort="low"
 						status="idle"
 						summary={{ toolCalls: 0, tokensIn: 0, tokensOut: 0 }}
@@ -1308,7 +1308,7 @@ describe("ChatInputBar", () => {
 
 		await act(async () => {
 			window.dispatchEvent(
-				new Event("cline:test-voice-input-settings-changed"),
+				new Event("induscode:test-voice-input-settings-changed"),
 			);
 		});
 		expect(loadProviderModelCatalogMock).toHaveBeenCalledTimes(3);
@@ -1394,7 +1394,7 @@ describe("ChatInputBar", () => {
 		);
 		await act(async () => {
 			window.dispatchEvent(
-				new Event("cline:test-voice-input-settings-changed"),
+				new Event("induscode:test-voice-input-settings-changed"),
 			);
 		});
 		await vi.waitFor(() =>
@@ -1416,9 +1416,9 @@ describe("ChatInputBar", () => {
 				root.render(
 					<WorkspaceProvider
 						value={{
-							workspaceRoot: "/workspace/cline",
-							workspaces: ["/workspace/cline"],
-							listWorkspaces: vi.fn(async () => ["/workspace/cline"]),
+							workspaceRoot: "/workspace/induscode",
+							workspaces: ["/workspace/induscode"],
+							listWorkspaces: vi.fn(async () => ["/workspace/induscode"]),
 							refreshWorkspaces: vi.fn(async () => undefined),
 							switchWorkspace: vi.fn(async () => true),
 							pickWorkspaceDirectory: vi.fn(async () => null),
@@ -1450,7 +1450,7 @@ describe("ChatInputBar", () => {
 							onRemovePromptInQueue={vi.fn()}
 							promptDraft={{ version: 0, value: "" }}
 							promptsInQueue={[]}
-							provider="cline"
+							provider="induscode"
 							reasoningEffort="high"
 							status={status}
 							summary={{ toolCalls: 0, tokensIn: 0, tokensOut: 0 }}
@@ -1464,12 +1464,12 @@ describe("ChatInputBar", () => {
 
 		await render("idle");
 		await vi.waitFor(() => {
-			expect(loadProviderModelsMock).toHaveBeenCalledWith("cline");
+			expect(loadProviderModelsMock).toHaveBeenCalledWith("induscode");
 		});
 		const providerModelsListener =
 			subscribeToProviderModelsMock.mock.calls[0]?.[0];
 		await act(async () => {
-			providerModelsListener?.("cline", [
+			providerModelsListener?.("induscode", [
 				{ id: "test-model", name: "Refreshed model" },
 			]);
 		});
@@ -1566,7 +1566,7 @@ describe("ChatInputBar", () => {
 
 		expect(workspaceTrigger?.disabled).toBe(true);
 		expect(workspaceTrigger?.className).toContain("max-[560px]:size-7");
-		expect(workspaceTrigger?.textContent).toContain("cline");
+		expect(workspaceTrigger?.textContent).toContain("induscode");
 		expect(workspaceTrigger?.textContent).toContain("main");
 		const workspaceFooterSlot =
 			workspaceTrigger?.parentElement?.parentElement?.parentElement;
@@ -1595,18 +1595,18 @@ describe("ChatInputBar", () => {
 	it("selects High from the supported model thinking menu", async () => {
 		loadProviderModelCatalogMock.mockResolvedValue({
 			providers: [],
-			enabledProviderIds: ["cline"],
-			providerModels: { cline: ["test-model"] },
-			providerReasoningModels: { cline: ["test-model"] },
+			enabledProviderIds: ["induscode"],
+			providerModels: { induscode: ["test-model"] },
+			providerReasoningModels: { induscode: ["test-model"] },
 		});
 		const onReasoningChange = vi.fn();
 		await act(async () => {
 			root.render(
 				<WorkspaceProvider
 					value={{
-						workspaceRoot: "/workspace/cline",
-						workspaces: ["/workspace/cline"],
-						listWorkspaces: vi.fn(async () => ["/workspace/cline"]),
+						workspaceRoot: "/workspace/induscode",
+						workspaces: ["/workspace/induscode"],
+						listWorkspaces: vi.fn(async () => ["/workspace/induscode"]),
 						refreshWorkspaces: vi.fn(async () => undefined),
 						switchWorkspace: vi.fn(async () => true),
 						pickWorkspaceDirectory: vi.fn(async () => null),
@@ -1638,7 +1638,7 @@ describe("ChatInputBar", () => {
 						onRemovePromptInQueue={vi.fn()}
 						promptDraft={{ version: 0, value: "" }}
 						promptsInQueue={[]}
-						provider="cline"
+						provider="induscode"
 						reasoningEffort="low"
 						status="idle"
 						summary={{ toolCalls: 0, tokensIn: 0, tokensOut: 0 }}
@@ -1682,19 +1682,19 @@ describe("ChatInputBar", () => {
 			JSON.parse(
 				window.localStorage.getItem(REASONING_SELECTION_STORAGE_KEY) ?? "{}",
 			),
-		).toEqual({ cline: "high" });
+		).toEqual({ induscode: "high" });
 	});
 
 	it("seeds an unset thinking level from the remembered provider choice instead of Low", async () => {
 		loadProviderModelCatalogMock.mockResolvedValue({
 			providers: [],
-			enabledProviderIds: ["cline"],
-			providerModels: { cline: ["test-model"] },
-			providerReasoningModels: { cline: ["test-model"] },
+			enabledProviderIds: ["induscode"],
+			providerModels: { induscode: ["test-model"] },
+			providerReasoningModels: { induscode: ["test-model"] },
 		});
 		window.localStorage.setItem(
 			REASONING_SELECTION_STORAGE_KEY,
-			JSON.stringify({ cline: "medium", anthropic: "high" }),
+			JSON.stringify({ induscode: "medium", anthropic: "high" }),
 		);
 		const onReasoningChange = vi.fn();
 		await act(async () => {
@@ -1725,7 +1725,7 @@ describe("ChatInputBar", () => {
 						onRemovePromptInQueue={vi.fn()}
 						promptDraft={{ version: 0, value: "" }}
 						promptsInQueue={[]}
-						provider="cline"
+						provider="induscode"
 						reasoningEffort={undefined}
 						status="idle"
 						summary={{ toolCalls: 0, tokensIn: 0, tokensOut: 0 }}
@@ -1750,11 +1750,11 @@ describe("ChatInputBar", () => {
 	it("applies the new provider's remembered thinking level when switching providers", async () => {
 		loadProviderModelCatalogMock.mockResolvedValue({
 			providers: [],
-			enabledProviderIds: ["anthropic", "cline"],
-			providerModels: { anthropic: ["claude-test"], cline: ["test-model"] },
+			enabledProviderIds: ["anthropic", "induscode"],
+			providerModels: { anthropic: ["claude-test"], induscode: ["test-model"] },
 			providerReasoningModels: {
 				anthropic: ["claude-test"],
-				cline: ["test-model"],
+				induscode: ["test-model"],
 			},
 		});
 		window.localStorage.setItem(
@@ -1801,7 +1801,7 @@ describe("ChatInputBar", () => {
 				);
 			});
 
-		await renderBar("cline", "test-model");
+		await renderBar("induscode", "test-model");
 		await vi.waitFor(() => {
 			expect(
 				container.querySelector<HTMLButtonElement>(
@@ -1835,9 +1835,9 @@ describe("ChatInputBar", () => {
 			root.render(
 				<WorkspaceProvider
 					value={{
-						workspaceRoot: "/workspace/cline",
-						workspaces: ["/workspace/cline"],
-						listWorkspaces: vi.fn(async () => ["/workspace/cline"]),
+						workspaceRoot: "/workspace/induscode",
+						workspaces: ["/workspace/induscode"],
+						listWorkspaces: vi.fn(async () => ["/workspace/induscode"]),
 						refreshWorkspaces: vi.fn(async () => undefined),
 						switchWorkspace: vi.fn(async () => true),
 						pickWorkspaceDirectory: vi.fn(async () => null),
@@ -1881,7 +1881,7 @@ describe("ChatInputBar", () => {
 								steer: true,
 							},
 						]}
-						provider="cline"
+						provider="induscode"
 						reasoningEffort="low"
 						status="running"
 						summary={{ toolCalls: 0, tokensIn: 0, tokensOut: 0 }}
@@ -2014,9 +2014,9 @@ describe("ChatInputBar", () => {
 			root.render(
 				<WorkspaceProvider
 					value={{
-						workspaceRoot: "/workspace/cline",
-						workspaces: ["/workspace/cline"],
-						listWorkspaces: vi.fn(async () => ["/workspace/cline"]),
+						workspaceRoot: "/workspace/induscode",
+						workspaces: ["/workspace/induscode"],
+						listWorkspaces: vi.fn(async () => ["/workspace/induscode"]),
 						refreshWorkspaces: vi.fn(async () => undefined),
 						switchWorkspace: vi.fn(async () => true),
 						pickWorkspaceDirectory: vi.fn(async () => null),
@@ -2054,7 +2054,7 @@ describe("ChatInputBar", () => {
 								steer: false,
 							},
 						]}
-						provider="cline"
+						provider="induscode"
 						reasoningEffort="low"
 						status="running"
 						summary={{ toolCalls: 0, tokensIn: 0, tokensOut: 0 }}
@@ -2096,8 +2096,8 @@ describe("ChatInputBar", () => {
 		window.localStorage.setItem(
 			MODEL_SELECTION_STORAGE_KEY,
 			JSON.stringify({
-				lastProvider: "cline",
-				lastModelByProvider: { cline: "test-model" },
+				lastProvider: "induscode",
+				lastModelByProvider: { induscode: "test-model" },
 			}),
 		);
 		loadProviderModelCatalogMock.mockResolvedValue({
@@ -2113,9 +2113,9 @@ describe("ChatInputBar", () => {
 			root.render(
 				<WorkspaceProvider
 					value={{
-						workspaceRoot: "/workspace/cline",
-						workspaces: ["/workspace/cline"],
-						listWorkspaces: vi.fn(async () => ["/workspace/cline"]),
+						workspaceRoot: "/workspace/induscode",
+						workspaces: ["/workspace/induscode"],
+						listWorkspaces: vi.fn(async () => ["/workspace/induscode"]),
 						refreshWorkspaces: vi.fn(async () => undefined),
 						switchWorkspace: vi.fn(async () => true),
 						pickWorkspaceDirectory: vi.fn(async () => null),
@@ -2170,8 +2170,8 @@ describe("ChatInputBar", () => {
 				window.localStorage.getItem(MODEL_SELECTION_STORAGE_KEY),
 			),
 		).toEqual({
-			lastProvider: "cline",
-			lastModelByProvider: { cline: "test-model" },
+			lastProvider: "induscode",
+			lastModelByProvider: { induscode: "test-model" },
 		});
 
 		// An explicit pick in the model dropdown DOES update the remembered
@@ -2190,7 +2190,7 @@ describe("ChatInputBar", () => {
 		).toEqual({
 			lastProvider: "openrouter",
 			lastModelByProvider: {
-				cline: "test-model",
+				induscode: "test-model",
 				openrouter: "user-picked-model",
 			},
 		});
@@ -2198,12 +2198,12 @@ describe("ChatInputBar", () => {
 		window.localStorage.removeItem(MODEL_SELECTION_STORAGE_KEY);
 	});
 
-	it("renders the cline model picker with recommended and free sections", async () => {
+	it("renders the induscode model picker with recommended and free sections", async () => {
 		loadProviderModelCatalogMock.mockResolvedValue({
 			providers: [],
-			enabledProviderIds: ["cline"],
+			enabledProviderIds: ["induscode"],
 			providerModels: {
-				cline: [
+				induscode: [
 					"anthropic/claude-opus-5",
 					"deepseek/deepseek-v4-flash",
 					"zzz/other-model",
@@ -2211,7 +2211,7 @@ describe("ChatInputBar", () => {
 			},
 			// Tier data arrives on the models themselves, stamped by the SDK.
 			providerModelDetails: {
-				cline: [
+				induscode: [
 					{
 						id: "anthropic/claude-opus-5",
 						name: "Claude Opus 5",
@@ -2227,8 +2227,8 @@ describe("ChatInputBar", () => {
 					{ id: "zzz/other-model", name: "Other Model" },
 				],
 			},
-			providerNames: { cline: "Cline" },
-			providerReasoningModels: { cline: [] },
+			providerNames: { induscode: "IndusCode" },
+			providerReasoningModels: { induscode: [] },
 		});
 
 		await act(async () => {
@@ -2258,7 +2258,7 @@ describe("ChatInputBar", () => {
 						onSwitchGitBranch={vi.fn(async () => true)}
 						promptDraft={{ version: 0, value: "" }}
 						promptsInQueue={[]}
-						provider="cline"
+						provider="induscode"
 						reasoningEffort="low"
 						status="idle"
 						summary={{ toolCalls: 0, tokensIn: 0, tokensOut: 0 }}
@@ -2274,7 +2274,7 @@ describe("ChatInputBar", () => {
 			'[aria-label^="Provider:"]',
 		);
 		await vi.waitFor(() => {
-			expect(providerTrigger?.textContent).toContain("Cline");
+			expect(providerTrigger?.textContent).toContain("IndusCode");
 		});
 		const modelTrigger = container.querySelector<HTMLButtonElement>(
 			'[aria-label^="Model:"]',
@@ -2285,14 +2285,14 @@ describe("ChatInputBar", () => {
 		await act(async () => modelTrigger?.click());
 		// Opening re-fetches so the tiers reflect the current feed.
 		expect(loadProviderModelsMock).toHaveBeenCalledTimes(2);
-		expect(loadProviderModelsMock).toHaveBeenLastCalledWith("cline");
+		expect(loadProviderModelsMock).toHaveBeenLastCalledWith("induscode");
 		const panel = document.querySelector('[role="dialog"]');
 		expect(panel?.textContent).toContain("Recommended");
 		expect(panel?.textContent).toContain("Free");
 		expect(panel?.textContent).toContain("All models");
 		expect(panel?.textContent).toContain("Most intelligent model");
 		expect(
-			panel?.querySelector(".cline-ui-search-combobox__badge")?.textContent,
+			panel?.querySelector(".induscode-ui-search-combobox__badge")?.textContent,
 		).toBe("NEW");
 		// Featured entries lead; the rest of the catalog follows.
 		const optionLabels = [
@@ -2306,13 +2306,13 @@ describe("ChatInputBar", () => {
 	it("opens model settings from the provider picker's set-up row", async () => {
 		loadProviderModelCatalogMock.mockResolvedValue({
 			providers: [],
-			enabledProviderIds: ["cline", "cline-pass"],
+			enabledProviderIds: ["induscode", "induscode-pass"],
 			providerModels: {
-				cline: ["anthropic/claude-opus-5"],
-				"cline-pass": ["anthropic/claude-opus-5"],
+				induscode: ["anthropic/claude-opus-5"],
+				"induscode-pass": ["anthropic/claude-opus-5"],
 			},
 			providerModelDetails: {},
-			providerNames: { cline: "Cline", "cline-pass": "Cline Pass" },
+			providerNames: { induscode: "IndusCode", "induscode-pass": "IndusCode Pass" },
 			providerReasoningModels: {},
 		});
 		const onOpenModelSettings = vi.fn();
@@ -2346,7 +2346,7 @@ describe("ChatInputBar", () => {
 						onSwitchGitBranch={vi.fn(async () => true)}
 						promptDraft={{ version: 0, value: "" }}
 						promptsInQueue={[]}
-						provider="cline"
+						provider="induscode"
 						reasoningEffort="low"
 						status="idle"
 						summary={{ toolCalls: 0, tokensIn: 0, tokensOut: 0 }}
@@ -2360,29 +2360,29 @@ describe("ChatInputBar", () => {
 			'[aria-label^="Provider:"]',
 		);
 		await vi.waitFor(() => {
-			expect(providerTrigger?.textContent).toContain("Cline");
+			expect(providerTrigger?.textContent).toContain("IndusCode");
 		});
 
 		await act(async () => providerTrigger?.click());
 		const panel = document.querySelector('[role="dialog"]');
 		const options = [...(panel?.querySelectorAll('[role="option"]') ?? [])];
-		// Both Cline entries list (one sign-in configures both); the set-up
+		// Both IndusCode entries list (one sign-in configures both); the set-up
 		// row trails the real providers.
 		expect(options.map((option) => option.textContent)).toEqual([
-			"Cline",
-			"Cline Pass",
+			"IndusCode",
+			"IndusCode Pass",
 			"Set up another provider",
 		]);
 
 		await act(async () => (options[2] as HTMLButtonElement).click());
 		expect(onOpenModelSettings).toHaveBeenCalledTimes(1);
 		expect(onProviderChange).not.toHaveBeenCalled();
-		// The row is an action, not a selection: the trigger still shows Cline.
-		expect(providerTrigger?.textContent).toContain("Cline");
+		// The row is an action, not a selection: the trigger still shows IndusCode.
+		expect(providerTrigger?.textContent).toContain("IndusCode");
 		expect(document.querySelector('[role="dialog"]')).toBeNull();
 	});
 
-	describe("cline-pass picker offer", () => {
+	describe("induscode-pass picker offer", () => {
 		const renderComposer = async (props: {
 			executionTarget?: "cloud" | "local";
 			hasActiveSession?: boolean;
@@ -2436,23 +2436,23 @@ describe("ChatInputBar", () => {
 		};
 
 		beforeEach(() => {
-			// The ClinePass offer: one subscribed and one free model, stamped
+			// The IndusCodePass offer: one subscribed and one free model, stamped
 			// by the SDK onto ProviderModel.featured. The catalog additionally
 			// contains a stale unstamped model outside the offer, which the
 			// picker hides while the subscribed tier is non-empty.
 			loadProviderModelCatalogMock.mockResolvedValue({
 				providers: [],
-				enabledProviderIds: ["cline", "cline-pass"],
+				enabledProviderIds: ["induscode", "induscode-pass"],
 				providerModels: {
-					cline: ["test-model"],
-					"cline-pass": [
+					induscode: ["test-model"],
+					"induscode-pass": [
 						"openai/gpt-5",
 						"google/gemini-flash",
 						"legacy/stale-model",
 					],
 				},
 				providerModelDetails: {
-					"cline-pass": [
+					"induscode-pass": [
 						{
 							id: "openai/gpt-5",
 							name: "GPT-5",
@@ -2466,8 +2466,8 @@ describe("ChatInputBar", () => {
 						{ id: "legacy/stale-model", name: "Stale Legacy" },
 					],
 				},
-				providerNames: { cline: "Cline", "cline-pass": "ClinePass" },
-				providerReasoningModels: { cline: [], "cline-pass": [] },
+				providerNames: { induscode: "IndusCode", "induscode-pass": "IndusCodePass" },
+				providerReasoningModels: { induscode: [], "induscode-pass": [] },
 			});
 		});
 
@@ -2476,7 +2476,7 @@ describe("ChatInputBar", () => {
 		});
 
 		const kimi: ProviderModel = {
-			id: "cline-pass/kimi-k3",
+			id: "induscode-pass/kimi-k3",
 			name: "Kimi K3",
 			featured: { tier: "subscribed", rank: 0, tags: [] },
 		};
@@ -2489,14 +2489,14 @@ describe("ChatInputBar", () => {
 		function mockBundledCatalog() {
 			loadProviderModelCatalogMock.mockResolvedValue({
 				providers: [],
-				enabledProviderIds: ["cline", "cline-pass"],
+				enabledProviderIds: ["induscode", "induscode-pass"],
 				providerModels: {
-					cline: ["test-model"],
-					"cline-pass": [flash.id],
+					induscode: ["test-model"],
+					"induscode-pass": [flash.id],
 				},
-				providerModelDetails: { "cline-pass": [flash] },
-				providerNames: { cline: "Cline", "cline-pass": "ClinePass" },
-				providerReasoningModels: { cline: [], "cline-pass": [] },
+				providerModelDetails: { "induscode-pass": [flash] },
+				providerNames: { induscode: "IndusCode", "induscode-pass": "IndusCodePass" },
+				providerReasoningModels: { induscode: [], "induscode-pass": [] },
 			});
 		}
 
@@ -2506,8 +2506,8 @@ describe("ChatInputBar", () => {
 		])("preserves the saved model through a delayed live catalog %s", async (outcome) => {
 			mockBundledCatalog();
 			const selection = {
-				lastProvider: "cline-pass",
-				lastModelByProvider: { "cline-pass": kimi.id },
+				lastProvider: "induscode-pass",
+				lastModelByProvider: { "induscode-pass": kimi.id },
 			};
 			window.localStorage.setItem(
 				MODEL_SELECTION_STORAGE_KEY,
@@ -2524,10 +2524,10 @@ describe("ChatInputBar", () => {
 			const onModelChange = vi.fn();
 			await renderComposer({
 				model: kimi.id,
-				provider: "cline-pass",
+				provider: "induscode-pass",
 				onModelChange,
 			});
-			expect(loadProviderModelsMock).toHaveBeenCalledWith("cline-pass");
+			expect(loadProviderModelsMock).toHaveBeenCalledWith("induscode-pass");
 			expect(onModelChange).not.toHaveBeenCalled();
 			expect(
 				container.querySelector('[aria-label^="Model:"]')?.textContent,
@@ -2551,7 +2551,7 @@ describe("ChatInputBar", () => {
 		it("keeps the live model name while the picker-open refresh is in flight", async () => {
 			mockBundledCatalog();
 			loadProviderModelsMock.mockResolvedValue([flash, kimi]);
-			await renderComposer({ model: kimi.id, provider: "cline-pass" });
+			await renderComposer({ model: kimi.id, provider: "induscode-pass" });
 			const modelTrigger = container.querySelector<HTMLButtonElement>(
 				'[aria-label^="Model:"]',
 			);
@@ -2570,7 +2570,7 @@ describe("ChatInputBar", () => {
 			// Only the live list is re-fetched; re-applying the bundled catalog
 			// (which lacks kimi) would flash the raw id in the trigger.
 			expect(modelTrigger?.textContent).toContain(kimi.name);
-			expect(loadProviderModelsMock).toHaveBeenLastCalledWith("cline-pass");
+			expect(loadProviderModelsMock).toHaveBeenLastCalledWith("induscode-pass");
 			expect(loadProviderModelCatalogMock).not.toHaveBeenCalled();
 			await act(async () => resolveModels([flash, kimi]));
 			expect(modelTrigger?.textContent).toContain(kimi.name);
@@ -2590,7 +2590,7 @@ describe("ChatInputBar", () => {
 			const onModelChange = vi.fn();
 			await renderComposer({
 				model: flash.id,
-				provider: "cline-pass",
+				provider: "induscode-pass",
 				onModelChange,
 			});
 			await act(async () =>
@@ -2606,7 +2606,7 @@ describe("ChatInputBar", () => {
 			expect(onModelChange).toHaveBeenCalledWith(kimi.id);
 			await renderComposer({
 				model: kimi.id,
-				provider: "cline-pass",
+				provider: "induscode-pass",
 				onModelChange,
 			});
 			onModelChange.mockClear();
@@ -2617,7 +2617,7 @@ describe("ChatInputBar", () => {
 				root = createRoot(container);
 				const initial = getInitialChatConfig();
 				expect(initial).toMatchObject({
-					provider: "cline-pass",
+					provider: "induscode-pass",
 					model: kimi.id,
 				});
 				let resolveModels!: (models: ProviderModel[]) => void;
@@ -2637,7 +2637,7 @@ describe("ChatInputBar", () => {
 				).toContain(kimi.id);
 				await act(async () => resolveModels([flash, kimi]));
 			} else {
-				await act(async () => publishModels("cline-pass", [flash]));
+				await act(async () => publishModels("induscode-pass", [flash]));
 			}
 			expect(onModelChange).not.toHaveBeenCalled();
 			expect(
@@ -2650,15 +2650,15 @@ describe("ChatInputBar", () => {
 			window.localStorage.setItem(
 				MODEL_SELECTION_STORAGE_KEY,
 				JSON.stringify({
-					lastProvider: "cline",
-					lastModelByProvider: { cline: "test-model", "cline-pass": kimi.id },
+					lastProvider: "induscode",
+					lastModelByProvider: { induscode: "test-model", "induscode-pass": kimi.id },
 				}),
 			);
 			const onModelChange = vi.fn();
 			const onProviderChange = vi.fn();
 			await renderComposer({
 				model: "test-model",
-				provider: "cline",
+				provider: "induscode",
 				onModelChange,
 				onProviderChange,
 			});
@@ -2669,16 +2669,16 @@ describe("ChatInputBar", () => {
 			);
 			const option = [
 				...document.querySelectorAll<HTMLButtonElement>('[role="option"]'),
-			].find((entry) => entry.textContent?.includes("ClinePass"));
+			].find((entry) => entry.textContent?.includes("IndusCodePass"));
 			expect(option).toBeTruthy();
 			await act(async () => option?.click());
-			expect(onProviderChange).toHaveBeenCalledWith("cline-pass");
+			expect(onProviderChange).toHaveBeenCalledWith("induscode-pass");
 			expect(onModelChange).toHaveBeenCalledWith(kimi.id);
 			expect(onModelChange).not.toHaveBeenCalledWith(flash.id);
 			expect(
 				parseModelSelectionStorage(
 					window.localStorage.getItem(MODEL_SELECTION_STORAGE_KEY),
-				).lastModelByProvider["cline-pass"],
+				).lastModelByProvider["induscode-pass"],
 			).toBe(kimi.id);
 		});
 
@@ -2686,15 +2686,15 @@ describe("ChatInputBar", () => {
 			window.localStorage.setItem(
 				MODEL_SELECTION_STORAGE_KEY,
 				JSON.stringify({
-					lastProvider: "cline-pass",
-					lastModelByProvider: { "cline-pass": "legacy/stale-model" },
+					lastProvider: "induscode-pass",
+					lastModelByProvider: { "induscode-pass": "legacy/stale-model" },
 				}),
 			);
 			const onModelChange = vi.fn();
 			await renderComposer({
 				model: "",
 				onModelChange,
-				provider: "cline-pass",
+				provider: "induscode-pass",
 			});
 
 			// The default selection must come from the visible offer, not the
@@ -2718,14 +2718,14 @@ describe("ChatInputBar", () => {
 			window.localStorage.setItem(
 				MODEL_SELECTION_STORAGE_KEY,
 				JSON.stringify({
-					lastProvider: "cline",
-					lastModelByProvider: { cline: "test-model" },
+					lastProvider: "induscode",
+					lastModelByProvider: { induscode: "test-model" },
 				}),
 			);
 			const onModelChange = vi.fn();
 			await renderComposer({
 				model: "",
-				provider: "cline-pass",
+				provider: "induscode-pass",
 				onModelChange,
 			});
 			expect(onModelChange).toHaveBeenCalledWith(flash.id);
@@ -2737,7 +2737,7 @@ describe("ChatInputBar", () => {
 			await renderComposer({
 				model: "legacy/stale-model",
 				onModelChange,
-				provider: "cline-pass",
+				provider: "induscode-pass",
 			});
 
 			// The session's configured model stays active…
@@ -2766,9 +2766,9 @@ describe("ChatInputBar", () => {
 			await renderComposer({
 				executionTarget: "cloud",
 				hasActiveSession: true,
-				model: "cline-cloud/claude-sonnet-4.6",
+				model: "induscode-cloud/claude-sonnet-4.6",
 				onModelChange,
-				provider: "cline",
+				provider: "induscode",
 			});
 
 			expect(onModelChange).not.toHaveBeenCalled();
@@ -2777,7 +2777,7 @@ describe("ChatInputBar", () => {
 			);
 			await vi.waitFor(() => {
 				expect(modelTrigger?.textContent).toContain(
-					"cline-cloud/claude-sonnet-4.6",
+					"induscode-cloud/claude-sonnet-4.6",
 				);
 			});
 		});
@@ -2786,10 +2786,10 @@ describe("ChatInputBar", () => {
 			window.localStorage.setItem(
 				MODEL_SELECTION_STORAGE_KEY,
 				JSON.stringify({
-					lastProvider: "cline",
+					lastProvider: "induscode",
 					lastModelByProvider: {
-						cline: "test-model",
-						"cline-pass": "legacy/stale-model",
+						induscode: "test-model",
+						"induscode-pass": "legacy/stale-model",
 					},
 				}),
 			);
@@ -2799,7 +2799,7 @@ describe("ChatInputBar", () => {
 				model: "test-model",
 				onModelChange,
 				onProviderChange,
-				provider: "cline",
+				provider: "induscode",
 			});
 
 			const providerTrigger = container.querySelector<HTMLButtonElement>(
@@ -2807,13 +2807,13 @@ describe("ChatInputBar", () => {
 			);
 			await act(async () => providerTrigger?.click());
 			const panel = document.querySelector('[role="dialog"]');
-			const clinePassOption = [
+			const induscodePassOption = [
 				...(panel?.querySelectorAll<HTMLButtonElement>('[role="option"]') ??
 					[]),
-			].find((option) => option.textContent?.includes("ClinePass"));
-			await act(async () => clinePassOption?.click());
+			].find((option) => option.textContent?.includes("IndusCodePass"));
+			await act(async () => induscodePassOption?.click());
 
-			expect(onProviderChange).toHaveBeenCalledWith("cline-pass");
+			expect(onProviderChange).toHaveBeenCalledWith("induscode-pass");
 			// The hidden remembered model is not restored; the selection falls
 			// back to the offer and the remembered slot is repaired.
 			expect(onModelChange).toHaveBeenCalledWith("openai/gpt-5");
@@ -2822,10 +2822,10 @@ describe("ChatInputBar", () => {
 					window.localStorage.getItem(MODEL_SELECTION_STORAGE_KEY),
 				),
 			).toEqual({
-				lastProvider: "cline-pass",
+				lastProvider: "induscode-pass",
 				lastModelByProvider: {
-					cline: "test-model",
-					"cline-pass": "openai/gpt-5",
+					induscode: "test-model",
+					"induscode-pass": "openai/gpt-5",
 				},
 			});
 		});
@@ -2842,9 +2842,9 @@ describe("ChatInputBar", () => {
 			root.render(
 				<WorkspaceProvider
 					value={{
-						workspaceRoot: "/workspace/cline",
-						workspaces: ["/workspace/cline"],
-						listWorkspaces: vi.fn(async () => ["/workspace/cline"]),
+						workspaceRoot: "/workspace/induscode",
+						workspaces: ["/workspace/induscode"],
+						listWorkspaces: vi.fn(async () => ["/workspace/induscode"]),
 						refreshWorkspaces: vi.fn(async () => undefined),
 						switchWorkspace: vi.fn(async () => true),
 						pickWorkspaceDirectory: vi.fn(async () => null),
@@ -2875,7 +2875,7 @@ describe("ChatInputBar", () => {
 						onSwitchGitBranch={vi.fn(async () => true)}
 						promptDraft={{ version: 0, value: "" }}
 						promptsInQueue={[]}
-						provider="cline"
+						provider="induscode"
 						reasoningEffort="low"
 						status="idle"
 						summary={{ toolCalls: 0, tokensIn: 0, tokensOut: 0 }}
@@ -2904,7 +2904,7 @@ describe("ChatInputBar", () => {
 		};
 
 		await act(async () => {
-			subscribeToProviderModelsMock.mock.calls.at(-1)?.[0]("cline", [
+			subscribeToProviderModelsMock.mock.calls.at(-1)?.[0]("induscode", [
 				{
 					id: "test-model",
 					name: "Test model",
@@ -2979,9 +2979,9 @@ describe("ChatInputBar token ring", () => {
 			root.render(
 				<WorkspaceProvider
 					value={{
-						workspaceRoot: "/workspace/cline",
-						workspaces: ["/workspace/cline"],
-						listWorkspaces: vi.fn(async () => ["/workspace/cline"]),
+						workspaceRoot: "/workspace/induscode",
+						workspaces: ["/workspace/induscode"],
+						listWorkspaces: vi.fn(async () => ["/workspace/induscode"]),
 						refreshWorkspaces: vi.fn(async () => undefined),
 						switchWorkspace: vi.fn(async () => true),
 						pickWorkspaceDirectory: vi.fn(async () => null),
@@ -3014,7 +3014,7 @@ describe("ChatInputBar token ring", () => {
 						onSwitchGitBranch={vi.fn(async () => true)}
 						promptDraft={{ version: 0, value: "" }}
 						promptsInQueue={[]}
-						provider="cline"
+						provider="induscode"
 						reasoningEffort="low"
 						status="idle"
 						summary={summary}
@@ -3096,7 +3096,7 @@ describe("ChatInputBar token ring", () => {
 			1000,
 		);
 		expect(
-			belowWarning?.querySelector("circle.stroke-cline-ui-primary"),
+			belowWarning?.querySelector("circle.stroke-induscode-ui-primary"),
 		).not.toBeNull();
 
 		const warning = await renderTokenUsage(
@@ -3142,11 +3142,11 @@ describe("ChatInputBar token ring", () => {
 		const outputSegment = panel?.querySelector<HTMLElement>(
 			'[data-token-kind="output"]',
 		);
-		expect(uncachedSegment?.classList.contains("bg-cline-ui-primary")).toBe(
+		expect(uncachedSegment?.classList.contains("bg-induscode-ui-primary")).toBe(
 			true,
 		);
 		expect(uncachedSegment?.style.width).toBe("37.5%");
-		expect(cachedSegment?.classList.contains("bg-cline-ui-primary/60")).toBe(
+		expect(cachedSegment?.classList.contains("bg-induscode-ui-primary/60")).toBe(
 			true,
 		);
 		expect(cachedSegment?.style.backgroundImage).toContain("linear-gradient");

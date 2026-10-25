@@ -55,8 +55,8 @@ describe("useTerminalTitle", () => {
 	it("sets and resets the title while the renderer is active", () => {
 		const titleRenderer = createTitleRenderer();
 
-		useTerminalTitle(titleRenderer.renderer, "Cline");
-		expect(titleRenderer.setTerminalTitle).toHaveBeenNthCalledWith(1, "Cline");
+		useTerminalTitle(titleRenderer.renderer, "IndusCode");
+		expect(titleRenderer.setTerminalTitle).toHaveBeenNthCalledWith(1, "IndusCode");
 
 		for (const cleanup of reactMock.cleanups) {
 			cleanup();
@@ -70,7 +70,7 @@ describe("useTerminalTitle", () => {
 		const titleRenderer = createTitleRenderer();
 		titleRenderer.destroy();
 
-		useTerminalTitle(titleRenderer.renderer, "Cline");
+		useTerminalTitle(titleRenderer.renderer, "IndusCode");
 
 		expect(titleRenderer.setTerminalTitle).not.toHaveBeenCalled();
 	});
@@ -78,7 +78,7 @@ describe("useTerminalTitle", () => {
 	it("does not reset the title when cleanup runs after renderer destruction", () => {
 		const titleRenderer = createTitleRenderer();
 
-		useTerminalTitle(titleRenderer.renderer, "Cline");
+		useTerminalTitle(titleRenderer.renderer, "IndusCode");
 		expect(titleRenderer.setTerminalTitle).toHaveBeenCalledOnce();
 
 		titleRenderer.destroy();

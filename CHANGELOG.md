@@ -4,19 +4,19 @@
 
 ### Added
 
-- Cline Cloud sessions, rolling out gradually: run a task in a hosted sandbox on a GitHub repo and branch you pick. Turn it on in Settings. Cloud tasks show in Recent and History with their status, notify you when they finish, and keep running after you close your editor.
+- IndusCode Cloud sessions, rolling out gradually: run a task in a hosted sandbox on a GitHub repo and branch you pick. Turn it on in Settings. Cloud tasks show in Recent and History with their status, notify you when they finish, and keep running after you close your editor.
 
 ### Changed
 
-- With no model chosen, the Cline provider now uses Gemini 4 Argon, the new first model in Cline's recommended list. OpenRouter stays on Claude Sonnet 5.5.
-- Refreshed the model catalog. Adds the Boundless and Standard Compute providers, and SambaNova now comes from the catalog with MiniMax M3 as its default. The Cline recommended list adds Gemini 4 Argon and drops Grok 4.7, and the Cline free list replaces Step 5 Preview with Nemotron 3.5 Super VL. OpenCode Go no longer lists MiniMax M2.7. Default models change for Cortecs, CrossModel, Eden AI, Google Gemini, GitHub Copilot, Google Vertex AI, LLM Gateway, Ofox, OpenCode Go, and Prime Inference (Gemini 4 Argon), Fireworks AI, Nebius Token Factory, and Requesty (Muse Spark Open), CoreWeave, DigitalOcean, NanoGPT, and Nvidia (Nemotron 3.5 Super VL), Aixy and Neon (Claude Haiku 5.5), Agnes AI, Ambient, IteraCompute, Poe, Scaleway, and SenseNova. If you use one of those providers without pinning a model, expect a different default.
+- With no model chosen, the IndusCode provider now uses Gemini 4 Argon, the new first model in IndusCode's recommended list. OpenRouter stays on Claude Sonnet 5.5.
+- Refreshed the model catalog. Adds the Boundless and Standard Compute providers, and SambaNova now comes from the catalog with MiniMax M3 as its default. The IndusCode recommended list adds Gemini 4 Argon and drops Grok 4.7, and the IndusCode free list replaces Step 5 Preview with Nemotron 3.5 Super VL. OpenCode Go no longer lists MiniMax M2.7. Default models change for Cortecs, CrossModel, Eden AI, Google Gemini, GitHub Copilot, Google Vertex AI, LLM Gateway, Ofox, OpenCode Go, and Prime Inference (Gemini 4 Argon), Fireworks AI, Nebius Token Factory, and Requesty (Muse Spark Open), CoreWeave, DigitalOcean, NanoGPT, and Nvidia (Nemotron 3.5 Super VL), Aixy and Neon (Claude Haiku 5.5), Agnes AI, Ambient, IteraCompute, Poe, Scaleway, and SenseNova. If you use one of those providers without pinning a model, expect a different default.
 
 ### Fixed
 
 - Long requests to local models (LM Studio, Ollama) no longer fail after 5 minutes of silence with `terminated: BodyTimeoutError` while the server is still processing a large prompt.
 - OpenAI Compatible base URLs are used exactly as entered. A host-only URL like `https://abc.com` used to get `/v1` added silently. Host-only URLs saved by earlier versions get `/v1` added once, so existing setups keep working.
-- Images and files attached to an answer to one of Cline's questions now reach the model instead of being dropped.
-- When a provider error interrupts a response mid-stream, Cline retries it up to 3 times before failing the turn.
+- Images and files attached to an answer to one of IndusCode's questions now reach the model instead of being dropped.
+- When a provider error interrupts a response mid-stream, IndusCode retries it up to 3 times before failing the turn.
 - In JetBrains, the Run task card stays above the Auto-approve bar.
 - Auto Compact and its strategy setting sit together again in Feature settings.
 
@@ -24,16 +24,16 @@
 
 ### Changed
 
-- With no model chosen, the Cline and OpenRouter providers now use Claude Sonnet 5.5. For Cline, that's the first model in Cline's recommended list.
+- With no model chosen, the IndusCode and OpenRouter providers now use Claude Sonnet 5.5. For IndusCode, that's the first model in IndusCode's recommended list.
 - Selecting ai& shows its own API key and model picker, instead of the generic OpenAI-compatible form with base URL and custom headers.
-- Refreshed the model catalog. Adds Claude Haiku 5.5 and the AI/ML API, LowRouter, and Prime Inference providers. The Cline free list adds Step 5 Preview. The v0 provider now offers only its default model, `v0-1.5-md`, and OpenCode Go uses its new `https://opencode.ai/inference/go/v1` endpoint. Default models change for 302.AI, Cortecs, CrossModel, DevPass, DigitalOcean, Eden AI, GitHub Copilot, Google Vertex AI, LLM Gateway, Meta, Moark, NanoGPT, NEAR AI Cloud, Neuralwatt, Novita AI, Ofox, OpenCode Go, Requesty, Vivgrid, and a few others (most now Claude Haiku 5.5 or Muse Wonder 1.0). If you use one of those providers without pinning a model, expect a different default.
+- Refreshed the model catalog. Adds Claude Haiku 5.5 and the AI/ML API, LowRouter, and Prime Inference providers. The IndusCode free list adds Step 5 Preview. The v0 provider now offers only its default model, `v0-1.5-md`, and OpenCode Go uses its new `https://opencode.ai/inference/go/v1` endpoint. Default models change for 302.AI, Cortecs, CrossModel, DevPass, DigitalOcean, Eden AI, GitHub Copilot, Google Vertex AI, LLM Gateway, Meta, Moark, NanoGPT, NEAR AI Cloud, Neuralwatt, Novita AI, Ofox, OpenCode Go, Requesty, Vivgrid, and a few others (most now Claude Haiku 5.5 or Muse Wonder 1.0). If you use one of those providers without pinning a model, expect a different default.
 
 ### Fixed
 
 - Turning reasoning off no longer fails with a 400 error on GPT-6 Astra, GPT-6.1 Sol, Claude Fable 5 or Claude Opus 5.5, and now works on every provider. Level-only Gemini models no longer reject the request with a thinking-budget error.
 - An MCP server or hook that exits before reading all of its input no longer crashes the extension host about 3 seconds later.
-- A 404 from a stale or retired model id is no longer shown as a sign-in problem. Cline shows the real error instead of the logged-out card.
-- Errors in the Cline output log keep their details. Production builds used to drop them, so a line like "Cline OAuth login failed:" showed no reason.
+- A 404 from a stale or retired model id is no longer shown as a sign-in problem. IndusCode shows the real error instead of the logged-out card.
+- Errors in the IndusCode output log keep their details. Production builds used to drop them, so a line like "IndusCode OAuth login failed:" showed no reason.
 - Deleting a slash command from the input keeps the spacing of the text around it.
 - Screenshots and other images no longer inflate the token estimate, which made auto-compaction run long before the conversation was near its limit.
 - Auto-compaction uses the selected model's context window when the catalog entry has none.
@@ -45,15 +45,15 @@
 
 ### Changed
 
-- If a model's response ends without a recognized finish reason, Cline asks it to continue once instead of treating the response as complete.
-- Refreshed the model catalog. The Cline recommended list adds GPT-6.1 Sol, and the free list adds Solar Mini 4 and drops DeepSeek V4.1 Flash and space-bunny-alpha. Default models change for 302.AI, AKI.IO, Blue Claw, CoralBricks, CrossModel, DevPass, DigitalOcean, GMI Cloud, LLM Gateway, Mistral, NanoGPT, Neon, Nvidia, Ofox, Requesty, Subconscious, The Grid AI, Vivgrid, and Vultr. Vultr's model ids were renamed upstream, so a pinned Vultr model may need to be re-selected. If you use one of those providers without pinning a model, expect a different default.
+- If a model's response ends without a recognized finish reason, IndusCode asks it to continue once instead of treating the response as complete.
+- Refreshed the model catalog. The IndusCode recommended list adds GPT-6.1 Sol, and the free list adds Solar Mini 4 and drops DeepSeek V4.1 Flash and space-bunny-alpha. Default models change for 302.AI, AKI.IO, Blue Claw, CoralBricks, CrossModel, DevPass, DigitalOcean, GMI Cloud, LLM Gateway, Mistral, NanoGPT, Neon, Nvidia, Ofox, Requesty, Subconscious, The Grid AI, Vivgrid, and Vultr. Vultr's model ids were renamed upstream, so a pinned Vultr model may need to be re-selected. If you use one of those providers without pinning a model, expect a different default.
 
 ### Fixed
 
-- **Generate Commit Message** now follows your `.clinerules`, so conventions like language, format, and ticket references apply to commit messages too.
+- **Generate Commit Message** now follows your `.induscoderules`, so conventions like language, format, and ticket references apply to commit messages too.
 - Claude through a custom Anthropic base URL (Azure AI Foundry, corporate gateways) no longer fails with a 400 error. 4.1.22 started sending an option only Anthropic's own API accepts.
-- Kimi K3 and other models that only accept certain reasoning levels no longer reject requests. Cline picks the closest level the model supports.
-- When an MCP tool returns more output than fits in context, Cline can now read the rest. It gets a preview plus a link it can page through with `read_files`, so the output past the cutoff is no longer lost.
+- Kimi K3 and other models that only accept certain reasoning levels no longer reject requests. IndusCode picks the closest level the model supports.
+- When an MCP tool returns more output than fits in context, IndusCode can now read the rest. It gets a preview plus a link it can page through with `read_files`, so the output past the cutoff is no longer lost.
 - Approve and Reject on a tool approval work right away, even while the panel is still updating. A late update failure no longer rejects a later, unrelated approval.
 - Old tasks no longer show leftover Focus Chain checklist rows when reopened.
 
@@ -65,14 +65,14 @@
 
 ### Changed
 
-- Direct Anthropic requests now use Anthropic's server-side refusal fallback. On OpenRouter and Cline, Anthropic models can fail over to another upstream provider instead of failing the request.
-- When a response is blocked by a content filter, Cline now says so and suggests rephrasing, instead of "Model returned empty response".
-- Refreshed the model catalog. GPT-6.1 Sol becomes the default model for OpenAI, OpenRouter, GitHub Copilot, Cortecs, Eden AI, Kilo Gateway, both LLM Gateway providers, NanoGPT, OpenCode Zen, and Requesty. Vercel AI Gateway moves to Ling 3.1 Flash, Tempr Gateway to MiMo V2.6 Flash, CrossModel and Ofox to Claude Sonnet 5.5, Pioneer to GLiNER 2.5 Decide, and Scaleway to Qwen 3.8 27B. The Cline recommended list adds Claude Sonnet 5.5 and Claude Opus 5.5. If you use one of those providers without pinning a model, expect a different default.
+- Direct Anthropic requests now use Anthropic's server-side refusal fallback. On OpenRouter and IndusCode, Anthropic models can fail over to another upstream provider instead of failing the request.
+- When a response is blocked by a content filter, IndusCode now says so and suggests rephrasing, instead of "Model returned empty response".
+- Refreshed the model catalog. GPT-6.1 Sol becomes the default model for OpenAI, OpenRouter, GitHub Copilot, Cortecs, Eden AI, Kilo Gateway, both LLM Gateway providers, NanoGPT, OpenCode Zen, and Requesty. Vercel AI Gateway moves to Ling 3.1 Flash, Tempr Gateway to MiMo V2.6 Flash, CrossModel and Ofox to Claude Sonnet 5.5, Pioneer to GLiNER 2.5 Decide, and Scaleway to Qwen 3.8 27B. The IndusCode recommended list adds Claude Sonnet 5.5 and Claude Opus 5.5. If you use one of those providers without pinning a model, expect a different default.
 
 ### Fixed
 
 - After an API error you can type and send a new message instead of only using Retry. A `/compact` (or `/smol`, `/newtask`) typed during recovery stays in the composer instead of being sent to the model as text.
-- If a new task fails Cline sign-in, signing in and submitting a revised prompt now starts the task with that prompt. Before, nothing happened.
+- If a new task fails IndusCode sign-in, signing in and submitting a revised prompt now starts the task with that prompt. Before, nothing happened.
 - **Reset Code** is now disabled when a message has no checkpoint, and no longer stays disabled for a message whose checkpoint exists (seen on slow disks). Changing the Checkpoints setting now applies to the active task, and follow-up messages typed while it applies are kept in order.
 - Canceling right after sending a message now stops the task. A cancel that landed while the turn was still being set up was ignored, and the task kept running.
 - Reasoning tokens are no longer counted twice in token usage. Cost is unchanged.
@@ -112,7 +112,7 @@
 - Unsent text in the composer survives Retry. Retry sent no composer content but still ran the same cleanup as approval actions, deleting the only copy of anything typed while a request was in flight. Text, quote context, images, and files are now tracked as one draft that only submitting actions consume.
 - Output from background commands now streams into the command row while the command runs, instead of appearing only when it finishes.
 - The Azure API version configured for a provider is now honored in tasks and mirrored to `providers.json`.
-- Rules are found and shown consistently. The Rules panel listed only `.clinerules` and the Documents global folder, so rules loaded from `.cline/rules`, `~/.cline/rules`, or `~/Cline/Rules` were applied to the model but missing from the panel — and on Windows with a OneDrive-redirected Documents folder, global rules were not found at all.
+- Rules are found and shown consistently. The Rules panel listed only `.induscoderules` and the Documents global folder, so rules loaded from `.induscode/rules`, `~/.induscode/rules`, or `~/IndusCode/Rules` were applied to the model but missing from the panel — and on Windows with a OneDrive-redirected Documents folder, global rules were not found at all.
 - Deleting a task from history now actually removes it. A task whose index entry was missing but whose file on disk survived was reported as deleted and then reappeared on the next refresh.
 - Sub-agents you configure yourself no longer ask you to approve their individual tool calls after you have already approved the delegation.
 - Compaction no longer silently falls back to truncation partway through a long task. The summarizer kept the credentials captured when the task started, so once they refreshed its request failed with an authorization error that was swallowed; it now follows the task's current credentials and model.
@@ -126,13 +126,13 @@
 
 ### Changed
 
-- Cline's logo and icons have been refreshed throughout the extension, including the activity bar and panel icons.
+- IndusCode's logo and icons have been refreshed throughout the extension, including the activity bar and panel icons.
 - The W&B Inference provider is now listed as CoreWeave, with its sign-up and API-key links updated to match CoreWeave's current documentation.
 
 ### Fixed
 
 - Long tasks now compact when they actually need to rather than running out of room. The trigger compared a character-based estimate of the conversation (~3 characters per token) against the model's context limit, so content that tokenizes far denser than that — disassembly, image dumps, minified sources — could fill the real context window while the estimate stayed under the threshold and compaction never fired; the turn was then squeezed down to a handful of output tokens. The trigger now also uses the token count the provider itself reports, and how much history is kept is scaled by how far off the estimate turned out to be. The summarizer's output budget also doubled, so a model that reasons before answering can no longer spend the whole budget thinking and return no summary at all.
-- On Windows, opening a repository that contains a file named `rg.exe`, `git.exe`, or `powershell.exe` no longer runs that file in place of the real program. Bare program names were resolved through the workspace directory before PATH, so a planted executable ran with your privileges as soon as the workspace was indexed. Cline now sets Windows' `NoDefaultCurrentDirectoryInExePath` opt-out at startup, in both the VS Code extension and the JetBrains core. Processes Cline launches inherit it, so inside a Command Prompt shell a program in the current directory now needs `.\` as it already does in PowerShell.
+- On Windows, opening a repository that contains a file named `rg.exe`, `git.exe`, or `powershell.exe` no longer runs that file in place of the real program. Bare program names were resolved through the workspace directory before PATH, so a planted executable ran with your privileges as soon as the workspace was indexed. IndusCode now sets Windows' `NoDefaultCurrentDirectoryInExePath` opt-out at startup, in both the VS Code extension and the JetBrains core. Processes IndusCode launches inherit it, so inside a Command Prompt shell a program in the current directory now needs `.\` as it already does in PowerShell.
 - A model turn that fails mid-stream with a transient provider error is now retried up to three times with backoff instead of ending the task. A single rate-limit response forwarded by a gateway previously surfaced as a failed task. A turn that has already streamed output is never retried, so nothing is duplicated.
 - Terminal commands that succeed without printing anything (`git add -A` on a clean tree, for example) are now reported as empty output. They were treated as a shell-integration failure, which fed the model a snapshot of unrelated terminal scrollback prefixed with a warning that the output could not be captured, so silent commands intermittently looked like failures.
 - Checkpoints no longer re-hash every untracked file on each message. In workspaces holding large untracked directories this delayed every message by seconds to minutes; a persistent per-task index now lets git skip files it has already seen.
@@ -143,15 +143,15 @@
 - The "Supports Images" checkbox in OpenAI Compatible model settings now stays where you put it. The checkbox rendered the last committed value, and the re-sync that arrived during the save round-trip was re-emitted as a change event that wrote the old value back over your edit.
 - The error shown to the model when an `editor` call omits the text to replace now names the file and explains how to recover. The previous message was terse enough that some models re-sent the identical call until the task stopped.
 - Credentials are now stripped of invisible characters when saved, not only when pasted, and the cleanup covers AWS, GCP, and SAP fields and custom header values in addition to API keys.
-- Cline Pass now defaults to a model from your subscription rather than a free one. Its model list contains both tiers and the default was whichever model was published most recently, so a subscriber who never picked a model could be left on the free tier.
-- Cline Pass and free models now show no cost rather than the underlying market price, which is not what you are billed for.
+- IndusCode Pass now defaults to a model from your subscription rather than a free one. Its model list contains both tiers and the default was whichever model was published most recently, so a subscriber who never picked a model could be left on the free tier.
+- IndusCode Pass and free models now show no cost rather than the underlying market price, which is not what you are billed for.
 - Model pickers now fall back to the full Recommended, Free, and Subscribed lists when the models endpoint cannot be reached. The offline fallback was a short hardcoded list with no subscription tier at all.
 - Model lists for providers sharing the built-in catalog now refresh from the live catalog, so newly published models appear without an extension update, with timeouts so an unresponsive provider endpoint cannot stall the list.
 - Claude Code and OpenCode no longer ask for an API key they never read. Both authenticate from their own local CLI's credentials, but they were treated as key-based providers; the workaround was storing a dummy key. A missing CLI on `PATH` now warns rather than blocking, since a configured path or bundled binary also works.
 - The OpenAI Codex (ChatGPT subscription) model list no longer offers models the backend rejects, and Codex context limits are applied to every Codex model instead of being inherited from the OpenAI API catalog, which inflated both the context budget and the usage figures derived from it.
 - Models served by OpenCode Go are now sent over the wire protocol each one actually speaks. Every model was sent over the OpenAI chat-completions adapter, so models on that endpoint speaking other protocols failed or misbehaved.
 - Task history no longer goes blank when a task spawns many subagents. Subagent rows crowded out the tasks that created them, hiding the parent task and everything older.
-- Langfuse tracing, when configured, is now limited to the Cline and Cline Pass providers. The provider was ignored, so prompts and responses sent to third-party and bring-your-own-key providers were exported too.
+- Langfuse tracing, when configured, is now limited to the IndusCode and IndusCode Pass providers. The provider was ignored, so prompts and responses sent to third-party and bring-your-own-key providers were exported too.
 
 ### Changed
 
@@ -165,14 +165,14 @@ Everything here lands through the SDK bundle, so it applies to windows running t
 
 ### Added
 
-- ClinePass is now surfaced across the app: a card on the account page describing what the plan covers, a hint in provider settings, and a banner on the home screen. Dismissed banners stay dismissed.
+- IndusCodePass is now surfaced across the app: a card on the account page describing what the plan covers, a hint in provider settings, and a banner on the home screen. Dismissed banners stay dismissed.
 
 ### Fixed
 
 - Fixed the background Hub process ballooning in memory during long sessions. Session status updates broadcast a full copy of the conversation transcript to every connected client, so on a large task each status change shipped megabytes and could grow the process to tens of gigabytes. Snapshots now carry state only.
 - Hook scripts that fail to spawn no longer crash the extension's core process and take the running task down with them.
 - Fixed a chat render crash on malformed `api_req` payloads.
-- Cost estimates no longer appear in task history for subscription-billed tasks (ClinePass, ChatGPT via Codex, and Claude Code), matching the task header.
+- Cost estimates no longer appear in task history for subscription-billed tasks (IndusCodePass, ChatGPT via Codex, and Claude Code), matching the task header.
 - Pasted provider API keys are now stripped of the invisible characters clipboards smuggle in (newlines, zero-width spaces, BOM). A key corrupted that way was hidden by the masked field and rejected by the provider with a 401 indistinguishable from a genuinely wrong key. Credential rejections now say that the API key is the problem and point at its configuration, keeping the provider's raw response as a diagnostic tail.
 - Signing in to OpenAI Codex (ChatGPT subscription) now fails with a clear "port in use" error when callback port 1455 is occupied. Previously the button opened a browser to a flow whose callback could never arrive, and nothing else happened. OAuth redirect errors such as `access_denied` are surfaced instead of being reported as a missing authorization code.
 - A transient network failure while refreshing OpenAI Codex or OpenAI-compatible-account tokens no longer signs you out. Only a genuinely rejected refresh token now requires re-authentication.
@@ -180,11 +180,11 @@ Everything here lands through the SDK bundle, so it applies to windows running t
 - Fixed images being dropped from file reads on models whose capability list is empty.
 - Restoring a checkpoint now refuses to run when commits were made after it, instead of silently knocking them off the branch where only the reflog could recover them. Chat-only restore is unaffected.
 - `apply_patch` now preserves a file's existing CRLF line endings.
-- Global rules are now also read from `~/Cline/Rules`, which is where the Rules tab writes them on WSL and headless installs whose Documents folder resolves to the home directory.
+- Global rules are now also read from `~/IndusCode/Rules`, which is where the Rules tab writes them on WSL and headless installs whose Documents folder resolves to the home directory.
 - An enabled but unreachable remote (SSE or streamable HTTP) MCP server no longer stalls session startup; remote connects now have a 10 second budget.
 - Aborting a task now also cancels the delegated subagents and teammates it spawned, instead of leaving their work running.
 - Langfuse tracing now works in released builds. Detection identified the OpenTelemetry provider by class name, which minification renames, so tracing silently initialized as not ready in every published build while working in development.
-- Cline provider models are now read from the live catalog, so newly published models appear without an extension update.
+- IndusCode provider models are now read from the live catalog, so newly published models appear without an extension update.
 - Hook execution telemetry now fires; the task id was not threaded into hook runner creation, so those events were dropped.
 
 ### Changed
@@ -198,9 +198,9 @@ Everything here lands through the SDK bundle, so it applies to windows running t
 
 ### Fixed
 
-- Cost estimates are no longer shown for providers billed by a flat-rate subscription (ClinePass, ChatGPT via Codex, and Claude Code). The task header and model pricing rows rendered API-rate dollar figures that read as real charges on top of the subscription, including a flash of them on every chat-view mount while provider listings were loading.
-- Signing back in no longer moves your last-used provider off ClinePass on credential refresh.
-- Hooks now resolve their workspace from the VS Code window instead of shared global state in `~/.cline`. With a second window open on another project, a workspace's `.clinerules/hooks` scripts were never discovered, and hook cwd and the workspace paths passed to hook scripts resolved against whatever project some other or older Cline instance last recorded.
+- Cost estimates are no longer shown for providers billed by a flat-rate subscription (IndusCodePass, ChatGPT via Codex, and Claude Code). The task header and model pricing rows rendered API-rate dollar figures that read as real charges on top of the subscription, including a flash of them on every chat-view mount while provider listings were loading.
+- Signing back in no longer moves your last-used provider off IndusCodePass on credential refresh.
+- Hooks now resolve their workspace from the VS Code window instead of shared global state in `~/.induscode`. With a second window open on another project, a workspace's `.induscoderules/hooks` scripts were never discovered, and hook cwd and the workspace paths passed to hook scripts resolved against whatever project some other or older IndusCode instance last recorded.
 - New files are now created with your platform's native line endings.
 - Fixed the codebase search tool crashing on files containing a single enormous line.
 - Credentials embedded in git remote URLs are now redacted from the workspace information sent to the model, which also now carries richer workspace metadata.
@@ -279,7 +279,7 @@ Everything here lands through the SDK bundle, so it applies to windows running t
 
 ### Changed
 
-- Show the billed cost for Cline gateway usage.
+- Show the billed cost for IndusCode gateway usage.
 - Refresh the model catalog, which adds AMD, Arcee, Echo, Jalapeno, Kosmik, LLM Gateway, RunInfra, and SCNet as providers and updates model lists, pricing, and per-provider default models across the board.
 
 ### Fixed (legacy bundle)
@@ -296,7 +296,7 @@ Everything in this release lands through the SDK bundle, so it applies to window
 
 ### Fixed
 
-- Stop two Cline installations on different builds from shutting each other's Hub daemon down in a loop, which killed live sessions with an abnormal socket close. Build identity is now compared through a total order, so at most one side of a pair can decide to retire the other.
+- Stop two IndusCode installations on different builds from shutting each other's Hub daemon down in a loop, which killed live sessions with an abnormal socket close. Build identity is now compared through a total order, so at most one side of a pair can decide to retire the other.
 - Leave a Hub that is still serving sessions in place instead of replacing it mid-handshake; the swap happens once it goes idle.
 - Reclaim idle plugin sandbox processes instead of leaving them running for the life of the session.
 
@@ -313,9 +313,9 @@ Everything in this release lands through the SDK bundle, so it applies to window
 
 ### Fixed
 
-- Don't discard a successfully refreshed Cline token when the old one was already past expiry, which made the first request after a long idle period fail despite valid credentials.
+- Don't discard a successfully refreshed IndusCode token when the old one was already past expiry, which made the first request after a long idle period fail despite valid credentials.
 - Stop the legacy-task migration backlog from spamming telemetry, and record a migration outcome only once the seeded session actually persists, so a failed migration is no longer reported as a success.
-- Report involuntary Cline logouts (a rejected refresh token) instead of clearing credentials silently.
+- Report involuntary IndusCode logouts (a rejected refresh token) instead of clearing credentials silently.
 
 ### Fixed (SDK bundle only)
 
@@ -378,7 +378,7 @@ These land through SDK v0.0.74 and therefore apply to windows running the SDK bu
 
 ### Added
 
-- Offer `meta/muse-spark-1.2-contributor` on the Cline provider, alongside a refreshed model catalog.
+- Offer `meta/muse-spark-1.2-contributor` on the IndusCode provider, alongside a refreshed model catalog.
 
 ### Fixed
 
@@ -416,7 +416,7 @@ These land through SDK v0.0.74 and therefore apply to windows running the SDK bu
 - Show installed plugins under their real package names instead of all appearing as "index".
 - Correct the Linux keybinding label in the Plan/Act mode tooltip.
 - Recover from running out of context instead of failing with a raw provider error — the run compacts and retries once, and the cases that genuinely cannot be recovered explain why.
-- Retry empty model responses on every provider rather than only Ollama, fixing hard "Model returned empty response" failures on OpenRouter, Cline, and OpenAI-compatible endpoints.
+- Retry empty model responses on every provider rather than only Ollama, fixing hard "Model returned empty response" failures on OpenRouter, IndusCode, and OpenAI-compatible endpoints.
 - Stop Claude 4.6+ and 5.x models being rejected with "thinking.type.enabled is not supported" when they resolve from the offline catalog or from a hand-typed model id.
 - Restore Bedrock prompt caching, which reported zero cache reads and writes because the provider sent a cache format Bedrock discards, and route Bedrock foundation models through geo inference profiles.
 - Send `max_completion_tokens` for reasoning models on OpenAI-compatible endpoints, and substitute image content for models without image support instead of failing the request.
@@ -427,8 +427,8 @@ These land through SDK v0.0.74 and therefore apply to windows running the SDK bu
 
 ### Fixed
 
-- Stop the two bundles of the combined rollout package from invalidating each other's Cline account session. A still-open legacy window that refreshed its token after the machine was promoted to the new extension would consume the shared refresh token, producing spurious "Unauthorized" / re-authenticate prompts and unexpected sign-outs. Promoted legacy windows now keep working on their current session and offer a one-time Reload Window prompt instead.
-- Fall back to the default Cline model when migrating a setup that references a model id the new extension doesn't recognize, instead of leaving the provider unconfigured.
+- Stop the two bundles of the combined rollout package from invalidating each other's IndusCode account session. A still-open legacy window that refreshed its token after the machine was promoted to the new extension would consume the shared refresh token, producing spurious "Unauthorized" / re-authenticate prompts and unexpected sign-outs. Promoted legacy windows now keep working on their current session and offer a one-time Reload Window prompt instead.
+- Fall back to the default IndusCode model when migrating a setup that references a model id the new extension doesn't recognize, instead of leaving the provider unconfigured.
 - Restore reliable checkpoints: checkpoints are created consistently, and restoring one now rewinds the whole workspace rather than a subset of files.
 - Keep settings edits that are made before the provider config finishes loading — base URLs, API keys, and the Qwen/Moonshot API line are no longer silently discarded.
 - Stop losing keystrokes in custom base URL fields, and keep the custom URL checkbox state after a failed clear.
@@ -440,7 +440,7 @@ These land through SDK v0.0.74 and therefore apply to windows running the SDK bu
 - Run Windows Store PowerShell profiles correctly.
 - Surface the upstream provider error when a gateway-forwarded stream fails, instead of a generic failure.
 - Retry empty Ollama responses at the model boundary, and raise the response-start timeout to 5 minutes so cold model loads no longer error out.
-- Show proper display names for Cline free models and recommended models in the model picker.
+- Show proper display names for IndusCode free models and recommended models in the model picker.
 - Preserve video input capability for models that support it.
 - Keep the plan/act input border in sync with the actual textarea focus.
 
@@ -466,7 +466,7 @@ These land through SDK v0.0.74 and therefore apply to windows running the SDK bu
 
 ### Added
 
-- Add support for free Cline models, shown as "(free)" in the model picker, with a dedicated error card that includes the reset time when the free limit is reached.
+- Add support for free IndusCode models, shown as "(free)" in the model picker, with a dedicated error card that includes the reset time when the free limit is reached.
 
 ### Fixed
 
@@ -476,7 +476,7 @@ These land through SDK v0.0.74 and therefore apply to windows running the SDK bu
 
 ### Added
 
-- Add Claude Opus 5 across the Anthropic, Claude Code, Bedrock, Vertex, Cline, and OpenRouter providers, including 1M context window variants.
+- Add Claude Opus 5 across the Anthropic, Claude Code, Bedrock, Vertex, IndusCode, and OpenRouter providers, including 1M context window variants.
 - Add Moonshot Kimi K3 support.
 - Include the host plugin version in telemetry events.
 
@@ -489,7 +489,7 @@ These land through SDK v0.0.74 and therefore apply to windows running the SDK bu
 
 ### Added
 
-- Add telemetry to track when Cline reaches the consecutive mistake limit.
+- Add telemetry to track when IndusCode reaches the consecutive mistake limit.
 
 ## [4.0.9]
 
@@ -499,7 +499,7 @@ These land through SDK v0.0.74 and therefore apply to windows running the SDK bu
 
 ### Changed
 
-- Soften and shorten the message shown when Cline hits the consecutive mistake limit.
+- Soften and shorten the message shown when IndusCode hits the consecutive mistake limit.
 
 ### Fixed
 
@@ -516,13 +516,13 @@ These land through SDK v0.0.74 and therefore apply to windows running the SDK bu
 
 ### Added
 
-- Add a ClinePass limit-reached error with a one-click option to switch to Cline usage-based billing.
-- Allow selecting Cline free models on the ClinePass provider, organized into Subscribed and Free tabs with model descriptions.
+- Add a IndusCodePass limit-reached error with a one-click option to switch to IndusCode usage-based billing.
+- Allow selecting IndusCode free models on the IndusCodePass provider, organized into Subscribed and Free tabs with model descriptions.
 
 ### Changed
 
-- Refine ClinePass onboarding and provider settings copy, and open the "learn more" link via the in-app URL handler.
-- Remove the Cline model picker recommendation copy.
+- Refine IndusCodePass onboarding and provider settings copy, and open the "learn more" link via the in-app URL handler.
+- Remove the IndusCode model picker recommendation copy.
 
 ### Removed
 
@@ -544,25 +544,25 @@ These land through SDK v0.0.74 and therefore apply to windows running the SDK bu
 
 ### Changed
 
-- Fully remove the ClinePass feature flag so ClinePass is available everywhere in the UI — onboarding, settings, the welcome promo banner, and the credit-limit "Switch to ClinePass" action.
+- Fully remove the IndusCodePass feature flag so IndusCodePass is available everywhere in the UI — onboarding, settings, the welcome promo banner, and the credit-limit "Switch to IndusCodePass" action.
 
 ## [4.0.3]
 
 ### Changed
 
-- Enable the ClinePass provider for all users by removing the feature-flag gate that previously fell back to the standard Cline provider.
+- Enable the IndusCodePass provider for all users by removing the feature-flag gate that previously fell back to the standard IndusCode provider.
 
 ## [4.0.2]
 
 ### Added
 
 - Add reasoning effort support (including `xhigh`) for DeepSeek thinking models.
-- Improve the ClinePass provider experience with clearer reasoning controls and model selection.
+- Improve the IndusCodePass provider experience with clearer reasoning controls and model selection.
 
 ### Fixed
 
-- Show reasoning effort controls for ClinePass models and align ClinePass model resolution with the rest of the provider.
-- Prefer canonical Cline Z.ai model ids and polish ClinePass and Z.ai model metadata.
+- Show reasoning effort controls for IndusCodePass models and align IndusCodePass model resolution with the rest of the provider.
+- Prefer canonical IndusCode Z.ai model ids and polish IndusCodePass and Z.ai model metadata.
 - Fix environment variable replacement in the webview.
 - Default focus chain settings in webview state so the toggle reflects the correct value on load.
 
@@ -576,19 +576,19 @@ These land through SDK v0.0.74 and therefore apply to windows running the SDK bu
 
 ### Added
 
-- Add the SDK-backed VS Code extension runtime. Cline now runs tasks through the shared Cline SDK session layer for agent turns, tools, Plan/Act mode coordination, MCP, checkpoints, telemetry, provider changes, compaction, mistake limits, and task history.
-- Add ClinePass to the VS Code extension, including onboarding, provider selection, signup and subscription handoff, live model lists, entitlement and organization error states, out-of-credit prompts, and clearer ClinePass auth/error handling.
+- Add the SDK-backed VS Code extension runtime. IndusCode now runs tasks through the shared IndusCode SDK session layer for agent turns, tools, Plan/Act mode coordination, MCP, checkpoints, telemetry, provider changes, compaction, mistake limits, and task history.
+- Add IndusCodePass to the VS Code extension, including onboarding, provider selection, signup and subscription handoff, live model lists, entitlement and organization error states, out-of-credit prompts, and clearer IndusCodePass auth/error handling.
 - Add the Customize marketplace for discovering and managing Skills, MCP servers, and Plugins from the extension, including installed/marketplace tabs, search and filtering, install/uninstall flows, enable/disable controls, and support for plugin-bundled skills.
-- Cline Plugins: Plugins let you extend Cline with custom tools, workflows, skills, and MCP-powered capabilities tailored to your team or project. Install them from the new Customize marketplace to add specialized behavior, connect external services, and package reusable automations—so Cline can do more than code: it can adapt to the way you work.
-- Add queued prompts in chat. Messages submitted while Cline is already working are now queued, shown while the current turn streams, and can be cancelled before they run.
+- IndusCode Plugins: Plugins let you extend IndusCode with custom tools, workflows, skills, and MCP-powered capabilities tailored to your team or project. Install them from the new Customize marketplace to add specialized behavior, connect external services, and package reusable automations—so IndusCode can do more than code: it can adapt to the way you work.
+- Add queued prompts in chat. Messages submitted while IndusCode is already working are now queued, shown while the current turn streams, and can be cancelled before they run.
 - Add edit-and-regenerate support for previous user messages, with clearer Reset Chat and Reset Code actions.
 - Add generic SDK provider settings and model-catalog support so more providers can share the same model picker, reasoning controls, dynamic model IDs, provider config persistence, and custom model handling.
-- Add additional SDK-backed provider exposure and model/provider updates, including ClinePass models, refreshed Cline catalog data, Fireworks GLM 5.2, Kimi K2.6 Fast, Kimi K2.7 Code, Qwen 3.7 Plus, MiniMax M3 updates, SAP AI Core wiring, LiteLLM model fetching, Codex OAuth credentials, and OpenAI-compatible model settings.
+- Add additional SDK-backed provider exposure and model/provider updates, including IndusCodePass models, refreshed IndusCode catalog data, Fireworks GLM 5.2, Kimi K2.6 Fast, Kimi K2.7 Code, Qwen 3.7 Plus, MiniMax M3 updates, SAP AI Core wiring, LiteLLM model fetching, Codex OAuth credentials, and OpenAI-compatible model settings.
 - Add MCP support for plugins and shared marketplace install/uninstall plumbing used by the VS Code extension.
 
 ### Changed
 
-- Migrate the VS Code extension from the legacy task implementation to the shared Cline SDK and move the extension build/package workflow to Bun.
+- Migrate the VS Code extension from the legacy task implementation to the shared IndusCode SDK and move the extension build/package workflow to Bun.
 - Rework Plan/Act mode handling through SDK coordinators, including closer CLI parity and automatic continuation when switching from Plan to Act.
 - Rework provider and model configuration around `providers.json`, the model catalog, and SDK session config so settings are preserved consistently across provider switches and active sessions can restart when the selected provider changes.
 - Simplify provider settings UI by replacing many provider-specific views with shared generic settings components and consistent reasoning selectors.
@@ -643,7 +643,7 @@ These land through SDK v0.0.74 and therefore apply to windows running the SDK bu
 
 ### Added
 
-- Add a debug section in settings for Cline testers.
+- Add a debug section in settings for IndusCode testers.
 
 ### Fixed
 
@@ -662,7 +662,7 @@ These land through SDK v0.0.74 and therefore apply to windows running the SDK bu
 
 ### Changed
 
-- Always use the upstream Cline recommended models endpoint instead of gating it behind a feature flag.
+- Always use the upstream IndusCode recommended models endpoint instead of gating it behind a feature flag.
 
 ## [3.87.0]
 
@@ -695,7 +695,7 @@ These land through SDK v0.0.74 and therefore apply to windows running the SDK bu
 
 ### Fixed
 
-- Show prompt-cache support for Qwen 3.7 Max in the Cline provider.
+- Show prompt-cache support for Qwen 3.7 Max in the IndusCode provider.
 - Fix the VS Code nightly publish workflow startup permissions.
 
 ### Changed
@@ -732,7 +732,7 @@ These land through SDK v0.0.74 and therefore apply to windows running the SDK bu
 
 ### Changed
 
-- Remove the Cline Kanban launch modal and bundled demo media from the VS Code extension startup flow.
+- Remove the IndusCode Kanban launch modal and bundled demo media from the VS Code extension startup flow.
 
 ## [3.83.0]
 
@@ -778,7 +778,7 @@ These land through SDK v0.0.74 and therefore apply to windows running the SDK bu
 
 ### Changed
 
-- Improve cline-core memory diagnostics used by the extension runtime:
+- Improve induscode-core memory diagnostics used by the extension runtime:
   - enable near-heap-limit heap snapshots
   - add periodic memory usage logging
   - log discovered heap snapshots on abnormal exits for easier OOM debugging
@@ -789,11 +789,11 @@ These land through SDK v0.0.74 and therefore apply to windows running the SDK bu
 
 - Wire up remote `globalSkills` from enterprise remote config with full UI, toggle support, and system prompt integration — enterprise-managed skills now appear under a dedicated "Enterprise Skills" section and support `alwaysEnabled` enforcement
 - Onboarding flow now uses dynamically fetched recommended models instead of a hardcoded list, with a fallback to the welcome view on failure
-- Add dedicated "Quota Exceeded" error message in the chat error UI when Cline account spend caps are hit
+- Add dedicated "Quota Exceeded" error message in the chat error UI when IndusCode account spend caps are hit
 
 ### Fixed
 
-- Fix OOM crashes during long conversations by setting `--max-old-space-size=8192` for the cline-core Node.js process (was defaulting to ~2 GB)
+- Fix OOM crashes during long conversations by setting `--max-old-space-size=8192` for the induscode-core Node.js process (was defaulting to ~2 GB)
 - Show detailed error information in the chat error row instead of a generic caught error message
 - Update `axios` to 1.15.0 across all packages
 
@@ -813,7 +813,7 @@ These land through SDK v0.0.74 and therefore apply to windows running the SDK bu
 
 ### Fixed
 
-- Fix cache reflection for Cline and Vercel API handlers
+- Fix cache reflection for IndusCode and Vercel API handlers
 - Fix stuck `command_output` ask when terminal command ends unexpectedly
 - Add `use_subagents` to system prompt for GLM, Hermes, and XS models
 - Fix action injection security risk
@@ -853,7 +853,7 @@ These land through SDK v0.0.74 and therefore apply to windows running the SDK bu
 
 ### Added
 
-- Add Cline Kanban launch modal in webview; CLI now launches Kanban by default with a migration view
+- Add IndusCode Kanban launch modal in webview; CLI now launches Kanban by default with a migration view
 - Add toggle to disable feature tips in chat
 - Add repeated tool call loop detection to prevent infinite loops wasting tokens
 
@@ -878,13 +878,13 @@ These land through SDK v0.0.74 and therefore apply to windows running the SDK bu
 ## [3.74.0]
 
 ### Added
-- Implement dynamic free model detection for Cline API
+- Implement dynamic free model detection for IndusCode API
 - Add file read deduplication cache to prevent repeated reads
 - Add feature tips tooltip during thinking state
 
 ### Fixed
-- Replace error message when not logged in to Cline
-- Align ClineRulesToggleModal padding with ServersToggleModal
+- Replace error message when not logged in to IndusCode
+- Align IndusCodeRulesToggleModal padding with ServersToggleModal
 - Skip WebP for GLM and Devstral models running through llama.cpp
 - Respect user-configured context window in LiteLLM getModel()
 - Honor explicit model IDs outside static catalog in W&B provider
@@ -895,7 +895,7 @@ These land through SDK v0.0.74 and therefore apply to windows running the SDK bu
 ### Added
 
 - Added W&B Inference by CoreWeave as a new API provider with 17 models
-- Improved parallel tool calling support for OpenRouter and Cline providers
+- Improved parallel tool calling support for OpenRouter and IndusCode providers
 
 ### Fixed
 
@@ -939,7 +939,7 @@ These land through SDK v0.0.74 and therefore apply to windows running the SDK bu
 
 ### Added
 
-- New Cline API docs: Getting Started, Auth, Chat Completions, Models, Errors, and SDK Examples
+- New IndusCode API docs: Getting Started, Auth, Chat Completions, Models, Errors, and SDK Examples
 - Hook payloads now include `model.provider` and `model.slug` 
 - Token/cost updates now happen immediately as usage chunks arrive, not after tool execution
 
@@ -960,9 +960,9 @@ These land through SDK v0.0.74 and therefore apply to windows running the SDK bu
 
 ### Added
 
-- Add `User-Agent` header to requests sent to the Cline backend
+- Add `User-Agent` header to requests sent to the IndusCode backend
 - Add default auto-tag workflow for publish release flow
-- Show Cline SDK docs on the Cline page
+- Show IndusCode SDK docs on the IndusCode page
 
 ### Fixed
 
@@ -973,14 +973,14 @@ These land through SDK v0.0.74 and therefore apply to windows running the SDK bu
 
 ### Changed
 
-- Update Cline SDK docs
+- Update IndusCode SDK docs
 - Improve hooks support for Windows PowerShell
 
 ## [3.68.0]
 
 ### Added
 
-- Add dynamic Cline provider model fetching from Cline endpoint
+- Add dynamic IndusCode provider model fetching from IndusCode endpoint
 - Add additional Markdown formatting in CLI
 - Add focus indicator on action buttons in extension
 
@@ -989,7 +989,7 @@ These land through SDK v0.0.74 and therefore apply to windows running the SDK bu
 - Clear all OCA secrets on auth refresh failure to prevent re-auth loops
 - Resolve "Could not find the file context" error in Explain Changes
 - Use `JSON_SCHEMA` for `yaml.load` to prevent unsafe deserialization
-- Fetch model info from API in CLI headless auth for Cline and Vercel providers
+- Fetch model info from API in CLI headless auth for IndusCode and Vercel providers
 - Generate commit message from staged changes only when staging exists
 - Update stale `maxTokens` values for Claude 3.7+ models across Anthropic, Bedrock, Vertex, and SAP AI Core
 - Use `model.info.maxTokens` for OpenRouter instead of hardcoded `8192`
@@ -1002,7 +1002,7 @@ These land through SDK v0.0.74 and therefore apply to windows running the SDK bu
 
 ### Added
 
-- Added Cline SDK API interface for programmatic access to Cline features and tools, enabling integration into custom applications.
+- Added IndusCode SDK API interface for programmatic access to IndusCode features and tools, enabling integration into custom applications.
 - Added Codex 5.3 model support
 
 ### Fixed
@@ -1021,7 +1021,7 @@ These land through SDK v0.0.74 and therefore apply to windows running the SDK bu
 - Fetch featured models from backend with local fallback
 - Add /q command to quit CLI
 - Add MCP enterprise configuration details
-- Pull Cline's recommended models from internal endpoint
+- Pull IndusCode's recommended models from internal endpoint
 - Add dynamic flag to adjust banner cache duration
 
 ### Fixed
@@ -1032,7 +1032,7 @@ These land through SDK v0.0.74 and therefore apply to windows running the SDK bu
 - Fix CLI yolo mode to not persist yolo setting to disk
 - Fix inline focus-chain slider within its feature row
 - Fix Gemini 3.1 Pro compatibility
-- Fix Cline auth with ACP flag
+- Fix IndusCode auth with ACP flag
 
 ### Changed
 
@@ -1138,7 +1138,7 @@ These land through SDK v0.0.74 and therefore apply to windows running the SDK bu
 
 ### Added
 
-- Cline CLI 2.0 now available. Install with `npm install -g cline`
+- IndusCode CLI 2.0 now available. Install with `npm install -g induscode`
 - Anthopic Opus 4.6
 - Minimax-2.1 and Kimi-k2.5 now available for free for a limited time promo
 - Codex-5.3 through ChatGPT subscription
@@ -1159,7 +1159,7 @@ These land through SDK v0.0.74 and therefore apply to windows running the SDK bu
 
 ### Added
 
-- **CLI authentication:** Added Vercel AI Gateway and Cline API key provider support for headless CI/automation workflows
+- **CLI authentication:** Added Vercel AI Gateway and IndusCode API key provider support for headless CI/automation workflows
 - **New model:** Added Kimi-K2.5 model to Moonshot provider (262K context, image support, prompt caching)
 - **Prompt variant:** Added Trinity Large prompt variant for improved tool-calling support
 - **OpenTelemetry:** Added support for custom headers on metrics and logs endpoints
@@ -1169,7 +1169,7 @@ These land through SDK v0.0.74 and therefore apply to windows running the SDK bu
 
 - **LiteLLM:** Fixed thinking configuration not appearing for reasoning-capable models
 - **OpenTelemetry:** Fixed endpoint path handling (no longer incorrectly appends `/v1/logs` or `/v1/metrics`) and ensured logs are sent regardless of VSCode telemetry settings
-- **CLI auth:** Fixed `cline auth` displaying incorrect provider information after configuration
+- **CLI auth:** Fixed `induscode auth` displaying incorrect provider information after configuration
 
 ### Changed
 
@@ -1218,9 +1218,9 @@ These land through SDK v0.0.74 and therefore apply to windows running the SDK bu
 
 ### Added
 
-- Users with ChatGPT Plus or Pro subscriptions can now use GPT-5 models directly through Cline without needing an API key. Authentication is handled via OAuth through OpenAI's authentication system.
+- Users with ChatGPT Plus or Pro subscriptions can now use GPT-5 models directly through IndusCode without needing an API key. Authentication is handled via OAuth through OpenAI's authentication system.
 - Grok models are now moving out of free tier and into paid plans.
-- Introduces comprehensive Jupyter Notebook support for Cline, enabling AI-assisted editing of `.ipynb` files with full cell-level context awareness.
+- Introduces comprehensive Jupyter Notebook support for IndusCode, enabling AI-assisted editing of `.ipynb` files with full cell-level context awareness.
 
 ### Fixed
 
@@ -1251,7 +1251,7 @@ These land through SDK v0.0.74 and therefore apply to windows running the SDK bu
 ### Added
 
 - Add telemetry to track usage of skills feature
-- Add version headers to Cline backend requests
+- Add version headers to IndusCode backend requests
 - Phase in Responses API usage instead of defaulting for every supported model
 
 ### Fixed
@@ -1274,7 +1274,7 @@ These land through SDK v0.0.74 and therefore apply to windows running the SDK bu
 ### Added
 
 - Add Skills system for reusable, on-demand agent instructions
-- Add new websearch tooling in Cline provider
+- Add new websearch tooling in IndusCode provider
 - Add zai-glm-4.7 to Cerebras model list
 - Add model refresh and improve reasoning support for Vercel AI Gateway
 
@@ -1413,7 +1413,7 @@ These land through SDK v0.0.74 and therefore apply to windows running the SDK bu
 - Amazon Nova 2 Lite
 - DeepSeek 3.2 to native tool calling allow list
 - Responses API support for Codex models in OpenAI provider (requires native tool calling)
-- Xmas Special Santa Cline
+- Xmas Special Santa IndusCode
 - Welcome screen UI enhancements
 
 ### Fixed
@@ -1455,7 +1455,7 @@ These land through SDK v0.0.74 and therefore apply to windows running the SDK bu
 
 ## [3.39.1]
 
-- Fix Openrouter and Cline Provider model info
+- Fix Openrouter and IndusCode Provider model info
 
 ## [3.39.0]
 
@@ -1540,7 +1540,7 @@ These land through SDK v0.0.74 and therefore apply to windows running the SDK bu
 
 ## [3.36.0]
 
-- Add: Hooks allow you to inject custom logic into Cline's workflow
+- Add: Hooks allow you to inject custom logic into IndusCode's workflow
 - Add: new provider AIhubmix
 - Add: Use http_proxy, https_proxy and no_proxy in JetBrains
 - Fix: Oca Token Refresh logic
@@ -1571,13 +1571,13 @@ These land through SDK v0.0.74 and therefore apply to windows running the SDK bu
 ## [3.34.1]
 
 - Added support for MiniMax provider with MiniMax-M2 model
-- Remove Cline/code-supernova-1-million model
+- Remove IndusCode/code-supernova-1-million model
 - Changes to allow users to manually enter model names (eg. presets) when using OpenRouter
 
 ## [3.34.0]
 
-- Cline Teams is now free through 2025 for unlimited users. Includes Jetbrains, RBAC, centralized billing and more.
-- Use the “exacto” versions of GLM-4.6, Kimi-K2, and Qwen3-Coder in the Cline provider for the best balance of cost, speed, accuracy and tool-calling.
+- IndusCode Teams is now free through 2025 for unlimited users. Includes Jetbrains, RBAC, centralized billing and more.
+- Use the “exacto” versions of GLM-4.6, Kimi-K2, and Qwen3-Coder in the IndusCode provider for the best balance of cost, speed, accuracy and tool-calling.
 
 ## [3.33.1]
 
@@ -1585,7 +1585,7 @@ These land through SDK v0.0.74 and therefore apply to windows running the SDK bu
 
 ## [3.33.0]
 
-- Added Cline CLI (Preview)
+- Added IndusCode CLI (Preview)
 - Added Subagent support (Experimental)
 - Added Multi-Root Workspaces support (Enable in feature settings)
 - Add auto-retry with exponential backof for failed API requests
@@ -1627,20 +1627,20 @@ These land through SDK v0.0.74 and therefore apply to windows running the SDK bu
 
 ## [3.32.2]
 
-- Add Claude Sonnet 4.5 to Cline/OpenRouter/Anthropic providers
+- Add Claude Sonnet 4.5 to IndusCode/OpenRouter/Anthropic providers
 - Add /task deep link handler
 
 ## [3.32.1]
 
-- Preserve reasoning traces for Cline/OpenRouter/Anthropic providers to maintain conversation integrity
+- Preserve reasoning traces for IndusCode/OpenRouter/Anthropic providers to maintain conversation integrity
 - Add automatically retry on rate limit errors with SAP AI Core provider
-- Fix Cline accounts using stale id token at refresh response
+- Fix IndusCode accounts using stale id token at refresh response
 - Minor UI improvements to Settings and Task Header
 
 ## [3.32.0]
 
 - Added the new code-supernova-1-million stealth model, available for free and delivering a 1 million token context window
-- Changes to inform Cline about commands that are available on your system
+- Changes to inform IndusCode about commands that are available on your system
 
 ## [3.31.1]
 
@@ -1650,7 +1650,7 @@ These land through SDK v0.0.74 and therefore apply to windows running the SDK bu
 
 - UI Improvements: New task header and focus chain design to take up less space for a cleaner experience
 - Voice Mode: Experimental feature that must be enabled in settings for hands-free coding
-- YOLO Mode: Enable in settings to let Cline approve all actions and automatically switch between plan/act mode
+- YOLO Mode: Enable in settings to let IndusCode approve all actions and automatically switch between plan/act mode
 - Fix Oracle Code Assist provider issues
 
 ## [3.30.3]
@@ -1684,8 +1684,8 @@ These land through SDK v0.0.74 and therefore apply to windows running the SDK bu
 ## [3.29.0]
 
 - Updated Baseten provider to fetch models from server
-- Fix: Updated insufficient balance URL for easy Cline balance top-ups
-- Accessibility: Improvements to screen readers in MCP, Cline Rules, workflows, and history views.
+- Fix: Updated insufficient balance URL for easy IndusCode balance top-ups
+- Accessibility: Improvements to screen readers in MCP, IndusCode Rules, workflows, and history views.
 
 ## [3.28.4]
 
@@ -1709,7 +1709,7 @@ These land through SDK v0.0.74 and therefore apply to windows running the SDK bu
 
 ## [3.28.0]
 
-- Synchronized Task History: Real-time task history synchronization across all Cline instances
+- Synchronized Task History: Real-time task history synchronization across all IndusCode instances
 - Optimized GPT-5 Integration: Fine-tuned system prompts for improved performance with GPT-5 model family
 - Deep Planning Improvements: Optimized prompts for Windows/PowerShell environments and dependency exclusion
 - Streamlined UI Experience: ESC key navigation, cleaner approve/reject buttons, and improved editor panel focus
@@ -1742,11 +1742,11 @@ These land through SDK v0.0.74 and therefore apply to windows running the SDK bu
 
 ## [3.26.7]
 
-- Add 200k context window variant for Claude Sonnet 4 to OpenRouter and Cline providers
+- Add 200k context window variant for Claude Sonnet 4 to OpenRouter and IndusCode providers
 
 ## [3.26.6]
 
-- Add free Grok Coder model to Cline provider for users looking for a fast, free coding model option
+- Add free Grok Coder model to IndusCode provider for users looking for a fast, free coding model option
 - Fix GPT-5 models not respecting auto-compact setting when enabled, improving context window management
 - Fix provider retry attempts not showing proper user feedback during rate limiting scenarios
 - Improve markdown and code block styling to automatically adapt when switching VS Code themes
@@ -1772,8 +1772,8 @@ These land through SDK v0.0.74 and therefore apply to windows running the SDK bu
 ## [3.26.2]
 
 - Improve OpenRouter model parsing to show reasoning budget sliders for all models that support thinking, not just Claude models
-- Fix OpenRouter context window error handling to properly extract error codes from error messages, resolving "Unexpected API Response" errors with GPT-5 on Cline provider
-- Fix GPT-5 context window configuration for OpenAI/OpenRouter/Cline providers to use correct 272K limit
+- Fix OpenRouter context window error handling to properly extract error codes from error messages, resolving "Unexpected API Response" errors with GPT-5 on IndusCode provider
+- Fix GPT-5 context window configuration for OpenAI/OpenRouter/IndusCode providers to use correct 272K limit
 - Remove max tokens configuration from Sonic Alpha model
 - Add Go language support to deep-planning feature (Thanks @yuvalman!)
 - Fix typo in Focus Chain settings page (Thanks @joyceerhl!)
@@ -1790,7 +1790,7 @@ These land through SDK v0.0.74 and therefore apply to windows running the SDK bu
 ## [3.26.0]
 
 - Add Z AI as a new API provider with GLM-4.5 and GLM-4.5 Air models, offering competitive performance with cost-effective pricing especially for Chinese language tasks (Thanks @jues!)
-- Add Cline Sonic Alpha model - experimental advanced model with 262K context window for complex coding tasks
+- Add IndusCode Sonic Alpha model - experimental advanced model with 262K context window for complex coding tasks
 - Add support for LM Studio local models from v0 API endpoint with configurable max tokens
 - Fix Ollama context window configuration not being used in requests
 
@@ -1802,7 +1802,7 @@ These land through SDK v0.0.74 and therefore apply to windows running the SDK bu
 ## [3.25.2]
 
 - Fix attempt_completion showing twice in chat due to partial logic not being handled correctly
-- Fix OpenRouter showing cline credits error after 402 response
+- Fix OpenRouter showing induscode credits error after 402 response
 
 ## [3.25.1]
 
@@ -1812,10 +1812,10 @@ These land through SDK v0.0.74 and therefore apply to windows running the SDK bu
 
 ## [3.25.0]
 
-- **Focus Chain:** Automatically creates and maintains todo lists as you work with Cline, breaking down complex tasks into manageable steps with real-time progress tracking
+- **Focus Chain:** Automatically creates and maintains todo lists as you work with IndusCode, breaking down complex tasks into manageable steps with real-time progress tracking
 - **Auto Compact:** Intelligently manages conversation context to prevent token limit errors by automatically compacting older messages while preserving important context
 - **Deep Planning:** New `/deep-planning` slash command for structured 4-step implementation planning that integrates with Focus Chain for automatic progress tracking
-- Add support for 200k context window for Claude Sonnet 4 in OpenRouter and Cline providers
+- Add support for 200k context window for Claude Sonnet 4 in OpenRouter and IndusCode providers
 - Add option to configure custom base URL for Requesty provider
 
 ## [3.24.0]
@@ -1840,7 +1840,7 @@ These land through SDK v0.0.74 and therefore apply to windows running the SDK bu
 - Implemented a retry strategy for Cerebras to handle rate limit issues due to its generation speed
 - Add support for GPT-5 models to SAP AI Core Provider
 - Support sending context to active webview when editor panels are opened.
-- Fix bug where running out of credits on Cline accounts would show '402 empty body' response instead of 'buy credits' component
+- Fix bug where running out of credits on IndusCode accounts would show '402 empty body' response instead of 'buy credits' component
 - Fix LiteLLM Proxy Provider Cost Tracking
 
 ## [3.21.0]
@@ -1851,7 +1851,7 @@ These land through SDK v0.0.74 and therefore apply to windows running the SDK bu
 
 ## [3.20.13]
 
-- Fix prompt caching support for Opus 4.1 on OpenRouter/Cline
+- Fix prompt caching support for Opus 4.1 on OpenRouter/IndusCode
 
 ## [3.20.12]
 
@@ -1943,13 +1943,13 @@ Add Opus 4.1 through Claude Code
 ## [3.19.6]
 
 - Improve Kimi K2 model provider routing with additional provider options for better availability and performance
-- Fixed terminal bug where Cline failed to capture output of certain fast-running commands
+- Fixed terminal bug where IndusCode failed to capture output of certain fast-running commands
 - Fixed bug with increasing auto approved number of requests not resetting the counter mid-task
 
 ## [3.19.5]
 
 - Add Groq as a new API provider with support for all Groq models including Kimi-K2
-- Add user role display in organization UI for Cline account users
+- Add user role display in organization UI for IndusCode account users
 - Fix message dialogs not showing option buttons properly
 - Fix authentication issues when using multiple VSCode windows
 
@@ -1963,7 +1963,7 @@ Add Opus 4.1 through Claude Code
 
 ## [3.19.2]
 
-- Show request ID in error messages returned by Cline Accounts API to help debug user reported issues
+- Show request ID in error messages returned by IndusCode Accounts API to help debug user reported issues
 
 ## [3.19.1]
 
@@ -1971,26 +1971,26 @@ Add Opus 4.1 through Claude Code
 
 ## [3.19.0]
 
-- Add Kimi-K2 as a recommended model in the Cline Provider, and route to Together/Groq for 131k context window and high throughput
+- Add Kimi-K2 as a recommended model in the IndusCode Provider, and route to Together/Groq for 131k context window and high throughput
 - Added API Key support for Bedrock integration
 
 ## [3.18.14]
 
-- Fix bug where Cline account users logged in with invalid token would not be shown as logged out in webview presentation layer
+- Fix bug where IndusCode account users logged in with invalid token would not be shown as logged out in webview presentation layer
 
 ## [3.18.13]
 
-- Fix authentication issue where Cline accounts users would keep getting logged out or seeing 'Unexpected API response' errors
+- Fix authentication issue where IndusCode accounts users would keep getting logged out or seeing 'Unexpected API response' errors
 
 ## [3.18.12]
 
-- Fix flaky organization switching behavior in Cline provider that caused UI inconsistencies and double loading
+- Fix flaky organization switching behavior in IndusCode provider that caused UI inconsistencies and double loading
 - Fix insufficient credits error display to properly show error messages when account balance is too low
-- Improve credit balance validation and error handling for Cline provider requests
+- Improve credit balance validation and error handling for IndusCode provider requests
 
 ## [3.18.11]
 
-- Fix authentication issues with Cline provider by ensuring the client always uses the latest auth token
+- Fix authentication issues with IndusCode provider by ensuring the client always uses the latest auth token
 
 ## [3.18.10]
 
@@ -1999,8 +1999,8 @@ Add Opus 4.1 through Claude Code
 
 ## [3.18.9]
 
-- Fix streaming reliability issues with Cline provider that could cause connection problems during long conversations
-- Fix authentication error handling for Cline provider to show clearer error messages when not signed in and prevent recursive failed requests
+- Fix streaming reliability issues with IndusCode provider that could cause connection problems during long conversations
+- Fix authentication error handling for IndusCode provider to show clearer error messages when not signed in and prevent recursive failed requests
 - Remove incorrect pricing display for SAP AI Core provider since it uses non-USD "Capacity Units" that cannot be directly converted (Thanks @ncryptedV1!)
 
 ## [3.18.8]
@@ -2013,7 +2013,7 @@ Add Opus 4.1 through Claude Code
 
 ## [3.18.6]
 
-- Update request header to include `"ai-client-type": "Cline"` to SAP Api Provider
+- Update request header to include `"ai-client-type": "IndusCode"` to SAP Api Provider
 - Add organization accounts
 
 ## [3.18.5]
@@ -2025,7 +2025,7 @@ Add Opus 4.1 through Claude Code
 ## [3.18.4]
 
 - Add support for Gemini 2.5 Pro and Flash to SAP AI Core Provider
-- Fix logging in with Cline account not getting past welcome screen
+- Fix logging in with IndusCode account not getting past welcome screen
 
 ## [3.18.3]
 
@@ -2050,9 +2050,9 @@ Add Opus 4.1 through Claude Code
 
 ## [3.18.0]
 
-- Optimized Cline to work with the Claude 4 family of models, resulting in improved performance, reliability, and new capabilities
+- Optimized IndusCode to work with the Claude 4 family of models, resulting in improved performance, reliability, and new capabilities
 - Added a new Gemini CLI provider that allows you to use your local Gemini CLI authentication to access Gemini models for free (Thanks @google-gemini!)
-- Optimized Cline to work with the Gemini 2.5 family of models
+- Optimized IndusCode to work with the Gemini 2.5 family of models
 - Updated the default and recommended model to Claude 4 Sonnet for the best performance
 - Fix race condition in Plan/Act mode switching
 - Improve robustness of search and replace parsing
@@ -2077,7 +2077,7 @@ Add Opus 4.1 through Claude Code
 
 - Add Claude Code as a new API provider, allowing integration with Anthropic's Claude Code CLI tool and Claude Max Plan (Thanks @BarreiroT!)
 - Add SAP AI Core as a new API provider with support for Claude and GPT models (Thanks @schardosin!)
-- Add configurable default terminal profile setting, allowing users to specify which terminal Cline should use (Thanks @valinha!)
+- Add configurable default terminal profile setting, allowing users to specify which terminal IndusCode should use (Thanks @valinha!)
 - Add terminal output size constraint setting to limit how much terminal output is processed
 - Add MCP Rich Display settings to the settings page for persistent configuration (Thanks @Vl4diC0de!)
 - Improve copy button functionality with refactored reusable components (Thanks @shouhanzen!)
@@ -2088,12 +2088,12 @@ Add Opus 4.1 through Claude Code
 - Fix checkpoint saving to properly track all file changes
 - Improve file context warnings to reduce diff edit errors when resuming restored tasks
 - Clear chat input when switching between Plan/Act modes within a task
-- Exclude .clinerules files from checkpoint tracking
+- Exclude .induscoderules files from checkpoint tracking
 
 ## [3.17.13]
 
 - Add Thinking UX for Gemini models, providing visual feedback during model reasoning
-- Add support for Notifications MCP integration with Cline
+- Add support for Notifications MCP integration with IndusCode
 - Add prompt caching indicator for Grok 3 models
 - Sort MCP marketplace by newest listings by default for easier discovery of recent servers
 - Update O3 model family pricing to reflect latest OpenAI rates
@@ -2104,7 +2104,7 @@ Add Opus 4.1 through Claude Code
 
 ## [3.17.12]
 
-- **Free Grok Model Available!** Access Grok 3 completely free through the Cline provider
+- **Free Grok Model Available!** Access Grok 3 completely free through the IndusCode provider
 - Add collapsible MCP response panels to keep conversations focused on the main AI responses while still allowing access to detailed MCP output (Thanks @valinha!)
 - Prioritize active files (open tabs) at the top of the file context menu when using @ mentions (Thanks @abeatrix!)
 - Fix context menu to properly default to "File" option instead of incorrectly selecting "Git Commits"
@@ -2119,7 +2119,7 @@ Add Opus 4.1 through Claude Code
 
 - Add support for Qwen 3 series models with thinking mode options (Thanks @Jonny-china!)
 - Add new AskSage models: Claude 4 Sonnet, Claude 4 Opus, GPT 4.1, Gemini 2.5 Pro (Thanks @swhite24!)
-- Add VSCode walkthrough to help new users get started with Cline
+- Add VSCode walkthrough to help new users get started with IndusCode
 - Add support for streamable MCP servers
 - Improve Ollama model selection with filterable dropdown instead of radio buttons (Thanks @paulgear!)
 - Add setting to disable aggressive terminal reuse to help users experiencing task lockout issues
@@ -2127,7 +2127,7 @@ Add Opus 4.1 through Claude Code
 
 ## [3.17.9]
 
-- Aligning Cline to work with Claude 4 model family (Experimental)
+- Aligning IndusCode to work with Claude 4 model family (Experimental)
 - Add task timeline scrolling feature
 - Add support for uploading CSV and XLSX files for data analysis and processing
 - Add stable Grok-3 models to xAI provider (grok-3, grok-3-fast, grok-3-mini, grok-3-mini-fast) and update default model from grok-3-beta to grok-3 (Thanks @PeterDaveHello!)
@@ -2182,7 +2182,7 @@ Add Opus 4.1 through Claude Code
 
 ## [3.17.1]
 
-- Add prompt caching for Claude 4 models on Cline and OpenRouter providers
+- Add prompt caching for Claude 4 models on IndusCode and OpenRouter providers
 - Increase max tokens for Claude Opus 4 from 4096 to 8192
 
 ## [3.17.0]
@@ -2205,9 +2205,9 @@ Add Opus 4.1 through Claude Code
 ## [3.16.2]
 
 - Add support for Gemini 2.5 Flash Preview 05-20 model to Vertex AI provider with massive 1M token context window (Thanks @omercelik!)
-- Add keyboard shortcut (Cmd+') to quickly focus Cline from anywhere in VS Code
-- Add lightbulb actions for selected text with options to "Add to Cline", "Explain with Cline", and "Improve with Cline"
-- Automatically focus Cline window after extension updates
+- Add keyboard shortcut (Cmd+') to quickly focus IndusCode from anywhere in VS Code
+- Add lightbulb actions for selected text with options to "Add to IndusCode", "Explain with IndusCode", and "Improve with IndusCode"
+- Automatically focus IndusCode window after extension updates
 
 ## [3.16.1]
 
@@ -2251,7 +2251,7 @@ Add Opus 4.1 through Claude Code
 - Added details to auto approve menu and more sensible default controls
 - Add detailed configuration options for LiteLLM provider
 - Add webview telemetry for users who have opted in to telemetry
-- Update Gemini in OpenRouter/Cline providers to use implicit caching
+- Update Gemini in OpenRouter/IndusCode providers to use implicit caching
 - Fix freezing issues during rendering of large streaming text
 - Fix grey screen webview crashes by releasing memory after every diff edit
 - Fix breaking out of diff auto-scroll
@@ -2271,9 +2271,9 @@ Add Opus 4.1 through Claude Code
 - Add ability to favorite a task, allowing it to be kept when clearing all tasks
 - Add npm script for issue creation (Thanks DaveFres!)
 - Add confirmation dialog to Delete All History button
-- Add ability to allow the user to type their next message into the chat while Cline is taking action
-- Add ability to generate commit message via cline (Thanks zapp88!)
-- Add improvements to caching for gemini models on OpenRouter and Cline providers
+- Add ability to allow the user to type their next message into the chat while IndusCode is taking action
+- Add ability to generate commit message via induscode (Thanks zapp88!)
+- Add improvements to caching for gemini models on OpenRouter and IndusCode providers
 - Add improvements to allow scrolling the file being edited.
 - Add ui for windsurf and cursor rules
 - Add mistral medium-3 model
@@ -2285,7 +2285,7 @@ Add Opus 4.1 through Claude Code
 - Update fetch cache details from generation endpoint
 - Update converted docs to Mintlify
 - Update the isOminiModel to include o4-mini model (Thanks PeterDaveHello!)
-- Update file size that can be read by Cline, allowing larger files
+- Update file size that can be read by IndusCode, allowing larger files
 - Update defaults for bedrock API models (Thanks Watany!)
 - Update to extend ReasoningEffort to non-o3-mini reasoning models for all providers (Thanks PeterDaveHello!)
 - Update to give error when a user tries to upload an image larger than 7500x7500 pixels
@@ -2306,19 +2306,19 @@ Add Opus 4.1 through Claude Code
 - Add support for custom model ID in AWS Bedrock provider, enabling use of Application Inference Profile (Thanks @clicube!)
 - Add more robust caching & cache tracking for gemini & vertex providers
 - Add support for LaTeX rendering
-- Add support for custom API request timeout. Timeouts were 15-30s, but can now be configured via settings for OpenRouter/Cline & Ollama (Thanks @WingsDrafterwork!)
+- Add support for custom API request timeout. Timeouts were 15-30s, but can now be configured via settings for OpenRouter/IndusCode & Ollama (Thanks @WingsDrafterwork!)
 - Add truncation notice when truncating manually
 - Add a timeout setting for the terminal connection, allowing users to set a time to wait for terminal startup
 - Add copy button to code blocks
 - Add copy button to markdown blocks (Thanks @weshoke!)
 - Add checkpoints to more messages
 - Add slash command to create a new rules file (/newrule)
-- Add cache ui for open router and cline provider
+- Add cache ui for open router and induscode provider
 - Add Amazon Nova Premier model to Bedrock (Thanks @watany!)
 - Add support for cursorrules and windsurfrules
 - Add support for batch history deletion (Thanks @danix800!)
 - Improve Drag & Drop experience
-- Create clinerules folder when creating new rule if it's needed
+- Create induscoderules folder when creating new rule if it's needed
 - Enable pricing calculation for gemini and vertex providers
 - Refactor message handling to not show the MCP View of the server modal
 - Migrate the addRemoteServer to protobus (Thanks @DaveFres!)
@@ -2334,7 +2334,7 @@ Add Opus 4.1 through Claude Code
 
 - Add download counts to MCP marketplace items
 - Add `/compact` command
-- Add prompt caching to gemini models in cline / openrouter providers
+- Add prompt caching to gemini models in induscode / openrouter providers
 - Add tooltips to bottom row menu
 
 ## [3.13.2]
@@ -2342,7 +2342,7 @@ Add Opus 4.1 through Claude Code
 - Add Gemini 2.5 Flash model to Vertex and Gemini Providers (Thanks monotykamary!)
 - Add Caching to gemini provider (Thanks arafatkatze!)
 - Add thinking budget support to Gemini Models (Thanks monotykamary!)
-- Add !include .file directive support for .clineignore (Thanks watany-dev!)
+- Add !include .file directive support for .induscodeignore (Thanks watany-dev!)
 - Improve slash command functionality
 - Improve prompting for new task tool
 - Fix o1 temperature being passed to the azure api (Thanks treeleaves30760!)
@@ -2362,11 +2362,11 @@ Add Opus 4.1 through Claude Code
 
 ## [3.13.0]
 
-- Add Cline rules popover under the chat field, allowing you to easily add, enable & disable workspace level or global rule files
+- Add IndusCode rules popover under the chat field, allowing you to easily add, enable & disable workspace level or global rule files
 - Add new slash command menu letting you type “/“ to do quick actions like creating new tasks
 - Add ability to edit past messages, with options to restore your workspace back to that point
 - Allow sending a message when selecting an option provided by the question or plan tool
-- Add command to jump to Cline's chat input
+- Add command to jump to IndusCode's chat input
 - Add support for OpenAI o3 & 4o-mini (Thanks @PeterDaveHello and @arafatkatze!)
 - Add baseURL option for Google Gemini provider (Thanks @owengo and @olivierhub!)
 - Add support for Azure's DeepSeek model. (Thanks @yt3trees!)
@@ -2380,7 +2380,7 @@ Add Opus 4.1 through Claude Code
 ## [3.12.3]
 
 - Add copy button to MermaidBlock component (Thanks @cacosub7!)
-- Add the ability to fetch from global cline rules files
+- Add the ability to fetch from global induscode rules files
 - Add icon to indicate when a file outside of the users workspace is edited
 
 ## [3.12.2]
@@ -2395,10 +2395,10 @@ Add Opus 4.1 through Claude Code
 
 ## [3.12.0]
 
-- Add favorite toggles for models when using the Cline & OpenRouter providers
+- Add favorite toggles for models when using the IndusCode & OpenRouter providers
 - Add auto-approve options for edits/reads outside of the workspace
 - Improve diff editing animation for large files
-- Add indicator showing number of diff edits when Cline edits a file
+- Add indicator showing number of diff edits when IndusCode edits a file
 - Add streaming support and reasoning effort option to xAI's Grok 3 Mini
 - Add settings button to MCP popover to easily modify installed servers
 - Fix bug where browser tool actions would show unparsed results in the chat view
@@ -2410,13 +2410,13 @@ Add Opus 4.1 through Claude Code
 
 - Redesign checkpoint UI to declutter chat view by using a subtle indicator line that expands to a popover on hover, with a new date indicator for when it was created
 - Add support for xAI's provider's Grok 3 models
-- Add more robust error tracking for users opted in to telemetry (thank you for helping us make Cline better!)
+- Add more robust error tracking for users opted in to telemetry (thank you for helping us make IndusCode better!)
 
 ## [3.10.1]
 
-- Add CMD+' keyboard shortcut to add selected text to Cline
-- Cline now auto focuses the text field when using 'Add to Cline' shortcut
-- Add new 'Create New Task' tool to let Cline start a new task autonomously!
+- Add CMD+' keyboard shortcut to add selected text to IndusCode
+- IndusCode now auto focuses the text field when using 'Add to IndusCode' shortcut
+- Add new 'Create New Task' tool to let IndusCode start a new task autonomously!
 - Fix Mermaid diagram issues
 - Fix Gemini provider cost calculation to take new tiered pricing structure into account
 
@@ -2425,15 +2425,15 @@ Add Opus 4.1 through Claude Code
 - Add setting to let browser tool use local Chrome via remote debugging, enabling session-based browsing. Replaces sessionless Chromium, unlocking debugging and productivity workflows tied to your real browser state.
 - Add new auto-approve option to approve _ALL_ commands (use at your own risk!)
 - Add modal in the chat area to more easily enable or disable MCP servers
-- Add drag and drop of file/folders into cline chat (Thanks eljapi!)
+- Add drag and drop of file/folders into induscode chat (Thanks eljapi!)
 - Add prompt caching for LiteLLM + Claude (Thanks sammcj!)
 - Add Improved context management
 - Fix MCP auto approve toggle issues being out of sync with settings
 
 ## [3.9.2]
 
-- Add recommended models for Cline provider
-- Add ability to detect when user edits files manually so Cline knows to re-read, leading to reduced diff edit errors
+- Add recommended models for IndusCode provider
+- Add ability to detect when user edits files manually so IndusCode knows to re-read, leading to reduced diff edit errors
 - Add improvements to file mention searching for faster searching
 - Add scoring logic to file mentions to sort and exclude results based on relevance
 - Add Support for Bytedance Doubao (Thanks Tunixer!)
@@ -2455,7 +2455,7 @@ Add Opus 4.1 through Claude Code
 - Add UI for adding remote servers
 - Add Mentions Feature Guide and update related documentation
 - Fix bug where menu would open in sidebar and open tab
-- Fix issue with Cline accounts not showing user info in popout tabs
+- Fix issue with IndusCode accounts not showing user info in popout tabs
 - Fix bug where menu buttons wouldn't open view in sidebar
 
 ## [3.8.5]
@@ -2474,7 +2474,7 @@ Add Opus 4.1 through Claude Code
 
 - Add Sambanova Deepseek-V3-0324
 - Add cost calculation support for LiteLLM provider
-- Fix bug where Cline would use plan_mode_response bug without response parameter
+- Fix bug where IndusCode would use plan_mode_response bug without response parameter
 
 ## [3.8.3]
 
@@ -2493,15 +2493,15 @@ Add Opus 4.1 through Claude Code
 
 ## [3.8.0]
 
-- Add 'Add to Cline' as an option when you right-click in a file or the terminal, making it easier to add context to your current task
-- Add 'Fix with Cline' code action - when you see a lightbulb icon in your editor, you can now select 'Fix with Cline' to send the code and associated errors for Cline to fix. (Cursor users can also use the 'Quick Fix (CMD + .)' menu to see this option)
-- Add Account view to display billing and usage history for Cline account users. You can now keep track of credits used and transaction history right in the extension!
-- Add 'Sort underling provider routing' setting to Cline/OpenRouter allowing you to sort provider used by throughput, price, latency, or the default (combination of price and uptime)
+- Add 'Add to IndusCode' as an option when you right-click in a file or the terminal, making it easier to add context to your current task
+- Add 'Fix with IndusCode' code action - when you see a lightbulb icon in your editor, you can now select 'Fix with IndusCode' to send the code and associated errors for IndusCode to fix. (Cursor users can also use the 'Quick Fix (CMD + .)' menu to see this option)
+- Add Account view to display billing and usage history for IndusCode account users. You can now keep track of credits used and transaction history right in the extension!
+- Add 'Sort underling provider routing' setting to IndusCode/OpenRouter allowing you to sort provider used by throughput, price, latency, or the default (combination of price and uptime)
 - Improve rich MCP display with dynamic image loading and support for GIFs
-- Add 'Documentation' menu item to easily access Cline's docs
+- Add 'Documentation' menu item to easily access IndusCode's docs
 - Add OpenRouter's new usage_details feature for more reliable cost reporting
-- Display total space Cline takes on disk next to 'Delete all Tasks' button in History view
-- Fix 'Context Window Exceeded' error for OpenRouter/Cline Accounts (additional support coming soon)
+- Display total space IndusCode takes on disk next to 'Delete all Tasks' button in History view
+- Fix 'Context Window Exceeded' error for OpenRouter/IndusCode Accounts (additional support coming soon)
 - Fix bug where OpenRouter model ID would be set to invalid value
 - Add button to delete MCP servers in a failure state
 
@@ -2512,9 +2512,9 @@ Add Opus 4.1 through Claude Code
 
 ## [3.7.0]
 
-- Cline now displays selectable options when asking questions or presenting a plan, saving you from having to type out responses!
-- Add support for a `.clinerules/` directory to load multiple files at once (thanks @ryo-ma!)
-- Prevent Cline from reading extremely large files into context that would overload context window
+- IndusCode now displays selectable options when asking questions or presenting a plan, saving you from having to type out responses!
+- Add support for a `.induscoderules/` directory to load multiple files at once (thanks @ryo-ma!)
+- Prevent IndusCode from reading extremely large files into context that would overload context window
 - Improve checkpoints loading performance and display warning for large projects not suited for checkpoints
 - Add SambaNova API provider (thanks @saad-noodleseed!)
 - Add VPC endpoint option for AWS Bedrock profiles (thanks @minorunara!)
@@ -2536,11 +2536,11 @@ Add Opus 4.1 through Claude Code
 
 ## [3.6.0]
 
-- Add Cline API as a provider option, allowing new users to sign up and get started with Cline for free
+- Add IndusCode API as a provider option, allowing new users to sign up and get started with IndusCode for free
 - Optimize checkpoints with branch-per-task strategy, reducing storage required and first task load times
 - Fix problem with Plan/Act toggle keyboard shortcut not working in Windows (thanks @yt3trees!)
 - Add new Gemini models to GCP Vertex (thanks @shohei-ihaya!) and Claude models AskSage (thanks @swhite24!)
-- Improve OpenRouter/Cline error reporting
+- Improve OpenRouter/IndusCode error reporting
 
 ## [3.5.1]
 
@@ -2592,7 +2592,7 @@ Add Opus 4.1 through Claude Code
 
 ## [3.3.0]
 
-- Add .clineignore to block Cline from accessing specified file patterns
+- Add .induscodeignore to block IndusCode from accessing specified file patterns
 - Add keyboard shortcut + tooltips for Plan/Act toggle
 - Fix bug where new files won't show up in files dropdown
 - Add automatic retry for rate limited requests (thanks @ViezeVingertjes!)
@@ -2642,7 +2642,7 @@ Add Opus 4.1 through Claude Code
 
 ## [3.2.0]
 
-- Add Plan/Act mode toggle to let you plan tasks with Cline before letting him get to work
+- Add Plan/Act mode toggle to let you plan tasks with IndusCode before letting him get to work
 - Easily switch between API providers and models using a new popup menu under the chat field
 - Add VS Code LM API provider to run models provided by other VS Code extensions (e.g. GitHub Copilot). Shoutout to @julesmons, @RaySinner, and @MrUbens for putting this together!
 - Add on/off toggle for MCP servers to disable them when not in use. Thanks @MrUbens!
@@ -2658,7 +2658,7 @@ Add Opus 4.1 through Claude Code
 
 ## [3.1.7]
 
-- Add ability to change viewport size and headless mode when Cline asks to launch the browser
+- Add ability to change viewport size and headless mode when IndusCode asks to launch the browser
 
 ## [3.1.6]
 
@@ -2667,7 +2667,7 @@ Add Opus 4.1 through Claude Code
 
 ## [3.1.5]
 
-- Fix bug where Cline couldn't read "@/" import path aliases from tool results
+- Fix bug where IndusCode couldn't read "@/" import path aliases from tool results
 
 ## [3.1.4]
 
@@ -2679,7 +2679,7 @@ Add Opus 4.1 through Claude Code
 
 ## [3.1.0]
 
-- Added checkpoints: Snapshots of workspace are automatically created whenever Cline uses a tool
+- Added checkpoints: Snapshots of workspace are automatically created whenever IndusCode uses a tool
 - Compare changes: Hover over any tool use to see a diff between the snapshot and current workspace state
 - Restore options: Choose to restore just the task state, just the workspace files, or both
 - New 'See new changes' button appears after task completion, providing an overview of all workspace changes
@@ -2731,16 +2731,16 @@ Add Opus 4.1 through Claude Code
 
 ## [3.0.0]
 
-- Cline now uses a search & replace diff based approach when editing large files to prevent code deletion issues.
+- IndusCode now uses a search & replace diff based approach when editing large files to prevent code deletion issues.
 - Adds support for a more comprehensive auto-approve configuration, allowing you to specify which tools require approval and which don't.
-- Adds ability to enable system notifications for when Cline needs approval or completes a task.
-- Adds support for a root-level `.clinerules` file that can be used to specify custom instructions for the project.
+- Adds ability to enable system notifications for when IndusCode needs approval or completes a task.
+- Adds support for a root-level `.induscoderules` file that can be used to specify custom instructions for the project.
 
 ## [2.2.0]
 
-- Add support for Model Context Protocol (MCP), enabling Cline to use custom tools like web-search tool or GitHub tool
+- Add support for Model Context Protocol (MCP), enabling IndusCode to use custom tools like web-search tool or GitHub tool
 - Add MCP server management tab accessible via the server icon in the menu bar
-- Add ability for Cline to dynamically create new MCP servers based on user requests (e.g., "add a tool that gets the latest npm docs")
+- Add ability for IndusCode to dynamically create new MCP servers based on user requests (e.g., "add a tool that gets the latest npm docs")
 
 ## [2.1.6]
 
@@ -2765,11 +2765,11 @@ Add Opus 4.1 through Claude Code
 
 ## [2.1.1]
 
-- Add stricter prompt to prevent Cline from editing files during a browser session without first closing the browser
+- Add stricter prompt to prevent IndusCode from editing files during a browser session without first closing the browser
 
 ## [2.1.0]
 
-- Cline now uses Anthropic's new "Computer Use" feature to launch a browser, click, type, and scroll. This gives him more autonomy in runtime debugging, end-to-end testing, and even general web use. Try asking "Look up the weather in Colorado" to see it in action! (Available with Claude 3.5 Sonnet v2)
+- IndusCode now uses Anthropic's new "Computer Use" feature to launch a browser, click, type, and scroll. This gives him more autonomy in runtime debugging, end-to-end testing, and even general web use. Try asking "Look up the weather in Colorado" to see it in action! (Available with Claude 3.5 Sonnet v2)
 
 ## [2.0.19]
 
@@ -2789,7 +2789,7 @@ Add Opus 4.1 through Claude Code
 
 ## [2.0.15]
 
-- Fix bug where modifying Cline's edits would lead him to try to re-apply the edits
+- Fix bug where modifying IndusCode's edits would lead him to try to re-apply the edits
 - Fix bug where weaker models would display file contents before using the write_to_file tool
 - Fix o1-mini and o1-preview errors when using OpenAI native
 
@@ -2815,7 +2815,7 @@ Add Opus 4.1 through Claude Code
 
 ## [2.0.9]
 
-- Update system prompt to try to prevent Cline from lazy coding (`// rest of code here...`)
+- Update system prompt to try to prevent IndusCode from lazy coding (`// rest of code here...`)
 
 ## [2.0.8]
 
@@ -2828,19 +2828,19 @@ Add Opus 4.1 through Claude Code
 
 ## [2.0.6]
 
-- Update URLs to https://github.com/cline/cline
+- Update URLs to https://github.com/induscode/induscode
 
 ## [2.0.5]
 
-- Fixed bug where Cline's edits would stream into the active tab when switching tabs during a write_to_file
+- Fixed bug where IndusCode's edits would stream into the active tab when switching tabs during a write_to_file
 - Added explanation in task continuation prompt that an interrupted write_to_file reverts the file to its original contents, preventing unnecessary re-reads
 - Fixed non-first chunk error handling in case stream fails mid-way through
 
 ## [2.0.0]
 
-- New name! Meet Cline, an AI assistant that can use your CLI and Editor
-- Responses are now streamed with a yellow text decoration animation to keep track of Cline's progress as he edits files
-- New Cancel button to give Cline feedback if he goes off in the wrong direction, giving you more control over tasks
+- New name! Meet IndusCode, an AI assistant that can use your CLI and Editor
+- Responses are now streamed with a yellow text decoration animation to keep track of IndusCode's progress as he edits files
+- New Cancel button to give IndusCode feedback if he goes off in the wrong direction, giving you more control over tasks
 - Re-imagined tool calling prompt resulting in ~40% fewer requests to accomplish tasks + better performance with other models
 - Search and use any model with OpenRouter
 

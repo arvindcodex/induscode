@@ -1,5 +1,5 @@
-import { Int64Request } from "@shared/proto/cline/common"
-import { EditMessageAndRegenerateRequest } from "@shared/proto/cline/task"
+import { Int64Request } from "@shared/proto/induscode/common"
+import { EditMessageAndRegenerateRequest } from "@shared/proto/induscode/task"
 import type React from "react"
 import { useEffect, useMemo, useState } from "react"
 import Thumbnails from "@/components/common/Thumbnails"

@@ -46,7 +46,7 @@ describe("AgentContextUsage", () => {
 	});
 
 	it.each([
-		[499, "stroke-cline-ui-primary"],
+		[499, "stroke-induscode-ui-primary"],
 		[500, "stroke-orange-500"],
 		[750, "stroke-red-500"],
 	])("preserves the desktop warning thresholds at %i tokens", (tokensIn, tone) => {

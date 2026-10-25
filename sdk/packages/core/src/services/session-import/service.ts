@@ -89,7 +89,7 @@ export class SessionImportService {
 	}
 
 	/**
-	 * `tool:sourceId` → existing Cline session id, from prior imports. Reads
+	 * `tool:sourceId` → existing IndusCode session id, from prior imports. Reads
 	 * every row's metadata (not the 2000-row listSessions window) so a marker
 	 * on an old session still prevents a duplicate.
 	 */
@@ -276,7 +276,7 @@ export class SessionImportService {
 
 		// Empty cwd/workspace fails manifest validation and history filters;
 		// sessions whose original directory is unknown live in the shared chat
-		// workspace, exactly like Cline's own project-less sessions.
+		// workspace, exactly like IndusCode's own project-less sessions.
 		let cwd = converted.cwd.trim();
 		if (!cwd) {
 			cwd = await ensureChatWorkspace();
@@ -291,7 +291,7 @@ export class SessionImportService {
 
 		// Resume adopts the row's provider/model, so stamp what the user will
 		// actually run on; both halves must be present to avoid pairing a
-		// Cline provider with a foreign model id.
+		// IndusCode provider with a foreign model id.
 		const resumeProvider = options.provider?.trim();
 		const resumeModel = options.model?.trim();
 		const useResumeTarget = Boolean(resumeProvider && resumeModel);
@@ -302,7 +302,7 @@ export class SessionImportService {
 		// The top-level `source` stays the client surface (desktop); the
 		// history origin records that this session was initiated by an import
 		// and which agent it came from, so the messages file `origin` and
-		// downstream telemetry can separate imported transcripts from Cline's
+		// downstream telemetry can separate imported transcripts from IndusCode's
 		// own — the same shape scheduled runs use (`automation`/`hub-schedule`).
 		const baseMetadata: Record<string, unknown> =
 			withSessionHistoryOriginMetadata(

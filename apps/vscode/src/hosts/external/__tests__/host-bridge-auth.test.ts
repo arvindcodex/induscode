@@ -8,7 +8,7 @@ import {
 	hostBridgeGrpcMetadata,
 } from "../host-bridge-auth"
 
-const originalToken = process.env.CLINE_CORE_CONNECTION_TOKEN
+const originalToken = process.env.INDUSCODE_CORE_CONNECTION_TOKEN
 
 /**
  * Runs the same bootstrap step a spawned core does: the host puts the token in
@@ -18,9 +18,9 @@ const originalToken = process.env.CLINE_CORE_CONNECTION_TOKEN
  */
 function setToken(token: string | undefined) {
 	if (token === undefined) {
-		delete process.env.CLINE_CORE_CONNECTION_TOKEN
+		delete process.env.INDUSCODE_CORE_CONNECTION_TOKEN
 	} else {
-		process.env.CLINE_CORE_CONNECTION_TOKEN = token
+		process.env.INDUSCODE_CORE_CONNECTION_TOKEN = token
 	}
 	captureHostBridgeTokenFromEnvironment()
 }
@@ -72,7 +72,7 @@ describe("host bridge auth", () => {
 
 	it("keeps sending the token after bootstrap scrubbed it from the environment", async () => {
 		setToken("spawn-token-1")
-		expect(process.env.CLINE_CORE_CONNECTION_TOKEN).to.equal(undefined)
+		expect(process.env.INDUSCODE_CORE_CONNECTION_TOKEN).to.equal(undefined)
 
 		const forwarded = await runMiddleware({ metadata: Metadata() })
 
@@ -81,16 +81,16 @@ describe("host bridge auth", () => {
 
 	describe("capture", () => {
 		it("returns the token and removes it from the environment", () => {
-			process.env.CLINE_CORE_CONNECTION_TOKEN = "spawn-token-3"
+			process.env.INDUSCODE_CORE_CONNECTION_TOKEN = "spawn-token-3"
 
 			const captured = captureHostBridgeTokenFromEnvironment()
 
 			expect(captured).to.equal("spawn-token-3")
-			expect(process.env.CLINE_CORE_CONNECTION_TOKEN).to.equal(undefined)
+			expect(process.env.INDUSCODE_CORE_CONNECTION_TOKEN).to.equal(undefined)
 		})
 
 		it("treats an empty variable as no token", () => {
-			process.env.CLINE_CORE_CONNECTION_TOKEN = ""
+			process.env.INDUSCODE_CORE_CONNECTION_TOKEN = ""
 
 			expect(captureHostBridgeTokenFromEnvironment()).to.equal(undefined)
 		})

@@ -1,4 +1,4 @@
-import { resolveProviderRequestHeaders } from "@cline/llms";
+import { resolveProviderRequestHeaders } from "@induscode/llms";
 import type {
 	AgentConfig,
 	AgentEvent,
@@ -13,11 +13,11 @@ import type {
 	ToolApprovalRequest,
 	ToolApprovalResult,
 	WorkspaceInfo,
-} from "@cline/shared";
+} from "@induscode/shared";
 import {
-	buildClineSystemPrompt,
+	buildIndusCodeSystemPrompt,
 	hasRuntimeConfigExtension,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { version as corePackageVersion } from "../../package.json";
 import {
 	type AgentPluginPackageDiagnostic,
@@ -127,7 +127,7 @@ function logAgentPluginDiagnostics(
 }
 
 /**
- * Recover client identity from the Cline request headers baked into the
+ * Recover client identity from the IndusCode request headers baked into the
  * session config. Current Hub clients transport the serializable identity
  * explicitly; these headers preserve attribution for older clients and other
  * transport implementations that only forward the neutral session config.
@@ -173,7 +173,7 @@ function resolveBootstrapSystemPrompt(
 		return config.systemPrompt;
 	}
 
-	const base = buildClineSystemPrompt({
+	const base = buildIndusCodeSystemPrompt({
 		ide: "IndusCode IDE",
 		workspaceRoot: workspaceInfo.rootPath,
 		workspaceName: workspaceInfo.hint,
@@ -185,9 +185,9 @@ function resolveBootstrapSystemPrompt(
 	});
 
 	return base
-		.replace(/\bYou are Cline\b/g, "You are IndusCode")
-		.replace(/\bI'm Cline\b/g, "I'm IndusCode")
-		.replace(/\bCline\b/g, "IndusCode");
+		.replace(/\bYou are IndusCode\b/g, "You are IndusCode")
+		.replace(/\bI'm IndusCode\b/g, "I'm IndusCode")
+		.replace(/\bIndusCode\b/g, "IndusCode");
 }
 
 function buildProviderConfig(

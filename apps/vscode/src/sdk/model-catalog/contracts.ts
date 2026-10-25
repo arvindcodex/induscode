@@ -105,7 +105,7 @@ export interface EffectiveProviderConfig {
 	 */
 	readonly contextWindow?: number
 	/**
-	 * OAuth-style auth bundle (e.g. cline provider's WorkOS token).
+	 * OAuth-style auth bundle (e.g. induscode provider's WorkOS token).
 	 * Compatible with `apiKey`; some providers populate both.
 	 */
 	readonly auth?: {
@@ -262,12 +262,12 @@ export interface Disposable {
  */
 /**
  * SDK-driven hint for how to display per-token / total cost in the UI.
- * Mirrors `ProviderUsageCostDisplay` from `@cline/llms` and the CLI's
+ * Mirrors `ProviderUsageCostDisplay` from `@induscode/llms` and the CLI's
  * `shouldShowCliUsageCost` consumer. Anything other than `"show"` means
  * downstream UIs MUST suppress per-token pricing rows (in model info
  * cards) and total-cost lines (in task summaries / status bars);
  * `"subscription"` additionally signals that usage is covered by the
- * user's subscription (e.g. ClinePass, ChatGPT Plus/Pro).
+ * user's subscription (e.g. IndusCodePass, ChatGPT Plus/Pro).
  */
 export type UsageCostDisplay = "show" | "hide" | "subscription"
 

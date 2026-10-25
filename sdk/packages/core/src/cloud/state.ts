@@ -2,7 +2,7 @@ import {
 	formatDisplayUserInput,
 	type HubEventEnvelope,
 	type MessageWithMetadata,
-} from "@cline/shared";
+} from "@induscode/shared";
 import type { CloudSessionState, JsonRecord } from "./types";
 
 export function immutableCopy<T>(value: T): T {

@@ -1,15 +1,15 @@
 ---
 title: "Enterprise Provider Configuration"
 sidebarTitle: "Overview"
-description: "Configure inference providers through the Cline hosted admin console for centralized organization management"
+description: "Configure inference providers through the IndusCode hosted admin console for centralized organization management"
 ---
 
 
-Remote Provider Configuration allows administrators to centrally configure inference providers for their entire organization through the Cline hosted admin console. This approach ensures consistent provider access, security policies, and cost management across all team members without requiring individual developer setup or infrastructure deployment.
+Remote Provider Configuration allows administrators to centrally configure inference providers for their entire organization through the IndusCode hosted admin console. This approach ensures consistent provider access, security policies, and cost management across all team members without requiring individual developer setup or infrastructure deployment.
 
 ## How Remote Configuration Works
 
-Remote configuration operates through Cline's hosted service at [app.cline.bot](https://app.cline.bot), where administrators can:
+Remote configuration operates through IndusCode's hosted service at [app.induscode.bot](https://app.induscode.bot), where administrators can:
 
 <CardGroup cols={2}>
   <Card title="Centralized Setup" icon="gear">
@@ -31,9 +31,9 @@ Remote configuration operates through Cline's hosted service at [app.cline.bot](
 
 ## Which products support each control
 
-Cline products read the organization's remote configuration when a member signs in to the organization. Each product supports only the controls marked Yes below. Members who use Cline Desktop or the CLI can choose other providers and MCP servers.
+IndusCode products read the organization's remote configuration when a member signs in to the organization. Each product supports only the controls marked Yes below. Members who use IndusCode Desktop or the CLI can choose other providers and MCP servers.
 
-| Control | VS Code and JetBrains | CLI | Cline Desktop |
+| Control | VS Code and JetBrains | CLI | IndusCode Desktop |
 |---|---|---|---|
 | Rules and workflows | Yes | Yes | No |
 | Skills | Yes | No | No |
@@ -42,7 +42,7 @@ Cline products read the organization's remote configuration when a member signs 
 | Enable MCP Marketplace (when off, also blocks local MCP servers) | Yes | No | No |
 | Allow members to use their own servers (MCP) | Yes | No | No |
 | Organization MCP servers | Yes | No | No |
-| Cline Telemetry | Yes | No | No |
+| IndusCode Telemetry | Yes | No | No |
 | Allow YOLO mode | No | No | No |
 | Allow Kanban | No | No | No |
 
@@ -50,22 +50,22 @@ The VS Code and JetBrains extensions show a lock icon on settings that the organ
 
 To choose which products to recommend, check which controls your organization relies on. For example, if members must use only your approved providers, deploy the VS Code or JetBrains extension.
 
-### Files Cline writes to the workspace
+### Files IndusCode writes to the workspace
 
-To apply the organization's rules and workflows, Cline writes them, and a copy of the organization's settings, into the folder it's working in: `.cline/enterprise/` in the CLI, and `.cline/remote-config/` in the VS Code and JetBrains extensions. Cline rewrites these files when the organization's settings change. The copy of the settings can include the access keys for [prompt storage](/enterprise-solutions/monitoring/prompt-storage), so add these patterns to your repository's `.gitignore`. The `**/` prefix also matches the folders below the repository root, for example when someone opens a subfolder in VS Code:
+To apply the organization's rules and workflows, IndusCode writes them, and a copy of the organization's settings, into the folder it's working in: `.induscode/enterprise/` in the CLI, and `.induscode/remote-config/` in the VS Code and JetBrains extensions. IndusCode rewrites these files when the organization's settings change. The copy of the settings can include the access keys for [prompt storage](/enterprise-solutions/monitoring/prompt-storage), so add these patterns to your repository's `.gitignore`. The `**/` prefix also matches the folders below the repository root, for example when someone opens a subfolder in VS Code:
 
 ```text
-**/.cline/enterprise/
-**/.cline/remote-config/
+**/.induscode/enterprise/
+**/.induscode/remote-config/
 ```
 
 ## Supported Providers
 
-Cline supports remote configuration for the following inference providers:
+IndusCode supports remote configuration for the following inference providers:
 
 | Provider | Use Case | Configuration | Member Setup |
 |----------|----------|---------------|--------------|
-| **Cline** | Organizations using Cline's native provider with centralized API key management | API provider selection, model access | No individual API keys needed — fully managed by organization |
+| **IndusCode** | Organizations using IndusCode's native provider with centralized API key management | API provider selection, model access | No individual API keys needed — fully managed by organization |
 | **Amazon Bedrock** | Organizations using AWS infrastructure | Region selection, VPC endpoints, cross-region inference, global inference, prompt caching | AWS credential configuration (API key, CLI profile, or credential chain) |
 | **Google Vertex AI** | Organizations using Google Cloud Platform | Project ID, region selection, model access | Google Cloud credential configuration (service account, SDK, or ADC) |
 | **Azure Foundry** | Organizations using Azure OpenAI or Azure AI services | Base URL, Azure API version, Azure identity authentication, custom headers | API key configuration in the extension |
@@ -83,19 +83,19 @@ The typical remote configuration process follows these steps:
 
 <Steps>
 <Step title="Administrator Setup">
-Access the Cline admin console and configure the desired inference provider with organization-wide settings.
+Access the IndusCode admin console and configure the desired inference provider with organization-wide settings.
 </Step>
 
 <Step title="Automatic Distribution">
-Provider configuration is automatically distributed to all organization members signed into Cline.
+Provider configuration is automatically distributed to all organization members signed into IndusCode.
 </Step>
 
 <Step title="Member Credential Setup">
-Team members add their individual credentials (API keys, AWS profiles, etc.) to connect to the configured provider. For some providers like Cline and LiteLLM (with Master Key), no individual credentials are needed.
+Team members add their individual credentials (API keys, AWS profiles, etc.) to connect to the configured provider. For some providers like IndusCode and LiteLLM (with Master Key), no individual credentials are needed.
 </Step>
 
 <Step title="Immediate Access">
-Once credentials are configured, members can immediately start using the inference provider through Cline.
+Once credentials are configured, members can immediately start using the inference provider through IndusCode.
 </Step>
 </Steps>
 
@@ -119,7 +119,7 @@ To get started with provider remote configuration:
 1. **Choose Your Provider**: Select the inference provider that best fits your organization's needs and existing infrastructure
 2. **Admin Configuration**: Follow the provider-specific admin configuration guide
 3. **Member Onboarding**: Have team members complete the provider-specific member configuration
-4. **Start Developing**: Begin using Cline with centrally managed inference provider access
+4. **Start Developing**: Begin using IndusCode with centrally managed inference provider access
 
 Select your provider below to begin the configuration process:
 

@@ -1,4 +1,4 @@
-import type { AgentEvent } from "@cline/shared"
+import type { AgentEvent } from "@induscode/shared"
 import { describe, expect, it, vi } from "vitest"
 import { processFilesIntoText } from "@/integrations/misc/extract-text"
 import { MessageTranslatorState, translateSessionEvent } from "./message-translator"
@@ -12,7 +12,7 @@ vi.mock("./webview-grpc-bridge", () => ({
 }))
 
 vi.mock("@core/storage/disk", () => ({
-	saveClineMessages: vi.fn().mockResolvedValue(undefined),
+	saveIndusCodeMessages: vi.fn().mockResolvedValue(undefined),
 }))
 
 vi.mock("@/integrations/misc/extract-text", () => ({
@@ -45,15 +45,15 @@ describe("SdkInteractionCoordinator", () => {
 		})
 		await vi.waitFor(() => expect(postStateToWebview).toHaveBeenCalled())
 
-		const clineMessages = task.messageStateHandler.getClineMessages()
-		expect(clineMessages).toHaveLength(1)
-		expect(clineMessages[0].type).toBe("ask")
-		expect(clineMessages[0].ask).toBe("tool")
-		expect(JSON.parse(clineMessages[0].text || "{}")).toMatchObject({ tool: "readFile", path: "README.md" })
+		const induscodeMessages = task.messageStateHandler.getIndusCodeMessages()
+		expect(induscodeMessages).toHaveLength(1)
+		expect(induscodeMessages[0].type).toBe("ask")
+		expect(induscodeMessages[0].ask).toBe("tool")
+		expect(JSON.parse(induscodeMessages[0].text || "{}")).toMatchObject({ tool: "readFile", path: "README.md" })
 		expect(listener).toHaveBeenCalledOnce()
 
 		expect(coordinator.resolvePendingToolApproval(undefined, "yesButtonClicked")).toBe(true)
-		expect(recordApprovedToolMessage).toHaveBeenCalledWith("tool-call", clineMessages[0].ts)
+		expect(recordApprovedToolMessage).toHaveBeenCalledWith("tool-call", induscodeMessages[0].ts)
 		await expect(approvalPromise).resolves.toEqual({ approved: true })
 	})
 
@@ -78,8 +78,8 @@ describe("SdkInteractionCoordinator", () => {
 			input: { path: "calculator.py", old_text: "# comment", new_text: "" },
 			policy: { autoApprove: false },
 		})
-		await vi.waitFor(() => expect(task.messageStateHandler.getClineMessages()).toHaveLength(1))
-		const approvalTs = task.messageStateHandler.getClineMessages()[0].ts
+		await vi.waitFor(() => expect(task.messageStateHandler.getIndusCodeMessages()).toHaveLength(1))
+		const approvalTs = task.messageStateHandler.getIndusCodeMessages()[0].ts
 
 		expect(coordinator.resolvePendingToolApproval(undefined, "yesButtonClicked")).toBe(true)
 		await expect(approvalPromise).resolves.toEqual({ approved: true })
@@ -126,16 +126,16 @@ describe("SdkInteractionCoordinator", () => {
 			input: { command: "npm test" },
 			policy: { autoApprove: false },
 		})
-		await vi.waitFor(() => expect(task.messageStateHandler.getClineMessages()).toHaveLength(1))
+		await vi.waitFor(() => expect(task.messageStateHandler.getIndusCodeMessages()).toHaveLength(1))
 
-		const clineMessages = task.messageStateHandler.getClineMessages()
-		expect(clineMessages[0]).toMatchObject({ type: "ask", ask: "command", text: "npm test" })
+		const induscodeMessages = task.messageStateHandler.getIndusCodeMessages()
+		expect(induscodeMessages[0]).toMatchObject({ type: "ask", ask: "command", text: "npm test" })
 
 		expect(coordinator.resolvePendingToolApproval("too risky", "noButtonClicked", ["image.png"], ["a.ts"])).toBe(true)
 		expect(recordApprovedToolMessage).not.toHaveBeenCalled()
 		const expectedReason = `${DEFAULT_TOOL_APPROVAL_DENIAL_REASON} The user provided the following feedback:\n<feedback>\ntoo risky\n</feedback>`
 		expect(recordDeniedToolApproval).toHaveBeenCalledWith("tool-call", "execute_command", expectedReason)
-		expect(task.messageStateHandler.getClineMessages()[1]).toMatchObject({
+		expect(task.messageStateHandler.getIndusCodeMessages()[1]).toMatchObject({
 			type: "say",
 			say: "user_feedback",
 			text: "too risky",
@@ -163,7 +163,7 @@ describe("SdkInteractionCoordinator", () => {
 			input: { path: "a.ts", old_text: "a", new_text: "b" },
 			policy: { autoApprove: false },
 		})
-		await vi.waitFor(() => expect(task.messageStateHandler.getClineMessages()).toHaveLength(1))
+		await vi.waitFor(() => expect(task.messageStateHandler.getIndusCodeMessages()).toHaveLength(1))
 
 		// Feedback typed into the approval row denies the edit; the model-facing reason must
 		// state the file is unchanged, or it will treat the feedback as iteration on an
@@ -185,7 +185,7 @@ describe("SdkInteractionCoordinator", () => {
 			policy: { autoApprove: false },
 		})
 		// Prior messages: ask #1 + the user_feedback say from the first denial.
-		await vi.waitFor(() => expect(task.messageStateHandler.getClineMessages().length).toBeGreaterThanOrEqual(3))
+		await vi.waitFor(() => expect(task.messageStateHandler.getIndusCodeMessages().length).toBeGreaterThanOrEqual(3))
 		expect(coordinator.resolvePendingToolApproval(undefined, "noButtonClicked")).toBe(true)
 		await expect(secondApproval).resolves.toEqual({ approved: false, reason: EDIT_TOOL_APPROVAL_DENIAL_REASON })
 	})
@@ -211,11 +211,11 @@ describe("SdkInteractionCoordinator", () => {
 			input: { requests: [{ url: "https://example.com", prompt: "read it" }] },
 			policy: { autoApprove: false },
 		})
-		await vi.waitFor(() => expect(task.messageStateHandler.getClineMessages()).toHaveLength(1))
+		await vi.waitFor(() => expect(task.messageStateHandler.getIndusCodeMessages()).toHaveLength(1))
 
 		expect(coordinator.resolvePendingToolApproval("just give me an answer", "messageResponse")).toBe(false)
 		expect(recordDeniedToolApproval).not.toHaveBeenCalled()
-		expect(setTurnPhase).toHaveBeenLastCalledWith("awaiting_approval", task.messageStateHandler.getClineMessages()[0].ts)
+		expect(setTurnPhase).toHaveBeenLastCalledWith("awaiting_approval", task.messageStateHandler.getIndusCodeMessages()[0].ts)
 
 		expect(coordinator.resolvePendingToolApproval(undefined, "yesButtonClicked")).toBe(true)
 		await expect(approvalPromise).resolves.toEqual({ approved: true })
@@ -240,14 +240,14 @@ describe("SdkInteractionCoordinator", () => {
 			input: { requests: [{ url: "https://example.com", prompt: "read it" }] },
 			policy: { autoApprove: false },
 		})
-		await vi.waitFor(() => expect(task.messageStateHandler.getClineMessages()).toHaveLength(1))
+		await vi.waitFor(() => expect(task.messageStateHandler.getIndusCodeMessages()).toHaveLength(1))
 
 		expect(coordinator.resolvePendingToolApproval(undefined, "noButtonClicked")).toBe(true)
 		await expect(approvalPromise).resolves.toEqual({
 			approved: false,
 			reason: DEFAULT_TOOL_APPROVAL_DENIAL_REASON,
 		})
-		expect(task.messageStateHandler.getClineMessages()).toHaveLength(1)
+		expect(task.messageStateHandler.getIndusCodeMessages()).toHaveLength(1)
 		expect(recordDeniedToolApproval).toHaveBeenCalledWith(
 			"tool-call",
 			"fetch_web_content",
@@ -279,7 +279,7 @@ describe("SdkInteractionCoordinator", () => {
 			}),
 		).resolves.toEqual({ approved: true })
 
-		expect(task.messageStateHandler.getClineMessages()).toHaveLength(0)
+		expect(task.messageStateHandler.getIndusCodeMessages()).toHaveLength(0)
 		expect(postStateToWebview).not.toHaveBeenCalled()
 		expect(recordApprovedToolMessage).not.toHaveBeenCalled()
 	})
@@ -308,7 +308,7 @@ describe("SdkInteractionCoordinator", () => {
 			}),
 		).resolves.toEqual({ approved: true })
 
-		expect(task.messageStateHandler.getClineMessages()).toHaveLength(0)
+		expect(task.messageStateHandler.getIndusCodeMessages()).toHaveLength(0)
 		expect(postStateToWebview).not.toHaveBeenCalled()
 		expect(recordApprovedToolMessage).not.toHaveBeenCalled()
 	})
@@ -327,18 +327,18 @@ describe("SdkInteractionCoordinator", () => {
 			iteration: 1,
 			toolCallId: "tool-call",
 			toolName: "github__search-repos",
-			input: { query: "cline" },
+			input: { query: "induscode" },
 			policy: { autoApprove: false },
 		})
-		await vi.waitFor(() => expect(task.messageStateHandler.getClineMessages()).toHaveLength(1))
+		await vi.waitFor(() => expect(task.messageStateHandler.getIndusCodeMessages()).toHaveLength(1))
 
-		const [message] = task.messageStateHandler.getClineMessages()
+		const [message] = task.messageStateHandler.getIndusCodeMessages()
 		expect(message).toMatchObject({ type: "ask", ask: "use_mcp_server", partial: false })
 		expect(JSON.parse(message.text || "{}")).toEqual({
 			type: "use_mcp_tool",
 			serverName: "github",
 			toolName: "search-repos",
-			arguments: '{\n  "query": "cline"\n}',
+			arguments: '{\n  "query": "induscode"\n}',
 		})
 	})
 
@@ -352,12 +352,12 @@ describe("SdkInteractionCoordinator", () => {
 		})
 
 		const answerPromise = coordinator.handleAskQuestion("Continue?", ["Yes"], undefined)
-		await vi.waitFor(() => expect(task.messageStateHandler.getClineMessages()).toHaveLength(1))
+		await vi.waitFor(() => expect(task.messageStateHandler.getIndusCodeMessages()).toHaveLength(1))
 
 		await new Promise((resolve) => setTimeout(resolve, 1))
 		expect(coordinator.resolvePendingAskQuestion("yes")).toBe(true)
 		await expect(answerPromise).resolves.toBe("yes")
-		expect(task.messageStateHandler.getClineMessages()).toMatchObject([
+		expect(task.messageStateHandler.getIndusCodeMessages()).toMatchObject([
 			{ type: "ask", ask: "followup" },
 			{ type: "say", say: "user_feedback", text: "yes" },
 		])
@@ -377,7 +377,7 @@ describe("SdkInteractionCoordinator", () => {
 		const files = ["/workspace/spec.md"]
 
 		const answerPromise = coordinator.handleAskQuestion("Which layout?", ["A", "B"], undefined)
-		await vi.waitFor(() => expect(task.messageStateHandler.getClineMessages()).toHaveLength(1))
+		await vi.waitFor(() => expect(task.messageStateHandler.getIndusCodeMessages()).toHaveLength(1))
 
 		expect(coordinator.resolvePendingAskQuestion(prompt, images, files)).toBe(true)
 		await expect(answerPromise).resolves.toEqual([
@@ -385,7 +385,7 @@ describe("SdkInteractionCoordinator", () => {
 			{ type: "image", mediaType: "image/jpeg", data: "abc" },
 			{ type: "text", text: "Files attached by the user:\n\n/workspace/spec.md" },
 		])
-		expect(task.messageStateHandler.getClineMessages()).toMatchObject([
+		expect(task.messageStateHandler.getIndusCodeMessages()).toMatchObject([
 			{ type: "ask", ask: "followup" },
 			{ type: "say", say: "user_feedback", text: prompt ?? "", images, files },
 		])
@@ -407,7 +407,7 @@ describe("SdkInteractionCoordinator", () => {
 		)
 
 		const answerPromise = coordinator.handleAskQuestion("Which spec?", ["A", "B"], undefined)
-		await vi.waitFor(() => expect(task.messageStateHandler.getClineMessages()).toHaveLength(1))
+		await vi.waitFor(() => expect(task.messageStateHandler.getIndusCodeMessages()).toHaveLength(1))
 		expect(coordinator.resolvePendingAskQuestion("Use this spec", undefined, ["/workspace/huge.pdf"])).toBe(true)
 
 		coordinator.clearPending("Cancelled")
@@ -441,17 +441,17 @@ describe("SdkInteractionCoordinator", () => {
 			reason: "mistake_limit_reached: tool_execution_failed: bad arguments",
 		})
 
-		expect(task.messageStateHandler.getClineMessages()).toMatchObject([
+		expect(task.messageStateHandler.getIndusCodeMessages()).toMatchObject([
 			{
 				type: "say",
 				say: "error",
 				partial: false,
 			},
 		])
-		const errorText = task.messageStateHandler.getClineMessages()[0].text ?? ""
+		const errorText = task.messageStateHandler.getIndusCodeMessages()[0].text ?? ""
 		expect(errorText).toContain("3 errors in a row")
 		expect(errorText).toContain("tool_execution_failed: bad arguments")
-		expect(errorText).toContain("Send a message to give Cline guidance")
+		expect(errorText).toContain("Send a message to give IndusCode guidance")
 	})
 
 	it("summarizes the mistake limit without details using the iteration", async () => {
@@ -494,7 +494,7 @@ describe("SdkInteractionCoordinator", () => {
 			input: {},
 			policy: { autoApprove: false },
 		})
-		await vi.waitFor(() => expect(task.messageStateHandler.getClineMessages()).toHaveLength(1))
+		await vi.waitFor(() => expect(task.messageStateHandler.getIndusCodeMessages()).toHaveLength(1))
 
 		coordinator.clearPending("Task cancelled")
 
@@ -512,7 +512,7 @@ describe("SdkInteractionCoordinator", () => {
 		})
 
 		const approvalPromise = coordinator.handleRequestToolApproval(approvalRequest("tool-call"))
-		await vi.waitFor(() => expect(task.messageStateHandler.getClineMessages()).toHaveLength(1))
+		await vi.waitFor(() => expect(task.messageStateHandler.getIndusCodeMessages()).toHaveLength(1))
 
 		expect(coordinator.resolvePendingToolApproval(undefined, "yesButtonClicked")).toBe(true)
 		await expect(approvalPromise).resolves.toEqual({ approved: true })
@@ -604,10 +604,10 @@ describe("SdkInteractionCoordinator", () => {
 
 		await vi.waitFor(() => expect(events).toEqual(["hook-start"]))
 		// The ask message must not exist while the diff preview is still opening.
-		expect(task.messageStateHandler.getClineMessages()).toHaveLength(0)
+		expect(task.messageStateHandler.getIndusCodeMessages()).toHaveLength(0)
 
 		releaseHook()
-		await vi.waitFor(() => expect(task.messageStateHandler.getClineMessages()).toHaveLength(1))
+		await vi.waitFor(() => expect(task.messageStateHandler.getIndusCodeMessages()).toHaveLength(1))
 		expect(onToolApprovalAsk).toHaveBeenCalledWith(expect.objectContaining({ toolCallId: "tool-call", toolName: "editor" }))
 
 		expect(coordinator.resolvePendingToolApproval(undefined, "yesButtonClicked")).toBe(true)
@@ -657,7 +657,7 @@ describe("SdkInteractionCoordinator", () => {
 			policy: { autoApprove: false },
 		})
 
-		await vi.waitFor(() => expect(task.messageStateHandler.getClineMessages()).toHaveLength(1))
+		await vi.waitFor(() => expect(task.messageStateHandler.getIndusCodeMessages()).toHaveLength(1))
 		expect(coordinator.resolvePendingToolApproval(undefined, "yesButtonClicked")).toBe(true)
 		await expect(approvalPromise).resolves.toEqual({ approved: true })
 	})

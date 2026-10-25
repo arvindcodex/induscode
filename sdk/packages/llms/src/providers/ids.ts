@@ -11,8 +11,8 @@ export enum BUILT_IN_PROVIDER {
 	// First-party
 	ANTHROPIC = "anthropic",
 	CLAUDE_CODE = "claude-code",
-	CLINE = "cline",
-	CLINE_PASS = "cline-pass",
+	INDUSCODE = "induscode",
+	INDUSCODE_PASS = "induscode-pass",
 	ELEVENLABS = "elevenlabs",
 	// OpenAI variants
 	OPENAI_COMPATIBLE = "openai-compatible",
@@ -97,7 +97,8 @@ export function isBuiltInProviderId(id: string): id is BuiltInProviderId {
 }
 
 /** Normalize provider aliases to canonical IDs */
-export function normalizeProviderId(providerId: string): string {
-	const normalized = providerId.trim();
-	return PROVIDER_ID_ALIASES[normalized] ?? normalized;
+export function normalizeProviderId(providerId?: string): string {
+	const normalized = (providerId || "").trim();
+	return PROVIDER_ID_ALIASES[normalized] ?? (normalized || "induscode");
 }
+

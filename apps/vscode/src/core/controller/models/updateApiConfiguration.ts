@@ -1,11 +1,11 @@
-import { Empty } from "@shared/proto/cline/common"
+import { Empty } from "@shared/proto/induscode/common"
 import { convertProtoToApiProvider } from "@shared/proto-conversions/models/api-configuration-conversion"
 import { ApiHandlerOptions, ApiProvider } from "@/shared/api"
-import { UpdateApiConfigurationRequestNew } from "@/shared/proto/index.cline"
+import { UpdateApiConfigurationRequestNew } from "@/shared/proto/index.induscode"
 import { Logger } from "@/shared/services/Logger"
 import { Secrets } from "@/shared/storage/state-keys"
 import type { Controller } from "../index"
-import { clearOrganizationForClinePassProviderSelection } from "./handleClinePassProviderSelection"
+import { clearOrganizationForIndusCodePassProviderSelection } from "./handleIndusCodePassProviderSelection"
 import { normalizeProviderSwitchModel } from "./providerSwitchNormalization"
 import { createTaskApiModelShim, resolveActiveModelIdFromApiConfiguration } from "./taskApiModel"
 
@@ -145,7 +145,7 @@ export async function updateApiConfiguration(controller: Controller, request: Up
 					options,
 				),
 			)
-			clearOrganizationForClinePassProviderSelection(controller, controller.stateManager.getApiConfiguration())
+			clearOrganizationForIndusCodePassProviderSelection(controller, controller.stateManager.getApiConfiguration())
 		}
 
 		// Update the task's API model shim if there's an active task

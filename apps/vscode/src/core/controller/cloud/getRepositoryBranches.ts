@@ -1,4 +1,4 @@
-import { CloudBranchList, type RepositoryBranchesRequest } from "@shared/proto/cline/cloud"
+import { CloudBranchList, type RepositoryBranchesRequest } from "@shared/proto/induscode/cloud"
 import type { Controller } from "../index"
 
 export async function getRepositoryBranches(

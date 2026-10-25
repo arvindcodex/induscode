@@ -1,6 +1,6 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import { ClineAuthProvider, useClineAuth } from "@/context/ClineAuthContext"
+import { IndusCodeAuthProvider, useIndusCodeAuth } from "@/context/IndusCodeAuthContext"
 import AccountView from "./AccountView"
 
 vi.mock("./CreditBalance", () => ({
@@ -21,8 +21,8 @@ vi.mock("@/context/ExtensionStateContext", () => ({
 	useExtensionState: () => ({ remoteConfigSettings: {}, environment: "production", cloudSessionsEnabled: false }),
 }))
 
-vi.mock("@/hooks/useClinePassPromo", () => ({
-	useClinePassPromo: () => ({ isClinePassEnabled: false }),
+vi.mock("@/hooks/useIndusCodePassPromo", () => ({
+	useIndusCodePassPromo: () => ({ isIndusCodePassEnabled: false }),
 }))
 
 vi.mock("@/services/grpc-client", () => ({
@@ -59,15 +59,15 @@ function deferred<T>() {
 	return { promise, resolve, reject }
 }
 
-const user = { uid: "user-1", email: "user@example.com", displayName: "User", appBaseUrl: "https://app.cline.bot" }
+const user = { uid: "user-1", email: "user@example.com", displayName: "User", appBaseUrl: "https://app.induscode.bot" }
 const organization = { active: true, memberId: "member-1", name: "Organization", organizationId: "org-1", roles: ["member"] }
 
 function ConnectedAccountView({ visible = true }: { visible?: boolean }) {
-	const { clineUser, organizations, activeOrganization } = useClineAuth()
+	const { induscodeUser, organizations, activeOrganization } = useIndusCodeAuth()
 	return visible ? (
 		<AccountView
 			activeOrganization={activeOrganization}
-			clineUser={clineUser}
+			induscodeUser={induscodeUser}
 			onDone={vi.fn()}
 			organizations={organizations}
 		/>
@@ -76,9 +76,9 @@ function ConnectedAccountView({ visible = true }: { visible?: boolean }) {
 
 async function renderAccount() {
 	const view = render(
-		<ClineAuthProvider>
+		<IndusCodeAuthProvider>
 			<ConnectedAccountView />
-		</ClineAuthProvider>,
+		</IndusCodeAuthProvider>,
 	)
 	await waitFor(() => expect((screen.getByLabelText("Account") as HTMLSelectElement).value).toBe(organization.organizationId))
 	return view
@@ -150,14 +150,14 @@ describe("AccountView organization switch", () => {
 		const view = await renderAccount()
 		fireEvent.change(screen.getByLabelText("Account"), { target: { value: user.uid } })
 		view.rerender(
-			<ClineAuthProvider>
+			<IndusCodeAuthProvider>
 				<ConnectedAccountView visible={false} />
-			</ClineAuthProvider>,
+			</IndusCodeAuthProvider>,
 		)
 		view.rerender(
-			<ClineAuthProvider>
+			<IndusCodeAuthProvider>
 				<ConnectedAccountView />
-			</ClineAuthProvider>,
+			</IndusCodeAuthProvider>,
 		)
 		expect(screen.getByLabelText("Account")).toBeDisabled()
 		await act(async () => {

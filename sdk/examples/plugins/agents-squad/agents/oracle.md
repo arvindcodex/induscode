@@ -1,7 +1,7 @@
 ---
 name: oracle
 description: Opinionated planner that challenges assumptions, estimates complexity, and produces execution-ready plans.
-providerId: cline
+providerId: induscode
 modelId: anthropic/claude-opus-4.6
 ---
 

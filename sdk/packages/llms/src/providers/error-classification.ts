@@ -1,4 +1,4 @@
-import { type ProviderErrorClass, safeJsonParse } from "@cline/shared";
+import { type ProviderErrorClass, safeJsonParse } from "@induscode/shared";
 import { AISDKError, APICallError, RetryError, TypeValidationError } from "ai";
 
 /**

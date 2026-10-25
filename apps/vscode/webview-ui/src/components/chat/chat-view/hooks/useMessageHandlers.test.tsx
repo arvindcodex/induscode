@@ -1,8 +1,8 @@
 import { CLOUD_CREATION_UNCONFIRMED_ERROR_CODE } from "@shared/cloud/cloud-sessions"
-import type { ClineMessage, TurnState } from "@shared/ExtensionMessage"
+import type { IndusCodeMessage, TurnState } from "@shared/ExtensionMessage"
 import { act, renderHook } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import { ClineError } from "../../../../../../src/services/error/ClineError"
+import { IndusCodeError } from "../../../../../../src/services/error/IndusCodeError"
 
 // --- Mocks -------------------------------------------------------------------
 // gRPC clients: record which RPC the send path chose.
@@ -32,14 +32,14 @@ vi.mock("@/services/grpc-client", () => ({
 }))
 
 // Proto request factories just echo their input so we can assert on it.
-vi.mock("@shared/proto/cline/task", () => ({
+vi.mock("@shared/proto/induscode/task", () => ({
 	AskResponseRequest: { create: (x: unknown) => x },
 	NewTaskRequest: { create: (x: unknown) => x },
 }))
-vi.mock("@shared/proto/cline/ui", () => ({
+vi.mock("@shared/proto/induscode/ui", () => ({
 	IntentEvent: { create: (x: unknown) => x },
 }))
-vi.mock("@shared/proto/cline/common", () => ({
+vi.mock("@shared/proto/induscode/common", () => ({
 	EmptyRequest: { create: (x: unknown) => x },
 	StringRequest: { create: (x: unknown) => x },
 }))
@@ -60,8 +60,8 @@ import type { ChatState } from "../types/chatTypes"
 import { useChatState } from "./useChatState"
 import { useMessageHandlers } from "./useMessageHandlers"
 
-// Minimal ChatState stub. clineAsk/lastMessage are the only derived values the send path reads.
-function makeChatState(messages: ClineMessage[], overrides: Partial<ChatState> = {}): ChatState {
+// Minimal ChatState stub. induscodeAsk/lastMessage are the only derived values the send path reads.
+function makeChatState(messages: IndusCodeMessage[], overrides: Partial<ChatState> = {}): ChatState {
 	const last = messages.at(-1)
 	const state = {
 		inputValue: "",
@@ -93,7 +93,7 @@ function makeChatState(messages: ClineMessage[], overrides: Partial<ChatState> =
 		textAreaRef: { current: null },
 		lastMessage: last,
 		secondLastMessage: messages.at(-2),
-		clineAsk: last?.type === "ask" ? last.ask : undefined,
+		induscodeAsk: last?.type === "ask" ? last.ask : undefined,
 		task: messages.at(0),
 		handleFocusChange: vi.fn(),
 		clearExpandedRows: vi.fn(),
@@ -102,7 +102,7 @@ function makeChatState(messages: ClineMessage[], overrides: Partial<ChatState> =
 	return { ...state, ...overrides } as ChatState
 }
 
-const completedConversation: ClineMessage[] = [
+const completedConversation: IndusCodeMessage[] = [
 	{ ts: 1, type: "say", say: "text", text: "task" },
 	{ ts: 2, type: "say", say: "completion_result", text: "all done" },
 ]
@@ -142,7 +142,7 @@ describe("useMessageHandlers — send routing", () => {
 	})
 
 	it("sends a local request when Local is selected", async () => {
-		mockCloudTaskTarget = { target: "local", repoUrl: "https://github.com/cline/fixture" }
+		mockCloudTaskTarget = { target: "local", repoUrl: "https://github.com/induscode/fixture" }
 		const { result } = renderHook(() => useMessageHandlers([], makeChatState([])))
 
 		await act(async () => {
@@ -220,7 +220,7 @@ describe("useMessageHandlers — send routing", () => {
 		)
 	})
 
-	it("after a completed turn (no clineAsk), Enter continues the conversation via askResponse — NOT newTask", async () => {
+	it("after a completed turn (no induscodeAsk), Enter continues the conversation via askResponse — NOT newTask", async () => {
 		mockTurnState = { phase: "completed", seq: 7 }
 		const { result } = renderHook(() => useMessageHandlers(completedConversation, makeChatState(completedConversation)))
 
@@ -397,7 +397,7 @@ describe("useMessageHandlers — send routing", () => {
 
 	it("shows a pending chat bubble immediately when sending a message to a task resumed from history", async () => {
 		mockTurnState = { phase: "resumable", seq: 5 }
-		const historyConversation: ClineMessage[] = [
+		const historyConversation: IndusCodeMessage[] = [
 			{ ts: 1, type: "say", say: "task", text: "task" },
 			{ ts: 2, type: "say", say: "text", text: "partial work" },
 			{ ts: 3, type: "ask", ask: "resume_task" },
@@ -447,7 +447,7 @@ describe("useMessageHandlers — send routing", () => {
 
 	it("shows a pending chat bubble when resuming a completed task from history", async () => {
 		mockTurnState = { phase: "completed", seq: 4 }
-		const historyConversation: ClineMessage[] = [
+		const historyConversation: IndusCodeMessage[] = [
 			{ ts: 1, type: "say", say: "task", text: "task" },
 			{ ts: 2, type: "say", say: "completion_result", text: "all done" },
 			{ ts: 3, type: "ask", ask: "resume_completed_task" },
@@ -474,7 +474,7 @@ describe("useMessageHandlers — send routing", () => {
 
 	it("does not show a pending chat bubble for a streaming follow-up that will be queued", async () => {
 		mockTurnState = { phase: "streaming", seq: 9 }
-		const streamingConversation: ClineMessage[] = [
+		const streamingConversation: IndusCodeMessage[] = [
 			{ ts: 1, type: "say", say: "task", text: "task" },
 			{ ts: 2, type: "say", say: "text", text: "working", partial: true },
 		]
@@ -498,7 +498,7 @@ describe("useMessageHandlers — send routing", () => {
 
 	it("rejects a pending approval when the composer is submitted with typed feedback", async () => {
 		mockTurnState = { phase: "awaiting_approval", anchorTs: 2, seq: 9 }
-		const approvalConversation: ClineMessage[] = [
+		const approvalConversation: IndusCodeMessage[] = [
 			{ ts: 1, type: "say", say: "task", text: "task" },
 			{ ts: 2, type: "ask", ask: "tool", text: JSON.stringify({ tool: "newFileCreated", path: "notes.txt" }) },
 		]
@@ -548,13 +548,13 @@ describe("useMessageHandlers — send routing", () => {
 
 	it("disables recovery for an unconfirmed cloud creation but still clears it for New Task", async () => {
 		mockTurnState = { phase: "error", anchorTs: 2, seq: 4 }
-		const conversation: ClineMessage[] = [
+		const conversation: IndusCodeMessage[] = [
 			{ ts: 1, type: "say", say: "task", text: "task" },
 			{
 				ts: 2,
 				type: "ask",
 				ask: "api_req_failed",
-				text: new ClineError({
+				text: new IndusCodeError({
 					message: "Check History before starting another cloud task.",
 					code: CLOUD_CREATION_UNCONFIRMED_ERROR_CODE,
 				}).serialize(),
@@ -572,7 +572,7 @@ describe("useMessageHandlers — send routing", () => {
 
 	it("submits a new prompt instead of retrying the failed prompt from the error state", async () => {
 		mockTurnState = { phase: "error", anchorTs: 2, seq: 4 }
-		const failedConversation: ClineMessage[] = [
+		const failedConversation: IndusCodeMessage[] = [
 			{ ts: 1, type: "say", say: "task", text: "task" },
 			{ ts: 2, type: "ask", ask: "api_req_failed", text: "provider unavailable" },
 		]
@@ -619,7 +619,7 @@ describe("useMessageHandlers — send routing", () => {
 
 	it("lets the first recovery action claim the failed turn", async () => {
 		mockTurnState = { phase: "error", anchorTs: 2, seq: 4 }
-		const failedConversation: ClineMessage[] = [
+		const failedConversation: IndusCodeMessage[] = [
 			{ ts: 1, type: "say", say: "task", text: "task" },
 			{ ts: 2, type: "ask", ask: "api_req_failed", text: "provider unavailable" },
 		]
@@ -659,7 +659,7 @@ describe("useMessageHandlers — send routing", () => {
 
 	it("uses the anchored API error when a status message trails it", async () => {
 		mockTurnState = { phase: "error", anchorTs: 2, seq: 4 }
-		const failedConversation: ClineMessage[] = [
+		const failedConversation: IndusCodeMessage[] = [
 			{ ts: 1, type: "say", say: "task", text: "task" },
 			{ ts: 2, type: "ask", ask: "api_req_failed", text: "provider unavailable" },
 			{ ts: 3, type: "say", say: "subagent_usage", text: "bookkeeping" },
@@ -699,7 +699,7 @@ describe("useMessageHandlers — send routing", () => {
 
 	it("blocks composer submission after Retry claims the failed turn", async () => {
 		mockTurnState = { phase: "error", anchorTs: 2, seq: 4 }
-		const failedConversation: ClineMessage[] = [
+		const failedConversation: IndusCodeMessage[] = [
 			{ ts: 1, type: "say", say: "task", text: "task" },
 			{ ts: 2, type: "ask", ask: "api_req_failed", text: "provider unavailable" },
 		]
@@ -737,7 +737,7 @@ describe("useMessageHandlers — send routing", () => {
 
 	it("blocks composer submission after Start New Task claims the failed turn", async () => {
 		mockTurnState = { phase: "error", anchorTs: 2, seq: 4 }
-		const failedConversation: ClineMessage[] = [
+		const failedConversation: IndusCodeMessage[] = [
 			{ ts: 1, type: "say", say: "task", text: "task" },
 			{ ts: 2, type: "ask", ask: "api_req_failed", text: "provider unavailable" },
 		]
@@ -774,7 +774,7 @@ describe("useMessageHandlers — send routing", () => {
 
 	it("rejects task compaction while API error recovery is available", async () => {
 		mockTurnState = { phase: "error", anchorTs: 2, seq: 4 }
-		const failedConversation: ClineMessage[] = [
+		const failedConversation: IndusCodeMessage[] = [
 			{ ts: 1, type: "say", say: "task", text: "task" },
 			{ ts: 2, type: "ask", ask: "api_req_failed", text: "provider unavailable" },
 		]
@@ -787,7 +787,7 @@ describe("useMessageHandlers — send routing", () => {
 
 	it("keeps a typed /compact in the composer during API error recovery instead of sending it as text", async () => {
 		mockTurnState = { phase: "error", anchorTs: 2, seq: 4 }
-		const failedConversation: ClineMessage[] = [
+		const failedConversation: IndusCodeMessage[] = [
 			{ ts: 1, type: "say", say: "task", text: "task" },
 			{ ts: 2, type: "ask", ask: "api_req_failed", text: "provider unavailable" },
 		]
@@ -809,7 +809,7 @@ describe("useMessageHandlers — send routing", () => {
 
 	it("offers recovery for a provider failure that reaches the error phase without an anchor", async () => {
 		mockTurnState = { phase: "error", seq: 4 }
-		const failedConversation: ClineMessage[] = [
+		const failedConversation: IndusCodeMessage[] = [
 			{ ts: 1, type: "say", say: "task", text: "task" },
 			{ ts: 2, type: "say", say: "error", text: "Agent error: provider unavailable" },
 		]
@@ -850,7 +850,7 @@ describe("useMessageHandlers — send routing", () => {
 
 	it("does not treat the mistake limit as API error recovery", () => {
 		mockTurnState = { phase: "error", anchorTs: 2, seq: 4 }
-		const conversation: ClineMessage[] = [
+		const conversation: IndusCodeMessage[] = [
 			{ ts: 1, type: "say", say: "task", text: "task" },
 			{ ts: 2, type: "ask", ask: "mistake_limit_reached", text: "" },
 		]
@@ -930,7 +930,7 @@ describe("useMessageHandlers — send routing", () => {
 
 	it("preserves edits made while a recovery response succeeds", async () => {
 		mockTurnState = { phase: "error", anchorTs: 2, seq: 4 }
-		const failedConversation: ClineMessage[] = [
+		const failedConversation: IndusCodeMessage[] = [
 			{ ts: 1, type: "say", say: "task", text: "task" },
 			{ ts: 2, type: "ask", ask: "api_req_failed", text: "provider unavailable" },
 		]
@@ -967,7 +967,7 @@ describe("useMessageHandlers — send routing", () => {
 
 	it("preserves edits and releases the claim when a recovery response fails", async () => {
 		mockTurnState = { phase: "error", anchorTs: 2, seq: 4 }
-		const failedConversation: ClineMessage[] = [
+		const failedConversation: IndusCodeMessage[] = [
 			{ ts: 1, type: "say", say: "task", text: "task" },
 			{ ts: 2, type: "ask", ask: "api_req_failed", text: "provider unavailable" },
 		]
@@ -1001,7 +1001,7 @@ describe("useMessageHandlers — send routing", () => {
 
 	it("does not show a pending chat bubble when answering an active follow-up question with freeform text", async () => {
 		mockTurnState = { phase: "awaiting_followup", anchorTs: 2, seq: 3 }
-		const questionConversation: ClineMessage[] = [
+		const questionConversation: IndusCodeMessage[] = [
 			{ ts: 1, type: "say", say: "task", text: "task" },
 			{
 				ts: 2,
@@ -1129,7 +1129,7 @@ describe("useMessageHandlers — send routing", () => {
 
 	it("startNewTask drops any unconfirmed optimistic message so it cannot be re-injected after clearTask", async () => {
 		mockTurnState = { phase: "streaming", seq: 2 }
-		const streamingConversation: ClineMessage[] = [
+		const streamingConversation: IndusCodeMessage[] = [
 			{ ts: 1, type: "say", say: "task", text: "task with attachment" },
 			{ ts: 2, type: "say", say: "text", text: "working", partial: true },
 		]
@@ -1155,7 +1155,7 @@ describe("useMessageHandlers — send routing", () => {
 
 	it("does not clear a quote selected while New Task is pending", async () => {
 		mockTurnState = { phase: "awaiting_followup", anchorTs: 2, seq: 3 }
-		const newTaskConversation: ClineMessage[] = [
+		const newTaskConversation: IndusCodeMessage[] = [
 			{ ts: 1, type: "say", say: "task", text: "task" },
 			{ ts: 2, type: "ask", ask: "new_task", text: "new task context" },
 		]
@@ -1182,7 +1182,7 @@ describe("useMessageHandlers — send routing", () => {
 
 	it("retries a failed request without changing the unsent draft", async () => {
 		mockTurnState = { phase: "error", anchorTs: 2, seq: 3 }
-		const failedConversation: ClineMessage[] = [
+		const failedConversation: IndusCodeMessage[] = [
 			{ ts: 1, type: "say", say: "task", text: "task" },
 			{ ts: 2, type: "ask", ask: "api_req_failed", text: "server error" },
 		]
@@ -1225,7 +1225,7 @@ describe("useMessageHandlers — send routing", () => {
 
 	it("clears only the draft snapshot submitted with an approval", async () => {
 		mockTurnState = { phase: "awaiting_approval", anchorTs: 2, seq: 3 }
-		const approvalConversation: ClineMessage[] = [
+		const approvalConversation: IndusCodeMessage[] = [
 			{ ts: 1, type: "say", say: "task", text: "task" },
 			{ ts: 2, type: "ask", ask: "tool", text: JSON.stringify({ tool: "newFileCreated", path: "notes.md" }) },
 		]
@@ -1256,7 +1256,7 @@ describe("useMessageHandlers — send routing", () => {
 
 	it("does not submit a quote without message content", async () => {
 		mockTurnState = { phase: "awaiting_approval", anchorTs: 2, seq: 3 }
-		const approvalConversation: ClineMessage[] = [
+		const approvalConversation: IndusCodeMessage[] = [
 			{ ts: 1, type: "say", say: "task", text: "task" },
 			{ ts: 2, type: "ask", ask: "tool", text: JSON.stringify({ tool: "newFileCreated", path: "notes.md" }) },
 		]
@@ -1282,7 +1282,7 @@ describe("useMessageHandlers — send routing", () => {
 
 	// The webview does not gate sends on provider usability: submission always
 	// reaches the extension, which surfaces auth/config problems as chat errors
-	// (emitClineAuthError for the Cline provider, say:"error" otherwise).
+	// (emitIndusCodeAuthError for the IndusCode provider, say:"error" otherwise).
 	it("always forwards a new task to the extension (no webview-side provider gate)", async () => {
 		mockTurnState = { phase: "idle", seq: 1 }
 		const { result } = renderHook(() => useMessageHandlers([], makeChatState([])))

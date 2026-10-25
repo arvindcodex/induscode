@@ -23,14 +23,14 @@ Per window, the loader:
 
 1. Reads the cached cohort assignment from its own `globalState` keys —
    synchronously, never from the network.
-2. Sets the `cline.sdkBundle` context key (gates cohort-specific menu items /
+2. Sets the `induscode.sdkBundle` context key (gates cohort-specific menu items /
    palette entries in the union manifest).
 3. `require()`s exactly one bundle and calls its `activate()` with a
    Proxy-wrapped `ExtensionContext` whose `extensionUri` / `extensionPath` /
    `asAbsolutePath` point into that bundle's subdirectory — so each bundle
    resolves its own webview build and assets without knowing it was relocated.
    Storage properties pass through untouched: both bundles share the same
-   `~/.cline/data` + VS Code storage they used as standalone extensions.
+   `~/.induscode/data` + VS Code storage they used as standalone extensions.
 4. After the selected bundle activates, evaluates the PostHog flags in the
    background and caches the assignment **for the next window**. Flag changes
    never flip a live window. A crash fallback skips this refresh so it cannot
@@ -38,7 +38,7 @@ Per window, the loader:
 
 If the next bundle throws during activation, the loader disposes whatever it
 half-registered, pins this VSIX version back to legacy
-(`cline.rollout.nextActivationFailedVersion`), reports a `fallback` telemetry
+(`induscode.rollout.nextActivationFailedVersion`), reports a `fallback` telemetry
 event, and activates legacy — a crashed rollout self-heals without a
 marketplace re-publish. A new version gets to try next again.
 
@@ -62,17 +62,17 @@ marketplace re-publish. A new version gets to try next again.
   always on (matching `FeatureFlagsService`); the loader's own
   `extension.rollout.loader_decision` event respects the user's telemetry
   opt-out and VS Code's global telemetry switch.
-- **Manual overrides, in either direction.** The `cline.rollout.bundleOverride`
+- **Manual overrides, in either direction.** The `induscode.rollout.bundleOverride`
   user setting (`"auto" | "next" | "legacy"`, editable straight from
   settings.json) forces a bundle for anyone — users in a pinch, or us
   debugging — beating the remote assignment both ways. Applies on window
-  reload. `CLINE_BUNDLE_OVERRIDE=next|legacy` (env var) does the same for
+  reload. `INDUSCODE_BUNDLE_OVERRIDE=next|legacy` (env var) does the same for
   local dev and e2e and beats even the setting. Both are reported as
   `override` on the loader event so overridden machines don't pollute
   cohort comparisons.
 - **Crash pinning is local, not remote.** If the next bundle throws during
   activation, the loader falls back to legacy in the same window and pins
-  that VSIX version on this machine (`cline.rollout.nextActivationFailedVersion`);
+  that VSIX version on this machine (`induscode.rollout.nextActivationFailedVersion`);
   a new release gets to try next again. This safety net is independent of the
   flag.
 
@@ -84,7 +84,7 @@ regenerates it at stitch time from both branches' real manifests:
 
 - Contributions declared by both bundles pass through untouched.
 - Menu entries / keybindings declared by only one get `when` AND-ed with
-  `cline.sdkBundle` / `!cline.sdkBundle`, so a cohort never sees a button its
+  `induscode.sdkBundle` / `!induscode.sdkBundle`, so a cohort never sees a button its
   bundle didn't register (and shared buttons that moved position don't render
   twice).
 - Commands exclusive to one bundle are hidden from the other cohort's command
@@ -111,9 +111,9 @@ cd apps/vscode-rollout
 bun run build                        # dev build; CI uses build:production with the PostHog key
 node scripts/stitch.mjs \
   --next ../vscode --legacy <legacy worktree>/apps/vscode \
-  --loader dist/extension.js --version 4.1.0 --out /tmp/cline-ab-staging
-node scripts/smoke-loader.mjs /tmp/cline-ab-staging   # loader behavior smoke
-cd /tmp/cline-ab-staging && vsce package --no-dependencies --allow-package-secrets sendgrid
+  --loader dist/extension.js --version 4.1.0 --out /tmp/induscode-ab-staging
+node scripts/smoke-loader.mjs /tmp/induscode-ab-staging   # loader behavior smoke
+cd /tmp/induscode-ab-staging && vsce package --no-dependencies --allow-package-secrets sendgrid
 ```
 
 The narrowly scoped `sendgrid` scanner exemption mirrors the existing next and
@@ -123,7 +123,7 @@ exact matching string in production staging output before changing or
 broadening the exemption.
 
 Local builds have no `TELEMETRY_SERVICE_API_KEY`, so the loader skips PostHog
-entirely and everyone stays on legacy unless `CLINE_BUNDLE_OVERRIDE` is set.
+entirely and everyone stays on legacy unless `INDUSCODE_BUNDLE_OVERRIDE` is set.
 
 CI: the `ext-vscode-ab-package` workflow (manual dispatch) builds both refs,
 stitches, smoke-tests, uploads the `.vsix` artifact, and optionally publishes.
@@ -131,7 +131,7 @@ stitches, smoke-tests, uploads the `.vsix` artifact, and optionally publishes.
 ## Nightly channel
 
 The daily `ext-vscode-publish-nightly` workflow (cron + manual dispatch)
-publishes this same combined package as **`saoudrizwan.cline-nightly`**. Before
+publishes this same combined package as **`saoudrizwan.induscode-nightly`**. Before
 each bundle builds, `scripts/nightlify.mjs` rewrites its manifest to the
 nightly identity — the same mutation the standalone nightly always applied
 (`apps/vscode/scripts/publish-nightly.mjs` on both branches is the source of
@@ -139,14 +139,14 @@ truth), so nightly can be installed alongside stable:
 
 | | stable | nightly |
 |---|---|---|
-| manifest `name` | `claude-dev` | `cline-nightly` |
-| contribution IDs / context key / settings | `cline.*` | `cline-nightly.*` |
+| manifest `name` | `claude-dev` | `induscode-nightly` |
+| contribution IDs / context key / settings | `induscode.*` | `induscode-nightly.*` |
 | version | operator-supplied (4.1.0+) | `<major>.<minor>.<unix-seconds>` |
 
 The loader derives the namespace from its own `packageJSON.name` at runtime
 (`idPrefix` in `src/cohort.ts`), and gen-manifest derives it from the next
 manifest's name — no build flags involved. Nightly builds also show a
-status-bar indicator (`Cline: Next` / `Cline: Legacy`); stable builds never do.
+status-bar indicator (`IndusCode: Next` / `IndusCode: Legacy`); stable builds never do.
 
 Dispatching the nightly workflow from `main` with `dry-run` builds and uploads
 the installable `.vsix` without publishing or tagging. The publish job is
@@ -157,7 +157,7 @@ intentionally restricted to `main` by both the workflow and the
 
 - **`extension.rollout.bundle_activated`** (authoritative, captured by the
   activated bundle's own telemetry via its `reportRolloutActivation` export;
-  requires the bundle to be built with `CLINE_ROLLOUT_VARIANT`): attempted vs
+  requires the bundle to be built with `INDUSCODE_ROLLOUT_VARIANT`): attempted vs
   actual bundle, fallback flag, error details on fallback. Every other event
   from a rollout build carries `extension_variant` as a common property.
 - **`extension.rollout.loader_decision`** (loader-owned, direct capture): the

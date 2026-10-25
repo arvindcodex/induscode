@@ -1,4 +1,4 @@
-import type { SessionRecord } from "@cline/core";
+import type { SessionRecord } from "@induscode/core";
 import { describe, expect, it } from "vitest";
 import {
 	createInteractiveExitSummary,
@@ -17,7 +17,7 @@ function makeSessionRecord(
 		exitCode: null,
 		status: "running",
 		interactive: true,
-		provider: "cline",
+		provider: "induscode",
 		model: "openai/gpt-5.3-codex",
 		cwd: "/tmp/project",
 		workspaceRoot: "/tmp/project",
@@ -63,7 +63,7 @@ describe("interactive exit summary", () => {
 		expect(summary).toEqual({
 			sessionId: "sess_123",
 			startedAt: "2026-04-29T10:00:00.000Z",
-			provider: "cline",
+			provider: "induscode",
 			model: "openai/gpt-5.3-codex",
 			cwd: "/tmp/project",
 			messageCount: 2,
@@ -75,7 +75,7 @@ describe("interactive exit summary", () => {
 		const output = formatInteractiveExitSummary({
 			sessionId: "sess_123",
 			startedAt: "2026-04-29T10:00:00.000Z",
-			provider: "cline",
+			provider: "induscode",
 			model: "openai/gpt-5.3-codex",
 			cwd: "/tmp/project",
 			messageCount: 2,
@@ -84,11 +84,11 @@ describe("interactive exit summary", () => {
 
 		expect(output).toContain("Session Summary");
 		expect(output).toContain("  ID        sess_123");
-		expect(output).toContain("  Model     cline:openai/gpt-5.3-codex");
+		expect(output).toContain("  Model     induscode:openai/gpt-5.3-codex");
 		expect(output).toContain("  Messages  2");
 		expect(output).toContain("  Cost      $0.250000");
 		expect(output).toContain("  Continue  ");
-		expect(output).toContain("cline --id sess_123");
+		expect(output).toContain("induscode --id sess_123");
 	});
 
 	it("formats an invalid start time without leaking NaN", () => {

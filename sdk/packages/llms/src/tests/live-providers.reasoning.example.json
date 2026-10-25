@@ -87,9 +87,9 @@
 				"requireReasoningSignal": true
 			}
 		},
-		"cline-reasoning": {
+		"induscode-reasoning": {
 			"settings": {
-				"provider": "cline",
+				"provider": "induscode",
 				"model": "anthropic/claude-sonnet-4.6",
 				"reasoning": {
 					"effort": "high"
@@ -99,9 +99,9 @@
 				"requireUsage": true
 			}
 		},
-		"cline-opus-reasoning": {
+		"induscode-opus-reasoning": {
 			"settings": {
-				"provider": "cline",
+				"provider": "induscode",
 				"model": "anthropic/claude-opus-4.7",
 				"reasoning": {
 					"effort": "high"
@@ -111,9 +111,9 @@
 				"requireUsage": true
 			}
 		},
-		"cline-gpt-5.4-reasoning": {
+		"induscode-gpt-5.4-reasoning": {
 			"settings": {
-				"provider": "cline",
+				"provider": "induscode",
 				"model": "openai/gpt-5.4",
 				"reasoning": {
 					"effort": "high"
@@ -123,9 +123,9 @@
 				"requireUsage": true
 			}
 		},
-		"cline-gpt-5.3-codex-reasoning": {
+		"induscode-gpt-5.3-codex-reasoning": {
 			"settings": {
-				"provider": "cline",
+				"provider": "induscode",
 				"model": "openai/gpt-5.3-codex",
 				"reasoning": {
 					"effort": "high"
@@ -183,9 +183,9 @@
 				"requireUsage": true
 			}
 		},
-		"cline-glm-4.6-thinking-on": {
+		"induscode-glm-4.6-thinking-on": {
 			"settings": {
-				"provider": "cline",
+				"provider": "induscode",
 				"model": "z-ai/glm-4.6",
 				"reasoning": {
 					"enabled": true
@@ -197,9 +197,9 @@
 				"requireReasoningSignal": true
 			}
 		},
-		"cline-glm-4.7-thinking-on": {
+		"induscode-glm-4.7-thinking-on": {
 			"settings": {
-				"provider": "cline",
+				"provider": "induscode",
 				"model": "z-ai/glm-4.7",
 				"reasoning": {
 					"enabled": true
@@ -211,9 +211,9 @@
 				"requireReasoningSignal": true
 			}
 		},
-		"cline-glm-5-thinking-on": {
+		"induscode-glm-5-thinking-on": {
 			"settings": {
-				"provider": "cline",
+				"provider": "induscode",
 				"model": "z-ai/glm-5",
 				"reasoning": {
 					"enabled": true
@@ -309,9 +309,9 @@
 				"requireReasoningSignal": true
 			}
 		},
-		"cline-kimi-k2-thinking": {
+		"induscode-kimi-k2-thinking": {
 			"settings": {
-				"provider": "cline",
+				"provider": "induscode",
 				"model": "moonshotai/kimi-k2-thinking"
 			},
 			"prompt": "Solve this multi-step problem briefly: A shop has 17 boxes with 23 bolts each, sells 128 bolts, then receives 4 boxes with 19 bolts each. How many bolts are left? Give only the final arithmetic result and one short explanation.",
@@ -320,9 +320,9 @@
 				"requireReasoningChunk": true
 			}
 		},
-		"cline-kimi-k2.6-thinking-on": {
+		"induscode-kimi-k2.6-thinking-on": {
 			"settings": {
-				"provider": "cline",
+				"provider": "induscode",
 				"model": "moonshotai/kimi-k2.6",
 				"reasoning": {
 					"enabled": true
@@ -334,9 +334,9 @@
 				"requireReasoningChunk": true
 			}
 		},
-		"cline-qwen3-next-thinking": {
+		"induscode-qwen3-next-thinking": {
 			"settings": {
-				"provider": "cline",
+				"provider": "induscode",
 				"model": "qwen/qwen3-next-80b-a3b-thinking"
 			},
 			"prompt": "Solve this multi-step problem briefly: A shop has 17 boxes with 23 bolts each, sells 128 bolts, then receives 4 boxes with 19 bolts each. How many bolts are left? Give only the final arithmetic result and one short explanation.",

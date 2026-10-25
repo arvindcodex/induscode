@@ -6,7 +6,7 @@ import "should"
 import { copyWorktreeIncludeFiles, hasWorktreeInclude } from "./worktree-include"
 
 describe("Worktree Include Utilities", () => {
-	const tmpDir = path.join(os.tmpdir(), "cline-worktree-test-" + Math.random().toString(36).slice(2))
+	const tmpDir = path.join(os.tmpdir(), "induscode-worktree-test-" + Math.random().toString(36).slice(2))
 	const sourceDir = path.join(tmpDir, "source")
 	const targetDir = path.join(tmpDir, "target")
 

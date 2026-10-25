@@ -27,13 +27,13 @@ import {
 } from "./update";
 
 const originalArgv = [...process.argv];
-const originalBuildEnv = process.env.CLINE_BUILD_ENV;
-const originalDataDir = process.env.CLINE_DATA_DIR;
-const originalHubDiscoveryPath = process.env.CLINE_HUB_DISCOVERY_PATH;
-const originalWrapperPath = process.env.CLINE_WRAPPER_PATH;
-const originalGlobalSettingsPath = process.env.CLINE_GLOBAL_SETTINGS_PATH;
+const originalBuildEnv = process.env.INDUSCODE_BUILD_ENV;
+const originalDataDir = process.env.INDUSCODE_DATA_DIR;
+const originalHubDiscoveryPath = process.env.INDUSCODE_HUB_DISCOVERY_PATH;
+const originalWrapperPath = process.env.INDUSCODE_WRAPPER_PATH;
+const originalGlobalSettingsPath = process.env.INDUSCODE_GLOBAL_SETTINGS_PATH;
 const originalIsDev = process.env.IS_DEV;
-const originalNoAutoUpdate = process.env.CLINE_NO_AUTO_UPDATE;
+const originalNoAutoUpdate = process.env.INDUSCODE_NO_AUTO_UPDATE;
 const tempDirs: string[] = [];
 
 function createFile(path: string): string {
@@ -43,7 +43,7 @@ function createFile(path: string): string {
 }
 
 function createTempFile(pathSuffix: string): string {
-	const root = mkdtempSync(join(tmpdir(), "cline-update-test-"));
+	const root = mkdtempSync(join(tmpdir(), "induscode-update-test-"));
 	tempDirs.push(root);
 	return createFile(join(root, pathSuffix));
 }
@@ -52,29 +52,29 @@ describe("getInstallationInfo", () => {
 	afterEach(() => {
 		process.argv = [...originalArgv];
 		if (originalBuildEnv === undefined) {
-			delete process.env.CLINE_BUILD_ENV;
+			delete process.env.INDUSCODE_BUILD_ENV;
 		} else {
-			process.env.CLINE_BUILD_ENV = originalBuildEnv;
+			process.env.INDUSCODE_BUILD_ENV = originalBuildEnv;
 		}
 		if (originalDataDir === undefined) {
-			delete process.env.CLINE_DATA_DIR;
+			delete process.env.INDUSCODE_DATA_DIR;
 		} else {
-			process.env.CLINE_DATA_DIR = originalDataDir;
+			process.env.INDUSCODE_DATA_DIR = originalDataDir;
 		}
 		if (originalHubDiscoveryPath === undefined) {
-			delete process.env.CLINE_HUB_DISCOVERY_PATH;
+			delete process.env.INDUSCODE_HUB_DISCOVERY_PATH;
 		} else {
-			process.env.CLINE_HUB_DISCOVERY_PATH = originalHubDiscoveryPath;
+			process.env.INDUSCODE_HUB_DISCOVERY_PATH = originalHubDiscoveryPath;
 		}
 		if (originalWrapperPath === undefined) {
-			delete process.env.CLINE_WRAPPER_PATH;
+			delete process.env.INDUSCODE_WRAPPER_PATH;
 		} else {
-			process.env.CLINE_WRAPPER_PATH = originalWrapperPath;
+			process.env.INDUSCODE_WRAPPER_PATH = originalWrapperPath;
 		}
 		if (originalGlobalSettingsPath === undefined) {
-			delete process.env.CLINE_GLOBAL_SETTINGS_PATH;
+			delete process.env.INDUSCODE_GLOBAL_SETTINGS_PATH;
 		} else {
-			process.env.CLINE_GLOBAL_SETTINGS_PATH = originalGlobalSettingsPath;
+			process.env.INDUSCODE_GLOBAL_SETTINGS_PATH = originalGlobalSettingsPath;
 		}
 		if (originalIsDev === undefined) {
 			delete process.env.IS_DEV;
@@ -82,9 +82,9 @@ describe("getInstallationInfo", () => {
 			process.env.IS_DEV = originalIsDev;
 		}
 		if (originalNoAutoUpdate === undefined) {
-			delete process.env.CLINE_NO_AUTO_UPDATE;
+			delete process.env.INDUSCODE_NO_AUTO_UPDATE;
 		} else {
-			process.env.CLINE_NO_AUTO_UPDATE = originalNoAutoUpdate;
+			process.env.INDUSCODE_NO_AUTO_UPDATE = originalNoAutoUpdate;
 		}
 		vi.restoreAllMocks();
 		for (const dir of tempDirs.splice(0)) {
@@ -93,52 +93,52 @@ describe("getInstallationInfo", () => {
 	});
 
 	it("detects npm installs from the wrapper path passed to the compiled binary", () => {
-		const wrapperPath = createTempFile("lib/node_modules/cline/bin/cline");
-		process.env.CLINE_WRAPPER_PATH = wrapperPath;
-		process.argv = ["bun", "/$bunfs/root/cline", "update", "--verbose"];
+		const wrapperPath = createTempFile("lib/node_modules/induscode/bin/induscode");
+		process.env.INDUSCODE_WRAPPER_PATH = wrapperPath;
+		process.argv = ["bun", "/$bunfs/root/induscode", "update", "--verbose"];
 
 		expect(getInstallationInfo("1.2.3")).toEqual({
 			packageManager: PackageManager.NPM,
-			packageName: "cline",
-			updateCommand: "npm update -g cline --tag latest",
+			packageName: "induscode",
+			updateCommand: "npm update -g induscode --tag latest",
 		});
 	});
 
 	it("uses the nightly tag when the current CLI version is nightly", () => {
-		const wrapperPath = createTempFile("lib/node_modules/cline/bin/cline");
-		process.env.CLINE_WRAPPER_PATH = wrapperPath;
-		process.argv = ["bun", "/$bunfs/root/cline", "update", "--verbose"];
+		const wrapperPath = createTempFile("lib/node_modules/induscode/bin/induscode");
+		process.env.INDUSCODE_WRAPPER_PATH = wrapperPath;
+		process.argv = ["bun", "/$bunfs/root/induscode", "update", "--verbose"];
 
 		expect(getInstallationInfo("1.2.3-nightly.456")).toEqual({
 			packageManager: PackageManager.NPM,
-			packageName: "cline",
-			updateCommand: "npm update -g cline --tag nightly",
+			packageName: "induscode",
+			updateCommand: "npm update -g induscode --tag nightly",
 		});
 	});
 
 	it("detects bun global installs from the resolved install path", () => {
-		// bun symlinks ~/.bun/bin/cline -> ~/.bun/install/global/node_modules/...,
+		// bun symlinks ~/.bun/bin/induscode -> ~/.bun/install/global/node_modules/...,
 		// and realpathSync resolves through the symlink before detection runs.
 		const wrapperPath = createTempFile(
-			".bun/install/global/node_modules/cline/bin/cline",
+			".bun/install/global/node_modules/induscode/bin/induscode",
 		);
-		process.env.CLINE_WRAPPER_PATH = wrapperPath;
-		process.argv = ["bun", "/$bunfs/root/cline", "update", "--verbose"];
+		process.env.INDUSCODE_WRAPPER_PATH = wrapperPath;
+		process.argv = ["bun", "/$bunfs/root/induscode", "update", "--verbose"];
 
 		expect(getInstallationInfo("1.2.3")).toEqual({
 			packageManager: PackageManager.BUN,
-			packageName: "cline",
-			updateCommand: "bun add -g cline@latest",
+			packageName: "induscode",
+			updateCommand: "bun add -g induscode@latest",
 		});
 	});
 
 	it("falls back to unknown when only Bun's virtual compiled path is available", () => {
-		delete process.env.CLINE_WRAPPER_PATH;
-		process.argv = ["bun", "/$bunfs/root/cline", "update", "--verbose"];
+		delete process.env.INDUSCODE_WRAPPER_PATH;
+		process.argv = ["bun", "/$bunfs/root/induscode", "update", "--verbose"];
 
 		expect(getInstallationInfo("1.2.3")).toEqual({
 			packageManager: PackageManager.UNKNOWN,
-			packageName: "cline",
+			packageName: "induscode",
 		});
 	});
 });
@@ -147,29 +147,29 @@ describe("auto update settings", () => {
 	afterEach(() => {
 		process.argv = [...originalArgv];
 		if (originalBuildEnv === undefined) {
-			delete process.env.CLINE_BUILD_ENV;
+			delete process.env.INDUSCODE_BUILD_ENV;
 		} else {
-			process.env.CLINE_BUILD_ENV = originalBuildEnv;
+			process.env.INDUSCODE_BUILD_ENV = originalBuildEnv;
 		}
 		if (originalDataDir === undefined) {
-			delete process.env.CLINE_DATA_DIR;
+			delete process.env.INDUSCODE_DATA_DIR;
 		} else {
-			process.env.CLINE_DATA_DIR = originalDataDir;
+			process.env.INDUSCODE_DATA_DIR = originalDataDir;
 		}
 		if (originalHubDiscoveryPath === undefined) {
-			delete process.env.CLINE_HUB_DISCOVERY_PATH;
+			delete process.env.INDUSCODE_HUB_DISCOVERY_PATH;
 		} else {
-			process.env.CLINE_HUB_DISCOVERY_PATH = originalHubDiscoveryPath;
+			process.env.INDUSCODE_HUB_DISCOVERY_PATH = originalHubDiscoveryPath;
 		}
 		if (originalWrapperPath === undefined) {
-			delete process.env.CLINE_WRAPPER_PATH;
+			delete process.env.INDUSCODE_WRAPPER_PATH;
 		} else {
-			process.env.CLINE_WRAPPER_PATH = originalWrapperPath;
+			process.env.INDUSCODE_WRAPPER_PATH = originalWrapperPath;
 		}
 		if (originalGlobalSettingsPath === undefined) {
-			delete process.env.CLINE_GLOBAL_SETTINGS_PATH;
+			delete process.env.INDUSCODE_GLOBAL_SETTINGS_PATH;
 		} else {
-			process.env.CLINE_GLOBAL_SETTINGS_PATH = originalGlobalSettingsPath;
+			process.env.INDUSCODE_GLOBAL_SETTINGS_PATH = originalGlobalSettingsPath;
 		}
 		if (originalIsDev === undefined) {
 			delete process.env.IS_DEV;
@@ -177,9 +177,9 @@ describe("auto update settings", () => {
 			process.env.IS_DEV = originalIsDev;
 		}
 		if (originalNoAutoUpdate === undefined) {
-			delete process.env.CLINE_NO_AUTO_UPDATE;
+			delete process.env.INDUSCODE_NO_AUTO_UPDATE;
 		} else {
-			process.env.CLINE_NO_AUTO_UPDATE = originalNoAutoUpdate;
+			process.env.INDUSCODE_NO_AUTO_UPDATE = originalNoAutoUpdate;
 		}
 		vi.restoreAllMocks();
 		for (const dir of tempDirs.splice(0)) {
@@ -190,9 +190,9 @@ describe("auto update settings", () => {
 	it("skips startup auto update when disabled globally", () => {
 		const settingsPath = createTempFile("data/global-settings.json");
 		writeFileSync(settingsPath, JSON.stringify({ autoUpdateEnabled: false }));
-		process.env.CLINE_GLOBAL_SETTINGS_PATH = settingsPath;
+		process.env.INDUSCODE_GLOBAL_SETTINGS_PATH = settingsPath;
 		delete process.env.IS_DEV;
-		delete process.env.CLINE_NO_AUTO_UPDATE;
+		delete process.env.INDUSCODE_NO_AUTO_UPDATE;
 		const fetchSpy = vi
 			.spyOn(globalThis, "fetch")
 			.mockRejectedValue(new Error("should not fetch"));
@@ -205,8 +205,8 @@ describe("auto update settings", () => {
 	it("still lets manual update checks run when startup auto update is disabled", async () => {
 		const settingsPath = createTempFile("data/global-settings.json");
 		writeFileSync(settingsPath, JSON.stringify({ autoUpdateEnabled: false }));
-		process.env.CLINE_GLOBAL_SETTINGS_PATH = settingsPath;
-		delete process.env.CLINE_NO_AUTO_UPDATE;
+		process.env.INDUSCODE_GLOBAL_SETTINGS_PATH = settingsPath;
+		delete process.env.INDUSCODE_NO_AUTO_UPDATE;
 		const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue({
 			ok: true,
 			json: async () => ({ version: "0.0.0" }),
@@ -221,32 +221,32 @@ describe("auto update settings", () => {
 describe("hub restart owner selection", () => {
 	afterEach(() => {
 		if (originalBuildEnv === undefined) {
-			delete process.env.CLINE_BUILD_ENV;
+			delete process.env.INDUSCODE_BUILD_ENV;
 		} else {
-			process.env.CLINE_BUILD_ENV = originalBuildEnv;
+			process.env.INDUSCODE_BUILD_ENV = originalBuildEnv;
 		}
 		if (originalDataDir === undefined) {
-			delete process.env.CLINE_DATA_DIR;
+			delete process.env.INDUSCODE_DATA_DIR;
 		} else {
-			process.env.CLINE_DATA_DIR = originalDataDir;
+			process.env.INDUSCODE_DATA_DIR = originalDataDir;
 		}
 		if (originalHubDiscoveryPath === undefined) {
-			delete process.env.CLINE_HUB_DISCOVERY_PATH;
+			delete process.env.INDUSCODE_HUB_DISCOVERY_PATH;
 		} else {
-			process.env.CLINE_HUB_DISCOVERY_PATH = originalHubDiscoveryPath;
+			process.env.INDUSCODE_HUB_DISCOVERY_PATH = originalHubDiscoveryPath;
 		}
 	});
 
 	it("uses the shared hub owner outside production builds", () => {
-		process.env.CLINE_BUILD_ENV = "development";
-		process.env.CLINE_DATA_DIR = "/tmp/cline-update-test-data";
-		delete process.env.CLINE_HUB_DISCOVERY_PATH;
+		process.env.INDUSCODE_BUILD_ENV = "development";
+		process.env.INDUSCODE_DATA_DIR = "/tmp/induscode-update-test-data";
+		delete process.env.INDUSCODE_HUB_DISCOVERY_PATH;
 
 		const owner = resolveCliHubOwnerContext();
 
 		expect(owner.discoveryPath).toContain("/locks/hub/owners/");
 		expect(owner.discoveryPath).not.toBe(
-			"/tmp/cline-update-test-data/locks/hub/production.json",
+			"/tmp/induscode-update-test-data/locks/hub/production.json",
 		);
 	});
 });
@@ -255,14 +255,14 @@ describe("deferred auto update", () => {
 	afterEach(() => {
 		mockSpawn.mockReset();
 		if (originalBuildEnv === undefined) {
-			delete process.env.CLINE_BUILD_ENV;
+			delete process.env.INDUSCODE_BUILD_ENV;
 		} else {
-			process.env.CLINE_BUILD_ENV = originalBuildEnv;
+			process.env.INDUSCODE_BUILD_ENV = originalBuildEnv;
 		}
 		if (originalHubDiscoveryPath === undefined) {
-			delete process.env.CLINE_HUB_DISCOVERY_PATH;
+			delete process.env.INDUSCODE_HUB_DISCOVERY_PATH;
 		} else {
-			process.env.CLINE_HUB_DISCOVERY_PATH = originalHubDiscoveryPath;
+			process.env.INDUSCODE_HUB_DISCOVERY_PATH = originalHubDiscoveryPath;
 		}
 		for (const dir of tempDirs.splice(0)) {
 			rmSync(dir, { recursive: true, force: true });
@@ -275,20 +275,20 @@ describe("deferred auto update", () => {
 	});
 
 	it("starts the detached install when no hub is discoverable", async () => {
-		const root = mkdtempSync(join(tmpdir(), "cline-update-test-"));
+		const root = mkdtempSync(join(tmpdir(), "induscode-update-test-"));
 		tempDirs.push(root);
-		process.env.CLINE_BUILD_ENV = "production";
-		process.env.CLINE_HUB_DISCOVERY_PATH = join(root, "production.json");
+		process.env.INDUSCODE_BUILD_ENV = "production";
+		process.env.INDUSCODE_HUB_DISCOVERY_PATH = join(root, "production.json");
 		const unref = vi.fn();
 		mockSpawn.mockReturnValue({ unref } as unknown as ChildProcess);
 
 		const outcome = await applyDeferredUpdate({
-			command: "npm update -g cline --tag latest --min-release-age=0",
+			command: "npm update -g induscode --tag latest --min-release-age=0",
 		});
 
 		expect(outcome).toBe("started");
 		expect(mockSpawn).toHaveBeenCalledWith(
-			"npm update -g cline --tag latest --min-release-age=0",
+			"npm update -g induscode --tag latest --min-release-age=0",
 			expect.objectContaining({
 				detached: true,
 				shell: true,
@@ -299,16 +299,16 @@ describe("deferred auto update", () => {
 	});
 
 	it("defers while another cli client is attached to the hub", async () => {
-		const root = mkdtempSync(join(tmpdir(), "cline-update-test-"));
+		const root = mkdtempSync(join(tmpdir(), "induscode-update-test-"));
 		tempDirs.push(root);
 		const discoveryPath = join(root, "production.json");
-		process.env.CLINE_BUILD_ENV = "production";
-		process.env.CLINE_HUB_DISCOVERY_PATH = discoveryPath;
+		process.env.INDUSCODE_BUILD_ENV = "production";
+		process.env.INDUSCODE_HUB_DISCOVERY_PATH = discoveryPath;
 		const {
 			createLocalHubScheduleRuntimeHandlers,
 			NodeHubClient,
 			startHubWebSocketServer,
-		} = await import("@cline/core");
+		} = await import("@induscode/core");
 		const server = await startHubWebSocketServer({
 			host: "127.0.0.1",
 			port: 0,
@@ -351,30 +351,30 @@ describe("withMinimumReleaseAgeBypass", () => {
 	it("adds the package-manager-specific cooldown bypass", () => {
 		expect(
 			withMinimumReleaseAgeBypass(
-				"npm update -g cline --tag latest",
+				"npm update -g induscode --tag latest",
 				PackageManager.NPM,
 			).command,
-		).toBe("npm update -g cline --tag latest --min-release-age=0");
+		).toBe("npm update -g induscode --tag latest --min-release-age=0");
 		expect(
-			withMinimumReleaseAgeBypass("bun add -g cline@latest", PackageManager.BUN)
+			withMinimumReleaseAgeBypass("bun add -g induscode@latest", PackageManager.BUN)
 				.command,
-		).toBe("bun add -g cline@latest --minimum-release-age=0");
+		).toBe("bun add -g induscode@latest --minimum-release-age=0");
 		expect(
 			withMinimumReleaseAgeBypass(
-				"yarn global add cline@latest",
+				"yarn global add induscode@latest",
 				PackageManager.YARN,
 			).command,
-		).toBe("yarn global add cline@latest");
+		).toBe("yarn global add induscode@latest");
 		expect(
 			withMinimumReleaseAgeBypass(
-				"yarn global add cline@latest",
+				"yarn global add induscode@latest",
 				PackageManager.YARN,
 			).env?.YARN_NPM_MINIMAL_AGE_GATE,
 		).toBe("0");
 
 		expect(
 			withMinimumReleaseAgeBypass(
-				"pnpm add -g cline@latest",
+				"pnpm add -g induscode@latest",
 				PackageManager.PNPM,
 			).env?.pnpm_config_minimum_release_age,
 		).toBe("0");

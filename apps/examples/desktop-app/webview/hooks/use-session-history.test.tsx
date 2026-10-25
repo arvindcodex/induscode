@@ -44,7 +44,7 @@ function sessionRow(sessionId: string) {
 		sessionId,
 		environmentId: "local",
 		status: "completed" as const,
-		provider: "cline",
+		provider: "induscode",
 		model: "glm-5.2",
 		cwd: "/workspace",
 		workspaceRoot: "/workspace",

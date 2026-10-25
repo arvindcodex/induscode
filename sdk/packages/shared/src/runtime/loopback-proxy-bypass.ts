@@ -72,7 +72,7 @@ function hasWildcard(value: string | undefined): boolean {
  * Bun's `fetch` honors `HTTP_PROXY`/`HTTPS_PROXY` with no built-in localhost
  * bypass, and a per-request `proxy` option does not override the environment,
  * so a system proxy (Clash, v2ray, corporate setups) swallows every local hub
- * probe and a healthy hub looks unreachable (cline/cline#14265, #14292).
+ * probe and a healthy hub looks unreachable (induscode/induscode#14265, #14292).
  * `NO_PROXY` is the only lever: append the loopback spellings whenever a proxy
  * variable is set. Idempotent; spawned children inherit it.
  */

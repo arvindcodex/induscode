@@ -1,7 +1,7 @@
 import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { setHomeDir } from "@cline/shared/storage";
+import { setHomeDir } from "@induscode/shared/storage";
 import { afterEach, describe, expect, it } from "vitest";
 import {
 	discoverPluginModulePaths,
@@ -16,19 +16,19 @@ import {
 describe("plugin-config-loader", () => {
 	const envSnapshot = {
 		HOME: process.env.HOME,
-		CLINE_GLOBAL_SETTINGS_PATH: process.env.CLINE_GLOBAL_SETTINGS_PATH,
-		CLINE_PLUGIN_MODE: process.env.CLINE_PLUGIN_MODE,
+		INDUSCODE_GLOBAL_SETTINGS_PATH: process.env.INDUSCODE_GLOBAL_SETTINGS_PATH,
+		INDUSCODE_PLUGIN_MODE: process.env.INDUSCODE_PLUGIN_MODE,
 	};
 
 	afterEach(() => {
 		process.env.HOME = envSnapshot.HOME;
-		if (envSnapshot.CLINE_PLUGIN_MODE === undefined) {
-			delete process.env.CLINE_PLUGIN_MODE;
+		if (envSnapshot.INDUSCODE_PLUGIN_MODE === undefined) {
+			delete process.env.INDUSCODE_PLUGIN_MODE;
 		} else {
-			process.env.CLINE_PLUGIN_MODE = envSnapshot.CLINE_PLUGIN_MODE;
+			process.env.INDUSCODE_PLUGIN_MODE = envSnapshot.INDUSCODE_PLUGIN_MODE;
 		}
-		process.env.CLINE_GLOBAL_SETTINGS_PATH =
-			envSnapshot.CLINE_GLOBAL_SETTINGS_PATH;
+		process.env.INDUSCODE_GLOBAL_SETTINGS_PATH =
+			envSnapshot.INDUSCODE_GLOBAL_SETTINGS_PATH;
 		setHomeDir(envSnapshot.HOME ?? "~");
 	});
 
@@ -40,7 +40,7 @@ describe("plugin-config-loader", () => {
 			await writeFile(join(root, "a.js"), "export default {}", "utf8");
 			await writeFile(join(nested, "b.ts"), "export default {}", "utf8");
 			await writeFile(
-				join(root, ".a.js.cline-plugin.js"),
+				join(root, ".a.js.induscode-plugin.js"),
 				"export default {}",
 				"utf8",
 			);
@@ -92,7 +92,7 @@ describe("plugin-config-loader", () => {
 				JSON.stringify({
 					name: "plugin-package",
 					private: true,
-					cline: {
+					induscode: {
 						plugins: [
 							{
 								paths: ["./src/index.ts"],
@@ -134,7 +134,7 @@ describe("plugin-config-loader", () => {
 				JSON.stringify({
 					name: "plugin-package",
 					private: true,
-					cline: {
+					induscode: {
 						plugins: [
 							{
 								paths: ["./src/index.ts"],
@@ -179,7 +179,7 @@ describe("plugin-config-loader", () => {
 				JSON.stringify({
 					name: "plugin-package",
 					private: true,
-					cline: {
+					induscode: {
 						plugins: [
 							{
 								paths: ["./src/index.ts"],
@@ -222,7 +222,7 @@ describe("plugin-config-loader", () => {
 				JSON.stringify({
 					name: "plugin-package",
 					private: true,
-					cline: {
+					induscode: {
 						plugins: [{ paths: ["./src/index.ts"] }],
 					},
 				}),
@@ -285,7 +285,7 @@ describe("plugin-config-loader", () => {
 			setHomeDir(home);
 			const installRoot = join(
 				workspace,
-				".cline",
+				".induscode",
 				"plugins",
 				"_installed",
 				"local",
@@ -297,9 +297,9 @@ describe("plugin-config-loader", () => {
 			await writeFile(
 				join(installRoot, "package.json"),
 				JSON.stringify({
-					name: "cline-installed-plugin-demo",
+					name: "induscode-installed-plugin-demo",
 					private: true,
-					cline: {
+					induscode: {
 						plugins: [{ paths: ["./package/index.ts"] }],
 					},
 				}),
@@ -338,9 +338,9 @@ describe("plugin-config-loader", () => {
 		try {
 			process.env.HOME = home;
 			setHomeDir(home);
-			const workspacePlugins = join(workspace, ".cline", "plugins");
-			const userPlugins = join(home, ".cline", "plugins");
-			const documentsPlugins = join(home, "Documents", "Cline", "Plugins");
+			const workspacePlugins = join(workspace, ".induscode", "plugins");
+			const userPlugins = join(home, ".induscode", "plugins");
+			const documentsPlugins = join(home, "Documents", "IndusCode", "Plugins");
 			await mkdir(workspacePlugins, { recursive: true });
 			await mkdir(userPlugins, { recursive: true });
 			await mkdir(documentsPlugins, { recursive: true });
@@ -375,7 +375,7 @@ describe("plugin-config-loader", () => {
 			const enabledPlugin = join(root, "enabled.js");
 			const disabledPlugin = join(root, "disabled.js");
 			const settingsPath = join(root, "global-settings.json");
-			process.env.CLINE_GLOBAL_SETTINGS_PATH = settingsPath;
+			process.env.INDUSCODE_GLOBAL_SETTINGS_PATH = settingsPath;
 			await writeFile(enabledPlugin, "export default {}", "utf8");
 			await writeFile(disabledPlugin, "export default {}", "utf8");
 			await writeFile(
@@ -456,7 +456,7 @@ describe("plugin-config-loader", () => {
 	name: 'compatible-plugin',
 	manifest: {
 		capabilities: ['tools'],
-		providerIds: ['cline'],
+		providerIds: ['induscode'],
 		modelIds: ['anthropic/claude-haiku-4.5']
 	}
 };`,
@@ -478,7 +478,7 @@ describe("plugin-config-loader", () => {
 			const loaded = await resolveAndLoadAgentPlugins({
 				pluginPaths: [compatible, incompatible],
 				cwd: root,
-				providerId: "cline",
+				providerId: "induscode",
 				modelId: "anthropic/claude-haiku-4.5",
 			});
 
@@ -492,16 +492,16 @@ describe("plugin-config-loader", () => {
 	});
 
 	it("runs plugins in workers by default and keeps the sandbox opt-in", () => {
-		delete process.env.CLINE_PLUGIN_MODE;
+		delete process.env.INDUSCODE_PLUGIN_MODE;
 		expect(resolvePluginExecutionMode()).toBe("worker");
 		expect(resolvePluginExecutionMode("sandbox")).toBe("sandbox");
-		process.env.CLINE_PLUGIN_MODE = "sandbox";
+		process.env.INDUSCODE_PLUGIN_MODE = "sandbox";
 		expect(resolvePluginExecutionMode()).toBe("sandbox");
 		// The removed in-process mode is not honoured: plugin code never runs
 		// on the host's main thread.
-		process.env.CLINE_PLUGIN_MODE = "in_process";
+		process.env.INDUSCODE_PLUGIN_MODE = "in_process";
 		expect(resolvePluginExecutionMode()).toBe("worker");
-		process.env.CLINE_PLUGIN_MODE = "unknown";
+		process.env.INDUSCODE_PLUGIN_MODE = "unknown";
 		expect(resolvePluginExecutionMode()).toBe("worker");
 	});
 

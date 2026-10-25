@@ -1,4 +1,4 @@
-import { getGeneratedModelsForProvider, MODEL_COLLECTIONS_BY_PROVIDER_ID } from "@cline/llms"
+import { getGeneratedModelsForProvider, MODEL_COLLECTIONS_BY_PROVIDER_ID } from "@induscode/llms"
 import type { Mode, ProviderConfigStore, ProviderId } from "@/sdk/model-catalog/contracts"
 import { parseProviderId } from "@/sdk/model-catalog/provider-id"
 import { toSdkProviderId } from "@/sdk/model-catalog/sdk-provider-id"
@@ -55,7 +55,7 @@ function resolveProviderSwitchModelId(
 /**
  * Keep generic legacy model-id slots coherent when switching to an SDK-catalog
  * provider. DeepSeek currently stores its model id in `*ModeApiModelId`; without
- * this normalization, switching Anthropic/Cline/etc. → DeepSeek can leave the
+ * this normalization, switching Anthropic/IndusCode/etc. → DeepSeek can leave the
  * generic slot pointing at a previous provider's model.
  */
 export function normalizeProviderSwitchModel<T extends ProviderSwitchConfig>(

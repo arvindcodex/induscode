@@ -1,18 +1,18 @@
 import type { Decorator, Preview } from "@storybook/react-vite";
 import "./preview.css";
 
-const withClineTheme: Decorator = (Story, context) => {
+const withIndusCodeTheme: Decorator = (Story, context) => {
 	const isDark = context.globals.theme === "dark";
 	document.documentElement.classList.toggle("dark", isDark);
 	return (
-		<div className="cline-storybook-surface" data-view-mode={context.viewMode}>
+		<div className="induscode-storybook-surface" data-view-mode={context.viewMode}>
 			<Story />
 		</div>
 	);
 };
 
 const preview: Preview = {
-	decorators: [withClineTheme],
+	decorators: [withIndusCodeTheme],
 	parameters: {
 		backgrounds: { disable: true },
 		controls: {
@@ -39,7 +39,7 @@ const preview: Preview = {
 	},
 	globalTypes: {
 		theme: {
-			description: "Cline color theme",
+			description: "IndusCode color theme",
 			defaultValue: "dark",
 			toolbar: {
 				dynamicTitle: true,

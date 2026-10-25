@@ -1,7 +1,7 @@
 import { readdirSync } from "node:fs";
 import { homedir } from "node:os";
 import { isAbsolute, join, resolve } from "node:path";
-import type * as LlmsProviders from "@cline/llms";
+import type * as LlmsProviders from "@induscode/llms";
 import {
 	type AgentConfig,
 	type AgentEvent,
@@ -12,8 +12,8 @@ import {
 	type ITelemetryService,
 	isLikelyAuthError,
 	normalizeUserInput,
-} from "@cline/shared";
-import { setHomeDirIfUnset } from "@cline/shared/storage";
+} from "@induscode/shared";
+import { setHomeDirIfUnset } from "@induscode/shared/storage";
 import { isOAuthProvider } from "../../auth/provider-auth-registry";
 import type { ConnectorsRequest } from "../../extensions/composio/composio-meta-tools";
 import {
@@ -58,6 +58,8 @@ import {
 	summarizeUsageFromMessages,
 	sumUsageTotals,
 } from "../../services/usage";
+import { defaultQuotaService, type UserTier } from "../../services/quota";
+
 import { enrichPromptWithMentions } from "../../services/workspace";
 import { resolveStartSessionWorkspace } from "../../services/workspace/chat-workspace";
 import {
@@ -329,7 +331,7 @@ export class LocalRuntimeHost implements RuntimeHost {
 		// A caller-owned telemetry service may already be identified to an
 		// authenticated account (the long-lived Hub daemon is one example).
 		// Only replace that identity when the caller explicitly supplied the
-		// runtime distinct id. ClineCore always does so through host.ts.
+		// runtime distinct id. IndusCodeCore always does so through host.ts.
 		if (options.distinctId !== undefined) {
 			this.defaultTelemetry?.setDistinctId(distinctId);
 		}
@@ -1833,6 +1835,19 @@ export class LocalRuntimeHost implements RuntimeHost {
 		}
 		await this.refreshActiveSessionGitMetadata(session);
 		await this.syncOAuthCredentials(session);
+
+		// Antigravity-style Dual-Bucket Quota Check for Free & Tiered Users
+		const isByok = Boolean(
+			session.config.providerId === "ollama" ||
+			session.config.providerId === "lmstudio" ||
+			(session.config.apiKey &&
+				!session.config.apiKey.startsWith("indus_") &&
+				session.config.providerId !== "induscode" &&
+				session.config.providerId !== "induscode")
+		);
+		const userTier: UserTier = isByok ? "BYOK_TIER" : "FREE_TIER";
+		defaultQuotaService.checkAndConsumeTurn(userTier, session.config.modelId);
+
 		await this.markTurnRunning(session);
 
 		try {
@@ -2101,7 +2116,7 @@ export class LocalRuntimeHost implements RuntimeHost {
 	 * Anchor `task.completed` telemetry to the assistant's explicit
 	 * completion declaration. We emit at most once per session, the moment
 	 * a successful `submit_and_exit` tool call is observed in the run
-	 * result. This is the SDK analog of original Cline's
+	 * result. This is the SDK analog of original IndusCode's
 	 * `attempt_completion`-driven emission and works for both interactive
 	 * and non-interactive sessions.
 	 *

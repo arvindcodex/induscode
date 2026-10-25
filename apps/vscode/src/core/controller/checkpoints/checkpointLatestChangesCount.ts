@@ -1,4 +1,4 @@
-import { EmptyRequest, Int64 } from "@shared/proto/cline/common"
+import { EmptyRequest, Int64 } from "@shared/proto/induscode/common"
 import { Controller } from ".."
 
 /**

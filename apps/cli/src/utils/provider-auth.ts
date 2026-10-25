@@ -6,7 +6,7 @@ import {
 	Llms,
 	type ProviderOAuthCredentials,
 	type ProviderSettings,
-} from "@cline/core";
+} from "@induscode/core";
 
 export type OAuthCredentials = ProviderOAuthCredentials;
 

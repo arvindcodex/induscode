@@ -1,13 +1,13 @@
 import { describe, expect, it, vi } from "vitest";
 import {
-	type ClineAccountOperations,
-	executeClineAccountAction,
-	RpcClineAccountService,
+	type IndusCodeAccountOperations,
+	executeIndusCodeAccountAction,
+	RpcIndusCodeAccountService,
 } from "./rpc";
 
-describe("executeClineAccountAction", () => {
+describe("executeIndusCodeAccountAction", () => {
 	it("dispatches fetchMe", async () => {
-		const service: ClineAccountOperations = {
+		const service: IndusCodeAccountOperations = {
 			fetchMe: vi.fn(async () => ({
 				id: "u1",
 				email: "user1@example.com",
@@ -30,8 +30,8 @@ describe("executeClineAccountAction", () => {
 			fetchFeaturebaseToken: vi.fn(async () => undefined),
 		};
 
-		const result = await executeClineAccountAction(
-			{ action: "clineAccount", operation: "fetchMe" },
+		const result = await executeIndusCodeAccountAction(
+			{ action: "induscodeAccount", operation: "fetchMe" },
 			service,
 		);
 		expect(service.fetchMe).toHaveBeenCalledTimes(1);
@@ -39,7 +39,7 @@ describe("executeClineAccountAction", () => {
 	});
 });
 
-describe("RpcClineAccountService", () => {
+describe("RpcIndusCodeAccountService", () => {
 	it("sends provider action payload and parses response", async () => {
 		const runProviderAction = vi.fn(async (request: unknown) => {
 			const parsed = request as {
@@ -47,14 +47,14 @@ describe("RpcClineAccountService", () => {
 				operation: string;
 			};
 			expect(parsed).toEqual({
-				action: "clineAccount",
+				action: "induscodeAccount",
 				operation: "fetchMe",
 			});
 			return {
 				result: { id: "u2", email: "u2@example.com" },
 			};
 		});
-		const service = new RpcClineAccountService({ runProviderAction });
+		const service = new RpcIndusCodeAccountService({ runProviderAction });
 
 		const me = await service.fetchMe();
 		expect(runProviderAction).toHaveBeenCalledTimes(1);

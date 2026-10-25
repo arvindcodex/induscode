@@ -1,4 +1,4 @@
-import type { RemoteConfigSettingsResponse } from "@shared/proto/cline/remote_config"
+import type { RemoteConfigSettingsResponse } from "@shared/proto/induscode/remote_config"
 import { act, renderHook, waitFor } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { useExtensionState } from "@/context/ExtensionStateContext"

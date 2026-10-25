@@ -6,7 +6,7 @@ const shared = {
 	publisher: "saoudrizwan",
 	main: "./dist/extension.js",
 	engines: { vscode: "^1.84.0" },
-	displayName: "Cline",
+	displayName: "IndusCode",
 };
 
 function pkg(overrides) {
@@ -15,7 +15,7 @@ function pkg(overrides) {
 		activationEvents: ["onStartupFinished"],
 		contributes: {
 			viewsContainers: {
-				activitybar: [{ id: "c", title: "Cline", icon: "assets/icon.svg" }],
+				activitybar: [{ id: "c", title: "IndusCode", icon: "assets/icon.svg" }],
 			},
 			views: { c: [{ type: "webview", id: "claude-dev.SidebarProvider" }] },
 			commands: [],
@@ -35,33 +35,33 @@ describe("generateManifest", () => {
 		const next = pkg({
 			contributes: {
 				commands: [
-					{ command: "cline.a", title: "A" },
-					{ command: "cline.shared", title: "S" },
+					{ command: "induscode.a", title: "A" },
+					{ command: "induscode.shared", title: "S" },
 				],
-				menus: { "view/title": [{ command: "cline.a", when: "x" }] },
+				menus: { "view/title": [{ command: "induscode.a", when: "x" }] },
 			},
 		});
 		const legacy = pkg({
 			activationEvents: ["onStartupFinished", "workspaceContains:evals.env"],
 			contributes: {
 				commands: [
-					{ command: "cline.b", title: "B" },
-					{ command: "cline.shared", title: "S" },
+					{ command: "induscode.b", title: "B" },
+					{ command: "induscode.shared", title: "S" },
 				],
 				menus: {
-					"view/title": [{ command: "cline.b", when: "y" }],
-					"comments/commentThread/title": [{ command: "cline.b" }],
+					"view/title": [{ command: "induscode.b", when: "y" }],
+					"comments/commentThread/title": [{ command: "induscode.b" }],
 				},
-				keybindings: [{ command: "cline.b", key: "ctrl+k" }],
+				keybindings: [{ command: "induscode.b", key: "ctrl+k" }],
 			},
 		});
 		const manifest = generateManifest(next, legacy, "4.1.0");
 		expect(manifest.version).toBe("4.1.0");
 		expect(manifest.main).toBe("./extension.js");
 		expect(manifest.contributes.commands.map((c) => c.command).sort()).toEqual([
-			"cline.a",
-			"cline.b",
-			"cline.shared",
+			"induscode.a",
+			"induscode.b",
+			"induscode.shared",
 		]);
 		expect(manifest.contributes.menus["view/title"]).toHaveLength(2);
 		expect(
@@ -75,13 +75,13 @@ describe("generateManifest", () => {
 		const next = pkg({
 			contributes: {
 				commands: [
-					{ command: "cline.a", title: "A" },
-					{ command: "cline.shared", title: "S" },
+					{ command: "induscode.a", title: "A" },
+					{ command: "induscode.shared", title: "S" },
 				],
 				menus: {
 					"view/title": [
-						{ command: "cline.a", when: "x" },
-						{ command: "cline.shared", when: "v" },
+						{ command: "induscode.a", when: "x" },
+						{ command: "induscode.shared", when: "v" },
 					],
 				},
 			},
@@ -89,29 +89,29 @@ describe("generateManifest", () => {
 		const legacy = pkg({
 			contributes: {
 				commands: [
-					{ command: "cline.b", title: "B" },
-					{ command: "cline.shared", title: "S" },
+					{ command: "induscode.b", title: "B" },
+					{ command: "induscode.shared", title: "S" },
 				],
 				menus: {
 					"view/title": [
-						{ command: "cline.b", when: "y" },
-						{ command: "cline.shared", when: "v" },
+						{ command: "induscode.b", when: "y" },
+						{ command: "induscode.shared", when: "v" },
 					],
 				},
-				keybindings: [{ command: "cline.b", key: "ctrl+k", when: "focus" }],
+				keybindings: [{ command: "induscode.b", key: "ctrl+k", when: "focus" }],
 			},
 		});
 		const manifest = generateManifest(next, legacy, "4.1.0");
 		const viewTitle = manifest.contributes.menus["view/title"];
-		expect(viewTitle.find((e) => e.command === "cline.a").when).toBe(
-			"(x) && cline.sdkBundle",
+		expect(viewTitle.find((e) => e.command === "induscode.a").when).toBe(
+			"(x) && induscode.sdkBundle",
 		);
-		expect(viewTitle.find((e) => e.command === "cline.b").when).toBe(
-			"(y) && !cline.sdkBundle",
+		expect(viewTitle.find((e) => e.command === "induscode.b").when).toBe(
+			"(y) && !induscode.sdkBundle",
 		);
-		expect(viewTitle.find((e) => e.command === "cline.shared").when).toBe("v");
+		expect(viewTitle.find((e) => e.command === "induscode.shared").when).toBe("v");
 		expect(manifest.contributes.keybindings[0].when).toBe(
-			"(focus) && !cline.sdkBundle",
+			"(focus) && !induscode.sdkBundle",
 		);
 	});
 
@@ -119,63 +119,63 @@ describe("generateManifest", () => {
 		const next = pkg({
 			contributes: {
 				commands: [
-					{ command: "cline.nextOnly", title: "N" },
-					{ command: "cline.shared", title: "S" },
+					{ command: "induscode.nextOnly", title: "N" },
+					{ command: "induscode.shared", title: "S" },
 				],
 			},
 		});
 		const legacy = pkg({
 			contributes: {
 				commands: [
-					{ command: "cline.legacyOnly", title: "L" },
-					{ command: "cline.shared", title: "S" },
+					{ command: "induscode.legacyOnly", title: "L" },
+					{ command: "induscode.shared", title: "S" },
 				],
 			},
 		});
 		const palette = generateManifest(next, legacy, "4.1.0").contributes.menus
 			.commandPalette;
 		expect(palette).toContainEqual({
-			command: "cline.nextOnly",
-			when: "cline.sdkBundle",
+			command: "induscode.nextOnly",
+			when: "induscode.sdkBundle",
 		});
 		expect(palette).toContainEqual({
-			command: "cline.legacyOnly",
-			when: "!cline.sdkBundle",
+			command: "induscode.legacyOnly",
+			when: "!induscode.sdkBundle",
 		});
-		expect(palette.find((e) => e.command === "cline.shared")).toBeUndefined();
+		expect(palette.find((e) => e.command === "induscode.shared")).toBeUndefined();
 	});
 
 	it("leaves commands alone when a bundle already declares a palette entry for them", () => {
 		const next = pkg({
-			contributes: { commands: [{ command: "cline.shared", title: "S" }] },
+			contributes: { commands: [{ command: "induscode.shared", title: "S" }] },
 		});
 		const legacy = pkg({
 			contributes: {
 				commands: [
-					{ command: "cline.hidden", title: "H" },
-					{ command: "cline.shared", title: "S" },
+					{ command: "induscode.hidden", title: "H" },
+					{ command: "induscode.shared", title: "S" },
 				],
-				menus: { commandPalette: [{ command: "cline.hidden", when: "false" }] },
+				menus: { commandPalette: [{ command: "induscode.hidden", when: "false" }] },
 			},
 		});
 		const palette = generateManifest(next, legacy, "4.1.0").contributes.menus
 			.commandPalette;
-		expect(palette.filter((e) => e.command === "cline.hidden")).toEqual([
-			{ command: "cline.hidden", when: "(false) && !cline.sdkBundle" },
+		expect(palette.filter((e) => e.command === "induscode.hidden")).toEqual([
+			{ command: "induscode.hidden", when: "(false) && !induscode.sdkBundle" },
 		]);
 	});
 
 	it("dedupes structurally identical menu entries", () => {
-		const entry = { command: "cline.a", when: "view == cline" };
+		const entry = { command: "induscode.a", when: "view == induscode" };
 		const next = pkg({
 			contributes: {
-				commands: [{ command: "cline.a", title: "A" }],
+				commands: [{ command: "induscode.a", title: "A" }],
 				menus: { "view/title": [entry] },
 			},
 		});
 		const legacy = pkg({
 			contributes: {
-				commands: [{ command: "cline.a", title: "A" }],
+				commands: [{ command: "induscode.a", title: "A" }],
 				menus: { "view/title": [{ ...entry }] },
 			},
 		});
@@ -197,8 +197,8 @@ describe("generateManifest", () => {
 			contributes: {
 				walkthroughs: [
 					{
-						id: "ClineWalkthrough",
-						title: "Meet Cline",
+						id: "IndusCodeWalkthrough",
+						title: "Meet IndusCode",
 						steps: [{ id: stepId, title: "Start here", media }],
 					},
 				],
@@ -225,8 +225,8 @@ describe("generateManifest", () => {
 			contributes: {
 				walkthroughs: [
 					{
-						id: "ClineWalkthrough",
-						title: "Meet Cline",
+						id: "IndusCodeWalkthrough",
+						title: "Meet IndusCode",
 						steps: [
 							{
 								id: "welcome",
@@ -253,9 +253,9 @@ describe("generateManifest", () => {
 		const next = pkg({
 			contributes: {
 				configuration: {
-					title: "Cline",
+					title: "IndusCode",
 					properties: {
-						"cline.enabled": { type: "boolean", default: false },
+						"induscode.enabled": { type: "boolean", default: false },
 					},
 				},
 			},
@@ -263,9 +263,9 @@ describe("generateManifest", () => {
 		const legacy = pkg({
 			contributes: {
 				configuration: {
-					title: "Cline",
+					title: "IndusCode",
 					properties: {
-						"cline.enabled": { type: "boolean", default: 0 },
+						"induscode.enabled": { type: "boolean", default: 0 },
 					},
 				},
 			},
@@ -279,7 +279,7 @@ describe("generateManifest", () => {
 		const manifest = generateManifest(pkg({}), pkg({}), "4.1.0");
 		const prop =
 			manifest.contributes.configuration.properties[
-				"cline.rollout.bundleOverride"
+				"induscode.rollout.bundleOverride"
 			];
 		expect(prop).toBeDefined();
 		expect(prop.enum).toEqual(["auto", "next", "legacy"]);
@@ -291,8 +291,8 @@ describe("generateManifest", () => {
 		const withClash = {
 			contributes: {
 				configuration: {
-					title: "Cline",
-					properties: { "cline.rollout.bundleOverride": { type: "string" } },
+					title: "IndusCode",
+					properties: { "induscode.rollout.bundleOverride": { type: "string" } },
 				},
 			},
 		};
@@ -304,38 +304,38 @@ describe("generateManifest", () => {
 	it("derives gates and the injected setting from the nightly identity", () => {
 		const nightly = (overrides) => ({
 			...pkg(overrides),
-			name: "cline-nightly",
-			displayName: "Cline (Nightly)",
+			name: "induscode-nightly",
+			displayName: "IndusCode (Nightly)",
 		});
 		const next = nightly({
 			contributes: {
-				commands: [{ command: "cline-nightly.nextOnly", title: "N" }],
+				commands: [{ command: "induscode-nightly.nextOnly", title: "N" }],
 				menus: {
-					"view/title": [{ command: "cline-nightly.nextOnly", when: "x" }],
+					"view/title": [{ command: "induscode-nightly.nextOnly", when: "x" }],
 				},
 			},
 		});
 		const legacy = nightly({
 			contributes: {
-				commands: [{ command: "cline-nightly.legacyOnly", title: "L" }],
-				keybindings: [{ command: "cline-nightly.legacyOnly", key: "ctrl+k" }],
+				commands: [{ command: "induscode-nightly.legacyOnly", title: "L" }],
+				keybindings: [{ command: "induscode-nightly.legacyOnly", key: "ctrl+k" }],
 			},
 		});
 		const manifest = generateManifest(next, legacy, "4.0.1752600000");
-		expect(manifest.name).toBe("cline-nightly");
+		expect(manifest.name).toBe("induscode-nightly");
 		expect(manifest.contributes.menus["view/title"][0].when).toBe(
-			"(x) && cline-nightly.sdkBundle",
+			"(x) && induscode-nightly.sdkBundle",
 		);
 		expect(manifest.contributes.keybindings[0].when).toBe(
-			"!cline-nightly.sdkBundle",
+			"!induscode-nightly.sdkBundle",
 		);
 		expect(manifest.contributes.menus.commandPalette).toContainEqual({
-			command: "cline-nightly.legacyOnly",
-			when: "!cline-nightly.sdkBundle",
+			command: "induscode-nightly.legacyOnly",
+			when: "!induscode-nightly.sdkBundle",
 		});
 		const properties = manifest.contributes.configuration.properties;
-		expect(properties["cline-nightly.rollout.bundleOverride"]).toBeDefined();
-		expect(properties["cline.rollout.bundleOverride"]).toBeUndefined();
+		expect(properties["induscode-nightly.rollout.bundleOverride"]).toBeDefined();
+		expect(properties["induscode.rollout.bundleOverride"]).toBeUndefined();
 	});
 
 	it("unions diverged engines to the newer requirement (either direction)", () => {
@@ -360,7 +360,7 @@ describe("generateManifest", () => {
 		const next = pkg({
 			contributes: {
 				icons: {
-					"cline-logo": {
+					"induscode-logo": {
 						description: "d",
 						default: { fontPath: "a.woff", fontCharacter: "\\E900" },
 					},
@@ -370,7 +370,7 @@ describe("generateManifest", () => {
 		const legacy = pkg({
 			contributes: {
 				icons: {
-					"cline-logo": {
+					"induscode-logo": {
 						description: "d",
 						default: { fontPath: "b.woff", fontCharacter: "\\E900" },
 					},

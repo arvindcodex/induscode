@@ -5,9 +5,9 @@ import type {
 	ChatStartSessionRequest,
 	HubSessionClient,
 	UserInstructionConfigService,
-} from "@cline/core";
-import { isUnusableSessionError } from "@cline/core";
-import type { GeneratedMedia } from "@cline/shared";
+} from "@induscode/core";
+import { isUnusableSessionError } from "@induscode/core";
+import type { GeneratedMedia } from "@induscode/shared";
 import type { SentMessage, Thread } from "chat";
 import type { CliLoggerAdapter } from "../logging/adapter";
 import { buildUserInputMessage, resolveSystemPrompt } from "../runtime/prompt";

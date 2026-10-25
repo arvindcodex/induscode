@@ -1,4 +1,4 @@
-import type { AgendaTaskRecord } from "@cline/shared";
+import type { AgendaTaskRecord } from "@induscode/shared";
 import { describe, expect, it } from "vitest";
 import { isAgendaTaskExpired, sortAgendaTasks } from "./use-agenda-tasks";
 

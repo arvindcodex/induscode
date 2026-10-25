@@ -1,4 +1,4 @@
-import type { BannerAction, BannerCardData } from "@shared/cline/banner"
+import type { BannerAction, BannerCardData } from "@shared/induscode/banner"
 import React from "react"
 import Markdown from "react-markdown"
 

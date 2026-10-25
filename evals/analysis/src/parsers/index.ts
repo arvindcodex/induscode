@@ -1,8 +1,8 @@
 /**
- * Parser exports for Cline Analysis Framework
+ * Parser exports for IndusCode Analysis Framework
  *
  * Parsers for different benchmark types:
- * - Harbor: Real-world tasks via cline-bench
+ * - Harbor: Real-world tasks via induscode-bench
  */
 
 export * from "./harbor"

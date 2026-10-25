@@ -11,14 +11,14 @@ export enum FeatureFlag {
 	// Feature flag for DB-backed welcome banners (What's New modal)
 	// When off, hardcoded welcome items are shown instead
 	REMOTE_WELCOME_BANNERS = "remote-welcome-banners",
-	// Rollout flag for Cline provider model sourcing:
-	// off => OpenRouter model list, on => Cline endpoint model list.
-	EXTENSION_CLINE_MODELS_ENDPOINT = "extension_cline_models_endpoint",
-	// Rollout flag for fetching recommended Cline models from the upstream endpoint.
-	CLINE_RECOMMENDED_MODELS_UPSTREAM = "cline_recommended_models_upstream",
+	// Rollout flag for IndusCode provider model sourcing:
+	// off => OpenRouter model list, on => IndusCode endpoint model list.
+	EXTENSION_INDUSCODE_MODELS_ENDPOINT = "extension_induscode_models_endpoint",
+	// Rollout flag for fetching recommended IndusCode models from the upstream endpoint.
+	INDUSCODE_RECOMMENDED_MODELS_UPSTREAM = "induscode_recommended_models_upstream",
 	// Use the websocket mode for OpenAI native Responses API format
 	OPENAI_RESPONSES_WEBSOCKET_MODE = "openai-responses-websocket-mode",
-	// Rollout flag for Cline Cloud sessions (run a task in a hosted sandbox)
+	// Rollout flag for IndusCode Cloud sessions (run a task in a hosted sandbox)
 	CLOUD_SESSIONS = "ext-cloud-sessions",
 }
 
@@ -28,8 +28,8 @@ export const FeatureFlagDefaultValue: Partial<Record<FeatureFlag, FeatureFlagPay
 	[FeatureFlag.REMOTE_BANNERS]: process.env.E2E_TEST === "true" || process.env.IS_DEV === "true",
 	[FeatureFlag.EXTENSION_REMOTE_BANNERS_TTL]: 24 * 60 * 60 * 1000,
 	[FeatureFlag.REMOTE_WELCOME_BANNERS]: process.env.E2E_TEST === "true" || process.env.IS_DEV === "true",
-	[FeatureFlag.EXTENSION_CLINE_MODELS_ENDPOINT]: false,
-	[FeatureFlag.CLINE_RECOMMENDED_MODELS_UPSTREAM]: false,
+	[FeatureFlag.EXTENSION_INDUSCODE_MODELS_ENDPOINT]: false,
+	[FeatureFlag.INDUSCODE_RECOMMENDED_MODELS_UPSTREAM]: false,
 	[FeatureFlag.OPENAI_RESPONSES_WEBSOCKET_MODE]: false,
 	[FeatureFlag.CLOUD_SESSIONS]: false,
 }

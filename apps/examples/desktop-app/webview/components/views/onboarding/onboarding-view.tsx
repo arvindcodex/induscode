@@ -1,6 +1,6 @@
 "use client";
 
-import { AgentWelcomeHero, Button, IconButton } from "@cline/ui";
+import { AgentWelcomeHero, Button, IconButton } from "@induscode/ui";
 import {
 	ArrowLeft,
 	Check,
@@ -12,7 +12,7 @@ import {
 	Loader2,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ClineLogo } from "@/components/cline-logo";
+import { IndusCodeLogo } from "@/components/induscode-logo";
 import { ImportSessionsDialog } from "@/components/import-sessions-dialog";
 import { IndusRobotHero } from "@/components/indus-robot-hero";
 import { Badge } from "@/components/ui/badge";
@@ -27,17 +27,17 @@ import {
 import { GitHubConnectStep } from "@/components/views/onboarding/onboarding-github-step";
 import { useAccount } from "@/contexts/account-context";
 import { OAUTH_MANAGED_PROVIDERS } from "@/hooks/chat-session/constants";
-import { useClineSignIn } from "@/hooks/use-cline-sign-in";
+import { useIndusCodeSignIn } from "@/hooks/use-induscode-sign-in";
 import { isFeatureEnabled, useFeatureFlags } from "@/hooks/use-feature-flags";
 import { useOAuthUserCode } from "@/hooks/use-oauth-user-code";
-import { isClineAccountNotAuthenticatedResult } from "@/lib/cline-account-state";
+import { isIndusCodeAccountNotAuthenticatedResult } from "@/lib/induscode-account-state";
 import { desktopClient, openExternalUrl } from "@/lib/desktop-client";
 import {
 	readModelSelectionStorageFromWindow,
 	writeModelSelectionStorageToWindow,
 } from "@/lib/model-selection";
 import {
-	CLINE_DASHBOARD_URL,
+	INDUSCODE_DASHBOARD_URL,
 	getProviderApiKeyUrl,
 } from "@/lib/provider-key-urls";
 import {
@@ -55,16 +55,16 @@ import { cn } from "@/lib/utils";
 
 const CREATE_ACCOUNT_URL =
 	process.env.NEXT_PUBLIC_INDUSCODE_LOGIN_URL || "http://localhost:3000/login";
-const CLINE_PASS_SUBSCRIBE_URL =
-	"https://app.cline.bot/onboarding/individual-plan";
+const INDUSCODE_PASS_SUBSCRIBE_URL =
+	"https://app.induscode.bot/onboarding/individual-plan";
 
-const CLINE_SIGN_IN_BENEFITS = [
+const INDUSCODE_SIGN_IN_BENEFITS = [
 	"Regular free model promotions",
 	"Subscribe to IndusPass for generous usage across the best open weights models like DeepSeek, Kimi, and GLM",
 	"No API key needed",
 ];
 
-type ClineRecommendedModelsResponse = {
+type IndusCodeRecommendedModelsResponse = {
 	free?: { id: string; name?: string; description?: string }[];
 };
 
@@ -78,10 +78,10 @@ export type OnboardingStep =
 	| "done";
 
 type OnboardingConnection =
-	| { kind: "cline" }
+	| { kind: "induscode" }
 	| { kind: "provider"; providerName: string };
 
-type SetupMethod = "cline" | "api-key";
+type SetupMethod = "induscode" | "api-key";
 
 /**
  * Providers surfaced first in the bring-your-own-key picker. Everything else
@@ -120,7 +120,7 @@ function isApiKeyOnlyProvider(provider: Provider): boolean {
 
 /**
  * Orders the provider catalog for the API-key setup step: OAuth-managed
- * providers (Cline itself, ClinePass, ChatGPT, OCA) are excluded because they
+ * providers (IndusCode itself, IndusCodePass, ChatGPT, OCA) are excluded because they
  * have dedicated sign-in paths, providers needing more than an API key are
  * excluded because this form only collects one, popular API-key providers
  * come first, and the rest follow alphabetically.
@@ -339,39 +339,39 @@ function ConnectStep({
 }) {
 	const { user, refreshAccount } = useAccount();
 	const {
-		signIn: signInWithCline,
-		cancelSignIn: cancelSignInWithCline,
+		signIn: signInWithIndusCode,
+		cancelSignIn: cancelSignInWithIndusCode,
 		signingIn,
 		cancelling,
 		error: signInError,
-	} = useClineSignIn({
+	} = useIndusCodeSignIn({
 		onSuccess: async (signal) => {
 			if (signal.aborted) {
 				// Credentials may have been saved before cancellation reached the backend.
 				void refreshAccount();
 				return;
 			}
-			rememberProviderSelection({ id: "cline" });
+			rememberProviderSelection({ id: "induscode" });
 			await refreshAccount();
-			if (!signal.aborted) onConnected({ kind: "cline" });
+			if (!signal.aborted) onConnected({ kind: "induscode" });
 		},
 		onSettled: invalidateProviderCatalogCache,
 	});
 	const deviceUserCode = useOAuthUserCode(signingIn);
-	const [clineApiKey, setClineApiKey] = useState("");
-	const [clineKeySaving, setClineKeySaving] = useState(false);
-	const [clineKeyError, setClineKeyError] = useState<string | null>(null);
+	const [induscodeApiKey, setIndusCodeApiKey] = useState("");
+	const [induscodeKeySaving, setIndusCodeKeySaving] = useState(false);
+	const [induscodeKeyError, setIndusCodeKeyError] = useState<string | null>(null);
 
-	const connectWithClineApiKey = useCallback(async () => {
-		const key = clineApiKey.trim();
+	const connectWithIndusCodeApiKey = useCallback(async () => {
+		const key = induscodeApiKey.trim();
 		if (!key) {
 			return;
 		}
-		setClineKeySaving(true);
-		setClineKeyError(null);
+		setIndusCodeKeySaving(true);
+		setIndusCodeKeyError(null);
 		try {
 			await desktopClient.invoke("save_provider_settings", {
-				provider: "cline",
+				provider: "induscode",
 				enabled: true,
 				api_key: key,
 			});
@@ -379,13 +379,13 @@ function ConnectStep({
 			// account context swallows errors, so an invalid key would
 			// otherwise onboard the user into a broken signed-in state.
 			try {
-				const verified = await desktopClient.invoke("cline_account", {
-					action: "clineAccount",
+				const verified = await desktopClient.invoke("induscode_account", {
+					action: "induscodeAccount",
 					operation: "fetchMe",
 				});
 				// A typed not-authenticated result means the sidecar found no
 				// usable credential after the save — the key did not stick.
-				if (isClineAccountNotAuthenticatedResult(verified)) {
+				if (isIndusCodeAccountNotAuthenticatedResult(verified)) {
 					throw new Error("no IndusCode account credentials were found");
 				}
 			} catch (verifyError) {
@@ -393,7 +393,7 @@ function ConnectStep({
 				// not linger in provider settings.
 				await desktopClient
 					.invoke("save_provider_settings", {
-						provider: "cline",
+						provider: "induscode",
 						api_key: "",
 					})
 					.catch(() => undefined);
@@ -401,20 +401,20 @@ function ConnectStep({
 					`the key could not be verified (${getErrorMessage(verifyError)})`,
 				);
 			}
-			rememberProviderSelection({ id: "cline" });
+			rememberProviderSelection({ id: "induscode" });
 			await refreshAccount();
-			onConnected({ kind: "cline" });
+			onConnected({ kind: "induscode" });
 		} catch (error) {
-			setClineKeyError(getErrorMessage(error));
+			setIndusCodeKeyError(getErrorMessage(error));
 		} finally {
 			// Credentials may have been saved (or rolled back); drop the
 			// short-lived catalog cache so consumers reload the persisted state.
 			invalidateProviderCatalogCache();
-			setClineKeySaving(false);
+			setIndusCodeKeySaving(false);
 		}
-	}, [clineApiKey, onConnected, refreshAccount]);
+	}, [induscodeApiKey, onConnected, refreshAccount]);
 
-	const clineBusy = signingIn || clineKeySaving;
+	const induscodeBusy = signingIn || induscodeKeySaving;
 
 	const [providers, setProviders] = useState<Provider[]>([]);
 	const [providersLoading, setProvidersLoading] = useState(true);
@@ -488,8 +488,8 @@ function ConnectStep({
 		}
 	}, [apiKey, onConnected, selectedProvider, selectedProviderId]);
 
-	const [selectedMethod, setSelectedMethod] = useState<SetupMethod>("cline");
-	const [clineKeyFormExpanded, setClineKeyFormExpanded] = useState(false);
+	const [selectedMethod, setSelectedMethod] = useState<SetupMethod>("induscode");
+	const [induscodeKeyFormExpanded, setIndusCodeKeyFormExpanded] = useState(false);
 
 	return (
 		<OnboardingContent surface="panel">
@@ -516,10 +516,10 @@ function ConnectStep({
 
 			<div className="mt-8 flex flex-col gap-3">
 				<SetupOptionCard
-					id="cline"
-					onSelect={() => setSelectedMethod("cline")}
+					id="induscode"
+					onSelect={() => setSelectedMethod("induscode")}
 					selectLabel="Sign in with IndusCode"
-					selected={selectedMethod === "cline"}
+					selected={selectedMethod === "induscode"}
 				>
 					<SetupOptionHeader
 						accessory={
@@ -532,7 +532,7 @@ function ConnectStep({
 						}
 						description={
 							<ul className="flex flex-col gap-1">
-								{CLINE_SIGN_IN_BENEFITS.map((benefit) => (
+								{INDUSCODE_SIGN_IN_BENEFITS.map((benefit) => (
 									<li className="flex gap-2" key={benefit}>
 										<Check
 											aria-hidden="true"
@@ -543,7 +543,7 @@ function ConnectStep({
 								))}
 							</ul>
 						}
-						icon={<ClineLogo className="size-5" />}
+						icon={<IndusCodeLogo className="size-5" />}
 						title="Sign in with IndusCode"
 					/>
 					{user ? (
@@ -556,8 +556,8 @@ function ConnectStep({
 							</p>
 							<Button
 								onClick={() => {
-									rememberProviderSelection({ id: "cline" });
-									onConnected({ kind: "cline" });
+									rememberProviderSelection({ id: "induscode" });
+									onConnected({ kind: "induscode" });
 								}}
 								size="md"
 								tone="accent"
@@ -623,12 +623,12 @@ function ConnectStep({
 					{!user ? (
 						<div className="mt-6 ml-10 -mb-2 max-[720px]:ml-0">
 							<Button
-								aria-controls="onboarding-cline-key-form"
-								aria-expanded={clineKeyFormExpanded}
-								disabled={clineBusy}
+								aria-controls="onboarding-induscode-key-form"
+								aria-expanded={induscodeKeyFormExpanded}
+								disabled={induscodeBusy}
 								onClick={() => {
-									setSelectedMethod("cline");
-									setClineKeyFormExpanded(!clineKeyFormExpanded);
+									setSelectedMethod("induscode");
+									setIndusCodeKeyFormExpanded(!induscodeKeyFormExpanded);
 								}}
 								size="xs"
 								tone="neutral"
@@ -639,9 +639,9 @@ function ConnectStep({
 								<ChevronDown aria-hidden="true" className="size-3.5" />
 							</Button>
 							<ExpandablePanel
-								data-onboarding-cline-key-form
-								expanded={clineKeyFormExpanded}
-								id="onboarding-cline-key-form"
+								data-onboarding-induscode-key-form
+								expanded={induscodeKeyFormExpanded}
+								id="onboarding-induscode-key-form"
 							>
 								<div className="flex flex-col gap-2 pt-3 ml-2 max-[720px]:ml-0">
 									<div className="flex flex-wrap items-center gap-2">
@@ -649,42 +649,42 @@ function ConnectStep({
 											aria-label="IndusCode API key"
 											autoComplete="off"
 											className="min-w-52 flex-1 bg-background"
-											disabled={clineKeySaving}
+											disabled={induscodeKeySaving}
 											onChange={(event) => {
-												setClineApiKey(event.target.value);
-												setClineKeyError(null);
+												setIndusCodeApiKey(event.target.value);
+												setIndusCodeKeyError(null);
 											}}
 											onKeyDown={(event) => {
 												if (
 													event.key === "Enter" &&
-													clineApiKey.trim() &&
-													!clineKeySaving
+													induscodeApiKey.trim() &&
+													!induscodeKeySaving
 												) {
-													void connectWithClineApiKey();
+													void connectWithIndusCodeApiKey();
 												}
 											}}
 											placeholder="IndusCode API key"
 											type="password"
-											value={clineApiKey}
+											value={induscodeApiKey}
 										/>
 										<Button
-											disabled={!clineApiKey.trim() || clineKeySaving}
-											onClick={() => void connectWithClineApiKey()}
+											disabled={!induscodeApiKey.trim() || induscodeKeySaving}
+											onClick={() => void connectWithIndusCodeApiKey()}
 											size="md"
 											tone="accent"
 											type="button"
 											variant="fill"
 										>
-											{clineKeySaving ? (
+											{induscodeKeySaving ? (
 												<Loader2 className="size-4 animate-spin" />
 											) : null}
-											{clineKeySaving ? "Connecting..." : "Connect"}
+											{induscodeKeySaving ? "Connecting..." : "Connect"}
 										</Button>
 									</div>
 									<Button
 										className="self-start -ml-1 mt-1"
-										disabled={clineKeySaving}
-										onClick={() => void openExternalUrl(CLINE_DASHBOARD_URL)}
+										disabled={induscodeKeySaving}
+										onClick={() => void openExternalUrl(INDUSCODE_DASHBOARD_URL)}
 										size="xs"
 										tone="neutral"
 										type="button"
@@ -693,9 +693,9 @@ function ConnectStep({
 										Find your key
 										<ExternalLink className="size-3" />
 									</Button>
-									{clineKeyError ? (
+									{induscodeKeyError ? (
 										<p className="text-xs text-destructive" role="alert">
-											Failed to save API key: {clineKeyError}
+											Failed to save API key: {induscodeKeyError}
 										</p>
 									) : null}
 								</div>
@@ -707,7 +707,7 @@ function ConnectStep({
 					id="api-key"
 					onSelect={() => {
 						setSelectedMethod("api-key");
-						setClineKeyFormExpanded(false);
+						setIndusCodeKeyFormExpanded(false);
 					}}
 					selectLabel="Use your own API key"
 					selected={selectedMethod === "api-key"}
@@ -976,20 +976,20 @@ function ImportHistoryStep({
 }
 
 /**
- * Shown after a Cline sign-in: the free models available right now (from the
+ * Shown after a IndusCode sign-in: the free models available right now (from the
  * same feed as the composer's Free tier, bundled fallback offline) and the
- * ClinePass upsell. The feed is display-only here; the user picks a model in
+ * IndusCodePass upsell. The feed is display-only here; the user picks a model in
  * the composer.
  */
-function ClineModelsSummary() {
+function IndusCodeModelsSummary() {
 	const [freeModels, setFreeModels] = useState<
-		NonNullable<ClineRecommendedModelsResponse["free"]>
+		NonNullable<IndusCodeRecommendedModelsResponse["free"]>
 	>([]);
 
 	useEffect(() => {
 		let cancelled = false;
 		desktopClient
-			.invoke<ClineRecommendedModelsResponse>("list_cline_recommended_models")
+			.invoke<IndusCodeRecommendedModelsResponse>("list_induscode_recommended_models")
 			.then((response) => {
 				if (!cancelled) {
 					setFreeModels(response?.free ?? []);
@@ -1006,7 +1006,7 @@ function ClineModelsSummary() {
 	return (
 		<div
 			className="mt-6 w-full rounded-xl border border-border bg-background p-5 text-left"
-			data-onboarding-cline-models
+			data-onboarding-induscode-models
 		>
 			{freeModels.length > 0 ? (
 				<>
@@ -1035,7 +1035,7 @@ function ClineModelsSummary() {
 					</p>
 				</div>
 				<Button
-					onClick={() => void openExternalUrl(CLINE_PASS_SUBSCRIBE_URL)}
+					onClick={() => void openExternalUrl(INDUSCODE_PASS_SUBSCRIBE_URL)}
 					size="sm"
 					tone="neutral"
 					type="button"
@@ -1068,7 +1068,7 @@ function DoneStep({
 						? `${connection.providerName} is connected.`
 						: "Your IndusCode account is connected."}
 				</p>
-				{connection?.kind === "cline" ? <ClineModelsSummary /> : null}
+				{connection?.kind === "induscode" ? <IndusCodeModelsSummary /> : null}
 				<Button
 					className="mt-8 w-full max-w-64"
 					onClick={onFinish}
@@ -1125,10 +1125,10 @@ export function OnboardingView({
 						onBack={() => setStep("welcome")}
 						onConnected={(nextConnection) => {
 							setConnection(nextConnection);
-							// The GitHub integration lives on the Cline account, so the
+							// The GitHub integration lives on the IndusCode account, so the
 							// step only applies when one is connected
 							setStep(
-								nextConnection.kind === "cline" && githubStepEnabled
+								nextConnection.kind === "induscode" && githubStepEnabled
 									? "github"
 									: "import",
 							);

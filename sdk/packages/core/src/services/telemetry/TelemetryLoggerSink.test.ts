@@ -11,7 +11,7 @@ describe("TelemetryLoggerSink", () => {
 
 		sink.emit("session.started", { sessionId: "s1" });
 		sink.emitRequired("user.opt_out", { reason: "manual" });
-		sink.recordCounter("cline.session.starts.total", 1, {
+		sink.recordCounter("induscode.session.starts.total", 1, {
 			sessionId: "s1",
 		});
 
@@ -29,7 +29,7 @@ describe("TelemetryLoggerSink", () => {
 		expect(logger.debug).toHaveBeenCalledWith("telemetry.metric", {
 			telemetrySink: "TelemetryLoggerSink",
 			instrument: "counter",
-			name: "cline.session.starts.total",
+			name: "induscode.session.starts.total",
 			value: 1,
 			attributes: { sessionId: "s1" },
 			description: undefined,

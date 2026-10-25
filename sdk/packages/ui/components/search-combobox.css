@@ -1,9 +1,9 @@
-.cline-ui-search-combobox__panel,
-.cline-ui-search-combobox__search-row {
+.induscode-ui-search-combobox__panel,
+.induscode-ui-search-combobox__search-row {
 	border-style: solid;
 }
 
-.cline-ui-search-combobox__trigger {
+.induscode-ui-search-combobox__trigger {
 	font-family: inherit;
 	font-style: inherit;
 	font-variant: inherit;
@@ -11,14 +11,14 @@
 	line-height: inherit;
 }
 
-.cline-ui-search-combobox__search {
+.induscode-ui-search-combobox__search {
 	font-family: inherit;
 	font-style: inherit;
 	font-variant: inherit;
 	font-weight: inherit;
 }
 
-.cline-ui-search-combobox__option {
+.induscode-ui-search-combobox__option {
 	font-family: inherit;
 	font-style: inherit;
 	font-variant: inherit;
@@ -29,16 +29,16 @@
 /* Selected row: the semantic accent surface (step 3) is too faint in light
  * mode to read as "selected"; step 4 keeps the row unmistakably highlighted
  * in both themes without touching the shared --accent token. */
-.cline-ui-search-combobox__option[aria-selected="true"] {
+.induscode-ui-search-combobox__option[aria-selected="true"] {
 	background-color: var(--accent-4, var(--accent));
 }
 
 /* Open animation matching the shadcn/Radix dropdowns (fade + slight zoom,
  * sliding from the trigger side) so pickers and selects feel like one set. */
-@keyframes cline-ui-search-combobox-open {
+@keyframes induscode-ui-search-combobox-open {
 	from {
 		opacity: 0;
-		transform: translateY(var(--cline-ui-search-combobox-slide, 0)) scale(0.97);
+		transform: translateY(var(--induscode-ui-search-combobox-slide, 0)) scale(0.97);
 	}
 	to {
 		opacity: 1;
@@ -46,22 +46,22 @@
 	}
 }
 
-.cline-ui-search-combobox__panel {
-	animation: cline-ui-search-combobox-open 150ms ease-out;
+.induscode-ui-search-combobox__panel {
+	animation: induscode-ui-search-combobox-open 150ms ease-out;
 }
 
-.cline-ui-search-combobox__panel--bottom {
-	--cline-ui-search-combobox-slide: -0.25rem;
+.induscode-ui-search-combobox__panel--bottom {
+	--induscode-ui-search-combobox-slide: -0.25rem;
 	transform-origin: top;
 }
 
-.cline-ui-search-combobox__panel--top {
-	--cline-ui-search-combobox-slide: 0.25rem;
+.induscode-ui-search-combobox__panel--top {
+	--induscode-ui-search-combobox-slide: 0.25rem;
 	transform-origin: bottom;
 }
 
 @media (prefers-reduced-motion: reduce) {
-	.cline-ui-search-combobox__panel {
+	.induscode-ui-search-combobox__panel {
 		animation: none;
 	}
 }

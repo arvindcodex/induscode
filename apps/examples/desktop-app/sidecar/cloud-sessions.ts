@@ -1,4 +1,4 @@
-import { ClineAccountService, ProviderSettingsManager } from "@cline/core";
+import { IndusCodeAccountService, ProviderSettingsManager } from "@induscode/core";
 import {
 	type CloudCreationOptions,
 	CloudSessionApi,
@@ -6,9 +6,9 @@ import {
 	type CloudSessionControllerOptions,
 	type CloudSessionEvent,
 	type CreateCloudSessionInput,
-} from "@cline/core/cloud";
-import { getClineEnvironmentConfig } from "@cline/shared";
-import { resolveFreshClineAuthToken } from "./cline-auth";
+} from "@induscode/core/cloud";
+import { getIndusCodeEnvironmentConfig } from "@induscode/shared";
+import { resolveFreshIndusCodeAuthToken } from "./induscode-auth";
 import {
 	getEnvironmentContext,
 	getSidecarContextOwner,
@@ -19,7 +19,7 @@ import { readSessionMessagesSync } from "./session-data/messages";
 import type { LiveSession, SidecarContext } from "./types";
 import { LOCAL_ENVIRONMENT_ID } from "./types";
 
-export * from "@cline/core/cloud";
+export * from "@induscode/core/cloud";
 
 // Credential refresh replaces the controller, not the sidecar's creation intent.
 const pendingInitialTasksByContext = new WeakMap<
@@ -47,7 +47,7 @@ export class CloudSessionManager extends CloudSessionController {
 			clientIdentity: options.clientIdentity ?? {
 				prefix: "code-cloud",
 				type: "code-cloud-sidecar",
-				displayName: "Cline Code cloud session",
+				displayName: "IndusCode Code cloud session",
 				source: "desktop",
 			},
 		});
@@ -218,16 +218,16 @@ export function getCloudSessionManager(
 	if (existing instanceof CloudSessionManager) {
 		return existing;
 	}
-	const environment = getClineEnvironmentConfig();
+	const environment = getIndusCodeEnvironmentConfig();
 	const providerSettingsManager = new ProviderSettingsManager();
 	const getAuthToken = () =>
-		resolveFreshClineAuthToken(providerSettingsManager, ctx);
+		resolveFreshIndusCodeAuthToken(providerSettingsManager, ctx);
 	const api = new CloudSessionApi({
 		apiBaseUrl: environment.apiBaseUrl,
 		appBaseUrl: environment.appBaseUrl,
 		getAuthToken,
 	});
-	const accountService = new ClineAccountService({
+	const accountService = new IndusCodeAccountService({
 		apiBaseUrl: environment.apiBaseUrl,
 		getAuthToken,
 	});

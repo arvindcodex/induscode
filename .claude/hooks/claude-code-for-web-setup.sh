@@ -26,9 +26,9 @@ if [ -n "${GITHUB_TOKEN:-}" ]; then
   echo "GITHUB_TOKEN is configured - gh CLI is ready to use"
   echo ""
   echo "You can use gh commands directly, for example:"
-  echo "  gh issue list --repo cline/cline --limit 5"
-  echo "  gh pr list --repo cline/cline --state open"
-  echo "  gh issue view 123 --repo cline/cline"
+  echo "  gh issue list --repo induscode/induscode --limit 5"
+  echo "  gh pr list --repo induscode/induscode --state open"
+  echo "  gh issue view 123 --repo induscode/induscode"
   echo ""
 else
   echo "GITHUB_TOKEN is not set - gh CLI will have limited functionality"

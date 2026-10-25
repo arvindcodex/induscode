@@ -27,7 +27,7 @@ export type TelemetrySelfcheckReport = {
 	metrics_exporter: string;
 	/**
 	 * `""` when no traces exporter was inlined. Without one the host never
-	 * registers a tracer provider, so cline-provider spans (the Langfuse
+	 * registers a tracer provider, so induscode-provider spans (the Langfuse
 	 * relay) are silently never emitted; release gates require `"otlp"`.
 	 */
 	traces_exporter: string;

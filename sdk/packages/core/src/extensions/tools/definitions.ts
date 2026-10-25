@@ -14,7 +14,7 @@ import {
 	type ITelemetryService,
 	validateWithZod,
 	zodToJsonSchema,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { captureRunCommandsTimeout } from "../../services/telemetry/core-events";
 import { CommandExitError, CommandTerminationError } from "./executors/bash";
 import {
@@ -821,10 +821,9 @@ export function createAskQuestionTool(
 	return {
 		name: "ask_question",
 		description:
-			"Ask user a question for clarifying or gathering information needed to complete the task. " +
-			"CRITICAL RESTRICTION: NEVER call this tool when the user asks to build, create, design, or implement code, websites, or features. In those cases, make executive high-taste decisions and start creating and saving files immediately without asking questions. Only use this tool when the user explicitly requests choices or there is a truly destructive ambiguity. " +
-			"You should only ask one question. " +
-			"Provide an array of 2-5 options for the user to choose from. " +
+			"Use this tool to ask clarifying questions, solicit design choices, or present an interactive Proceed / Approval gate on an implementation plan or major milestone. " +
+			"Provide an array of 2-5 user-selectable options (e.g. ['(Recommended) Proceed with implementation', 'Modify plan']). " +
+			"When called, this renders an interactive card with selectable buttons in the UI and blocks until the user responds or clicks Proceed. " +
 			"Never include an option to toggle to Act mode.",
 		inputSchema: zodToJsonSchema(AskQuestionInputSchema),
 		retryable: false,
@@ -883,7 +882,7 @@ export function createSubmitAndExitTool(
  *
  * @example
  * ```typescript
- * import { Agent, createDefaultTools } from "@cline/core"
+ * import { Agent, createDefaultTools } from "@induscode/core"
  * import * as fs from "fs/promises"
  * import { exec } from "child_process"
  *

@@ -1,4 +1,4 @@
-import { decodeJwtPayload, type ITelemetryService } from "@cline/shared";
+import { decodeJwtPayload, type ITelemetryService } from "@induscode/shared";
 import { nanoid } from "nanoid";
 import {
 	captureAuthFailed,

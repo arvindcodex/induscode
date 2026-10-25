@@ -1,4 +1,4 @@
-import type { AgentConfig, AgentModel, ITelemetryService } from "@cline/shared";
+import type { AgentConfig, AgentModel, ITelemetryService } from "@induscode/shared";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const gatewayMock = vi.hoisted(() => {
@@ -15,8 +15,8 @@ const gatewayMock = vi.hoisted(() => {
 	};
 });
 
-vi.mock("@cline/llms", async (importOriginal) => {
-	const original = await importOriginal<typeof import("@cline/llms")>();
+vi.mock("@induscode/llms", async (importOriginal) => {
+	const original = await importOriginal<typeof import("@induscode/llms")>();
 	return {
 		createGateway: gatewayMock.createGateway,
 		MODEL_COLLECTIONS_BY_PROVIDER_ID: {},
@@ -600,7 +600,7 @@ describe("createAgentModelFromConfig", () => {
 			>
 		).at(-1)?.[0];
 		const { createSapAiCoreProviderModule } = await import(
-			// biome-ignore lint/style/noRestrictedImports: test asserts internal SAP provider module behavior not exposed via @cline/llms entrypoint
+			// biome-ignore lint/style/noRestrictedImports: test asserts internal SAP provider module behavior not exposed via @induscode/llms entrypoint
 			"../../../../llms/src/providers/vendors/community"
 		);
 		const provider = await createSapAiCoreProviderModule(
@@ -735,10 +735,10 @@ describe("createAgentModelFromConfig", () => {
 		expect(gatewayMock.createHandlerAsync).toHaveBeenCalledTimes(1);
 	});
 
-	it("bridges a catalog-registered custom provider into the gateway (cline/cline#14180)", async () => {
+	it("bridges a catalog-registered custom provider into the gateway (induscode/induscode#14180)", async () => {
 		const { createAgentModelFromConfig } = await import("./handler-factory");
 		const llms =
-			await vi.importActual<typeof import("@cline/llms")>("@cline/llms");
+			await vi.importActual<typeof import("@induscode/llms")>("@induscode/llms");
 
 		// Simulate what Add Provider persists to models.json and loads into the
 		// model catalog at startup (ensureCustomProvidersLoaded / registerCustomProvider).
@@ -776,7 +776,7 @@ describe("createAgentModelFromConfig", () => {
 			expect(result).toBe(model);
 			expect(gatewayMock.registerProvider).toHaveBeenCalledTimes(1);
 			const registration = gatewayMock.registerProvider.mock
-				.calls[0][0] as import("@cline/shared").GatewayProviderRegistration;
+				.calls[0][0] as import("@induscode/shared").GatewayProviderRegistration;
 			expect(registration.manifest.id).toBe("seloratest");
 			expect(registration.manifest.models.map((m) => m.id)).toContain(
 				"gpt-6-astra",

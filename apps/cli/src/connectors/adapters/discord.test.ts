@@ -2,7 +2,7 @@ import { writeFileSync } from "node:fs";
 import { mkdtemp } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { ConnectDiscordOptions } from "@cline/shared";
+import type { ConnectDiscordOptions } from "@induscode/shared";
 import type { Thread } from "chat";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { readBindings, writeBindings } from "../thread-bindings";
@@ -262,7 +262,7 @@ describe("discordConnector", () => {
 				cwd: "/tmp/work",
 				workspaceRoot: "/tmp/work",
 				systemPrompt: "system",
-				provider: "cline",
+				provider: "induscode",
 				model: "test-model",
 				mode: "act",
 			},
@@ -378,15 +378,15 @@ describe("discordConnector", () => {
 	it("resolves outbound Discord mention names to user mention ids", async () => {
 		const fetchMock = vi.fn(async (url: string | URL) => {
 			expect(String(url)).toContain(
-				"/guilds/guild-123/members/search?query=cline-test-bot&limit=10",
+				"/guilds/guild-123/members/search?query=induscode-test-bot&limit=10",
 			);
 			return new Response(
 				JSON.stringify([
 					{
-						nick: "cline-test-bot",
+						nick: "induscode-test-bot",
 						user: {
 							id: "1509620637721821224",
-							username: "clinetestbot",
+							username: "induscodetestbot",
 							bot: true,
 						},
 					},
@@ -400,7 +400,7 @@ describe("discordConnector", () => {
 			__test__.resolveDiscordOutboundMentions({
 				botToken: "token",
 				threadId: "discord:guild-123:channel-123:thread-123",
-				text: "@cline-test-bot how is your day?",
+				text: "@induscode-test-bot how is your day?",
 			}),
 		).resolves.toBe("<@1509620637721821224> how is your day?");
 		expect(fetchMock).toHaveBeenCalledTimes(1);
@@ -408,14 +408,14 @@ describe("discordConnector", () => {
 
 	it("repairs adapter-split hyphenated Discord mention names before resolving", async () => {
 		const fetchMock = vi.fn(async (url: string | URL) => {
-			expect(String(url)).toContain("query=cline-test-bot");
+			expect(String(url)).toContain("query=induscode-test-bot");
 			return new Response(
 				JSON.stringify([
 					{
-						nick: "cline-test-bot",
+						nick: "induscode-test-bot",
 						user: {
 							id: "1509620637721821224",
-							username: "clinetestbot",
+							username: "induscodetestbot",
 							bot: true,
 						},
 					},
@@ -429,7 +429,7 @@ describe("discordConnector", () => {
 			__test__.resolveDiscordOutboundMentions({
 				botToken: "token",
 				threadId: "discord:guild-123:channel-123:thread-123",
-				text: "<@cline>-test-bot how is your day?",
+				text: "<@induscode>-test-bot how is your day?",
 			}),
 		).resolves.toBe("<@1509620637721821224> how is your day?");
 	});

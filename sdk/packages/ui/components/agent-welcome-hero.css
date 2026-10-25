@@ -1,4 +1,4 @@
-.cline-ui-agent-welcome-hero {
+.induscode-ui-agent-welcome-hero {
 	--welcome-hero-width: 1200px;
 	--welcome-hero-height: 220px;
 	--welcome-hero-viewport-gutter: 16px;
@@ -51,7 +51,7 @@
 	transform: translateX(-50%);
 }
 
-.cline-ui-agent-welcome-hero[data-welcome-hero-layout="full-bleed"] {
+.induscode-ui-agent-welcome-hero[data-welcome-hero-layout="full-bleed"] {
 	--welcome-hero-width: 100vw;
 	--welcome-hero-height: 100%;
 	--welcome-hero-viewport-gutter: 0px;
@@ -60,13 +60,13 @@
 	--welcome-grid-layer-mask: none;
 }
 
-.cline-ui-agent-welcome-hero[data-welcome-hero-layout="wide-grid"] {
+.induscode-ui-agent-welcome-hero[data-welcome-hero-layout="wide-grid"] {
 	--welcome-hero-width: 1600px;
 	--welcome-grid-height: 960px;
 	--welcome-grid-initial-y: 370px;
 }
 
-.cline-ui-agent-welcome-hero__grid {
+.induscode-ui-agent-welcome-hero__grid {
 	position: absolute;
 	z-index: 0;
 	top: 50%;
@@ -79,7 +79,7 @@
 	transform: translateY(-50%);
 }
 
-.cline-ui-agent-welcome-hero__grid::before {
+.induscode-ui-agent-welcome-hero__grid::before {
 	position: absolute;
 	inset: 0;
 	content: "";
@@ -99,9 +99,9 @@
 	opacity: var(--welcome-grid-opacity);
 }
 
-.cline-ui-agent-welcome-hero__inner,
-.cline-ui-agent-welcome-hero__bot-fill,
-.cline-ui-agent-welcome-hero__bot-outline {
+.induscode-ui-agent-welcome-hero__inner,
+.induscode-ui-agent-welcome-hero__bot-fill,
+.induscode-ui-agent-welcome-hero__bot-outline {
 	position: absolute;
 	display: block;
 	top: var(--welcome-bot-top);
@@ -118,7 +118,7 @@
 	mask-size: 100% 100%;
 }
 
-.cline-ui-agent-welcome-hero__inner {
+.induscode-ui-agent-welcome-hero__inner {
 	z-index: 1;
 	background: color-mix(
 		in srgb,
@@ -129,7 +129,7 @@
 	mask-image: var(--welcome-inner-mask);
 }
 
-.cline-ui-agent-welcome-hero__bot-fill {
+.induscode-ui-agent-welcome-hero__bot-fill {
 	z-index: 2;
 	background: color-mix(
 		in srgb,
@@ -140,7 +140,7 @@
 	mask-image: var(--welcome-bot-fill-mask);
 }
 
-.cline-ui-agent-welcome-hero__bot-outline {
+.induscode-ui-agent-welcome-hero__bot-outline {
 	z-index: 3;
 	background: color-mix(
 		in srgb,
@@ -151,7 +151,7 @@
 	mask-image: var(--welcome-bot-outline-mask);
 }
 
-.cline-ui-agent-welcome-hero__eye {
+.induscode-ui-agent-welcome-hero__eye {
 	position: absolute;
 	z-index: 4;
 	top: var(--welcome-eye-top);
@@ -174,23 +174,23 @@
 	transform: translate(var(--welcome-eye-x), var(--welcome-eye-y));
 }
 
-.cline-ui-agent-welcome-hero__eye--left {
+.induscode-ui-agent-welcome-hero__eye--left {
 	left: calc(50% + var(--welcome-eye-left-offset-x));
 }
 
-.cline-ui-agent-welcome-hero__eye--right {
+.induscode-ui-agent-welcome-hero__eye--right {
 	left: calc(50% + var(--welcome-eye-right-offset-x));
 }
 
-.dark .cline-ui-agent-welcome-hero,
-.cline-ui-agent-welcome-hero.dark {
+.dark .induscode-ui-agent-welcome-hero,
+.induscode-ui-agent-welcome-hero.dark {
 	--welcome-hero-color: oklch(from var(--primary) 0.9 calc(c * 0.8) h);
 	--welcome-grid-opacity: 0.2;
 	--welcome-inner-opacity: 6%;
 }
 
 @media (prefers-reduced-motion: reduce) {
-	.cline-ui-agent-welcome-hero__grid::before {
+	.induscode-ui-agent-welcome-hero__grid::before {
 		background: radial-gradient(
 			ellipse 44% 41.25% at var(--welcome-grid-initial-x)
 				var(--welcome-grid-initial-y),
@@ -199,7 +199,7 @@
 		);
 	}
 
-	.cline-ui-agent-welcome-hero__eye {
+	.induscode-ui-agent-welcome-hero__eye {
 		transform: none;
 	}
 }

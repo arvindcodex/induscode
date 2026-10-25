@@ -140,7 +140,7 @@ const assertCanBuildPlatform = (platform: DesktopPlatform): void => {
 		throw new Error(
 			[
 				`cannot build ${platform} desktop bundles from ${host}.`,
-				"Tauri desktop bundles are produced on the target OS because the native bundle tools and bundled Cline CLI binary are platform-specific.",
+				"Tauri desktop bundles are produced on the target OS because the native bundle tools and bundled IndusCode CLI binary are platform-specific.",
 				"Run this same package script on macOS, Windows, and Linux runners to produce all three artifact sets.",
 			].join("\n"),
 		);
@@ -241,7 +241,24 @@ const collectMacArtifacts = async (
 		`${sanitizeName(APP_NAME)}_${version}_${arch}.dmg`,
 	);
 	rmSync(dmgTarget, { force: true });
-	await $`hdiutil create -volname ${APP_NAME} -srcfolder ${appPath} -ov -format UDZO ${dmgTarget}`;
+
+	const bundleDmgScript = path.join(BUNDLE_ROOT, "dmg", "bundle_dmg.sh");
+	const backgroundPng = path.join(APP_ROOT, "src-tauri", "dmg", "background.png");
+	const iconIcns = path.join(APP_ROOT, "src-tauri", "icons", "icon.icns");
+
+	if (existsSync(bundleDmgScript) && existsSync(backgroundPng)) {
+		const stageDir = path.join(dmgFolder, "stage");
+		rmSync(stageDir, { force: true, recursive: true });
+		mkdirSync(stageDir, { recursive: true });
+		cpSync(appPath, path.join(stageDir, `${APP_NAME}.app`), { recursive: true });
+
+		const volIconArg = existsSync(iconIcns) ? ["--volicon", iconIcns] : [];
+		await $`bash ${bundleDmgScript} --volname ${APP_NAME} --background ${backgroundPng} --window-size 640 400 --icon-size 128 --icon "${APP_NAME}.app" 320 140 --hide-extension "${APP_NAME}.app" ${volIconArg} ${dmgTarget} ${stageDir}`;
+		rmSync(stageDir, { force: true, recursive: true });
+	} else {
+		await $`hdiutil create -volname ${APP_NAME} -srcfolder ${appPath} -ov -format UDZO ${dmgTarget}`;
+	}
+
 	artifacts.push(copyArtifact(dmgTarget, path.basename(dmgTarget)));
 
 	return artifacts;
@@ -289,7 +306,7 @@ const main = async () => {
 
 	if (!skipBuild) {
 		// Linux ships deb and rpm only. The AppImage target is skipped because
-		// linuxdeploy cannot process the Bun-compiled Cline CLI (ldd fails on it
+		// linuxdeploy cannot process the Bun-compiled IndusCode CLI (ldd fails on it
 		// and patchelf corrupts it), which aborts the whole bundle step.
 		if (platform === "linux") {
 			await $`bun run build:binary --bundles deb,rpm`;

@@ -7,16 +7,16 @@ import {
 	type HubCompatibilityResult,
 	type HubProtocolMetadata,
 	isHubProtocolCompatible,
-} from "@cline/shared";
-import { resolveClineDataDir, resolveClineDir } from "@cline/shared/storage";
+} from "@induscode/shared";
+import { resolveIndusCodeDataDir, resolveIndusCodeDir } from "@induscode/shared/storage";
 import corePackage from "../../../package.json";
 
-declare const __CLINE_CORE_RUNTIME_BUILD_ID__: string | undefined;
-declare const __CLINE_CORE_RUNTIME_BUILD_EPOCH_MS__: number | undefined;
+declare const __INDUSCODE_CORE_RUNTIME_BUILD_ID__: string | undefined;
+declare const __INDUSCODE_CORE_RUNTIME_BUILD_EPOCH_MS__: number | undefined;
 
-const HUB_DISCOVERY_ENV = "CLINE_HUB_DISCOVERY_PATH";
-const HUB_BUILD_ID_ENV = "CLINE_HUB_BUILD_ID";
-const HUB_BUILD_EPOCH_ENV = "CLINE_HUB_BUILD_EPOCH_MS";
+const HUB_DISCOVERY_ENV = "INDUSCODE_HUB_DISCOVERY_PATH";
+const HUB_BUILD_ID_ENV = "INDUSCODE_HUB_BUILD_ID";
+const HUB_BUILD_EPOCH_ENV = "INDUSCODE_HUB_BUILD_EPOCH_MS";
 const HUB_STARTUP_LOCK_MAX_AGE_MS = 30_000;
 const HUB_STARTUP_LOCK_WAIT_MS = 15_000;
 const HUB_STARTUP_LOCK_POLL_MS = 100;
@@ -125,8 +125,8 @@ export function resolveHubBuildId(): string {
 		return configured;
 	}
 	const embedded =
-		typeof __CLINE_CORE_RUNTIME_BUILD_ID__ === "string"
-			? __CLINE_CORE_RUNTIME_BUILD_ID__.trim()
+		typeof __INDUSCODE_CORE_RUNTIME_BUILD_ID__ === "string"
+			? __INDUSCODE_CORE_RUNTIME_BUILD_ID__.trim()
 			: "";
 	return embedded || `source-${String(corePackage.version)}`;
 }
@@ -142,9 +142,9 @@ export function resolveHubBuildEpochMs(): number | undefined {
 	if (Number.isFinite(configured) && configured > 0) {
 		return configured;
 	}
-	return typeof __CLINE_CORE_RUNTIME_BUILD_EPOCH_MS__ === "number" &&
-		Number.isFinite(__CLINE_CORE_RUNTIME_BUILD_EPOCH_MS__)
-		? __CLINE_CORE_RUNTIME_BUILD_EPOCH_MS__
+	return typeof __INDUSCODE_CORE_RUNTIME_BUILD_EPOCH_MS__ === "number" &&
+		Number.isFinite(__INDUSCODE_CORE_RUNTIME_BUILD_EPOCH_MS__)
+		? __INDUSCODE_CORE_RUNTIME_BUILD_EPOCH_MS__
 		: undefined;
 }
 
@@ -159,7 +159,7 @@ export type ManagedHubCompatibilityResult =
 	  };
 
 /**
- * Compatibility for a managed local Hub discovered through Cline's owner
+ * Compatibility for a managed local Hub discovered through IndusCode's owner
  * record. Unlike explicit endpoints, a managed Hub is code that this client
  * is responsible for keeping current, so wire compatibility alone is not
  * enough: reusing a daemon from another build would keep executing stale
@@ -329,7 +329,7 @@ export function resolveHubOwnerContext(
 	const discoveryPath =
 		process.env[HUB_DISCOVERY_ENV]?.trim() ||
 		join(
-			resolveClineDataDir(),
+			resolveIndusCodeDataDir(),
 			"locks",
 			"hub",
 			"owners",
@@ -653,4 +653,4 @@ export function isDiscoveryFilePresent(pathname: string): boolean {
 	return existsSync(pathname);
 }
 
-export { resolveClineDataDir, resolveClineDir };
+export { resolveIndusCodeDataDir, resolveIndusCodeDir };

@@ -10,15 +10,15 @@ import {
 const pr = {
 	number: 42,
 	title: "Feature",
-	url: "https://github.com/cline/cline/pull/42",
+	url: "https://github.com/induscode/induscode/pull/42",
 	state: "OPEN",
 	isDraft: false,
 	mergeable: "MERGEABLE",
 	mergeStateStatus: "CLEAN",
 	additions: 12,
 	deletions: 3,
-	headRepositoryOwner: { login: "cline" },
-	headRepository: { name: "cline" },
+	headRepositoryOwner: { login: "induscode" },
+	headRepository: { name: "induscode" },
 	statusCheckRollup: [
 		{
 			__typename: "CheckRun",
@@ -32,7 +32,7 @@ const pr = {
 function runner(prs: unknown[] = [pr], branch = "feature/pr-ui") {
 	return vi.fn(async (file: string, args: string[], _cwd: string) => {
 		if (file === "git")
-			return args[0] === "branch" ? branch : "git@github.com:cline/cline.git";
+			return args[0] === "branch" ? branch : "git@github.com:induscode/induscode.git";
 		if (args[0] === "pr" && args[1] === "view")
 			return JSON.stringify(
 				prs.find((item) => (item as typeof pr).number === Number(args[2])),
@@ -54,7 +54,7 @@ describe("pull request status", () => {
 		expect(result?.pullRequest?.number).toBe(42);
 		expect(result?.pullRequest?.checks[0].state).toBe("success");
 		expect(result?.createUrl).toBe(
-			"https://github.com/cline/cline/compare/main...feature%2Fpr-ui?expand=1",
+			"https://github.com/induscode/induscode/compare/main...feature%2Fpr-ui?expand=1",
 		);
 		expect(run.mock.calls.every((call) => call[2] === "/worktree")).toBe(true);
 		expect(run.mock.calls.find((call) => call[1][0] === "pr")?.[1]).toContain(
@@ -194,13 +194,13 @@ describe("pull request status", () => {
 
 	it("accepts GitHub SSH/HTTPS remotes only", () => {
 		for (const remote of [
-			"git@github.com:cline/cline.git",
-			"https://github.com/cline/cline.git",
-			"ssh://git@github.com/cline/cline",
+			"git@github.com:induscode/induscode.git",
+			"https://github.com/induscode/induscode.git",
+			"ssh://git@github.com/induscode/induscode",
 		])
-			expect(githubRepository(remote)).toBe("cline/cline");
+			expect(githubRepository(remote)).toBe("induscode/induscode");
 		expect(
-			githubRepository("https://github.com.evil.test/cline/cline"),
+			githubRepository("https://github.com.evil.test/induscode/induscode"),
 		).toBeNull();
 	});
 });

@@ -16,14 +16,14 @@ import { spawn } from "node:child_process";
 import { userInfo } from "node:os";
 import { basename, delimiter } from "node:path";
 
-const PATH_MARKER_START = "__CLINE_SIDECAR_PATH_START__";
-const PATH_MARKER_END = "__CLINE_SIDECAR_PATH_END__";
+const PATH_MARKER_START = "__INDUSCODE_SIDECAR_PATH_START__";
+const PATH_MARKER_END = "__INDUSCODE_SIDECAR_PATH_END__";
 
 /**
  * Bounded so a pathological shell profile cannot stall sidecar startup, but
  * generous enough for slow real-world profiles — nvm initialisation on older
  * machines regularly needs more than 2s, and a failed probe cascades into
- * missing runtimes for everything the sidecar spawns (cline/cline#14129).
+ * missing runtimes for everything the sidecar spawns (induscode/induscode#14129).
  * Worst case both attempts together take 1.5x this budget (see
  * ensureLoginShellPath), comfortably inside the Tauri shell's 30s
  * endpoint-readiness wait (apps/examples/desktop-app/src-tauri/src/main.rs).
@@ -39,10 +39,10 @@ const SHELL_TIMEOUT_MS = 5_000;
 const PRINT_PATH_COMMAND = `/bin/sh -c 'printf "%s%s%s" "${PATH_MARKER_START}" "$PATH" "${PATH_MARKER_END}"'`;
 
 /**
- * Escape hatch: set CLINE_SIDECAR_SKIP_SHELL_PATH=1 to leave PATH untouched
+ * Escape hatch: set INDUSCODE_SIDECAR_SKIP_SHELL_PATH=1 to leave PATH untouched
  * (e.g. if a broken shell profile makes resolution misbehave).
  */
-const SKIP_ENV_VAR = "CLINE_SIDECAR_SKIP_SHELL_PATH";
+const SKIP_ENV_VAR = "INDUSCODE_SIDECAR_SKIP_SHELL_PATH";
 
 export function defaultShellFor(platform: NodeJS.Platform): string {
 	return platform === "darwin" ? "/bin/zsh" : "/bin/bash";
@@ -202,7 +202,7 @@ export function resolveLoginShellPath(
  * platform default shell before giving up.
  *
  * No-op on Windows (the GUI PATH comes from the registry there) and when
- * CLINE_SIDECAR_SKIP_SHELL_PATH is set. Failures are reported via the
+ * INDUSCODE_SIDECAR_SKIP_SHELL_PATH is set. Failures are reported via the
  * returned status but never block startup. The result never contains the
  * resolved PATH itself so it is safe to log verbatim.
  */

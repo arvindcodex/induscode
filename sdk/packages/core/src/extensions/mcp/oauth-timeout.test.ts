@@ -42,7 +42,7 @@ describe("interactive MCP OAuth timeout", () => {
 	it("uses the registration timeout for the authorization probe", async () => {
 		const tempRoot = await mkdtemp(join(tmpdir(), "core-mcp-oauth-timeout-"));
 		tempRoots.push(tempRoot);
-		const filePath = join(tempRoot, "cline_mcp_settings.json");
+		const filePath = join(tempRoot, "induscode_mcp_settings.json");
 		await writeFile(
 			filePath,
 			JSON.stringify({

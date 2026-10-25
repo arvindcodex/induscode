@@ -1,4 +1,4 @@
-import { validateWithZod } from "@cline/shared";
+import { validateWithZod } from "@induscode/shared";
 import {
 	type EditFileInput,
 	INPUT_ARG_CHAR_LIMIT,

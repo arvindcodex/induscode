@@ -13,46 +13,46 @@ The SDK supports running agents on cron schedules. Scheduled agents persist acro
 3. At each trigger time a new session is created and the agent is run
 4. Results are stored, and the CLI can post them to a chat through a connector (Telegram, Slack, and others)
 
-Scheduled agents rely on the [hub-spoke architecture](/sdk/architecture/hub-spoke) that is part of `ClineCore`. The hub runs as a background process on your machine. It starts automatically when needed and persists schedules across restarts.
+Scheduled agents rely on the [hub-spoke architecture](/sdk/architecture/hub-spoke) that is part of `IndusCodeCore`. The hub runs as a background process on your machine. It starts automatically when needed and persists schedules across restarts.
 
-## Creating Schedules Programmatically with Cline SDK
+## Creating Schedules Programmatically with IndusCode SDK
 
 ```typescript
-import { ClineCore } from "@cline/sdk"
+import { IndusCodeCore } from "@induscode/sdk"
 
-const cline = await ClineCore.create({
+const induscode = await IndusCodeCore.create({
   clientName: "scheduler",
   automation: true,
 })
 
-// Automation starts with ClineCore. Pass automation: { autoStart: false }
-// to start it later with cline.automation.start().
-const runs = cline.automation.listRuns()
+// Automation starts with IndusCodeCore. Pass automation: { autoStart: false }
+// to start it later with induscode.automation.start().
+const runs = induscode.automation.listRuns()
 ```
 
-`cline.automation` reads schedule files from `~/.cline/cron/`, reconciles them, ingests events and lists runs. [`sdk/examples/cron`](https://github.com/cline/cline/tree/main/sdk/examples/cron) has sample schedule files.
+`induscode.automation` reads schedule files from `~/.induscode/cron/`, reconciles them, ingests events and lists runs. [`sdk/examples/cron`](https://github.com/induscode/induscode/tree/main/sdk/examples/cron) has sample schedule files.
 
-## Schedule Wizard with Cline CLI
+## Schedule Wizard with IndusCode CLI
 
-If you have the Cline CLI installed (`npm i -g cline`), run `cline schedule` to open an interactive menu for creating and managing schedules, browsing execution history, and viewing performance statistics.
+If you have the IndusCode CLI installed (`npm i -g induscode`), run `induscode schedule` to open an interactive menu for creating and managing schedules, browsing execution history, and viewing performance statistics.
 
 ## Creating Schedules with Flags
 
 ```bash
 # Daily at 9 AM on weekdays
-cline schedule create "PR summary" \
+induscode schedule create "PR summary" \
   --cron "0 9 * * MON-FRI" \
   --prompt "List all open PRs, their review status, and any that have been open more than 3 days" \
   --workspace /path/to/repo
 
 # Every 6 hours
-cline schedule create "Health check" \
+induscode schedule create "Health check" \
   --cron "0 */6 * * *" \
   --prompt "Run the test suite and report any failures" \
   --workspace /path/to/project
 
 # Monday mornings
-cline schedule create "Weekly digest" \
+induscode schedule create "Weekly digest" \
   --cron "0 8 * * MON" \
   --prompt "Summarize last week's commits, PRs merged, and issues closed" \
   --workspace /path/to/repo
@@ -64,22 +64,22 @@ cline schedule create "Weekly digest" \
 
 ```bash
 # List all schedules
-cline schedule list
+induscode schedule list
 
 # Trigger a schedule immediately (without waiting for cron)
-cline schedule trigger <schedule-id>
+induscode schedule trigger <schedule-id>
 
 # Pause a schedule
-cline schedule pause <schedule-id>
+induscode schedule pause <schedule-id>
 
 # Resume a paused schedule
-cline schedule resume <schedule-id>
+induscode schedule resume <schedule-id>
 
 # Delete a schedule
-cline schedule delete <schedule-id>
+induscode schedule delete <schedule-id>
 
 # View execution history
-cline schedule history <schedule-id>
+induscode schedule history <schedule-id>
 ```
 
 ## Cron Expression Reference
@@ -98,7 +98,7 @@ cline schedule history <schedule-id>
 ### Daily Standup Summary
 
 ```bash
-cline schedule create "Standup prep" \
+induscode schedule create "Standup prep" \
   --cron "0 8 * * MON-FRI" \
   --prompt "Summarize: (1) PRs merged yesterday, (2) PRs currently in review, (3) open issues assigned to team members. Format as a brief standup update." \
   --workspace /path/to/repo
@@ -107,7 +107,7 @@ cline schedule create "Standup prep" \
 ### Automated Dependency Updates
 
 ```bash
-cline schedule create "Dependency check" \
+induscode schedule create "Dependency check" \
   --cron "0 10 * * MON" \
   --prompt "Check for outdated npm dependencies. For any with security vulnerabilities, create a branch with the update and open a PR." \
   --workspace /path/to/project
@@ -116,7 +116,7 @@ cline schedule create "Dependency check" \
 ### Codebase Health Report
 
 ```bash
-cline schedule create "Code health" \
+induscode schedule create "Code health" \
   --cron "0 6 * * MON" \
   --prompt "Analyze the codebase for: (1) files with no test coverage, (2) TODO/FIXME comments older than 30 days, (3) functions longer than 100 lines. Produce a health report." \
   --workspace /path/to/project
@@ -125,7 +125,7 @@ cline schedule create "Code health" \
 ## Concurrency Limits
 
 - Each schedule runs one execution at a time unless you raise `--max-parallel`. An execution that comes due while the schedule is busy waits in the queue.
-- The hub runs at most 10 scheduled executions at once across all schedules. `ClineCore.create({ automation: { globalMaxConcurrency } })` changes this limit for the SDK's own scheduler.
+- The hub runs at most 10 scheduled executions at once across all schedules. `IndusCodeCore.create({ automation: { globalMaxConcurrency } })` changes this limit for the SDK's own scheduler.
 - If the hub was stopped when a run was due, it queues one catch-up run when it starts again, not one for each missed time.
 
 ## Routing Results

@@ -1,4 +1,4 @@
-import type { HubEventEnvelope } from "@cline/shared";
+import type { HubEventEnvelope } from "@induscode/shared";
 import { describe, expect, it } from "vitest";
 import { reconcileBufferedCloudEvents } from "./snapshots";
 

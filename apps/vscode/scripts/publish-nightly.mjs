@@ -8,8 +8,8 @@
  * 1. Backs up the original package.json
  * 2. Updates package.json with:
  *    - New version (major.minor.timestamp format)
- *    - Changes name to "cline-nightly"
- *    - Changes displayName to "Cline (Nightly)"
+ *    - Changes name to "induscode-nightly"
+ *    - Changes displayName to "IndusCode (Nightly)"
  * 3. Packages the extension as a .vsix file
  * 4. Publishes to VS Code Marketplace (if VSCE_PAT is set)
  * 5. Publishes to OpenVSX Registry (if OVSX_PAT is set)
@@ -17,9 +17,9 @@
  *
  * Channels:
  *   By default, the extension is published to the RELEASE channel of
- *   `cline-nightly` (this is what the scheduled daily nightly workflow
+ *   `induscode-nightly` (this is what the scheduled daily nightly workflow
  *   uses). Pass --pre-release to instead publish to the pre-release
- *   channel of `cline-nightly` (used for manual publishes from feature
+ *   channel of `induscode-nightly` (used for manual publishes from feature
  *   branches that need tester opt-in via "Switch to Pre-Release Version").
  *
  *   Note on version ordering: because VS Code serves pre-release users
@@ -76,9 +76,9 @@ const log = {
 // Configuration
 const config = {
 	// The name and display name for the nightly version
-	nightlyName: "cline-nightly",
+	nightlyName: "induscode-nightly",
 	originalName: "claude-dev",
-	nightlyDisplayName: "Cline (Nightly)",
+	nightlyDisplayName: "IndusCode (Nightly)",
 	projectRoot: path.join(__dirname, ".."),
 	get packageJsonPath() {
 		return path.join(this.projectRoot, "package.json")
@@ -90,7 +90,7 @@ const config = {
 		return path.join(this.projectRoot, "dist")
 	},
 	get vsixPath() {
-		return path.join(this.distDir, "cline-nightly.vsix")
+		return path.join(this.distDir, "induscode-nightly.vsix")
 	},
 	get nodeModulesPath() {
 		return path.join(this.projectRoot, "node_modules")
@@ -207,9 +207,9 @@ class NightlyPublisher {
 	 *
 	 * The repo root is a workspace package ("."). When npm installs dependencies,
 	 * it creates a self-link at node_modules/<package-name>. Nightly packaging
-	 * changes package.json name from "claude-dev" to "cline-nightly". If we don't
+	 * changes package.json name from "claude-dev" to "induscode-nightly". If we don't
 	 * align this link, vsce's dependency detection (`npm list --production`) fails
-	 * with ELSPROBLEMS (missing cline-nightly + extraneous claude-dev).
+	 * with ELSPROBLEMS (missing induscode-nightly + extraneous claude-dev).
 	 */
 	reconcileWorkspaceSelfLinkForNightly() {
 		const originalPath = config.originalWorkspaceLinkPath
@@ -345,9 +345,9 @@ class NightlyPublisher {
 	 * Update package.json with nightly configuration
 	 */
 	updatePackageJson() {
-		// Replace any occurrences cline. or claude-dev with nightly name
+		// Replace any occurrences induscode. or claude-dev with nightly name
 		const rawContent = fs.readFileSync(config.packageJsonPath, "utf-8")
-		const content = rawContent.replaceAll("claude-dev", config.nightlyName).replaceAll('"cline.', `"${config.nightlyName}.`)
+		const content = rawContent.replaceAll("claude-dev", config.nightlyName).replaceAll('"induscode.', `"${config.nightlyName}.`)
 
 		const pkg = JSON.parse(content)
 		const currentVersion = pkg.version
@@ -389,7 +389,7 @@ class NightlyPublisher {
 			"package",
 			...(isPreRelease ? ["--pre-release"] : []),
 			// The extension is fully esbuild-bundled, so vsce must not walk node_modules
-			// (the @cline/* workspace symlinks point outside the package).
+			// (the @induscode/* workspace symlinks point outside the package).
 			"--no-dependencies",
 			"--no-update-package-json",
 			"--no-git-tag-version",
@@ -585,7 +585,7 @@ Usage:
   bun run publish:marketplace:nightly [options]
 
 Options:
-  --pre-release    Publish to the pre-release channel of cline-nightly.
+  --pre-release    Publish to the pre-release channel of induscode-nightly.
                    Default is the release channel (used by the scheduled
                    nightly workflow).
   --dry-run, -n    Run without actually publishing (package only)

@@ -1,6 +1,6 @@
 "use client";
 
-import { AgentPullRequestBar } from "@cline/ui";
+import { AgentPullRequestBar } from "@induscode/ui";
 import { useEffect, useRef, useState } from "react";
 import {
 	Popover,

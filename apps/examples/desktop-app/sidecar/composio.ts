@@ -8,11 +8,11 @@ import {
 } from "node:fs";
 import { dirname, join } from "node:path";
 import {
-	isClineAccountFeatureEnabled,
+	isIndusCodeAccountFeatureEnabled,
 	resolveComposioConnectionStatePath,
-} from "@cline/core";
-import { type BasicLogger, FeatureFlag } from "@cline/shared";
-import { resolveClineDir } from "@cline/shared/storage";
+} from "@induscode/core";
+import { type BasicLogger, FeatureFlag } from "@induscode/shared";
+import { resolveIndusCodeDir } from "@induscode/shared/storage";
 import {
 	COMPOSIO_RECOMMENDED_TOOLKITS,
 	type ComposioCatalogResponse,
@@ -26,9 +26,9 @@ import {
 	isComposioToolkitSlug,
 } from "../webview/lib/composio-types";
 import {
-	type ClineAuthTelemetryContext,
-	getClineAccountId,
-} from "./cline-auth";
+	type IndusCodeAuthTelemetryContext,
+	getIndusCodeAccountId,
+} from "./induscode-auth";
 import {
 	type ConnectorCatalogEntry,
 	ConnectorsApiError,
@@ -37,14 +37,14 @@ import {
 	initiateConnection,
 	listConnections,
 	waitForConnectionActive,
-} from "./cline-connectors-api";
+} from "./induscode-connectors-api";
 
 /**
  * Management plane for Composio-backed integrations (Gmail, Google Calendar,
  * GitHub).
  *
- * Every Composio call goes through the Cline API connectors proxy
- * (`cline-connectors-api.ts`), which holds the Composio project key
+ * Every Composio call goes through the IndusCode API connectors proxy
+ * (`induscode-connectors-api.ts`), which holds the Composio project key
  * server-side and derives the Composio `user_id` from the authenticated
  * account — a client-held key can't be user-scoped, so the proxy is what
  * keeps one install from acting as another user. There is no local API key.
@@ -115,7 +115,7 @@ const CATALOG_TTL_MS = 60 * 60 * 1000;
 const CONFIGURED_TTL_MS = 60 * 1000;
 
 function getAccountScope(): AccountScope | undefined {
-	const accountId = getClineAccountId();
+	const accountId = getIndusCodeAccountId();
 	if (!accountId) return undefined;
 	let scope = accountScopes.get(accountId);
 	if (!scope) {
@@ -266,7 +266,7 @@ function pruneConfirmedCancelledAccount(
 async function revokeConnectedAccountQuietly(
 	scope: AccountScope,
 	accountId: string,
-	ctx?: ClineAuthTelemetryContext,
+	ctx?: IndusCodeAuthTelemetryContext,
 ): Promise<boolean> {
 	try {
 		await deleteConnection(accountId, { ...ctx, accountId: scope.accountId });
@@ -293,7 +293,7 @@ async function revokeConnectedAccountQuietly(
 function abandonPendingConnections(
 	scope: AccountScope,
 	state: StoredComposioState,
-	ctx?: ClineAuthTelemetryContext,
+	ctx?: IndusCodeAuthTelemetryContext,
 ): void {
 	for (const pending of scope.pendingConnections.values()) {
 		rememberCancelledAccountId(state, pending.connectedAccountId);
@@ -312,7 +312,7 @@ function abandonPendingConnections(
 
 /**
  * Earlier builds materialized a drop-in plugin at
- * `~/.cline/plugins/composio-tools.ts`; core now registers only meta tools.
+ * `~/.induscode/plugins/composio-tools.ts`; core now registers only meta tools.
  * A leftover file would eagerly expose app schemas again on hosts that can
  * load drop-in plugins (and fail noisily on hosts that
  * cannot). Best-effort removal on every reconciled read — a forced unlink
@@ -320,7 +320,7 @@ function abandonPendingConnections(
  */
 function removeLegacyComposioPluginQuietly(logger?: BasicLogger): void {
 	try {
-		rmSync(join(resolveClineDir(), ...LEGACY_COMPOSIO_PLUGIN_RELATIVE_PATH), {
+		rmSync(join(resolveIndusCodeDir(), ...LEGACY_COMPOSIO_PLUGIN_RELATIVE_PATH), {
 			force: true,
 		});
 	} catch (error) {
@@ -342,7 +342,7 @@ function readReconciledComposioState(
 
 /**
  * Whether connectors are available to this install. The proxy enforces
- * entitlement for the signed-in Cline account on every route; a `listConnections` probe both proves sign-in and
+ * entitlement for the signed-in IndusCode account on every route; a `listConnections` probe both proves sign-in and
  * exercises that gate. 401/403 → not available. Result is cached briefly to
  * spare the network the UI's frequent status polls; a forced refresh (or
  * cache miss) re-probes.
@@ -351,16 +351,16 @@ async function isConnectorsAvailable(
 	scope: AccountScope,
 	options?: {
 		forceRefresh?: boolean;
-		ctx?: ClineAuthTelemetryContext;
+		ctx?: IndusCodeAuthTelemetryContext;
 	},
 ): Promise<boolean> {
-	if (getClineAccountId() !== scope.accountId) return false;
-	if (!(await isClineAccountFeatureEnabled(FeatureFlag.CLINE_COMPOSIO_BETA))) {
+	if (getIndusCodeAccountId() !== scope.accountId) return false;
+	if (!(await isIndusCodeAccountFeatureEnabled(FeatureFlag.INDUSCODE_COMPOSIO_BETA))) {
 		scope.configuredCache = null;
 		scope.catalogCache = null;
 		return false;
 	}
-	if (getClineAccountId() !== scope.accountId) return false;
+	if (getIndusCodeAccountId() !== scope.accountId) return false;
 	if (
 		!options?.forceRefresh &&
 		scope.configuredCache &&
@@ -383,12 +383,12 @@ async function isConnectorsAvailable(
 			// and tear down the UI; assume still-available and let the actual
 			// operation surface the error. Never cache this guess.
 			return (
-				getClineAccountId() === scope.accountId &&
+				getIndusCodeAccountId() === scope.accountId &&
 				(scope.configuredCache?.configured ?? true)
 			);
 		}
 	}
-	if (getClineAccountId() !== scope.accountId) return false;
+	if (getIndusCodeAccountId() !== scope.accountId) return false;
 	scope.configuredCache = { checkedAt: Date.now(), configured };
 	if (!configured) {
 		// Signed out or un-entitled: connections in the state file belong to a
@@ -450,7 +450,7 @@ function buildStatusResponse(
 	state: StoredComposioState,
 	configured: boolean,
 ): ComposioStatusResponse {
-	if (getClineAccountId() !== scope.accountId)
+	if (getIndusCodeAccountId() !== scope.accountId)
 		return { configured: false, integrations: [] };
 	// Recommended toolkits are always listed; any other toolkit appears while
 	// it is connected or mid-connection (so the catalog UI can join on it).
@@ -474,13 +474,13 @@ function buildStatusResponse(
 export async function getComposioStatus(options?: {
 	refresh?: boolean;
 	logger?: BasicLogger;
-	telemetry?: ClineAuthTelemetryContext["telemetry"];
+	telemetry?: IndusCodeAuthTelemetryContext["telemetry"];
 }): Promise<ComposioStatusResponse> {
 	const scope = getAccountScope();
 	if (!scope) {
 		return { configured: false, integrations: [] };
 	}
-	const ctx: ClineAuthTelemetryContext = {
+	const ctx: IndusCodeAuthTelemetryContext = {
 		logger: options?.logger,
 		telemetry: options?.telemetry,
 	};
@@ -665,13 +665,13 @@ function toCatalogToolkit(
 
 async function ensureToolkitCatalog(
 	scope: AccountScope,
-	ctx: ClineAuthTelemetryContext,
+	ctx: IndusCodeAuthTelemetryContext,
 ): Promise<ComposioCatalogToolkit[]> {
 	if (
 		scope.catalogCache &&
 		Date.now() - scope.catalogCache.fetchedAt < CATALOG_TTL_MS
 	) {
-		return getClineAccountId() === scope.accountId
+		return getIndusCodeAccountId() === scope.accountId
 			? scope.catalogCache.entries
 			: [];
 	}
@@ -690,7 +690,7 @@ async function ensureToolkitCatalog(
 		entries.push(toCatalogToolkit({ ...item, slug }));
 	}
 	scope.catalogCache = { fetchedAt: Date.now(), entries };
-	return getClineAccountId() === scope.accountId ? entries : [];
+	return getIndusCodeAccountId() === scope.accountId ? entries : [];
 }
 
 /** The browsable toolkit catalog (usage-ranked), for the Connectors UI. */
@@ -701,13 +701,13 @@ export async function listComposioToolkits(
 	if (!scope) {
 		return { configured: false, toolkits: [] };
 	}
-	const ctx: ClineAuthTelemetryContext = { logger };
+	const ctx: IndusCodeAuthTelemetryContext = { logger };
 	if (!(await isConnectorsAvailable(scope, { ctx }))) {
 		return { configured: false, toolkits: [] };
 	}
 	try {
 		const toolkits = await ensureToolkitCatalog(scope, ctx);
-		if (getClineAccountId() !== scope.accountId) {
+		if (getIndusCodeAccountId() !== scope.accountId) {
 			return { configured: false, toolkits: [] };
 		}
 		return {
@@ -730,16 +730,16 @@ export async function connectComposioToolkit(
 ): Promise<ComposioConnectResponse> {
 	const scope = getAccountScope();
 	if (!scope) {
-		throw new Error("Sign in to your Cline account to use connectors.");
+		throw new Error("Sign in to your IndusCode account to use connectors.");
 	}
 	// Record intent before any await. A later disconnect/cancel receives a
 	// larger sequence and wins; a later reconnect receives a larger sequence
 	// of its own and survives, regardless of wall-clock resolution or changes.
 	const startedSequence = ++scope.operationSequence;
-	const ctx: ClineAuthTelemetryContext = { logger };
+	const ctx: IndusCodeAuthTelemetryContext = { logger };
 	if (!(await isConnectorsAvailable(scope, { ctx }))) {
 		throw new Error(
-			"Sign in to your Cline account to use connectors. If you are signed in, connectors may not be enabled for your account yet.",
+			"Sign in to your IndusCode account to use connectors. If you are signed in, connectors may not be enabled for your account yet.",
 		);
 	}
 	const existingPending = scope.pendingConnections.get(toolkit);
@@ -773,7 +773,7 @@ export async function connectComposioToolkit(
 		}
 		const redirectUrl = initiated.redirectUrl?.trim() || undefined;
 		const connectedAccountId = initiated.connectedAccountId;
-		if (getClineAccountId() !== scope.accountId) {
+		if (getIndusCodeAccountId() !== scope.accountId) {
 			await abandonFinalizedConnection(scope, connectedAccountId, ctx);
 			return { status: { configured: false, integrations: [] } };
 		}
@@ -964,7 +964,7 @@ export async function disconnectComposioToolkit(
 	// predates this marker; see FinalizeGuard.startedSequence). Whichever action
 	// started later wins, symmetrically.
 	scope.lastDisconnectSequence.set(toolkit, ++scope.operationSequence);
-	const ctx: ClineAuthTelemetryContext = { logger };
+	const ctx: IndusCodeAuthTelemetryContext = { logger };
 	const pending = scope.pendingConnections.get(toolkit);
 	scope.pendingConnections.delete(toolkit);
 	scope.lastConnectionErrors.delete(toolkit);
@@ -1078,7 +1078,7 @@ type FinalizeGuard = {
 async function abandonFinalizedConnection(
 	scope: AccountScope,
 	connectedAccountId: string,
-	ctx: ClineAuthTelemetryContext,
+	ctx: IndusCodeAuthTelemetryContext,
 ): Promise<void> {
 	updateComposioState(scope, (s) => {
 		rememberCancelledAccountId(s, connectedAccountId);
@@ -1110,9 +1110,9 @@ async function finalizeToolkitConnection(
 	toolkit: ComposioToolkitSlug,
 	connectedAccountId: string,
 	guard: FinalizeGuard,
-	ctx: ClineAuthTelemetryContext,
+	ctx: IndusCodeAuthTelemetryContext,
 ): Promise<boolean> {
-	if (getClineAccountId() !== scope.accountId) {
+	if (getIndusCodeAccountId() !== scope.accountId) {
 		await abandonFinalizedConnection(scope, connectedAccountId, ctx);
 		return false;
 	}

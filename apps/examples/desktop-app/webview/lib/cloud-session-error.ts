@@ -1,4 +1,4 @@
-import { CLINE_ENVIRONMENTS } from "@cline/shared/browser";
+import { INDUSCODE_ENVIRONMENTS } from "@induscode/shared/browser";
 
 const CLOUD_SESSION_ERROR_PREFIX = "CLOUD_SESSION_ERROR:";
 
@@ -14,7 +14,7 @@ export type CloudSessionError = {
 	connectUrl?: string;
 };
 
-/** Trust only Cline app origins from pod-controlled error envelopes. */
+/** Trust only IndusCode app origins from pod-controlled error envelopes. */
 function trustedConnectUrl(value: unknown): string | undefined {
 	if (typeof value !== "string" || !value.trim()) {
 		return undefined;
@@ -22,7 +22,7 @@ function trustedConnectUrl(value: unknown): string | undefined {
 	const trimmed = value.trim();
 	try {
 		const origin = new URL(trimmed).origin;
-		return Object.values(CLINE_ENVIRONMENTS).some(
+		return Object.values(INDUSCODE_ENVIRONMENTS).some(
 			(environment) => new URL(environment.appBaseUrl).origin === origin,
 		)
 			? trimmed

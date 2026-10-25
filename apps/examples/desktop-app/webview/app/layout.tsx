@@ -36,7 +36,7 @@ export default function RootLayout({
 	return (
 		<html
 			className="dark h-full"
-			data-cline-hub-theme="dark"
+			data-induscode-hub-theme="dark"
 			lang="en"
 			suppressHydrationWarning
 		>
@@ -46,12 +46,12 @@ export default function RootLayout({
 					dangerouslySetInnerHTML={{
 						__html: APP_FONT_SIZE_BOOTSTRAP_SCRIPT,
 					}}
-					id="cline-app-font-size-bootstrap"
+					id="induscode-app-font-size-bootstrap"
 				/>
 				<script
 					// biome-ignore lint/security/noDangerouslySetInnerHtml: static bootstrap must run before the first paint
 					dangerouslySetInnerHTML={{ __html: HUB_THEME_BOOTSTRAP_SCRIPT }}
-					id="cline-hub-theme-bootstrap"
+					id="induscode-hub-theme-bootstrap"
 				/>
 			</head>
 			<body className="h-full min-h-screen font-sans antialiased">

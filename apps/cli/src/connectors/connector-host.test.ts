@@ -91,7 +91,7 @@ function baseStartRequest(overrides: Partial<TestState> = {}) {
 		cwd: overrides.cwd ?? "/tmp/work",
 		workspaceRoot: overrides.workspaceRoot ?? "/tmp/work",
 		systemPrompt: overrides.systemPrompt ?? "system",
-		provider: "cline",
+		provider: "induscode",
 		model: "test-model",
 		mode: "act",
 	};
@@ -205,7 +205,7 @@ describe("handleConnectorUserTurn", () => {
 				core: { debug: vi.fn(), log: vi.fn(), error: vi.fn() },
 			} as never,
 			transport: "slack",
-			botUserName: "cline-slack",
+			botUserName: "induscode-slack",
 			requestStop: vi.fn(),
 			bindingsPath,
 			systemRules: "rules",
@@ -248,7 +248,7 @@ describe("handleConnectorUserTurn", () => {
 				core: { debug: vi.fn(), log: vi.fn(), error: vi.fn() },
 			} as never,
 			transport: "telegram",
-			botUserName: "ClineAdapterBot",
+			botUserName: "IndusCodeAdapterBot",
 			requestStop: vi.fn(),
 			bindingsPath,
 			systemRules: "rules",
@@ -310,7 +310,7 @@ describe("handleConnectorUserTurn", () => {
 				core: { debug: vi.fn(), log: vi.fn(), error: vi.fn() },
 			} as never,
 			transport: "slack",
-			botUserName: "ClineAdapterBot",
+			botUserName: "IndusCodeAdapterBot",
 			requestStop: vi.fn(),
 			bindingsPath,
 			hookCommand: "echo noop",
@@ -366,7 +366,7 @@ describe("handleConnectorUserTurn", () => {
 				core: { debug: vi.fn(), log: vi.fn(), error: vi.fn() },
 			} as never,
 			transport: "discord",
-			botUserName: "ClineAdapterBot",
+			botUserName: "IndusCodeAdapterBot",
 			ownerParticipantKeys: ["discord:user:owner"],
 			requestStop: vi.fn(),
 			bindingsPath,
@@ -402,7 +402,7 @@ describe("handleConnectorUserTurn", () => {
 
 		await handleConnectorUserTurn({
 			thread: thread as never,
-			text: "/new@ClineAdapterBot",
+			text: "/new@IndusCodeAdapterBot",
 			client: runtime.client as never,
 			pendingApprovals: new Map(),
 			baseStartRequest: baseStartRequest() as never,
@@ -412,7 +412,7 @@ describe("handleConnectorUserTurn", () => {
 				core: { debug: vi.fn(), log: vi.fn(), error: vi.fn() },
 			} as never,
 			transport: "discord",
-			botUserName: "ClineAdapterBot",
+			botUserName: "IndusCodeAdapterBot",
 			ownerParticipantKeys: ["discord:user:owner"],
 			requestStop: vi.fn(),
 			bindingsPath,
@@ -455,7 +455,7 @@ describe("handleConnectorUserTurn", () => {
 
 		await handleConnectorUserTurn({
 			thread: thread as never,
-			text: "/new@ClineAdapterBot",
+			text: "/new@IndusCodeAdapterBot",
 			client: runtime.client as never,
 			pendingApprovals: new Map(),
 			baseStartRequest: baseStartRequest() as never,
@@ -465,7 +465,7 @@ describe("handleConnectorUserTurn", () => {
 				core: { debug: vi.fn(), log: vi.fn(), error: vi.fn() },
 			} as never,
 			transport: "discord",
-			botUserName: "ClineAdapterBot",
+			botUserName: "IndusCodeAdapterBot",
 			ownerParticipantKeys: ["discord:user:owner"],
 			requestStop: vi.fn(),
 			bindingsPath,
@@ -507,7 +507,7 @@ describe("handleConnectorUserTurn", () => {
 				core: { debug: vi.fn(), log: vi.fn(), error: vi.fn() },
 			} as never,
 			transport: "discord",
-			botUserName: "ClineAdapterBot",
+			botUserName: "IndusCodeAdapterBot",
 			ownerParticipantKeys: ["discord:user:owner"],
 			requestStop: vi.fn(),
 			bindingsPath,
@@ -549,7 +549,7 @@ describe("handleConnectorUserTurn", () => {
 				core: { debug: vi.fn(), log: vi.fn(), error: vi.fn() },
 			} as never,
 			transport: "telegram",
-			botUserName: "ClineAdapterBot",
+			botUserName: "IndusCodeAdapterBot",
 			requestStop: vi.fn(),
 			bindingsPath,
 			systemRules: "rules",
@@ -578,7 +578,7 @@ describe("handleConnectorUserTurn", () => {
 
 		await handleConnectorUserTurn({
 			...commonInput,
-			text: "/tools@ClineAdapterBot on",
+			text: "/tools@IndusCodeAdapterBot on",
 		});
 
 		expect(posts.at(-1)).toEqual({
@@ -608,7 +608,7 @@ describe("handleConnectorUserTurn", () => {
 
 		await handleConnectorUserTurn({
 			...commonInput,
-			text: "/yolo@ClineAdapterBot on",
+			text: "/yolo@IndusCodeAdapterBot on",
 		});
 
 		expect(posts.at(-1)).toEqual({
@@ -667,7 +667,7 @@ describe("handleConnectorUserTurn", () => {
 				core: { debug: vi.fn(), log: vi.fn(), error: vi.fn() },
 			} as never,
 			transport: "slack",
-			botUserName: "ClineAdapterBot",
+			botUserName: "IndusCodeAdapterBot",
 			requestStop: vi.fn(),
 			bindingsPath,
 			systemRules: "rules",
@@ -691,7 +691,7 @@ describe("handleConnectorUserTurn", () => {
 	});
 
 	it("recovers when the bound session is wedged on a run that never drained", async () => {
-		// Cline Mom's failure: the thread pointed at a session whose runtime still
+		// IndusCode Mom's failure: the thread pointed at a session whose runtime still
 		// had a run in flight, so every message came back as "SessionRuntime.shutdown
 		// called while a run is in progress" instead of answering.
 		const dir = mkdtempSync(join(tmpdir(), "connector-host-test-"));
@@ -742,7 +742,7 @@ describe("handleConnectorUserTurn", () => {
 				core: { debug: vi.fn(), log: vi.fn(), error: vi.fn() },
 			} as never,
 			transport: "slack",
-			botUserName: "ClineAdapterBot",
+			botUserName: "IndusCodeAdapterBot",
 			requestStop: vi.fn(),
 			bindingsPath,
 			systemRules: "rules",
@@ -804,7 +804,7 @@ describe("handleConnectorUserTurn", () => {
 					core: { debug: vi.fn(), log: vi.fn(), error: vi.fn() },
 				} as never,
 				transport: "slack",
-				botUserName: "ClineAdapterBot",
+				botUserName: "IndusCodeAdapterBot",
 				requestStop: vi.fn(),
 				bindingsPath,
 				systemRules: "rules",
@@ -868,7 +868,7 @@ describe("handleConnectorUserTurn", () => {
 				core: { debug: vi.fn(), log: vi.fn(), error: vi.fn() },
 			} as never,
 			transport: "slack",
-			botUserName: "ClineAdapterBot",
+			botUserName: "IndusCodeAdapterBot",
 			requestStop: vi.fn(),
 			bindingsPath,
 			systemRules: "rules",
@@ -960,7 +960,7 @@ describe("handleConnectorUserTurn", () => {
 				core: { debug: vi.fn(), log: vi.fn(), error: vi.fn() },
 			} as never,
 			transport: "slack",
-			botUserName: "ClineAdapterBot",
+			botUserName: "IndusCodeAdapterBot",
 			requestStop: vi.fn(),
 			bindingsPath,
 			systemRules: "rules",
@@ -1035,7 +1035,7 @@ describe("handleConnectorUserTurn", () => {
 				core: { debug: vi.fn(), log: vi.fn(), error: vi.fn() },
 			} as never,
 			transport: "telegram",
-			botUserName: "ClineAdapterBot",
+			botUserName: "IndusCodeAdapterBot",
 			requestStop: vi.fn(),
 			bindingsPath,
 			systemRules: "rules",
@@ -1136,7 +1136,7 @@ describe("handleConnectorUserTurn", () => {
 				core: { debug: vi.fn(), log: vi.fn(), error: vi.fn() },
 			} as never,
 			transport: "telegram",
-			botUserName: "ClineAdapterBot",
+			botUserName: "IndusCodeAdapterBot",
 			requestStop: vi.fn(),
 			bindingsPath,
 			systemRules: "rules",
@@ -1170,7 +1170,7 @@ describe("handleConnectorUserTurn", () => {
 						threadId: "thread-1",
 						bindingKey: "thread-1",
 						participantKey: "telegram:user:alice",
-						userName: "ClineAdapterBot",
+						userName: "IndusCodeAdapterBot",
 					}),
 				}),
 			}),
@@ -1215,7 +1215,7 @@ describe("handleConnectorUserTurn", () => {
 				core: { debug: vi.fn(), log: vi.fn(), error: vi.fn() },
 			} as never,
 			transport: "telegram",
-			botUserName: "ClineAdapterBot",
+			botUserName: "IndusCodeAdapterBot",
 			requestStop: vi.fn(),
 			bindingsPath,
 			systemRules: "rules",
@@ -1276,7 +1276,7 @@ describe("handleConnectorUserTurn", () => {
 				core: { debug: vi.fn(), log: vi.fn(), error: vi.fn() },
 			} as never,
 			transport: "telegram",
-			botUserName: "ClineAdapterBot",
+			botUserName: "IndusCodeAdapterBot",
 			requestStop: vi.fn(),
 			bindingsPath,
 			systemRules: "rules",
@@ -1319,7 +1319,7 @@ describe("handleConnectorUserTurn", () => {
 				core: { debug: vi.fn(), log: vi.fn(), error: vi.fn() },
 			} as never,
 			transport: "discord",
-			botUserName: "ClineAdapterBot",
+			botUserName: "IndusCodeAdapterBot",
 			requestStop: vi.fn(),
 			bindingsPath,
 			systemRules: "rules",
@@ -1357,7 +1357,7 @@ describe("handleConnectorUserTurn", () => {
 				core: { debug: vi.fn(), log: vi.fn(), error: vi.fn() },
 			} as never,
 			transport: "discord",
-			botUserName: "ClineAdapterBot",
+			botUserName: "IndusCodeAdapterBot",
 			requestStop: vi.fn(),
 			bindingsPath,
 			systemRules: "rules",
@@ -1427,7 +1427,7 @@ describe("handleConnectorUserTurn", () => {
 				core: { debug: vi.fn(), log: vi.fn(), error: vi.fn() },
 			} as never,
 			transport: "discord",
-			botUserName: "ClineAdapterBot",
+			botUserName: "IndusCodeAdapterBot",
 			requestStop: vi.fn(),
 			bindingsPath,
 			systemRules: "rules",
@@ -1487,7 +1487,7 @@ describe("handleConnectorUserTurn", () => {
 				core: { debug: vi.fn(), log: vi.fn(), error: vi.fn() },
 			} as never,
 			transport: "discord",
-			botUserName: "ClineAdapterBot",
+			botUserName: "IndusCodeAdapterBot",
 			requestStop: vi.fn(),
 			bindingsPath,
 			systemRules: "rules",
@@ -1507,7 +1507,7 @@ describe("handleConnectorUserTurn", () => {
 		await handleConnectorUserTurn({
 			...commonInput,
 			thread: alice.thread as never,
-			text: "/mute@ClineAdapterBot <@bob>",
+			text: "/mute@IndusCodeAdapterBot <@bob>",
 		});
 		await handleConnectorUserTurn({
 			...commonInput,
@@ -1533,7 +1533,7 @@ describe("handleConnectorUserTurn", () => {
 		await handleConnectorUserTurn({
 			...commonInput,
 			thread: alice.thread as never,
-			text: "/unmute@ClineAdapterBot <@bob>",
+			text: "/unmute@IndusCodeAdapterBot <@bob>",
 		});
 		await handleConnectorUserTurn({
 			...commonInput,
@@ -1588,7 +1588,7 @@ describe("handleConnectorUserTurn", () => {
 				core: { debug: vi.fn(), log: vi.fn(), error: vi.fn() },
 			} as never,
 			transport: "discord",
-			botUserName: "ClineAdapterBot",
+			botUserName: "IndusCodeAdapterBot",
 			requestStop: vi.fn(),
 			bindingsPath,
 			systemRules: "rules",
@@ -1608,12 +1608,12 @@ describe("handleConnectorUserTurn", () => {
 		await handleConnectorUserTurn({
 			...commonInput,
 			thread: alice.thread as never,
-			text: "/mute@ClineAdapterBot <@bob>",
+			text: "/mute@IndusCodeAdapterBot <@bob>",
 		});
 		await handleConnectorUserTurn({
 			...commonInput,
 			thread: alice.thread as never,
-			text: "/unmute@ClineAdapterBot",
+			text: "/unmute@IndusCodeAdapterBot",
 		});
 		await handleConnectorUserTurn({
 			...commonInput,
@@ -1676,7 +1676,7 @@ describe("handleConnectorUserTurn", () => {
 				core: { debug: vi.fn(), log: vi.fn(), error: vi.fn() },
 			} as never,
 			transport: "discord",
-			botUserName: "ClineAdapterBot",
+			botUserName: "IndusCodeAdapterBot",
 			requestStop: vi.fn(),
 			bindingsPath,
 			systemRules: "rules",
@@ -1734,7 +1734,7 @@ describe("handleConnectorUserTurn", () => {
 				core: { debug: vi.fn(), log: vi.fn(), error: vi.fn() },
 			} as never,
 			transport: "discord",
-			botUserName: "ClineAdapterBot",
+			botUserName: "IndusCodeAdapterBot",
 			requestStop: vi.fn(),
 			bindingsPath,
 			systemRules: "rules",
@@ -1786,7 +1786,7 @@ describe("handleConnectorUserTurn", () => {
 					core: { debug: vi.fn(), log: vi.fn(), error: vi.fn() },
 				} as never,
 				transport: "discord",
-				botUserName: "ClineAdapterBot",
+				botUserName: "IndusCodeAdapterBot",
 				requestStop: vi.fn(),
 				bindingsPath,
 				systemRules: "rules",
@@ -1839,7 +1839,7 @@ describe("handleConnectorUserTurn", () => {
 				core: { debug: vi.fn(), log: vi.fn(), error: vi.fn() },
 			} as never,
 			transport: "telegram",
-			botUserName: "ClineAdapterBot",
+			botUserName: "IndusCodeAdapterBot",
 			requestStop: vi.fn(),
 			bindingsPath,
 			systemRules: "rules",
@@ -1879,7 +1879,7 @@ describe("handleConnectorUserTurn", () => {
 				core: { debug: vi.fn(), log: vi.fn(), error: vi.fn() },
 			} as never,
 			transport: "telegram",
-			botUserName: "ClineAdapterBot",
+			botUserName: "IndusCodeAdapterBot",
 			requestStop: vi.fn(),
 			bindingsPath,
 			systemRules: "rules",
@@ -1934,7 +1934,7 @@ describe("handleConnectorUserTurn", () => {
 				core: { debug: vi.fn(), log: vi.fn(), error: vi.fn() },
 			} as never,
 			transport: "telegram",
-			botUserName: "ClineAdapterBot",
+			botUserName: "IndusCodeAdapterBot",
 			requestStop: vi.fn(),
 			bindingsPath,
 			systemRules: "rules",
@@ -1989,7 +1989,7 @@ describe("handleConnectorUserTurn", () => {
 				core: { debug: vi.fn(), log: vi.fn(), error: vi.fn() },
 			} as never,
 			transport: "telegram",
-			botUserName: "ClineAdapterBot",
+			botUserName: "IndusCodeAdapterBot",
 			requestStop: vi.fn(),
 			bindingsPath,
 			systemRules: "rules",
@@ -2039,7 +2039,7 @@ describe("handleConnectorUserTurn", () => {
 				core: { debug: vi.fn(), log: vi.fn(), error: vi.fn() },
 			} as never,
 			transport: "telegram",
-			botUserName: "ClineAdapterBot",
+			botUserName: "IndusCodeAdapterBot",
 			requestStop: vi.fn(),
 			bindingsPath,
 			systemRules: "rules",

@@ -1,8 +1,8 @@
 import { openRouterDefaultModelId } from "@shared/api"
-import { BANNER_DATA, BannerAction, BannerActionType, BannerCardData } from "@shared/cline/banner"
-import { EmptyRequest } from "@shared/proto/cline/common"
-import type { Worktree } from "@shared/proto/cline/worktree"
-import { TrackWorktreeViewOpenedRequest } from "@shared/proto/cline/worktree"
+import { BANNER_DATA, BannerAction, BannerActionType, BannerCardData } from "@shared/induscode/banner"
+import { EmptyRequest } from "@shared/proto/induscode/common"
+import type { Worktree } from "@shared/proto/induscode/worktree"
+import { TrackWorktreeViewOpenedRequest } from "@shared/proto/induscode/worktree"
 import { GitBranch, Sparkles } from "lucide-react"
 import React, { useCallback, useEffect, useMemo, useState } from "react"
 import RunningCloudTasks from "@/components/cloud/RunningCloudTasks"
@@ -16,9 +16,9 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import HomeHeader from "@/components/welcome/HomeHeader"
 import { SuggestedTasks } from "@/components/welcome/SuggestedTasks"
 import CreateWorktreeModal from "@/components/worktrees/CreateWorktreeModal"
-import { useClineAuth } from "@/context/ClineAuthContext"
+import { useIndusCodeAuth } from "@/context/IndusCodeAuthContext"
 import { useExtensionState } from "@/context/ExtensionStateContext"
-import { useClinePassPromo } from "@/hooks/useClinePassPromo"
+import { useIndusCodePassPromo } from "@/hooks/useIndusCodePassPromo"
 import { AccountServiceClient, StateServiceClient, UiServiceClient, WorktreeServiceClient } from "@/services/grpc-client"
 import { convertBannerData } from "@/utils/bannerUtils"
 import { getCurrentPlatform } from "@/utils/platformUtils"
@@ -26,7 +26,7 @@ import { getSessionDismissedBannerIds, markBannerDismissedForSession } from "@/u
 import { WelcomeSectionProps } from "../../types/chatTypes"
 
 // Shares the legacy extension's banner id so a dismissal there carries over here.
-const CLINE_PASS_PROMO_BANNER_ID = "cline-pass-home-promo-v2"
+const INDUSCODE_PASS_PROMO_BANNER_ID = "induscode-pass-home-promo-v2"
 
 /**
  * Welcome section shown when there's no active task
@@ -67,7 +67,7 @@ export const WelcomeSection: React.FC<WelcomeSectionProps> = ({
 			.catch(() => setIsGitRepo(false))
 	}, [])
 
-	const { clineUser } = useClineAuth()
+	const { induscodeUser } = useIndusCodeAuth()
 	const {
 		openRouterModels,
 		navigateToSettings,
@@ -79,7 +79,7 @@ export const WelcomeSection: React.FC<WelcomeSectionProps> = ({
 		cloudSessionsEnabled,
 	} = useExtensionState()
 	const { handleFieldsChange } = useApiConfigurationHandlers()
-	const { isClinePassEnabled, isUsingClinePass, openSubscribePage, switchToClinePassProvider } = useClinePassPromo()
+	const { isIndusCodePassEnabled, isUsingIndusCodePass, openSubscribePage, switchToIndusCodePassProvider } = useIndusCodePassPromo()
 	// Seeded from the session-scoped record so dismissals survive unmounts.
 	const [dismissedLocalBanners, setDismissedLocalBanners] = useState<Set<string>>(() => getSessionDismissedBannerIds())
 
@@ -149,8 +149,8 @@ export const WelcomeSection: React.FC<WelcomeSectionProps> = ({
 				return false
 			}
 
-			if (banner.isClineUserOnly !== undefined) {
-				return banner.isClineUserOnly === !!clineUser
+			if (banner.isIndusCodeUserOnly !== undefined) {
+				return banner.isIndusCodeUserOnly === !!induscodeUser
 			}
 
 			if (banner.platforms && !banner.platforms.includes(getCurrentPlatform())) {
@@ -159,7 +159,7 @@ export const WelcomeSection: React.FC<WelcomeSectionProps> = ({
 
 			return true
 		})
-	}, [isBannerDismissed, clineUser])
+	}, [isBannerDismissed, induscodeUser])
 
 	/**
 	 * Action handler - maps action types to actual implementations
@@ -181,8 +181,8 @@ export const WelcomeSection: React.FC<WelcomeSectionProps> = ({
 						actModeOpenRouterModelId: modelId,
 						planModeOpenRouterModelInfo: openRouterModels[modelId],
 						actModeOpenRouterModelInfo: openRouterModels[modelId],
-						planModeApiProvider: "cline",
-						actModeApiProvider: "cline",
+						planModeApiProvider: "induscode",
+						actModeApiProvider: "induscode",
 					})
 					navigateToSettingsModelPicker({ targetSection: "api-config", initialModelTab })
 					break
@@ -208,7 +208,7 @@ export const WelcomeSection: React.FC<WelcomeSectionProps> = ({
 					break
 
 				case BannerActionType.InstallCli:
-					StateServiceClient.installClineCli({}).catch((error) =>
+					StateServiceClient.installIndusCodeCli({}).catch((error) =>
 						console.error("Failed to initiate CLI installation:", error),
 					)
 					break
@@ -244,23 +244,23 @@ export const WelcomeSection: React.FC<WelcomeSectionProps> = ({
 	}, [])
 
 	/**
-	 * Promotional banner for ClinePass. Shown until dismissed, and only while
-	 * promotions are enabled and the user isn't already on ClinePass.
+	 * Promotional banner for IndusCodePass. Shown until dismissed, and only while
+	 * promotions are enabled and the user isn't already on IndusCodePass.
 	 */
-	const clinePassPromoBanner = useMemo((): BannerData | undefined => {
+	const induscodePassPromoBanner = useMemo((): BannerData | undefined => {
 		if (
-			!isClinePassEnabled ||
-			isUsingClinePass ||
-			isBannerDismissed(CLINE_PASS_PROMO_BANNER_ID) ||
-			dismissedLocalBanners.has(CLINE_PASS_PROMO_BANNER_ID)
+			!isIndusCodePassEnabled ||
+			isUsingIndusCodePass ||
+			isBannerDismissed(INDUSCODE_PASS_PROMO_BANNER_ID) ||
+			dismissedLocalBanners.has(INDUSCODE_PASS_PROMO_BANNER_ID)
 		) {
 			return undefined
 		}
 
 		return {
-			id: CLINE_PASS_PROMO_BANNER_ID,
+			id: INDUSCODE_PASS_PROMO_BANNER_ID,
 			icon: <Sparkles className="size-4 text-[var(--vscode-charts-yellow)]" />,
-			title: "Try ClinePass",
+			title: "Try IndusCodePass",
 			description: (
 				<div className="flex flex-col gap-2">
 					<p className="m-0">
@@ -269,26 +269,26 @@ export const WelcomeSection: React.FC<WelcomeSectionProps> = ({
 					</p>
 					<div>
 						<Button onClick={openSubscribePage} size="sm">
-							Get ClinePass
+							Get IndusCodePass
 						</Button>
 					</div>
 					<button
 						className="w-fit cursor-pointer border-0 bg-transparent p-0 text-left text-xs text-[var(--vscode-textLink-foreground)] underline hover:text-[var(--vscode-textLink-activeForeground,var(--vscode-textLink-foreground))]"
-						onClick={() => void switchToClinePassProvider()}
+						onClick={() => void switchToIndusCodePassProvider()}
 						type="button">
-						Switch to ClinePass provider to access subscription.
+						Switch to IndusCodePass provider to access subscription.
 					</button>
 				</div>
 			),
-			onDismiss: () => handleBannerDismiss(CLINE_PASS_PROMO_BANNER_ID),
+			onDismiss: () => handleBannerDismiss(INDUSCODE_PASS_PROMO_BANNER_ID),
 		}
 	}, [
-		isClinePassEnabled,
-		isUsingClinePass,
+		isIndusCodePassEnabled,
+		isUsingIndusCodePass,
 		isBannerDismissed,
 		dismissedLocalBanners,
 		openSubscribePage,
-		switchToClinePassProvider,
+		switchToIndusCodePassProvider,
 		handleBannerDismiss,
 	])
 
@@ -313,9 +313,9 @@ export const WelcomeSection: React.FC<WelcomeSectionProps> = ({
 			}),
 		)
 
-		// ClinePass promo leads, then extension state banners, then hardcoded banners
-		return [...(clinePassPromoBanner ? [clinePassPromoBanner] : []), ...extensionStateBanners, ...hardcodedBanners]
-	}, [bannerConfig, banners, clineUser, handleBannerAction, handleBannerDismiss, clinePassPromoBanner])
+		// IndusCodePass promo leads, then extension state banners, then hardcoded banners
+		return [...(induscodePassPromoBanner ? [induscodePassPromoBanner] : []), ...extensionStateBanners, ...hardcodedBanners]
+	}, [bannerConfig, banners, induscodeUser, handleBannerAction, handleBannerDismiss, induscodePassPromoBanner])
 
 	return (
 		<div className="flex flex-col flex-1 w-full min-h-0 p-0 m-0">
@@ -349,7 +349,7 @@ export const WelcomeSection: React.FC<WelcomeSectionProps> = ({
 									</TooltipTrigger>
 									<TooltipContent side="top">
 										Create a new git worktree and open it in a separate window. Great for running parallel
-										Cline tasks.
+										IndusCode tasks.
 									</TooltipContent>
 								</Tooltip>
 								*/}
@@ -373,7 +373,7 @@ export const WelcomeSection: React.FC<WelcomeSectionProps> = ({
 											</button>
 										</TooltipTrigger>
 										<TooltipContent side="bottom">
-											View and manage git worktrees. Great for running parallel Cline tasks.
+											View and manage git worktrees. Great for running parallel IndusCode tasks.
 										</TooltipContent>
 									</Tooltip>
 								)}

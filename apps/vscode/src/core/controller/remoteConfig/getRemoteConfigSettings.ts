@@ -1,5 +1,5 @@
 import { Controller } from "@/sdk"
-import { Empty, RemoteConfigSettingsResponse } from "@/shared/proto/index.cline"
+import { Empty, RemoteConfigSettingsResponse } from "@/shared/proto/index.induscode"
 import { getAllRemoteConfigSettings } from "./settings"
 
 export async function getRemoteConfigSettings(controller: Controller, _request: Empty): Promise<RemoteConfigSettingsResponse> {

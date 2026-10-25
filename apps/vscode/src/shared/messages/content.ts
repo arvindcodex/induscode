@@ -1,11 +1,11 @@
 import type { Anthropic } from "@anthropic-ai/sdk"
-import type { ClineMessageMetricsInfo, ClineMessageModelInfo } from "./metrics"
+import type { IndusCodeMessageMetricsInfo, IndusCodeMessageModelInfo } from "./metrics"
 
-export type ClinePromptInputContent = string
+export type IndusCodePromptInputContent = string
 
-export type ClineMessageRole = "user" | "assistant"
+export type IndusCodeMessageRole = "user" | "assistant"
 
-export interface ClineReasoningDetailParam {
+export interface IndusCodeReasoningDetailParam {
 	type: "reasoning.text" | string
 	text: string
 	signature: string
@@ -13,91 +13,91 @@ export interface ClineReasoningDetailParam {
 	index: number
 }
 
-interface ClineSharedMessageParam {
+interface IndusCodeSharedMessageParam {
 	// The id of the response that the block belongs to
 	call_id?: string
 }
 
-export const REASONING_DETAILS_PROVIDERS = ["cline", "openrouter"]
+export const REASONING_DETAILS_PROVIDERS = ["induscode", "openrouter"]
 
 /**
- * An extension of Anthropic.MessageParam that includes Cline-specific fields: reasoning_details.
+ * An extension of Anthropic.MessageParam that includes IndusCode-specific fields: reasoning_details.
  * This ensures backward compatibility where the messages were stored in Anthropic format with additional
  * fields unknown to Anthropic SDK.
  */
-export interface ClineTextContentBlock extends Anthropic.TextBlockParam, ClineSharedMessageParam {
+export interface IndusCodeTextContentBlock extends Anthropic.TextBlockParam, IndusCodeSharedMessageParam {
 	// reasoning_details only exists for providers listed in REASONING_DETAILS_PROVIDERS
-	reasoning_details?: ClineReasoningDetailParam[]
+	reasoning_details?: IndusCodeReasoningDetailParam[]
 	// Thought Signature associates with Gemini
 	signature?: string
 }
 
-export interface ClineImageContentBlock extends Anthropic.ImageBlockParam, ClineSharedMessageParam {}
+export interface IndusCodeImageContentBlock extends Anthropic.ImageBlockParam, IndusCodeSharedMessageParam {}
 
-export interface ClineDocumentContentBlock extends Anthropic.DocumentBlockParam, ClineSharedMessageParam {}
+export interface IndusCodeDocumentContentBlock extends Anthropic.DocumentBlockParam, IndusCodeSharedMessageParam {}
 
-export interface ClineUserToolResultContentBlock extends Anthropic.ToolResultBlockParam, ClineSharedMessageParam {}
+export interface IndusCodeUserToolResultContentBlock extends Anthropic.ToolResultBlockParam, IndusCodeSharedMessageParam {}
 
 /**
  * Assistant only content types
  */
-export interface ClineAssistantToolUseBlock extends Anthropic.ToolUseBlockParam, ClineSharedMessageParam {
+export interface IndusCodeAssistantToolUseBlock extends Anthropic.ToolUseBlockParam, IndusCodeSharedMessageParam {
 	// reasoning_details only exists for providers listed in REASONING_DETAILS_PROVIDERS
-	reasoning_details?: unknown[] | ClineReasoningDetailParam[]
+	reasoning_details?: unknown[] | IndusCodeReasoningDetailParam[]
 	// Thought Signature associates with Gemini
 	signature?: string
 }
 
-export interface ClineAssistantThinkingBlock extends Anthropic.ThinkingBlock, ClineSharedMessageParam {
+export interface IndusCodeAssistantThinkingBlock extends Anthropic.ThinkingBlock, IndusCodeSharedMessageParam {
 	// The summary items returned by OpenAI response API
 	// The reasoning details that will be moved to the text block when finalized
-	summary?: unknown[] | ClineReasoningDetailParam[]
+	summary?: unknown[] | IndusCodeReasoningDetailParam[]
 }
 
-export interface ClineAssistantRedactedThinkingBlock extends Anthropic.RedactedThinkingBlockParam, ClineSharedMessageParam {}
+export interface IndusCodeAssistantRedactedThinkingBlock extends Anthropic.RedactedThinkingBlockParam, IndusCodeSharedMessageParam {}
 
-export type ClineToolResponseContent = ClinePromptInputContent | Array<ClineTextContentBlock | ClineImageContentBlock>
+export type IndusCodeToolResponseContent = IndusCodePromptInputContent | Array<IndusCodeTextContentBlock | IndusCodeImageContentBlock>
 
-export type ClineUserContent =
-	| ClineTextContentBlock
-	| ClineImageContentBlock
-	| ClineDocumentContentBlock
-	| ClineUserToolResultContentBlock
+export type IndusCodeUserContent =
+	| IndusCodeTextContentBlock
+	| IndusCodeImageContentBlock
+	| IndusCodeDocumentContentBlock
+	| IndusCodeUserToolResultContentBlock
 
-export type ClineAssistantContent =
-	| ClineTextContentBlock
-	| ClineImageContentBlock
-	| ClineDocumentContentBlock
-	| ClineAssistantToolUseBlock
-	| ClineAssistantThinkingBlock
-	| ClineAssistantRedactedThinkingBlock
+export type IndusCodeAssistantContent =
+	| IndusCodeTextContentBlock
+	| IndusCodeImageContentBlock
+	| IndusCodeDocumentContentBlock
+	| IndusCodeAssistantToolUseBlock
+	| IndusCodeAssistantThinkingBlock
+	| IndusCodeAssistantRedactedThinkingBlock
 
-export type ClineContent = ClineUserContent | ClineAssistantContent
+export type IndusCodeContent = IndusCodeUserContent | IndusCodeAssistantContent
 
 /**
- * An extension of Anthropic.MessageParam that includes Cline-specific fields.
+ * An extension of Anthropic.MessageParam that includes IndusCode-specific fields.
  * This ensures backward compatibility where the messages were stored in Anthropic format,
- * while allowing for additional metadata specific to Cline to avoid unknown fields in Anthropic SDK
+ * while allowing for additional metadata specific to IndusCode to avoid unknown fields in Anthropic SDK
  * added by ignoring the type checking for those fields.
  */
-export interface ClineStorageMessage extends Anthropic.MessageParam {
+export interface IndusCodeStorageMessage extends Anthropic.MessageParam {
 	/**
 	 * Response ID associated with this message
 	 */
 	id?: string
-	role: ClineMessageRole
-	content: ClinePromptInputContent | ClineContent[]
+	role: IndusCodeMessageRole
+	content: IndusCodePromptInputContent | IndusCodeContent[]
 	/**
 	 * NOTE: model information used when generating this message.
 	 * Internal use for message conversion only.
 	 * MUST be removed before sending message to any LLM provider.
 	 */
-	modelInfo?: ClineMessageModelInfo
+	modelInfo?: IndusCodeMessageModelInfo
 	/**
 	 * LLM operational and performance metrics for this message
 	 * Includes token counts, costs.
 	 */
-	metrics?: ClineMessageMetricsInfo
+	metrics?: IndusCodeMessageMetricsInfo
 	/**
 	 * Timestamp of when the message was created
 	 */
@@ -105,14 +105,14 @@ export interface ClineStorageMessage extends Anthropic.MessageParam {
 }
 
 /**
- * Converts ClineStorageMessage to Anthropic.MessageParam by removing Cline-specific fields
- * Cline-specific fields (like modelInfo, reasoning_details) are properly omitted.
+ * Converts IndusCodeStorageMessage to Anthropic.MessageParam by removing IndusCode-specific fields
+ * IndusCode-specific fields (like modelInfo, reasoning_details) are properly omitted.
  */
-export function convertClineStorageToAnthropicMessage(
-	clineMessage: ClineStorageMessage,
+export function convertIndusCodeStorageToAnthropicMessage(
+	induscodeMessage: IndusCodeStorageMessage,
 	provider = "anthropic",
 ): Anthropic.MessageParam {
-	const { role, content } = clineMessage
+	const { role, content } = induscodeMessage
 
 	// Handle string content - fast path
 	if (typeof content === "string") {
@@ -122,7 +122,7 @@ export function convertClineStorageToAnthropicMessage(
 	// Removes thinking block that has no signature (invalid thinking block that's incompatible with Anthropic API)
 	const filteredContent = content.filter((b) => b.type !== "thinking" || !!b.signature)
 
-	// Handle array content - strip Cline-specific fields for non-reasoning_details providers
+	// Handle array content - strip IndusCode-specific fields for non-reasoning_details providers
 	const shouldCleanContent = !REASONING_DETAILS_PROVIDERS.includes(provider)
 	const cleanedContent = shouldCleanContent
 		? filteredContent.map(cleanContentBlock)
@@ -132,9 +132,9 @@ export function convertClineStorageToAnthropicMessage(
 }
 
 /**
- * Cline stores images as base64, so an image block's source is always a base64 source.
+ * IndusCode stores images as base64, so an image block's source is always a base64 source.
  * The Anthropic SDK types the source as a Base64ImageSource | URLImageSource union, so this
- * narrows to the base64 variant for the transform layer. URL sources are not produced by Cline,
+ * narrows to the base64 variant for the transform layer. URL sources are not produced by IndusCode,
  * so they degrade to empty values rather than throwing.
  */
 export function getBase64ImageSource(source: Anthropic.ImageBlockParam["source"]): { mediaType: string; data: string } {
@@ -153,21 +153,21 @@ export function getImageDataUrl(source: Anthropic.ImageBlockParam["source"]): st
 }
 
 /**
- * Clean a content block by removing Cline-specific fields and returning only Anthropic-compatible fields
+ * Clean a content block by removing IndusCode-specific fields and returning only Anthropic-compatible fields
  */
-export function cleanContentBlock(block: ClineContent): Anthropic.ContentBlock {
-	// Fast path: if no Cline-specific fields exist, return as-is
-	const hasClineFields =
+export function cleanContentBlock(block: IndusCodeContent): Anthropic.ContentBlock {
+	// Fast path: if no IndusCode-specific fields exist, return as-is
+	const hasIndusCodeFields =
 		"reasoning_details" in block ||
 		"call_id" in block ||
 		"summary" in block ||
 		(block.type !== "thinking" && "signature" in block)
 
-	if (!hasClineFields) {
+	if (!hasIndusCodeFields) {
 		return block as Anthropic.ContentBlock
 	}
 
-	// Removes Cline-specific fields & the signature field that's added for Gemini.
+	// Removes IndusCode-specific fields & the signature field that's added for Gemini.
 	const { reasoning_details, call_id, summary, ...rest } = block as any
 
 	// Remove signature from non-thinking blocks that were added for Gemini

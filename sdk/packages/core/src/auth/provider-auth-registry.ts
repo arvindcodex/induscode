@@ -1,15 +1,15 @@
 import {
 	decodeJwtPayload,
-	getClineEnvironmentConfig,
+	getIndusCodeEnvironmentConfig,
 	type ITelemetryService,
-} from "@cline/shared";
+} from "@induscode/shared";
 import type { ProviderSettingsManager } from "../services/storage/provider-settings-manager";
 import type { ProviderSettings } from "../types/provider-settings";
 import {
-	type ClineOAuthCredentials,
-	getValidClineCredentials,
-	loginClineOAuth,
-} from "./cline";
+	type IndusCodeOAuthCredentials,
+	getValidIndusCodeCredentials,
+	loginIndusCodeOAuth,
+} from "./induscode";
 import { getValidOpenAICodexCredentials, loginOpenAICodex } from "./codex";
 import { getValidOcaCredentials, loginOcaOAuth } from "./oca";
 import type { OAuthCredentials, OAuthLoginCallbacks } from "./types";
@@ -52,14 +52,14 @@ export interface ProviderAuthHandler {
 	normalizeStoredAccessToken?(accessToken: string): string;
 }
 
-function formatClineApiKey(accessToken: string): string {
+function formatIndusCodeApiKey(accessToken: string): string {
 	const token = accessToken.trim();
 	return token.toLowerCase().startsWith(WORKOS_TOKEN_PREFIX)
 		? token
 		: `${WORKOS_TOKEN_PREFIX}${token}`;
 }
 
-function stripClineApiKeyPrefix(accessToken: string): string {
+function stripIndusCodeApiKeyPrefix(accessToken: string): string {
 	const token = accessToken.trim();
 	return token.toLowerCase().startsWith(WORKOS_TOKEN_PREFIX)
 		? token.slice(WORKOS_TOKEN_PREFIX.length)
@@ -210,29 +210,29 @@ function createOAuthHandler(input: {
 	};
 }
 
-function createClineAuthHandler(input: {
+function createIndusCodeAuthHandler(input: {
 	providerId: string;
 	storageProviderId?: string;
 }): ProviderAuthHandler {
 	return createOAuthHandler({
 		providerId: input.providerId,
 		storageProviderId: input.storageProviderId,
-		formatAccessToken: formatClineApiKey,
-		normalizeStoredAccessToken: stripClineApiKeyPrefix,
+		formatAccessToken: formatIndusCodeApiKey,
+		normalizeStoredAccessToken: stripIndusCodeApiKeyPrefix,
 		login: ({ settings, callbacks, telemetry }) =>
-			loginClineOAuth({
+			loginIndusCodeOAuth({
 				apiBaseUrl:
-					settings?.baseUrl?.trim() || getClineEnvironmentConfig().apiBaseUrl,
+					settings?.baseUrl?.trim() || getIndusCodeEnvironmentConfig().apiBaseUrl,
 				useWorkOSDeviceAuth: true,
 				callbacks,
 				telemetry,
 			}),
 		refresh: ({ settings, credentials, forceRefresh, telemetry }) =>
-			getValidClineCredentials(
-				credentials as ClineOAuthCredentials,
+			getValidIndusCodeCredentials(
+				credentials as IndusCodeOAuthCredentials,
 				{
 					apiBaseUrl:
-						settings.baseUrl?.trim() || getClineEnvironmentConfig().apiBaseUrl,
+						settings.baseUrl?.trim() || getIndusCodeEnvironmentConfig().apiBaseUrl,
 					telemetry,
 				},
 				{ forceRefresh },
@@ -241,10 +241,10 @@ function createClineAuthHandler(input: {
 }
 
 const providerAuthHandlers = [
-	createClineAuthHandler({ providerId: "cline" }),
-	createClineAuthHandler({
-		providerId: "cline-pass",
-		storageProviderId: "cline",
+	createIndusCodeAuthHandler({ providerId: "induscode" }),
+	createIndusCodeAuthHandler({
+		providerId: "induscode-pass",
+		storageProviderId: "induscode",
 	}),
 	createOAuthHandler({
 		providerId: "oca",

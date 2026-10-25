@@ -13,8 +13,8 @@ import type {
 	ThinkingContent,
 	ToolResultContent,
 	ToolUseContent,
-} from "@cline/shared";
-import { EMPTY_CONTENT_TEXT } from "@cline/shared";
+} from "@induscode/shared";
+import { EMPTY_CONTENT_TEXT } from "@induscode/shared";
 import { toPersistedToolResultContent } from "../../session/persisted-tool-result-content";
 
 export function messageToAgentMessages(
@@ -175,7 +175,7 @@ function normalizeContentBlocks(content: Message["content"]): ContentBlock[] {
 			? [{ type: "text", text: content } as TextContent]
 			: [];
 	}
-	return [...content];
+	return Array.isArray(content) ? [...content] : [];
 }
 
 function contentBlockToAgentPart(block: ContentBlock): AgentMessagePart {

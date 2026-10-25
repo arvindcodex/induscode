@@ -55,7 +55,7 @@ describe("session memory result cache", () => {
 		const first = new ToolResultCache("root@one+two");
 		const second = new ToolResultCache("other");
 		const uri = first.store("call", "full response") ?? "";
-		expect(uri).toMatch(/^cline:\/\/cache\/root%40one%2Btwo\/.+\.result\.txt$/);
+		expect(uri).toMatch(/^induscode:\/\/cache\/root%40one%2Btwo\/.+\.result\.txt$/);
 		expect(first.read(uri)).toBe("full response");
 		expect(() => second.read(uri)).toThrow("for this session"); // Cross-session reads must not fall through to disk.
 	});

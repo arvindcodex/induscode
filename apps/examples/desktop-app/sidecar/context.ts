@@ -5,7 +5,7 @@ import { dirname } from "node:path";
 import {
 	type AgentToolContext,
 	type BasicLogger,
-	ClineCore,
+	IndusCodeCore,
 	type CoreSessionEvent,
 	ensureCompatibleLocalHubUrl,
 	type ITelemetryService,
@@ -14,12 +14,12 @@ import {
 	setHomeDirIfUnset,
 	type ToolApprovalRequest,
 	type ToolApprovalResult,
-} from "@cline/core";
+} from "@induscode/core";
 import {
 	type AgentEvent,
 	HUB_CLIENT_TOOL_APPROVAL_CAPABILITY,
 	isGeneratedMedia,
-} from "@cline/shared";
+} from "@induscode/shared";
 import {
 	discardAllTrackedAttachments,
 	flushConsumedAttachments,
@@ -201,7 +201,7 @@ export function syncSidecarApprovalReadiness(
 								{
 									name: HUB_CLIENT_TOOL_APPROVAL_CAPABILITY,
 									description:
-										"Cline Code has a live user surface for tool review.",
+										"IndusCode Code has a live user surface for tool review.",
 								},
 							]
 						: [],
@@ -965,9 +965,9 @@ export function handleHubLiveEvent(
 		}
 		session.lastHubStatusSequence = event.sequence;
 	}
-	// The observer client and ClineCore's own hub client are separate sockets
+	// The observer client and IndusCodeCore's own hub client are separate sockets
 	// that both receive this session's events. This projection only exists for
-	// sessions ClineCore is not subscribed to (it subscribes as a side effect
+	// sessions IndusCodeCore is not subscribed to (it subscribes as a side effect
 	// of start/send/pending_prompts and unsubscribes on stop); once it is,
 	// `handleCoreSessionEvent` carries everything below and a second copy here
 	// would double every delta, tool row, and status change.
@@ -1290,8 +1290,8 @@ export async function initializeSessionManager(
 	ctx: SidecarContext,
 ): Promise<void> {
 	setHomeDirIfUnset(homedir());
-	const sessionManager = await ClineCore.create({
-		clientName: "cline-code",
+	const sessionManager = await IndusCodeCore.create({
+		clientName: "induscode-code",
 		backendMode: "hub",
 		capabilities: createSidecarRuntimeCapabilities(
 			getEnvironmentContext(ctx, LOCAL_ENVIRONMENT_ID),
@@ -1307,7 +1307,7 @@ export async function initializeSessionManager(
 			workspaceRoot: ctx.localWorkspaceRoot,
 			cwd: ctx.localWorkspaceRoot,
 			clientType: "code-sidecar",
-			displayName: "Cline Desktop sidecar",
+			displayName: "IndusCode Desktop sidecar",
 		},
 	});
 
@@ -1407,8 +1407,8 @@ export async function connectRemoteSessionRuntime(
 ): Promise<SessionRuntimeBinding> {
 	const environmentId = connection.profile.id;
 	const existing = ctx.runtimeBindings.get(environmentId);
-	const sessionManager = await ClineCore.create({
-		clientName: "cline-code",
+	const sessionManager = await IndusCodeCore.create({
+		clientName: "induscode-code",
 		backendMode: "remote",
 		capabilities: createSidecarRuntimeCapabilities(
 			getEnvironmentContext(ctx, environmentId),
@@ -1515,13 +1515,13 @@ export async function ensureSharedHubClient(
 				cwd: ctx.localWorkspaceRoot,
 			}));
 		if (!url) {
-			throw new Error("Unable to start or connect to the shared Cline Hub.");
+			throw new Error("Unable to start or connect to the shared IndusCode Hub.");
 		}
 
 		const client = new NodeHubClient({
 			url,
 			clientType: "code-sidecar-observer",
-			displayName: "Cline Desktop observer",
+			displayName: "IndusCode Desktop observer",
 			workspaceRoot: ctx.localWorkspaceRoot,
 			cwd: ctx.localWorkspaceRoot,
 		});

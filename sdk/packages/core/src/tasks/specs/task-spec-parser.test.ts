@@ -23,7 +23,7 @@ afterEach(() => {
 describe("parseAgendaTaskSpec", () => {
 	it("parses canonical frontmatter and derives workspace scope", () => {
 		const result = parseAgendaTaskSpec({
-			specPath: join(WORKSPACE_ROOT, ".cline", "tasks", "check-pr.task.md"),
+			specPath: join(WORKSPACE_ROOT, ".induscode", "tasks", "check-pr.task.md"),
 			scope: "workspace",
 			workspaceRoot: WORKSPACE_ROOT,
 			raw: `---
@@ -66,7 +66,7 @@ Inspect the CI checks and fix any regressions.
 
 	it("parses a spec saved with a UTF-8 BOM", () => {
 		const result = parseAgendaTaskSpec({
-			specPath: join(WORKSPACE_ROOT, ".cline", "tasks", "bom.task.md"),
+			specPath: join(WORKSPACE_ROOT, ".induscode", "tasks", "bom.task.md"),
 			scope: "workspace",
 			workspaceRoot: WORKSPACE_ROOT,
 			raw: "\uFEFF---\r\ntype: todo\r\ntitle: Saved by Notepad\r\navailableAt: 2035-01-01T00:00:00.000Z\r\nexpiresAt: 2035-01-02T00:00:00.000Z\r\n---\r\n\r\nDo the thing.\r\n",
@@ -156,7 +156,7 @@ Read it.
 		});
 
 		const traversal = parseAgendaTaskSpec({
-			specPath: join(WORKSPACE_ROOT, ".cline", "tasks", "task.task.md"),
+			specPath: join(WORKSPACE_ROOT, ".induscode", "tasks", "task.task.md"),
 			scope: "workspace",
 			workspaceRoot: WORKSPACE_ROOT,
 			raw: `---
@@ -177,12 +177,12 @@ Read it.
 
 describe("AgendaTaskSpecFileStore", () => {
 	it("atomically writes and reads a canonical task spec", () => {
-		const root = mkdtempSync(join(tmpdir(), "cline-task-specs-"));
+		const root = mkdtempSync(join(tmpdir(), "induscode-task-specs-"));
 		roots.push(root);
 		const store = new AgendaTaskSpecFileStore({
 			scope: "workspace",
 			workspaceRoot: root,
-			taskSpecsDir: join(root, ".cline", "tasks"),
+			taskSpecsDir: join(root, ".induscode", "tasks"),
 		});
 
 		const written = store.writeSpec({
@@ -212,7 +212,7 @@ describe("AgendaTaskSpecFileStore", () => {
 	});
 
 	it("does not allow paths outside its managed directory", () => {
-		const root = mkdtempSync(join(tmpdir(), "cline-task-specs-"));
+		const root = mkdtempSync(join(tmpdir(), "induscode-task-specs-"));
 		roots.push(root);
 		const store = new AgendaTaskSpecFileStore({
 			scope: "global",
@@ -225,7 +225,7 @@ describe("AgendaTaskSpecFileStore", () => {
 	});
 
 	it("refuses create collisions and stale conditional updates", () => {
-		const root = mkdtempSync(join(tmpdir(), "cline-task-specs-"));
+		const root = mkdtempSync(join(tmpdir(), "induscode-task-specs-"));
 		roots.push(root);
 		const store = new AgendaTaskSpecFileStore({
 			scope: "global",
@@ -270,11 +270,11 @@ describe("AgendaTaskSpecFileStore", () => {
 	});
 
 	it("rejects a workspace task directory that escapes through a symlink", () => {
-		const root = mkdtempSync(join(tmpdir(), "cline-task-specs-"));
-		const outside = mkdtempSync(join(tmpdir(), "cline-task-specs-outside-"));
+		const root = mkdtempSync(join(tmpdir(), "induscode-task-specs-"));
+		const outside = mkdtempSync(join(tmpdir(), "induscode-task-specs-outside-"));
 		roots.push(root, outside);
-		mkdirSync(join(root, ".cline"));
-		symlinkSync(outside, join(root, ".cline", "tasks"), "dir");
+		mkdirSync(join(root, ".induscode"));
+		symlinkSync(outside, join(root, ".induscode", "tasks"), "dir");
 		const store = new AgendaTaskSpecFileStore({
 			scope: "workspace",
 			workspaceRoot: root,

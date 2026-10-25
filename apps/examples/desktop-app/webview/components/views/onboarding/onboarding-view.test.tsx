@@ -66,7 +66,7 @@ describe("sortProvidersForApiKeySetup", () => {
 	it("drops OAuth-managed providers and ranks popular ones first", () => {
 		const sorted = sortProvidersForApiKeySetup([
 			makeProvider({ id: "zai", name: "Z AI" }),
-			makeProvider({ id: "cline", name: "Cline" }),
+			makeProvider({ id: "induscode", name: "IndusCode" }),
 			makeProvider({ id: "openai-codex", name: "ChatGPT" }),
 			makeProvider({ id: "openrouter", name: "OpenRouter" }),
 			makeProvider({ id: "anthropic", name: "Anthropic" }),
@@ -140,8 +140,8 @@ describe("OnboardingView", () => {
 		// AccountProvider fetches the account on mount; unresolved auth means
 		// the signed-out variant of the connect step renders.
 		invoke.mockImplementation(async (command: string) => {
-			if (command === "cline_account") {
-				throw new Error("No Cline account auth token found");
+			if (command === "induscode_account") {
+				throw new Error("No IndusCode account auth token found");
 			}
 			if (command === "list_provider_catalog") {
 				return {
@@ -217,19 +217,19 @@ describe("OnboardingView", () => {
 			buttonByText("Get started").click();
 		});
 
-		// Cline is selected by default. The inactive API-key card is inert so its
+		// IndusCode is selected by default. The inactive API-key card is inert so its
 		// controls cannot receive pointer or keyboard input through the overlay.
-		expect(container.textContent).toContain("Set up Cline");
-		const clineOption = container.querySelector(
-			'[data-onboarding-option="cline"]',
+		expect(container.textContent).toContain("Set up IndusCode");
+		const induscodeOption = container.querySelector(
+			'[data-onboarding-option="induscode"]',
 		);
 		expect(
-			Array.from(clineOption?.querySelectorAll("li") ?? []).map((item) =>
+			Array.from(induscodeOption?.querySelectorAll("li") ?? []).map((item) =>
 				item.textContent?.trim(),
 			),
 		).toEqual([
 			"Regular free model promotions",
-			"Subscribe to ClinePass for generous usage across the best open weights models like DeepSeek, Kimi, and GLM",
+			"Subscribe to IndusCodePass for generous usage across the best open weights models like DeepSeek, Kimi, and GLM",
 			"No API key needed",
 		]);
 		const apiKeyOption = container.querySelector(
@@ -238,7 +238,7 @@ describe("OnboardingView", () => {
 		const recommendedBadge = Array.from(
 			container.querySelectorAll<HTMLElement>('[data-slot="badge"]'),
 		).find((badge) => badge.textContent === "Recommended");
-		expect(clineOption?.getAttribute("data-selected")).toBe("true");
+		expect(induscodeOption?.getAttribute("data-selected")).toBe("true");
 		expect(apiKeyOption?.getAttribute("data-selected")).toBe("false");
 		expect(recommendedBadge).not.toBeNull();
 		// Preserve the appearance of the desktop-local Badge after decoupling
@@ -254,7 +254,7 @@ describe("OnboardingView", () => {
 			expect(recommendedBadge?.className).toContain(className);
 		}
 		expect(
-			clineOption
+			induscodeOption
 				?.querySelector("[data-onboarding-option-content]")
 				?.hasAttribute("inert"),
 		).toBe(false);
@@ -281,8 +281,8 @@ describe("OnboardingView", () => {
 			buttonByText("Get started").click();
 		});
 
-		const clineOption = container.querySelector(
-			'[data-onboarding-option="cline"]',
+		const induscodeOption = container.querySelector(
+			'[data-onboarding-option="induscode"]',
 		);
 		const apiKeyOption = container.querySelector(
 			'[data-onboarding-option="api-key"]',
@@ -301,10 +301,10 @@ describe("OnboardingView", () => {
 
 		// Selecting a card moves both the visual state and the accessibility
 		// boundary, expands its form, and focuses the first usable control.
-		expect(clineOption?.getAttribute("data-selected")).toBe("false");
+		expect(induscodeOption?.getAttribute("data-selected")).toBe("false");
 		expect(apiKeyOption?.getAttribute("data-selected")).toBe("true");
 		expect(
-			clineOption
+			induscodeOption
 				?.querySelector("[data-onboarding-option-content]")
 				?.hasAttribute("inert"),
 		).toBe(true);
@@ -319,16 +319,16 @@ describe("OnboardingView", () => {
 			container.querySelector('button[aria-label="Use your own API key"]'),
 		).toBeNull();
 
-		const clineCardAction = container.querySelector<HTMLButtonElement>(
-			'button[aria-label="Sign in with Cline"]',
+		const induscodeCardAction = container.querySelector<HTMLButtonElement>(
+			'button[aria-label="Sign in with IndusCode"]',
 		);
-		expect(clineCardAction).not.toBeNull();
+		expect(induscodeCardAction).not.toBeNull();
 		await act(async () => {
-			clineCardAction?.click();
+			induscodeCardAction?.click();
 		});
 		// Switching back performs the inverse transition and restores focus to
-		// the primary Cline action.
-		expect(clineOption?.getAttribute("data-selected")).toBe("true");
+		// the primary IndusCode action.
+		expect(induscodeOption?.getAttribute("data-selected")).toBe("true");
 		expect(apiKeyOption?.getAttribute("data-selected")).toBe("false");
 		expect(apiKeyForm?.getAttribute("aria-hidden")).toBe("true");
 		expect(document.activeElement?.textContent?.trim()).toBe("Sign in");
@@ -337,7 +337,7 @@ describe("OnboardingView", () => {
 		).not.toBeNull();
 	});
 
-	it("keeps the Cline API key form chevron static while toggling the panel", async () => {
+	it("keeps the IndusCode API key form chevron static while toggling the panel", async () => {
 		await render();
 		await act(async () => {
 			buttonByText("Get started").click();
@@ -345,13 +345,13 @@ describe("OnboardingView", () => {
 
 		// The design uses the chevron as a disclosure affordance without rotating
 		// it; aria-expanded and panel visibility carry the actual state.
-		const trigger = buttonByText("Use a Cline API key");
+		const trigger = buttonByText("Use a IndusCode API key");
 		const chevron = trigger.querySelector("svg");
 		const chevronClassName = chevron?.getAttribute("class");
-		const panel = container.querySelector("#onboarding-cline-key-form");
+		const panel = container.querySelector("#onboarding-induscode-key-form");
 
 		expect(trigger.getAttribute("aria-controls")).toBe(
-			"onboarding-cline-key-form",
+			"onboarding-induscode-key-form",
 		);
 		expect(trigger.getAttribute("aria-expanded")).toBe("false");
 		expect(chevronClassName).toBeTruthy();
@@ -385,14 +385,14 @@ describe("OnboardingView", () => {
 		expect(onComplete).toHaveBeenCalledTimes(1);
 	});
 
-	it("records Cline as the provider when a signed-in user continues", async () => {
+	it("records IndusCode as the provider when a signed-in user continues", async () => {
 		// Simulate replaying onboarding after previously using another provider.
 		window.localStorage.setItem(
 			MODEL_SELECTION_STORAGE_KEY,
 			JSON.stringify({ lastProvider: "anthropic", lastModelByProvider: {} }),
 		);
 		invoke.mockImplementation(async (command: string) => {
-			if (command === "cline_account") {
+			if (command === "induscode_account") {
 				return { email: "dev@example.com", displayName: "Dev" };
 			}
 			if (command === "list_provider_catalog") {
@@ -401,14 +401,14 @@ describe("OnboardingView", () => {
 			if (command === "get_feature_flags") {
 				return GITHUB_STEP_ENABLED_FLAGS;
 			}
-			if (command === "list_cline_recommended_models") {
+			if (command === "list_induscode_recommended_models") {
 				return {
 					recommended: [],
 					free: [
 						{ id: "deepseek/deepseek-v4-flash", name: "deepseek-v4-flash" },
-						{ id: "cline-free/solar-pro4", name: "Solar Pro 4" },
+						{ id: "induscode-free/solar-pro4", name: "Solar Pro 4" },
 					],
-					clinePass: [],
+					induscodePass: [],
 				};
 			}
 			return {};
@@ -422,7 +422,7 @@ describe("OnboardingView", () => {
 		await act(async () => {
 			buttonByText("Continue").click();
 		});
-		// Connecting a Cline account routes through the GitHub integration step.
+		// Connecting a IndusCode account routes through the GitHub integration step.
 		expect(container.textContent).toContain("Connect GitHub");
 		await act(async () => {
 			buttonByText("Skip for now").click();
@@ -430,18 +430,18 @@ describe("OnboardingView", () => {
 		// The redesigned completion step places transparent content over a static,
 		// wide version of the hero grid.
 		expect(container.textContent).toContain("You're all set");
-		// A Cline sign-in ends on the current free models plus the ClinePass upsell.
-		const clineModels = container.querySelector(
-			"[data-onboarding-cline-models]",
+		// A IndusCode sign-in ends on the current free models plus the IndusCodePass upsell.
+		const induscodeModels = container.querySelector(
+			"[data-onboarding-induscode-models]",
 		);
-		expect(clineModels?.textContent).toContain("Free models");
-		expect(clineModels?.textContent).toContain("deepseek-v4-flash");
-		expect(clineModels?.textContent).toContain("Solar Pro 4");
+		expect(induscodeModels?.textContent).toContain("Free models");
+		expect(induscodeModels?.textContent).toContain("deepseek-v4-flash");
+		expect(induscodeModels?.textContent).toContain("Solar Pro 4");
 		await act(async () => {
-			buttonByText("Get ClinePass").click();
+			buttonByText("Get IndusCodePass").click();
 		});
 		expect(openExternalUrl).toHaveBeenCalledWith(
-			"https://app.cline.bot/onboarding/individual-plan",
+			"https://app.induscode.bot/onboarding/individual-plan",
 		);
 		const doneGrid = container.querySelector<HTMLElement>(
 			'[data-welcome-hero-variant="grid-only"]',
@@ -455,15 +455,15 @@ describe("OnboardingView", () => {
 			parseModelSelectionStorage(
 				window.localStorage.getItem(MODEL_SELECTION_STORAGE_KEY),
 			).lastProvider,
-		).toBe("cline");
+		).toBe("induscode");
 	});
 
 	it("skips the GitHub step silently when the integration is already connected", async () => {
 		invoke.mockImplementation(async (command: string) => {
-			if (command === "cline_account") {
+			if (command === "induscode_account") {
 				return { email: "dev@example.com", displayName: "Dev" };
 			}
-			if (command === "cline_integrations") {
+			if (command === "induscode_integrations") {
 				return [{ provider: "github" }];
 			}
 			if (command === "list_provider_catalog") {
@@ -487,7 +487,7 @@ describe("OnboardingView", () => {
 
 	it("bypasses the GitHub step when the rollout flag is off", async () => {
 		invoke.mockImplementation(async (command: string) => {
-			if (command === "cline_account") {
+			if (command === "induscode_account") {
 				return { email: "dev@example.com", displayName: "Dev" };
 			}
 			if (command === "list_provider_catalog") {
@@ -526,8 +526,8 @@ describe("OnboardingView", () => {
 				rejectLogin(new Error("Sign-in cancelled"));
 				return { cancelled: true };
 			}
-			if (command === "cline_account") {
-				throw new Error("No Cline account auth token found");
+			if (command === "induscode_account") {
+				throw new Error("No IndusCode account auth token found");
 			}
 			if (command === "list_provider_catalog") {
 				return { providers: [makeProvider()], settingsPath: "/tmp/p.json" };
@@ -547,7 +547,7 @@ describe("OnboardingView", () => {
 		// Cancelling must also stop the backend browser round-trip so a
 		// later-completed authorization can never persist credentials.
 		expect(invoke).toHaveBeenCalledWith("cancel_provider_oauth_login", {
-			provider: "cline",
+			provider: "induscode",
 		});
 	});
 
@@ -561,7 +561,7 @@ describe("OnboardingView", () => {
 					finishLogin = resolve;
 				});
 			}
-			if (command === "cline_account") {
+			if (command === "induscode_account") {
 				return { email: "dev@example.com", displayName: "Dev" };
 			}
 			return {};
@@ -577,7 +577,7 @@ describe("OnboardingView", () => {
 		expect(buttonByText("Get started")).toBeDefined();
 		expect(container.textContent).not.toContain("Connect GitHub");
 		expect(invoke).not.toHaveBeenCalledWith("cancel_provider_oauth_login", {
-			provider: "cline",
+			provider: "induscode",
 		});
 		await act(async () => buttonByText("Get started").click());
 		expect(container.textContent).toContain("Signed in as");
@@ -588,7 +588,7 @@ describe("OnboardingView", () => {
 		await act(async () => buttonByText("Get started").click());
 		let finishRefresh!: (user: { email: string; displayName: string }) => void;
 		invoke.mockImplementation(async (command: string) => {
-			if (command === "cline_account") {
+			if (command === "induscode_account") {
 				return await new Promise((resolve) => {
 					finishRefresh = resolve;
 				});
@@ -607,26 +607,26 @@ describe("OnboardingView", () => {
 		expect(buttonByText("Continue").disabled).toBe(false);
 	});
 
-	it("connects with a Cline API key when OAuth sign-in is not used", async () => {
+	it("connects with a IndusCode API key when OAuth sign-in is not used", async () => {
 		const onComplete = await render();
 		await act(async () => {
 			buttonByText("Get started").click();
 		});
 
 		await act(async () => {
-			buttonByText("Use a Cline API key").click();
+			buttonByText("Use a IndusCode API key").click();
 		});
 		const keyInput = container.querySelector<HTMLInputElement>(
-			'input[aria-label="Cline API key"]',
+			'input[aria-label="IndusCode API key"]',
 		);
 		expect(keyInput).not.toBeNull();
 
 		invoke.mockClear();
 		invoke.mockImplementation(async (command: string) => {
 			if (command === "save_provider_settings") {
-				return { providerId: "cline", enabled: true };
+				return { providerId: "induscode", enabled: true };
 			}
-			if (command === "cline_account") {
+			if (command === "induscode_account") {
 				return { email: "dev@example.com", displayName: "Dev" };
 			}
 			return {};
@@ -637,7 +637,7 @@ describe("OnboardingView", () => {
 				window.HTMLInputElement.prototype,
 				"value",
 			)?.set;
-			setter?.call(keyInput, "cline_key_123");
+			setter?.call(keyInput, "induscode_key_123");
 			keyInput?.dispatchEvent(new Event("input", { bubbles: true }));
 		});
 		await act(async () => {
@@ -645,21 +645,21 @@ describe("OnboardingView", () => {
 		});
 
 		expect(invoke).toHaveBeenCalledWith("save_provider_settings", {
-			provider: "cline",
+			provider: "induscode",
 			enabled: true,
-			api_key: "cline_key_123",
+			api_key: "induscode_key_123",
 		});
 		expect(container.textContent).toContain("Connect GitHub");
 		await act(async () => {
 			buttonByText("Skip for now").click();
 		});
 		expect(container.textContent).toContain("You're all set");
-		expect(container.textContent).toContain("Your Cline account is connected");
+		expect(container.textContent).toContain("Your IndusCode account is connected");
 		expect(
 			parseModelSelectionStorage(
 				window.localStorage.getItem(MODEL_SELECTION_STORAGE_KEY),
 			).lastProvider,
-		).toBe("cline");
+		).toBe("induscode");
 
 		await act(async () => {
 			buttonByText("Start building").click();
@@ -667,16 +667,16 @@ describe("OnboardingView", () => {
 		expect(onComplete).toHaveBeenCalledTimes(1);
 	});
 
-	it("rejects an invalid Cline API key and rolls back the saved key", async () => {
+	it("rejects an invalid IndusCode API key and rolls back the saved key", async () => {
 		await render();
 		await act(async () => {
 			buttonByText("Get started").click();
 		});
 		await act(async () => {
-			buttonByText("Use a Cline API key").click();
+			buttonByText("Use a IndusCode API key").click();
 		});
 		const keyInput = container.querySelector<HTMLInputElement>(
-			'input[aria-label="Cline API key"]',
+			'input[aria-label="IndusCode API key"]',
 		);
 
 		const savedKeys: Array<string | undefined> = [];
@@ -685,10 +685,10 @@ describe("OnboardingView", () => {
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "save_provider_settings") {
 					savedKeys.push(args?.api_key as string | undefined);
-					return { providerId: "cline", enabled: true };
+					return { providerId: "induscode", enabled: true };
 				}
-				if (command === "cline_account") {
-					throw new Error("Cline account request failed with status 401");
+				if (command === "induscode_account") {
+					throw new Error("IndusCode account request failed with status 401");
 				}
 				return {};
 			},
@@ -714,7 +714,7 @@ describe("OnboardingView", () => {
 		expect(savedKeys).toEqual(["bad_key", ""]);
 	});
 
-	it("keeps Cline sign-in available while API-key setup is expanded", async () => {
+	it("keeps IndusCode sign-in available while API-key setup is expanded", async () => {
 		const onComplete = await render();
 		await act(async () => {
 			buttonByText("Get started").click();
@@ -731,20 +731,20 @@ describe("OnboardingView", () => {
 		expect(container.textContent).toContain("Choose a provider");
 
 		// Expanding bring-your-own-key changes the selected card, but the user can
-		// still switch back and finish through the Cline OAuth path.
+		// still switch back and finish through the IndusCode OAuth path.
 		await act(async () => {
 			container
 				.querySelector<HTMLButtonElement>(
-					'button[aria-label="Sign in with Cline"]',
+					'button[aria-label="Sign in with IndusCode"]',
 				)
 				?.click();
 		});
 		invoke.mockImplementation(async (command: string) => {
 			if (command === "run_provider_oauth_login") {
-				return { provider: "cline", accessToken: "token" };
+				return { provider: "induscode", accessToken: "token" };
 			}
-			if (command === "cline_account") {
-				throw new Error("No Cline account auth token found");
+			if (command === "induscode_account") {
+				throw new Error("No IndusCode account auth token found");
 			}
 			return {};
 		});
@@ -753,9 +753,9 @@ describe("OnboardingView", () => {
 		});
 		expect(invoke).toHaveBeenCalledWith(
 			"run_provider_oauth_login",
-			{ provider: "cline" },
+			{ provider: "induscode" },
 			// The browser round-trip must get the extended OAuth deadline, not
-			// the default 120s command deadline (cline/cline#14201).
+			// the default 120s command deadline (induscode/induscode#14201).
 			{ timeoutMs: 15 * 60_000, signal: expect.any(AbortSignal) },
 		);
 		expect(container.textContent).toContain("Connect GitHub");
@@ -767,7 +767,7 @@ describe("OnboardingView", () => {
 			parseModelSelectionStorage(
 				window.localStorage.getItem(MODEL_SELECTION_STORAGE_KEY),
 			).lastProvider,
-		).toBe("cline");
+		).toBe("induscode");
 
 		await act(async () => {
 			buttonByText("Start building").click();

@@ -2,7 +2,7 @@ import type {
 	GatewayProviderContext,
 	GatewayStreamRequest,
 	ReasoningEffort,
-} from "@cline/shared";
+} from "@induscode/shared";
 import type { CallSettings } from "ai";
 import {
 	getModelReasoningControls,
@@ -29,7 +29,7 @@ export interface PortableReasoningWire {
  * maps, so the gateway leaves the level to them.
  */
 const VERBATIM_REASONING_ADAPTERS = new Set<AiSdkProviderOptionsTarget>([
-	"cline",
+	"induscode",
 	"openai-compatible",
 ]);
 

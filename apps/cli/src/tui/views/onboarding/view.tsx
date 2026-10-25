@@ -1,12 +1,12 @@
-import type { ProviderSettingsManager } from "@cline/core";
+import type { ProviderSettingsManager } from "@induscode/core";
 import { useTerminalDimensions } from "@opentui/react";
 import { useMouseTracker } from "../../components/tracked-robot";
 import { HOME_VIEW_MAX_WIDTH } from "../../types";
 import { useOnboardingController } from "./controller";
 import { getOAuthProviderLabel, type OnboardingResult } from "./model";
 import {
-	OnboardingClineModelScreen,
-	OnboardingClinePassSubscriptionScreen,
+	OnboardingIndusCodeModelScreen,
+	OnboardingIndusCodePassSubscriptionScreen,
 	OnboardingCustomModelIdScreen,
 	OnboardingDeviceCodeScreen,
 	OnboardingDoneScreen,
@@ -111,11 +111,11 @@ export function OnboardingView(props: OnboardingViewProps) {
 		);
 	}
 
-	if (state.step === "cline_model") {
+	if (state.step === "induscode_model") {
 		return (
-			<OnboardingClineModelScreen
-				clineEntries={state.clineEntries}
-				clineModelSelected={state.clineModelSelected}
+			<OnboardingIndusCodeModelScreen
+				induscodeEntries={state.induscodeEntries}
+				induscodeModelSelected={state.induscodeModelSelected}
 				compact={compact}
 				contentWidth={contentWidth}
 				mouse={mouse}
@@ -124,20 +124,20 @@ export function OnboardingView(props: OnboardingViewProps) {
 		);
 	}
 
-	if (state.step === "cline_pass_subscription") {
+	if (state.step === "induscode_pass_subscription") {
 		return (
-			<OnboardingClinePassSubscriptionScreen
+			<OnboardingIndusCodePassSubscriptionScreen
 				compact={compact}
 				contentWidth={contentWidth}
-				currentPlanName={state.clinePassCurrentPlanName}
-				error={state.clinePassSubscriptionError}
+				currentPlanName={state.induscodePassCurrentPlanName}
+				error={state.induscodePassSubscriptionError}
 				mouse={mouse}
-				openStatus={state.clinePassSubscriptionOpenStatus}
-				options={state.clinePassSubscriptionOptions}
-				planFeatures={state.clinePassPlanFeatures}
-				selected={state.clinePassSubscriptionSelected}
-				status={state.clinePassSubscriptionStatus}
-				subscriptionUrl={state.clinePassSubscriptionUrl}
+				openStatus={state.induscodePassSubscriptionOpenStatus}
+				options={state.induscodePassSubscriptionOptions}
+				planFeatures={state.induscodePassPlanFeatures}
+				selected={state.induscodePassSubscriptionSelected}
+				status={state.induscodePassSubscriptionStatus}
+				subscriptionUrl={state.induscodePassSubscriptionUrl}
 			/>
 		);
 	}

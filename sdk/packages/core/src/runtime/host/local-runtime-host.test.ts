@@ -8,7 +8,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
-import type { MessageWithMetadata } from "@cline/llms";
+import type { MessageWithMetadata } from "@induscode/llms";
 import {
 	type AgentConfig,
 	type AgentEvent,
@@ -19,12 +19,12 @@ import {
 	isChatWorkspacePath,
 	TeamMessageType,
 	type TeamRunRecord,
-} from "@cline/shared";
+} from "@induscode/shared";
 import {
 	resolveChatWorkspacePath,
-	setClineDir,
+	setIndusCodeDir,
 	setHomeDir,
-} from "@cline/shared/storage";
+} from "@induscode/shared/storage";
 import simpleGit from "simple-git";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { TeamEvent } from "../../extensions/tools/team";
@@ -176,36 +176,36 @@ function normalizeStartInput(
 describe("LocalRuntimeHost", () => {
 	const envSnapshot = {
 		HOME: process.env.HOME,
-		CLINE_DIR: process.env.CLINE_DIR,
-		CLINE_DATA_DIR: process.env.CLINE_DATA_DIR,
+		INDUSCODE_DIR: process.env.INDUSCODE_DIR,
+		INDUSCODE_DATA_DIR: process.env.INDUSCODE_DATA_DIR,
 	};
 	let isolatedHomeDir = "";
 
 	beforeEach(() => {
 		isolatedHomeDir = mkdtempSync(join(tmpdir(), "core-session-home-"));
 		process.env.HOME = isolatedHomeDir;
-		process.env.CLINE_DIR = join(isolatedHomeDir, ".cline");
-		delete process.env.CLINE_DATA_DIR;
+		process.env.INDUSCODE_DIR = join(isolatedHomeDir, ".induscode");
+		delete process.env.INDUSCODE_DATA_DIR;
 		setHomeDir(isolatedHomeDir);
-		setClineDir(process.env.CLINE_DIR);
+		setIndusCodeDir(process.env.INDUSCODE_DIR);
 	});
 
 	afterEach(() => {
 		process.env.HOME = envSnapshot.HOME;
-		process.env.CLINE_DIR = envSnapshot.CLINE_DIR;
-		if (envSnapshot.CLINE_DATA_DIR === undefined) {
-			delete process.env.CLINE_DATA_DIR;
+		process.env.INDUSCODE_DIR = envSnapshot.INDUSCODE_DIR;
+		if (envSnapshot.INDUSCODE_DATA_DIR === undefined) {
+			delete process.env.INDUSCODE_DATA_DIR;
 		} else {
-			process.env.CLINE_DATA_DIR = envSnapshot.CLINE_DATA_DIR;
+			process.env.INDUSCODE_DATA_DIR = envSnapshot.INDUSCODE_DATA_DIR;
 		}
 		setHomeDir(envSnapshot.HOME ?? "~");
-		setClineDir(envSnapshot.CLINE_DIR ?? join("~", ".cline"));
+		setIndusCodeDir(envSnapshot.INDUSCODE_DIR ?? join("~", ".induscode"));
 		rmSync(isolatedHomeDir, { recursive: true, force: true });
 	});
 
 	it("recovers stale detached command logs for non-daemon hosts", async () => {
 		const detachedLogDirectory = mkdtempSync(
-			join(tmpdir(), "cline-command-local-host-recovery-"),
+			join(tmpdir(), "induscode-command-local-host-recovery-"),
 		);
 		writeFileSync(join(detachedLogDirectory, "output.log"), "stale output");
 		writeFileSync(join(detachedLogDirectory, "completed-at"), "0");
@@ -270,7 +270,7 @@ describe("LocalRuntimeHost", () => {
 			});
 			expect(request).toHaveBeenCalledTimes(2);
 			expect(
-				settings.mock.calls.every(([provider]) => provider !== "cline"),
+				settings.mock.calls.every(([provider]) => provider !== "induscode"),
 			).toBe(true);
 		} finally {
 			await manager.dispose();
@@ -536,8 +536,8 @@ describe("LocalRuntimeHost", () => {
 			}),
 		);
 
-		// `session.started` is emitted from `ClineCore.start` (see
-		// `ClineCore.test.ts`), not from `LocalRuntimeHost`, so that the
+		// `session.started` is emitted from `IndusCodeCore.start` (see
+		// `IndusCodeCore.test.ts`), not from `LocalRuntimeHost`, so that the
 		// signal fires for every backend. We assert that it is NOT emitted
 		// here and only transport-scoped events remain.
 		expect(adapter.emit).not.toHaveBeenCalledWith(
@@ -614,8 +614,8 @@ describe("LocalRuntimeHost", () => {
 			normalizeStartInput({
 				config: createConfig({
 					sessionId,
-					providerId: "cline-pass",
-					modelId: "cline-pass/glm-5.2",
+					providerId: "induscode-pass",
+					modelId: "induscode-pass/glm-5.2",
 					apiKey: undefined,
 				}),
 				prompt: "hello",
@@ -623,11 +623,11 @@ describe("LocalRuntimeHost", () => {
 		);
 
 		expect(oauthTokenManager.resolveProviderApiKey).toHaveBeenCalledWith({
-			providerId: "cline-pass",
+			providerId: "induscode-pass",
 		});
 		expect(createAgent).toHaveBeenCalledWith(
 			expect.objectContaining({
-				providerId: "cline-pass",
+				providerId: "induscode-pass",
 				apiKey: "workos:resolved-token",
 			}),
 		);

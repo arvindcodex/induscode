@@ -8,7 +8,7 @@ import {
 	OpenAiCompatibleModelInfo,
 } from "@shared/api"
 import { BrowserSettings, DEFAULT_BROWSER_SETTINGS } from "@shared/BrowserSettings"
-import { ClineRulesToggles } from "@shared/cline-rules"
+import { IndusCodeRulesToggles } from "@shared/induscode-rules"
 import type { CloudTaskTargetSelection, RememberedCloudStatuses } from "@shared/cloud/cloud-sessions"
 import { HistoryItem } from "@shared/HistoryItem"
 import { DEFAULT_MCP_DISPLAY_MODE, McpDisplayMode } from "@shared/McpDisplayMode"
@@ -25,7 +25,7 @@ import { type BlobStoreSettings } from "./types"
 //
 // Property definitions with types, default values, and metadata
 // NOTE: When adding a new field, the scripts/generate-state-proto.mjs will be
-// executed automatically to regenerate the proto/cline/state.proto file with the
+// executed automatically to regenerate the proto/induscode/state.proto file with the
 // new fields once the file is staged and committed.
 // ============================================================================
 
@@ -65,8 +65,8 @@ const REMOTE_CONFIG_EXTRA_FIELDS = {
 } satisfies FieldDefinitions
 
 const GLOBAL_STATE_FIELDS = {
-	clineVersion: { default: undefined as string | undefined },
-	"cline.generatedMachineId": { default: undefined as string | undefined }, // Note, distinctId reads/writes this directly from/to StorageContext before StateManager is initialized.
+	induscodeVersion: { default: undefined as string | undefined },
+	"induscode.generatedMachineId": { default: undefined as string | undefined }, // Note, distinctId reads/writes this directly from/to StorageContext before StateManager is initialized.
 	lastShownAnnouncementId: { default: undefined as string | undefined },
 	taskHistory: { default: [] as HistoryItem[], isAsync: true },
 	userInfo: { default: undefined as UserInfo | undefined },
@@ -91,15 +91,15 @@ const GLOBAL_STATE_FIELDS = {
 	// to fail closed when the user's identity cannot be resolved (API unreachable)
 	// instead of starting an unpoliced session. Cleared on explicit no-config.
 	lastManagedOrganizationId: { default: undefined as string | undefined },
-	remoteRulesToggles: { default: {} as ClineRulesToggles },
-	remoteWorkflowToggles: { default: {} as ClineRulesToggles },
-	remoteSkillsToggles: { default: {} as ClineRulesToggles },
+	remoteRulesToggles: { default: {} as IndusCodeRulesToggles },
+	remoteWorkflowToggles: { default: {} as IndusCodeRulesToggles },
+	remoteSkillsToggles: { default: {} as IndusCodeRulesToggles },
 	dismissedBanners: { default: [] as Array<{ bannerId: string; dismissedAt: number }> },
 	// Last Local/Cloud choice (and repository) picked on the home screen for new tasks
 	cloudTaskTarget: { default: undefined as CloudTaskTargetSelection | undefined },
 	// Last agent status confirmed over a live connection, per cloud session id
 	cloudSessionStatuses: { default: {} as RememberedCloudStatuses },
-	// Path to worktree that should auto-open Cline sidebar when launched
+	// Path to worktree that should auto-open IndusCode sidebar when launched
 	worktreeAutoOpenPath: { default: undefined as string | undefined },
 } satisfies FieldDefinitions
 
@@ -161,10 +161,10 @@ const API_HANDLER_SETTINGS_FIELDS = {
 	planModeAwsBedrockCustomModelBaseId: { default: undefined as string | undefined },
 	planModeOpenRouterModelId: { default: undefined as string | undefined },
 	planModeOpenRouterModelInfo: { default: undefined as ModelInfo | undefined },
-	planModeClineModelId: { default: undefined as string | undefined },
-	planModeClineModelInfo: { default: undefined as ModelInfo | undefined },
-	planModeClinePassModelId: { default: undefined as string | undefined },
-	planModeClinePassModelInfo: { default: undefined as ModelInfo | undefined },
+	planModeIndusCodeModelId: { default: undefined as string | undefined },
+	planModeIndusCodeModelInfo: { default: undefined as ModelInfo | undefined },
+	planModeIndusCodePassModelId: { default: undefined as string | undefined },
+	planModeIndusCodePassModelInfo: { default: undefined as ModelInfo | undefined },
 	planModeOpenAiModelId: { default: undefined as string | undefined },
 	planModeOpenAiModelInfo: { default: undefined as OpenAiCompatibleModelInfo | undefined },
 	planModeOllamaModelId: { default: undefined as string | undefined },
@@ -207,10 +207,10 @@ const API_HANDLER_SETTINGS_FIELDS = {
 	actModeAwsBedrockCustomModelBaseId: { default: undefined as string | undefined },
 	actModeOpenRouterModelId: { default: undefined as string | undefined },
 	actModeOpenRouterModelInfo: { default: undefined as ModelInfo | undefined },
-	actModeClineModelId: { default: undefined as string | undefined },
-	actModeClineModelInfo: { default: undefined as ModelInfo | undefined },
-	actModeClinePassModelId: { default: undefined as string | undefined },
-	actModeClinePassModelInfo: { default: undefined as ModelInfo | undefined },
+	actModeIndusCodeModelId: { default: undefined as string | undefined },
+	actModeIndusCodeModelInfo: { default: undefined as ModelInfo | undefined },
+	actModeIndusCodePassModelId: { default: undefined as string | undefined },
+	actModeIndusCodePassModelInfo: { default: undefined as ModelInfo | undefined },
 	actModeOpenAiModelId: { default: undefined as string | undefined },
 	actModeOpenAiModelInfo: { default: undefined as OpenAiCompatibleModelInfo | undefined },
 	actModeOllamaModelId: { default: undefined as string | undefined },
@@ -265,8 +265,8 @@ const USER_SETTINGS_FIELDS = {
 	autoApprovalSettings: {
 		default: DEFAULT_AUTO_APPROVAL_SETTINGS as AutoApprovalSettings,
 	},
-	globalClineRulesToggles: { default: {} as ClineRulesToggles },
-	globalWorkflowToggles: { default: {} as ClineRulesToggles },
+	globalIndusCodeRulesToggles: { default: {} as IndusCodeRulesToggles },
+	globalWorkflowToggles: { default: {} as IndusCodeRulesToggles },
 	globalSkillsToggles: { default: {} as Record<string, boolean> },
 	browserSettings: {
 		default: DEFAULT_BROWSER_SETTINGS as BrowserSettings,
@@ -316,9 +316,9 @@ const GLOBAL_STATE_AND_SETTINGS_FIELDS = { ...GLOBAL_STATE_FIELDS, ...SETTINGS_F
 // Secret keys used in Api Configuration
 const SECRETS_KEYS = [
 	"apiKey",
-	"clineApiKey",
-	"clineAccountId", // Cline Account ID for Firebase
-	"cline:clineAccountId",
+	"induscodeApiKey",
+	"induscodeAccountId", // IndusCode Account ID for Firebase
+	"induscode:induscodeAccountId",
 	"openRouterApiKey",
 	"awsAccessKey",
 	"awsSecretKey",
@@ -367,7 +367,7 @@ const SECRETS_KEYS = [
 // WARNING, these are not ALL of the local state keys in practice. For example, FileContextTracker
 // uses dynamic keys like pendingFileContextWarning_${taskId}.
 export const LocalStateKeys = [
-	"localClineRulesToggles",
+	"localIndusCodeRulesToggles",
 	"localCursorRulesToggles",
 	"localWindsurfRulesToggles",
 	"localAgentsRulesToggles",
@@ -395,7 +395,7 @@ export type RemoteConfigFields = GlobalStateAndSettings & RemoteConfigExtra
 // ============================================================================
 
 export type Secrets = { [K in (typeof SecretKeys)[number]]: string | undefined }
-export type LocalState = { [K in (typeof LocalStateKeys)[number]]: ClineRulesToggles }
+export type LocalState = { [K in (typeof LocalStateKeys)[number]]: IndusCodeRulesToggles }
 export type SecretKey = (typeof SecretKeys)[number]
 export type GlobalStateKey = keyof GlobalState
 export type LocalStateKey = keyof LocalState

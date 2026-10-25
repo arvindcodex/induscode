@@ -8,7 +8,7 @@ export const dynamic = "force-static";
 export async function GET() {
 	try {
 		const markdown = await readFile(
-			process.env.CLINE_DESKTOP_CHANGELOG_PATH ?? "",
+			process.env.INDUSCODE_DESKTOP_CHANGELOG_PATH ?? "",
 			"utf8",
 		);
 		return Response.json({ releases: parseChangelog(markdown) });

@@ -1,12 +1,12 @@
-import { EmptyRequest } from "@shared/proto/cline/common"
-import { NewTaskRequest } from "@shared/proto/cline/task"
-import type { MergeWorktreeResult, Worktree as WorktreeProto } from "@shared/proto/cline/worktree"
+import { EmptyRequest } from "@shared/proto/induscode/common"
+import { NewTaskRequest } from "@shared/proto/induscode/task"
+import type { MergeWorktreeResult, Worktree as WorktreeProto } from "@shared/proto/induscode/worktree"
 import {
 	CreateWorktreeIncludeRequest,
 	DeleteWorktreeRequest,
 	MergeWorktreeRequest,
 	SwitchWorktreeRequest,
-} from "@shared/proto/cline/worktree"
+} from "@shared/proto/induscode/worktree"
 import { VSCodeButton, VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react"
 import { AlertCircle, Check, ExternalLink, FolderOpen, GitBranch, GitMerge, Loader2, Plus, Trash2, X } from "lucide-react"
 import { memo, useCallback, useEffect, useState } from "react"
@@ -216,8 +216,8 @@ const WorktreesView = ({ onDone }: WorktreesViewProps) => {
 		}
 	}, [mergeWorktree, getMainBranch, deleteAfterMerge, loadWorktrees])
 
-	// Ask Cline to resolve conflicts
-	const handleAskClineToResolve = useCallback(async () => {
+	// Ask IndusCode to resolve conflicts
+	const handleAskIndusCodeToResolve = useCallback(async () => {
 		if (!mergeResult || !mergeResult.hasConflicts) return
 
 		const conflictList = mergeResult.conflictingFiles.join(", ")
@@ -232,7 +232,7 @@ Please help me resolve these merge conflicts, then complete the merge, and delet
 			// Close worktrees view to show the chat with the new task
 			onDone()
 		} catch (err) {
-			setMergeError(err instanceof Error ? err.message : "Failed to create task for Cline")
+			setMergeError(err instanceof Error ? err.message : "Failed to create task for IndusCode")
 		}
 	}, [mergeResult, mergeWorktree, closeMergeModal, onDone])
 
@@ -251,10 +251,10 @@ Please help me resolve these merge conflicts, then complete the merge, and delet
 				{/* Description */}
 				<p className="text-sm text-[var(--vscode-descriptionForeground)] m-0 mb-4">
 					Git worktrees let you work on multiple branches at the same time, each in its own folder. Open worktrees in
-					their own windows so Cline can work on multiple tasks in parallel.{" "}
+					their own windows so IndusCode can work on multiple tasks in parallel.{" "}
 					<a
 						className="text-[var(--vscode-textLink-foreground)] hover:text-[var(--vscode-textLink-activeForeground)]"
-						href="https://docs.cline.bot/features/worktrees"
+						href="https://docs.induscode.bot/features/worktrees"
 						rel="noopener noreferrer"
 						style={{ fontSize: "inherit" }}
 						target="_blank">
@@ -276,7 +276,7 @@ Please help me resolve these merge conflicts, then complete the merge, and delet
 								.worktreeinclude detected.{" "}
 								<a
 									className="text-[var(--vscode-textLink-foreground)] hover:text-[var(--vscode-textLink-activeForeground)]"
-									href="https://docs.cline.bot/features/worktrees#worktreeinclude"
+									href="https://docs.induscode.bot/features/worktrees#worktreeinclude"
 									rel="noopener noreferrer"
 									style={{ fontSize: "inherit" }}
 									target="_blank">
@@ -297,7 +297,7 @@ Please help me resolve these merge conflicts, then complete the merge, and delet
 									to new worktrees, so you don't have to reinstall dependencies.{" "}
 									<a
 										className="text-[var(--vscode-textLink-foreground)] hover:text-[var(--vscode-textLink-activeForeground)]"
-										href="https://docs.cline.bot/features/worktrees#worktreeinclude"
+										href="https://docs.induscode.bot/features/worktrees#worktreeinclude"
 										rel="noopener noreferrer"
 										style={{ fontSize: "inherit" }}
 										target="_blank">
@@ -573,8 +573,8 @@ Please help me resolve these merge conflicts, then complete the merge, and delet
 								</div>
 
 								<div className="flex flex-col gap-2">
-									<VSCodeButton onClick={handleAskClineToResolve} style={{ width: "100%" }}>
-										Ask Cline to Resolve
+									<VSCodeButton onClick={handleAskIndusCodeToResolve} style={{ width: "100%" }}>
+										Ask IndusCode to Resolve
 									</VSCodeButton>
 									<VSCodeButton appearance="secondary" onClick={closeMergeModal} style={{ width: "100%" }}>
 										I'll Resolve Manually

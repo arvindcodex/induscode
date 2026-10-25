@@ -11,7 +11,7 @@ import { join } from "node:path";
 import {
 	resolveGlobalAgentsRulesPath,
 	setHomeDir,
-} from "@cline/shared/storage";
+} from "@induscode/shared/storage";
 import { afterEach, describe, expect, it } from "vitest";
 import {
 	createRulesConfigDefinition,
@@ -60,8 +60,8 @@ describe("user instruction config loader", () => {
 		const workspacePath = "/repo/demo";
 		expect(resolveSkillsConfigSearchPaths(workspacePath)).toEqual(
 			expect.arrayContaining([
-				join(workspacePath, ".clinerules", "skills"),
-				join(workspacePath, ".cline", "skills"),
+				join(workspacePath, ".induscoderules", "skills"),
+				join(workspacePath, ".induscode", "skills"),
 				join(workspacePath, ".claude", "skills"),
 				join(workspacePath, ".agents", "skills"),
 			]),
@@ -69,8 +69,8 @@ describe("user instruction config loader", () => {
 		expect(resolveRulesConfigSearchPaths(workspacePath)).toEqual(
 			expect.arrayContaining([
 				join(workspacePath, "AGENTS.md"),
-				join(workspacePath, ".clinerules"),
-				join(workspacePath, ".cline", "rules"),
+				join(workspacePath, ".induscoderules"),
+				join(workspacePath, ".induscode", "rules"),
 			]),
 		);
 		expect(
@@ -79,32 +79,32 @@ describe("user instruction config loader", () => {
 			),
 		).toBe(true);
 		const paths = resolveWorkflowsConfigSearchPaths(workspacePath);
-		expect(paths).toContain(join(workspacePath, ".clinerules", "workflows"));
-		expect(paths).toContain(join(workspacePath, ".cline", "workflows"));
+		expect(paths).toContain(join(workspacePath, ".induscoderules", "workflows"));
+		expect(paths).toContain(join(workspacePath, ".induscode", "workflows"));
 		expect(
 			paths.some(
 				(p) =>
 					p.includes("Documents") &&
-					p.includes("Cline") &&
+					p.includes("IndusCode") &&
 					p.includes("Workflows"),
 			),
 		).toBe(true);
 		expect(paths).not.toContain(
-			join(process.env.HOME ?? "~", ".cline", "data", "workflows"),
+			join(process.env.HOME ?? "~", ".induscode", "data", "workflows"),
 		);
 	});
 
-	it("discovers managed plugin instruction roots from workspace .cline manifests", () => {
+	it("discovers managed plugin instruction roots from workspace .induscode manifests", () => {
 		const workspacePath = "/repo/demo";
 		expect(
 			createSkillsConfigDefinition({ workspacePath }).directories,
-		).toContain(join(workspacePath, ".cline"));
+		).toContain(join(workspacePath, ".induscode"));
 		expect(
 			createRulesConfigDefinition({ workspacePath }).directories,
-		).toContain(join(workspacePath, ".cline"));
+		).toContain(join(workspacePath, ".induscode"));
 		expect(
 			createWorkflowsConfigDefinition({ workspacePath }).directories,
-		).toContain(join(workspacePath, ".cline"));
+		).toContain(join(workspacePath, ".induscode"));
 	});
 
 	it("parses markdown frontmatter for skill, rule, and workflow configs", () => {
@@ -145,7 +145,7 @@ Document rollout and rollback steps.`,
 		expect(workflow.disabled).toBe(true);
 	});
 
-	// Regression test for https://github.com/cline/cline/issues/12151: a leading UTF-8 BOM
+	// Regression test for https://github.com/induscode/induscode/issues/12151: a leading UTF-8 BOM
 	// (e.g. saved by Windows Notepad's "UTF-8 with BOM" encoding) must not prevent frontmatter
 	// from being recognized.
 	it("parses markdown frontmatter when the content starts with a UTF-8 BOM", () => {
@@ -277,23 +277,23 @@ Escalation runbook`,
 		}
 	});
 
-	it("still loads all rules when .clinerules is a legacy single file", async () => {
+	it("still loads all rules when .induscoderules is a legacy single file", async () => {
 		const tempRoot = await mkdtemp(
-			join(tmpdir(), "core-user-instructions-clinerules-file-"),
+			join(tmpdir(), "core-user-instructions-induscoderules-file-"),
 		);
 		tempRoots.push(tempRoot);
 
 		const originalHomeDir = process.env.HOME?.trim() || homedir();
 		setHomeDir(join(tempRoot, "home"));
 		const workspaceRoot = join(tempRoot, "workspace");
-		const globalRulesDir = join(tempRoot, "home", ".cline", "rules");
+		const globalRulesDir = join(tempRoot, "home", ".induscode", "rules");
 		await mkdir(workspaceRoot, { recursive: true });
 		await mkdir(globalRulesDir, { recursive: true });
-		// Legacy single-file ruleset: `.clinerules/skills` and
-		// `.clinerules/workflows` now resolve through a file (ENOTDIR), which
+		// Legacy single-file ruleset: `.induscoderules/skills` and
+		// `.induscoderules/workflows` now resolve through a file (ENOTDIR), which
 		// must not abort scanning of the other config sources.
 		await writeFile(
-			join(workspaceRoot, ".clinerules"),
+			join(workspaceRoot, ".induscoderules"),
 			"Never introduce ESM syntax.",
 		);
 		await writeFile(
@@ -430,7 +430,7 @@ Escalation runbook`,
 				join(tmpdir(), "core-user-instructions-symlink-skill-"),
 			);
 			tempRoots.push(tempRoot);
-			const skillsDir = join(tempRoot, ".cline", "skills");
+			const skillsDir = join(tempRoot, ".induscode", "skills");
 			const externalSkillsDir = join(tempRoot, "external-skills");
 			const targetSkillDir = join(externalSkillsDir, "data-agent-skill");
 			const linkedSkillDir = join(skillsDir, "data-agent-skill");
@@ -470,7 +470,7 @@ Use the data agent skill.`,
 				join(tmpdir(), "core-user-instructions-circular-symlink-skill-"),
 			);
 			tempRoots.push(tempRoot);
-			const skillsDir = join(tempRoot, ".cline", "skills");
+			const skillsDir = join(tempRoot, ".induscode", "skills");
 			const skillDir = join(skillsDir, "commit");
 			const circularLink = join(skillsDir, "loop");
 			await mkdir(skillDir, { recursive: true });
@@ -504,7 +504,7 @@ Use conventional commits.`,
 		);
 		tempRoots.push(tempRoot);
 
-		const pluginRoot = join(tempRoot, ".cline", "enterprise");
+		const pluginRoot = join(tempRoot, ".induscode", "enterprise");
 		await mkdir(join(pluginRoot, "workflows"), { recursive: true });
 		await mkdir(join(pluginRoot, "skills", "security-review"), {
 			recursive: true,
@@ -563,25 +563,25 @@ Use the security review checklist.`,
 		).toBe(true);
 	});
 
-	it("lets workspace .cline workflows override legacy .clinerules workflows with the same name", async () => {
+	it("lets workspace .induscode workflows override legacy .induscoderules workflows with the same name", async () => {
 		const tempRoot = await mkdtemp(
 			join(tmpdir(), "core-user-instructions-workflow-precedence-"),
 		);
 		tempRoots.push(tempRoot);
 
-		await mkdir(join(tempRoot, ".clinerules", "workflows"), {
+		await mkdir(join(tempRoot, ".induscoderules", "workflows"), {
 			recursive: true,
 		});
-		await mkdir(join(tempRoot, ".cline", "workflows"), { recursive: true });
+		await mkdir(join(tempRoot, ".induscode", "workflows"), { recursive: true });
 		await writeFile(
-			join(tempRoot, ".clinerules", "workflows", "release.md"),
+			join(tempRoot, ".induscoderules", "workflows", "release.md"),
 			`---
 name: release
 ---
 Legacy release workflow.`,
 		);
 		await writeFile(
-			join(tempRoot, ".cline", "workflows", "release.md"),
+			join(tempRoot, ".induscode", "workflows", "release.md"),
 			`---
 name: release
 ---
@@ -598,7 +598,7 @@ New release workflow.`,
 
 		expect(release?.item.instructions).toBe("New release workflow.");
 		expect(release?.filePath).toBe(
-			join(tempRoot, ".cline", "workflows", "release.md"),
+			join(tempRoot, ".induscode", "workflows", "release.md"),
 		);
 	});
 });

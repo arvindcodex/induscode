@@ -20,7 +20,7 @@ vi.mock("node:fs", async () => {
 const originalArgv = [...process.argv];
 const originalStdinIsTTY = process.stdin.isTTY;
 const originalStdoutIsTTY = process.stdout.isTTY;
-const originalGlobalSettingsPath = process.env.CLINE_GLOBAL_SETTINGS_PATH;
+const originalGlobalSettingsPath = process.env.INDUSCODE_GLOBAL_SETTINGS_PATH;
 const mockState = vi.hoisted(() => ({
 	coreImports: 0,
 	wizardImports: [] as string[],
@@ -32,7 +32,7 @@ const authMocks = vi.hoisted(() => ({
 	ensureOAuthProviderApiKey: vi.fn(),
 	getPersistedProviderApiKey: vi.fn(() => undefined),
 	isOAuthProvider: vi.fn(() => false),
-	normalizeProviderId: vi.fn((providerId?: string) => providerId ?? "cline"),
+	normalizeProviderId: vi.fn((providerId?: string) => providerId ?? "induscode"),
 	parseAuthCommandArgs: vi.fn(),
 	runAuthCommand: vi.fn(),
 }));
@@ -75,14 +75,14 @@ const connectMocks = vi.hoisted(() => ({
 	runStopConnector: vi.fn(async () => 0),
 }));
 const migrationNoticeMocks = vi.hoisted(() => ({
-	getClineCliMigrationNotice: vi.fn<
+	getIndusCodeCliMigrationNotice: vi.fn<
 		(
 			dataDir?: string,
 			env?: NodeJS.ProcessEnv,
 			options?: CliMigrationNoticeOptions,
 		) => CliMigrationNotice | undefined
 	>(() => undefined),
-	markClineCliMigrationNoticeShown: vi.fn(),
+	markIndusCodeCliMigrationNoticeShown: vi.fn(),
 }));
 const updateMocks = vi.hoisted(() => ({
 	autoUpdateOnStartup: vi.fn(),
@@ -172,7 +172,7 @@ vi.mock("./runtime/run-interactive", () => {
 });
 vi.mock("./utils/session", () => sessionMocks);
 vi.mock("./session/session", () => sessionMocks);
-vi.mock("@cline/core", async () => {
+vi.mock("@induscode/core", async () => {
 	mockState.coreImports += 1;
 	// Keep dispatch tests independent of the full SDK runtime import graph.
 	// Only persisted-settings behavior needs its real implementation here.
@@ -246,8 +246,8 @@ describe("runCli lightweight command dispatch", () => {
 		process.exitCode = undefined;
 		// Startup now reads persisted general settings; point the resolver at a
 		// fresh temp file so the developer's real settings cannot leak in.
-		globalSettingsRoot = mkdtempSync(join(tmpdir(), "cline-cli-main-test-"));
-		process.env.CLINE_GLOBAL_SETTINGS_PATH = join(
+		globalSettingsRoot = mkdtempSync(join(tmpdir(), "induscode-cli-main-test-"));
+		process.env.INDUSCODE_GLOBAL_SETTINGS_PATH = join(
 			globalSettingsRoot,
 			"global-settings.json",
 		);
@@ -281,7 +281,7 @@ describe("runCli lightweight command dispatch", () => {
 		worktreeMocks.createTaskWorktree.mockResolvedValue({
 			success: true,
 			message: "Worktree created",
-			path: "/tmp/cline-worktree",
+			path: "/tmp/induscode-worktree",
 			taskId: "task-1",
 			repoRoot: "/tmp/source",
 		});
@@ -299,7 +299,7 @@ describe("runCli lightweight command dispatch", () => {
 		authMocks.isOAuthProvider.mockReturnValue(false);
 		authMocks.normalizeProviderId.mockReset();
 		authMocks.normalizeProviderId.mockImplementation(
-			(providerId?: string) => providerId ?? "cline",
+			(providerId?: string) => providerId ?? "induscode",
 		);
 		authMocks.parseAuthCommandArgs.mockReset();
 		authMocks.runAuthCommand.mockReset();
@@ -328,9 +328,9 @@ describe("runCli lightweight command dispatch", () => {
 		connectMocks.runStopAllConnectors.mockResolvedValue(0);
 		connectMocks.runStopConnector.mockReset();
 		connectMocks.runStopConnector.mockResolvedValue(0);
-		migrationNoticeMocks.getClineCliMigrationNotice.mockReset();
-		migrationNoticeMocks.getClineCliMigrationNotice.mockReturnValue(undefined);
-		migrationNoticeMocks.markClineCliMigrationNoticeShown.mockReset();
+		migrationNoticeMocks.getIndusCodeCliMigrationNotice.mockReset();
+		migrationNoticeMocks.getIndusCodeCliMigrationNotice.mockReturnValue(undefined);
+		migrationNoticeMocks.markIndusCodeCliMigrationNoticeShown.mockReset();
 		updateMocks.autoUpdateOnStartup.mockReset();
 		updateMocks.checkForUpdates.mockReset();
 		updateMocks.checkForUpdates.mockResolvedValue(0);
@@ -359,9 +359,9 @@ describe("runCli lightweight command dispatch", () => {
 		process.exitCode = undefined;
 
 		if (originalGlobalSettingsPath === undefined) {
-			delete process.env.CLINE_GLOBAL_SETTINGS_PATH;
+			delete process.env.INDUSCODE_GLOBAL_SETTINGS_PATH;
 		} else {
-			process.env.CLINE_GLOBAL_SETTINGS_PATH = originalGlobalSettingsPath;
+			process.env.INDUSCODE_GLOBAL_SETTINGS_PATH = originalGlobalSettingsPath;
 		}
 		if (globalSettingsRoot) {
 			rmSync(globalSettingsRoot, { recursive: true, force: true });
@@ -407,7 +407,7 @@ describe("runCli lightweight command dispatch", () => {
 	}, 30_000);
 
 	it("does not capture an activation event for hub commands", async () => {
-		// The desktop app and the SSH remote flow run `cline hub ensure` on
+		// The desktop app and the SSH remote flow run `induscode hub ensure` on
 		// every launch/connect; those must not count as CLI activations.
 		process.argv = ["bun", "src/index.ts", "hub", "dashboard", "--no-open"];
 
@@ -480,7 +480,7 @@ describe("runCli lightweight command dispatch", () => {
 			"src/index.ts",
 			"connect",
 			"--cleanup-instance",
-			"cline-slack",
+			"induscode-slack",
 			"slack",
 		];
 
@@ -490,7 +490,7 @@ describe("runCli lightweight command dispatch", () => {
 		expect(process.exitCode).toBe(0);
 		expect(connectMocks.runCleanupConnectorInstance).toHaveBeenCalledWith(
 			"slack",
-			"cline-slack",
+			"induscode-slack",
 			expect.any(Object),
 		);
 		expect(connectMocks.runConnectAdapter).not.toHaveBeenCalled();
@@ -504,7 +504,7 @@ describe("runCli lightweight command dispatch", () => {
 			"src/index.ts",
 			"connect",
 			"--cleanup-instance",
-			"cline-slack",
+			"induscode-slack",
 			"--stop",
 			"slack",
 		];
@@ -540,7 +540,7 @@ describe("runCli lightweight command dispatch", () => {
 			"src/index.ts",
 			"connect",
 			"--restart-instance",
-			"cline_bot",
+			"induscode_bot",
 			"telegram",
 			"-k",
 			"token",
@@ -554,7 +554,7 @@ describe("runCli lightweight command dispatch", () => {
 			"telegram",
 			["-k", "token"],
 			expect.any(Object),
-			"cline_bot",
+			"induscode_bot",
 		);
 	});
 
@@ -668,7 +668,7 @@ describe("runCli lightweight command dispatch", () => {
 			),
 		);
 		expect(consoleError).toHaveBeenCalledWith(
-			expect.stringContaining('Use "cline --help"'),
+			expect.stringContaining('Use "induscode --help"'),
 		);
 		expect(runtimeMocks.runAgent).not.toHaveBeenCalled();
 		expect(mockState.runAgentImports).toBe(0);
@@ -743,8 +743,8 @@ describe("runCli lightweight command dispatch", () => {
 		expect(runtimeMocks.runAgent).toHaveBeenCalledWith(
 			"say hello",
 			expect.objectContaining({
-				cwd: "/tmp/cline-worktree",
-				workspaceRoot: "/tmp/cline-worktree",
+				cwd: "/tmp/induscode-worktree",
+				workspaceRoot: "/tmp/induscode-worktree",
 			}),
 			expect.anything(),
 		);
@@ -762,8 +762,8 @@ describe("runCli lightweight command dispatch", () => {
 		expect(runtimeMocks.runAgent).not.toHaveBeenCalled();
 		expect(runtimeMocks.runInteractive).toHaveBeenCalledWith(
 			expect.objectContaining({
-				cwd: "/tmp/cline-worktree",
-				workspaceRoot: "/tmp/cline-worktree",
+				cwd: "/tmp/induscode-worktree",
+				workspaceRoot: "/tmp/induscode-worktree",
 			}),
 			expect.anything(),
 			undefined,
@@ -821,8 +821,8 @@ describe("runCli lightweight command dispatch", () => {
 		expect(runtimeMocks.runAgent).toHaveBeenCalledWith(
 			"from pipe",
 			expect.objectContaining({
-				cwd: "/tmp/cline-worktree",
-				workspaceRoot: "/tmp/cline-worktree",
+				cwd: "/tmp/induscode-worktree",
+				workspaceRoot: "/tmp/induscode-worktree",
 			}),
 			expect.anything(),
 		);
@@ -860,13 +860,13 @@ describe("runCli lightweight command dispatch", () => {
 
 	it("passes the migration notice marker into interactive mode", async () => {
 		const notice = {
-			id: "cline-cli-cline-pass-intro",
-			title: "Try ClinePass",
-			body: "ClinePass body",
-			url: "https://app.cline.bot/dashboard/subscription?personal=true",
-			openLabel: "Open ClinePass",
+			id: "induscode-cli-induscode-pass-intro",
+			title: "Try IndusCodePass",
+			body: "IndusCodePass body",
+			url: "https://app.induscode.bot/dashboard/subscription?personal=true",
+			openLabel: "Open IndusCodePass",
 		};
-		migrationNoticeMocks.getClineCliMigrationNotice.mockReturnValue(notice);
+		migrationNoticeMocks.getIndusCodeCliMigrationNotice.mockReturnValue(notice);
 		process.argv = ["bun", "src/index.ts"];
 
 		const { runCli } = await import("./main");
@@ -882,19 +882,19 @@ describe("runCli lightweight command dispatch", () => {
 			}),
 		);
 		expect(
-			migrationNoticeMocks.markClineCliMigrationNoticeShown,
+			migrationNoticeMocks.markIndusCodeCliMigrationNoticeShown,
 		).not.toHaveBeenCalled();
 		const options = runtimeMocks.runInteractive.mock.calls[0]?.[3];
 		await options?.onInitialNoticeShown?.(notice);
 		expect(
-			migrationNoticeMocks.markClineCliMigrationNoticeShown,
+			migrationNoticeMocks.markIndusCodeCliMigrationNoticeShown,
 		).toHaveBeenCalledWith(undefined, notice.id);
 	});
 
-	it("passes the active ClinePass provider into the migration notice gate", async () => {
+	it("passes the active IndusCodePass provider into the migration notice gate", async () => {
 		providerSettingsMocks.getLastUsedProviderSettings.mockReturnValue({
-			provider: "cline-pass",
-			model: "cline-pass/test-model",
+			provider: "induscode-pass",
+			model: "induscode-pass/test-model",
 		});
 		process.argv = ["bun", "src/index.ts"];
 
@@ -902,13 +902,13 @@ describe("runCli lightweight command dispatch", () => {
 
 		await expect(runCli()).resolves.toBeUndefined();
 		expect(
-			migrationNoticeMocks.getClineCliMigrationNotice,
+			migrationNoticeMocks.getIndusCodeCliMigrationNotice,
 		).toHaveBeenCalledWith(undefined, process.env, {
-			activeProviderId: "cline-pass",
+			activeProviderId: "induscode-pass",
 		});
 		expect(runtimeMocks.runInteractive).toHaveBeenCalledWith(
 			expect.objectContaining({
-				providerId: "cline-pass",
+				providerId: "induscode-pass",
 			}),
 			expect.anything(),
 			undefined,
@@ -920,7 +920,7 @@ describe("runCli lightweight command dispatch", () => {
 
 	it("does not start OAuth before onboarding in interactive mode", async () => {
 		authMocks.isOAuthProvider.mockReturnValue(true);
-		authMocks.normalizeProviderId.mockReturnValue("cline");
+		authMocks.normalizeProviderId.mockReturnValue("induscode");
 		authMocks.getPersistedProviderApiKey.mockReturnValue(undefined);
 		authMocks.ensureOAuthProviderApiKey.mockClear();
 		process.argv = ["bun", "src/index.ts", "-i"];
@@ -932,7 +932,7 @@ describe("runCli lightweight command dispatch", () => {
 		expect(runtimeMocks.runInteractive).toHaveBeenCalledTimes(1);
 		expect(runtimeMocks.runInteractive).toHaveBeenCalledWith(
 			expect.objectContaining({
-				providerId: "cline",
+				providerId: "induscode",
 				apiKey: "",
 			}),
 			expect.anything(),
@@ -956,7 +956,7 @@ describe("runCli lightweight command dispatch", () => {
 
 		await expect(runCli()).resolves.toBeUndefined();
 		expect(llmMocks.resolveProviderConfig).toHaveBeenCalledWith(
-			"cline",
+			"induscode",
 			{
 				loadLatestOnInit: true,
 				loadPrivateOnAuth: true,
@@ -985,7 +985,7 @@ describe("runCli lightweight command dispatch", () => {
 
 		await expect(runCli()).resolves.toBeUndefined();
 		expect(llmMocks.resolveProviderConfig).toHaveBeenCalledWith(
-			"cline",
+			"induscode",
 			{
 				loadLatestOnInit: true,
 				loadPrivateOnAuth: true,
@@ -1013,7 +1013,7 @@ describe("runCli lightweight command dispatch", () => {
 
 		await expect(runCli()).resolves.toBeUndefined();
 		expect(llmMocks.resolveProviderConfig).toHaveBeenCalledWith(
-			"cline",
+			"induscode",
 			undefined,
 			undefined,
 		);
@@ -1064,9 +1064,9 @@ describe("runCli lightweight command dispatch", () => {
 
 	describe("persisted general settings at startup", () => {
 		function writePersistedSettings(settings: Record<string, unknown>) {
-			const path = process.env.CLINE_GLOBAL_SETTINGS_PATH;
+			const path = process.env.INDUSCODE_GLOBAL_SETTINGS_PATH;
 			if (!path) {
-				throw new Error("CLINE_GLOBAL_SETTINGS_PATH is not set");
+				throw new Error("INDUSCODE_GLOBAL_SETTINGS_PATH is not set");
 			}
 			writeFileSync(path, JSON.stringify(settings));
 		}
@@ -1246,12 +1246,12 @@ describe("runCli lightweight command dispatch", () => {
 	});
 
 	it("opens history inside the interactive TUI for the history picker", async () => {
-		migrationNoticeMocks.getClineCliMigrationNotice.mockReturnValue({
-			id: "cline-cli-cline-pass-intro",
-			title: "Try ClinePass",
-			body: "ClinePass body",
-			url: "https://app.cline.bot/dashboard/subscription?personal=true",
-			openLabel: "Open ClinePass",
+		migrationNoticeMocks.getIndusCodeCliMigrationNotice.mockReturnValue({
+			id: "induscode-cli-induscode-pass-intro",
+			title: "Try IndusCodePass",
+			body: "IndusCodePass body",
+			url: "https://app.induscode.bot/dashboard/subscription?personal=true",
+			openLabel: "Open IndusCodePass",
 		});
 		process.argv = ["bun", "src/index.ts", "history"];
 
@@ -1260,7 +1260,7 @@ describe("runCli lightweight command dispatch", () => {
 		await expect(runCli()).resolves.toBeUndefined();
 		expect(historyMocks.runHistoryList).not.toHaveBeenCalled();
 		expect(
-			migrationNoticeMocks.getClineCliMigrationNotice,
+			migrationNoticeMocks.getIndusCodeCliMigrationNotice,
 		).not.toHaveBeenCalled();
 		expect(runtimeMocks.runInteractive).toHaveBeenCalledTimes(1);
 		expect(runtimeMocks.runInteractive).toHaveBeenCalledWith(
@@ -1274,7 +1274,7 @@ describe("runCli lightweight command dispatch", () => {
 		);
 	});
 
-	it("does not pass non-Cline provider settings as Cline account options", async () => {
+	it("does not pass non-IndusCode provider settings as IndusCode account options", async () => {
 		providerSettingsMocks.getLastUsedProviderSettings.mockReturnValue({
 			provider: "openrouter",
 			baseUrl: "https://openrouter.ai/api/v1",
@@ -1299,24 +1299,24 @@ describe("runCli lightweight command dispatch", () => {
 			expect.anything(),
 			undefined,
 			expect.objectContaining({
-				clineApiBaseUrl: undefined,
-				clineProviderSettings: undefined,
+				induscodeApiBaseUrl: undefined,
+				induscodeProviderSettings: undefined,
 			}),
 		);
 	});
 
-	it("passes Cline provider settings as Cline account options", async () => {
-		const clineSettings = {
-			provider: "cline",
+	it("passes IndusCode provider settings as IndusCode account options", async () => {
+		const induscodeSettings = {
+			provider: "induscode",
 			baseUrl: "https://api.example.test",
 			model: "anthropic/claude-sonnet-4.6",
 		};
 		providerSettingsMocks.getLastUsedProviderSettings.mockReturnValue(
-			clineSettings,
+			induscodeSettings,
 		);
-		providerSettingsMocks.getProviderSettings.mockReturnValue(clineSettings);
+		providerSettingsMocks.getProviderSettings.mockReturnValue(induscodeSettings);
 		authMocks.normalizeProviderId.mockImplementation(
-			(providerId?: string) => providerId ?? "cline",
+			(providerId?: string) => providerId ?? "induscode",
 		);
 		process.argv = ["bun", "src/index.ts"];
 
@@ -1329,15 +1329,15 @@ describe("runCli lightweight command dispatch", () => {
 			expect.anything(),
 			undefined,
 			expect.objectContaining({
-				clineApiBaseUrl: "https://api.example.test",
-				clineProviderSettings: clineSettings,
+				induscodeApiBaseUrl: "https://api.example.test",
+				induscodeProviderSettings: induscodeSettings,
 			}),
 		);
 	});
 
-	it("seeds feature flag identity from persisted Cline account id before refreshing flags", async () => {
-		const clineSettings = {
-			provider: "cline",
+	it("seeds feature flag identity from persisted IndusCode account id before refreshing flags", async () => {
+		const induscodeSettings = {
+			provider: "induscode",
 			model: "anthropic/claude-sonnet-4.6",
 			auth: {
 				accountId: "acct-startup",
@@ -1345,7 +1345,7 @@ describe("runCli lightweight command dispatch", () => {
 				refreshToken: "refresh-token",
 			},
 		};
-		providerSettingsMocks.getProviderSettings.mockReturnValue(clineSettings);
+		providerSettingsMocks.getProviderSettings.mockReturnValue(induscodeSettings);
 		process.argv = ["bun", "src/index.ts"];
 
 		const { runCli } = await import("./main");
@@ -1365,21 +1365,21 @@ describe("runCli lightweight command dispatch", () => {
 		);
 	});
 
-	it("identifies saved Cline accountId for telemetry before runtime events", async () => {
-		// CLINE-2406: when persisted Cline auth includes an accountId, the
+	it("identifies saved IndusCode accountId for telemetry before runtime events", async () => {
+		// INDUSCODE-2406: when persisted IndusCode auth includes an accountId, the
 		// runtime path must call identifyTelemetryAccount(accountContext) so
 		// subsequent task.* and workspace.* events carry user_id.
-		const clineSettings = {
-			provider: "cline",
+		const induscodeSettings = {
+			provider: "induscode",
 			model: "anthropic/claude-sonnet-4.6",
 			auth: { accountId: "usr-abc-123", refreshToken: "rt-token" },
 		};
 		providerSettingsMocks.getLastUsedProviderSettings.mockReturnValue(
-			clineSettings,
+			induscodeSettings,
 		);
-		providerSettingsMocks.getProviderSettings.mockReturnValue(clineSettings);
+		providerSettingsMocks.getProviderSettings.mockReturnValue(induscodeSettings);
 		authMocks.normalizeProviderId.mockImplementation(
-			(providerId?: string) => providerId ?? "cline",
+			(providerId?: string) => providerId ?? "induscode",
 		);
 		process.argv = ["bun", "src/index.ts"];
 
@@ -1389,25 +1389,25 @@ describe("runCli lightweight command dispatch", () => {
 		expect(telemetryMocks.identifyTelemetryAccount).toHaveBeenCalledWith(
 			expect.objectContaining({
 				id: "usr-abc-123",
-				provider: "cline",
+				provider: "induscode",
 			}),
 		);
 	});
 
-	it("does not call identifyTelemetryAccount in runtime path when no saved Cline accountId", async () => {
-		// CLINE-2406: when no persisted accountId is found (anonymous/unauthenticated),
+	it("does not call identifyTelemetryAccount in runtime path when no saved IndusCode accountId", async () => {
+		// INDUSCODE-2406: when no persisted accountId is found (anonymous/unauthenticated),
 		// identifyTelemetryAccount should not be called from the runtime path.
-		const clineSettings = {
-			provider: "cline",
+		const induscodeSettings = {
+			provider: "induscode",
 			model: "anthropic/claude-sonnet-4.6",
 			// no auth / no accountId
 		};
 		providerSettingsMocks.getLastUsedProviderSettings.mockReturnValue(
-			clineSettings,
+			induscodeSettings,
 		);
-		providerSettingsMocks.getProviderSettings.mockReturnValue(clineSettings);
+		providerSettingsMocks.getProviderSettings.mockReturnValue(induscodeSettings);
 		authMocks.normalizeProviderId.mockImplementation(
-			(providerId?: string) => providerId ?? "cline",
+			(providerId?: string) => providerId ?? "induscode",
 		);
 		process.argv = ["bun", "src/index.ts"];
 
@@ -1417,9 +1417,9 @@ describe("runCli lightweight command dispatch", () => {
 		expect(telemetryMocks.identifyTelemetryAccount).not.toHaveBeenCalled();
 	});
 
-	it("does not call identifyTelemetryAccount from runtime path when provider is not cline", async () => {
-		// CLINE-2406: identity identification from saved settings only applies
-		// to Cline-provider sessions; other providers use different auth flows.
+	it("does not call identifyTelemetryAccount from runtime path when provider is not induscode", async () => {
+		// INDUSCODE-2406: identity identification from saved settings only applies
+		// to IndusCode-provider sessions; other providers use different auth flows.
 		providerSettingsMocks.getLastUsedProviderSettings.mockReturnValue({
 			provider: "openrouter",
 			model: "openai/gpt-5",
@@ -1460,11 +1460,11 @@ describe("runCli lightweight command dispatch", () => {
 			"src/index.ts",
 			...command,
 			"--config",
-			"/tmp/cline-config",
+			"/tmp/induscode-config",
 			"--cwd",
 			"/tmp/workspace",
 			"--data-dir",
-			".cline-dashboard-data",
+			".induscode-dashboard-data",
 			"--host",
 			"127.0.0.1",
 			"--port",
@@ -1481,9 +1481,9 @@ describe("runCli lightweight command dispatch", () => {
 		await expect(runCli()).resolves.toBeUndefined();
 		expect(dashboardMocks.runDashboardCommand).toHaveBeenCalledWith(
 			expect.objectContaining({
-				configDir: "/tmp/cline-config",
+				configDir: "/tmp/induscode-config",
 				cwd: "/tmp/workspace",
-				dataDir: ".cline-dashboard-data",
+				dataDir: ".induscode-dashboard-data",
 				host: "127.0.0.1",
 				port: "9090",
 				publicUrl: "https://dashboard.example",
@@ -1701,7 +1701,7 @@ describe("runCli lightweight command dispatch", () => {
 		mockState.runAgentCalls = 0;
 		runtimeMocks.runAgent.mockClear();
 		providerSettingsMocks.getProviderSettings.mockReturnValue({
-			provider: "cline",
+			provider: "induscode",
 			model: "openai/gpt-5",
 			reasoning: { enabled: true, effort: "high" },
 		});
@@ -1727,7 +1727,7 @@ describe("runCli lightweight command dispatch", () => {
 		mockState.runAgentCalls = 0;
 		runtimeMocks.runAgent.mockClear();
 		providerSettingsMocks.getProviderSettings.mockReturnValue({
-			provider: "cline",
+			provider: "induscode",
 			model: "openai/gpt-5",
 			reasoning: { enabled: false },
 		});
@@ -1753,7 +1753,7 @@ describe("runCli lightweight command dispatch", () => {
 		mockState.runAgentCalls = 0;
 		runtimeMocks.runAgent.mockClear();
 		providerSettingsMocks.getProviderSettings.mockReturnValue({
-			provider: "cline",
+			provider: "induscode",
 			model: "openai/gpt-5",
 			reasoning: { enabled: true, effort: "high" },
 		});
@@ -1931,7 +1931,7 @@ describe("runCli lightweight command dispatch", () => {
 		mockState.runAgentCalls = 0;
 		runtimeMocks.runAgent.mockClear();
 		authMocks.isOAuthProvider.mockReturnValue(true);
-		authMocks.normalizeProviderId.mockReturnValue("cline");
+		authMocks.normalizeProviderId.mockReturnValue("induscode");
 		authMocks.getPersistedProviderApiKey.mockReturnValue(undefined);
 		authMocks.ensureOAuthProviderApiKey.mockClear();
 
@@ -1948,7 +1948,7 @@ describe("runCli lightweight command dispatch", () => {
 			expect.objectContaining({
 				outputMode: "json",
 				apiKey: "",
-				providerId: "cline",
+				providerId: "induscode",
 			}),
 			expect.anything(),
 		);

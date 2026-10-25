@@ -1,12 +1,12 @@
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { HubCommandEnvelope } from "@cline/shared";
+import type { HubCommandEnvelope } from "@induscode/shared";
 import {
 	type ConnectorConfigRecord,
 	type ConnectorConnectionRecord,
 	withConnectorStore,
-} from "@cline/shared/db";
+} from "@induscode/shared/db";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
 	type ConnectorSupervisor,
@@ -16,11 +16,11 @@ import { __test__, handleConnectorCommand } from "./connector-handlers";
 import type { HubTransportContext } from "./context";
 
 describe("connector hub handlers", () => {
-	const previousDataDir = process.env.CLINE_DATA_DIR;
+	const previousDataDir = process.env.INDUSCODE_DATA_DIR;
 	const tempRoots: string[] = [];
 
 	afterEach(() => {
-		process.env.CLINE_DATA_DIR = previousDataDir;
+		process.env.INDUSCODE_DATA_DIR = previousDataDir;
 		for (const root of tempRoots.splice(0)) {
 			rmSync(root, { recursive: true, force: true });
 		}
@@ -29,7 +29,7 @@ describe("connector hub handlers", () => {
 	function useTempDataDir(): string {
 		const root = mkdtempSync(join(tmpdir(), "hub-connectors-"));
 		tempRoots.push(root);
-		process.env.CLINE_DATA_DIR = root;
+		process.env.INDUSCODE_DATA_DIR = root;
 		return root;
 	}
 
@@ -105,13 +105,13 @@ describe("connector hub handlers", () => {
 			enabled: true,
 			values: { userId: "123456789" },
 		});
-		expect(readPersistedConnection("telegram", "cline_bot")).toBeUndefined();
+		expect(readPersistedConnection("telegram", "induscode_bot")).toBeUndefined();
 	});
 
 	it("does not surface CLI-only connections as dashboard configurations", () => {
 		useTempDataDir();
 		withConnectorStore((store) =>
-			store.recordConnected("telegram", "cline_bot", [
+			store.recordConnected("telegram", "induscode_bot", [
 				"-k",
 				"123456:fake-token",
 			]),
@@ -119,7 +119,7 @@ describe("connector hub handlers", () => {
 
 		expect(__test__.connectorChannelsPayload().configured).toEqual([]);
 		expect(readPersistedConnector("telegram")).toBeUndefined();
-		expect(readPersistedConnection("telegram", "cline_bot")).toBeDefined();
+		expect(readPersistedConnection("telegram", "induscode_bot")).toBeDefined();
 	});
 
 	it("refreshes reconnect args when a configured credential changes", () => {
@@ -245,7 +245,7 @@ describe("connector hub handlers", () => {
 	it("preserves CLI reconnect state when dashboard config is deleted", () => {
 		useTempDataDir();
 		withConnectorStore((store) =>
-			store.recordConnected("telegram", "cline_bot", [
+			store.recordConnected("telegram", "induscode_bot", [
 				"-k",
 				"123456:fake-token",
 			]),
@@ -261,7 +261,7 @@ describe("connector hub handlers", () => {
 
 		expect(response.configured).toEqual([]);
 		expect(readPersistedConnector("telegram")).toBeUndefined();
-		expect(readPersistedConnection("telegram", "cline_bot")).toEqual(
+		expect(readPersistedConnection("telegram", "induscode_bot")).toEqual(
 			expect.objectContaining({
 				connectArgs: ["-k", "123456:fake-token"],
 				enabled: true,
@@ -426,7 +426,7 @@ describe("supervised connector hub commands", () => {
 					started: true,
 					record: {
 						channel: "slack",
-						instanceId: "cline-slack",
+						instanceId: "induscode-slack",
 						state: "running",
 						origin: "spawned",
 						restarts: 0,
@@ -440,7 +440,7 @@ describe("supervised connector hub commands", () => {
 			list: () => [
 				{
 					channel: "slack",
-					instanceId: "cline-slack",
+					instanceId: "induscode-slack",
 					state: "running" as const,
 					origin: "spawned" as const,
 					restarts: 2,
@@ -458,7 +458,7 @@ describe("supervised connector hub commands", () => {
 			createHubContext(),
 			connectorCommand("connector.start", {
 				channel: "slack",
-				instanceId: "cline-slack",
+				instanceId: "induscode-slack",
 				args: ["--bot-token", "xoxb"],
 			}),
 		);
@@ -467,7 +467,7 @@ describe("supervised connector hub commands", () => {
 		expect(started).toEqual([
 			{
 				channel: "slack",
-				instanceId: "cline-slack",
+				instanceId: "induscode-slack",
 				args: ["--bot-token", "xoxb"],
 				restart: false,
 			},
@@ -481,7 +481,7 @@ describe("supervised connector hub commands", () => {
 			createHubContext(),
 			connectorCommand("connector.start", {
 				channel: "slack",
-				instanceId: "cline-slack",
+				instanceId: "induscode-slack",
 				args: [],
 				restart: true,
 			}),
@@ -497,13 +497,13 @@ describe("supervised connector hub commands", () => {
 			createHubContext(),
 			connectorCommand("connector.stop", {
 				channel: "slack",
-				instanceId: "cline-slack",
+				instanceId: "induscode-slack",
 			}),
 		);
 
 		expect(reply.ok).toBe(true);
 		expect(stopped).toEqual([
-			{ channel: "slack", instanceId: "cline-slack", disableAutostart: true },
+			{ channel: "slack", instanceId: "induscode-slack", disableAutostart: true },
 		]);
 	});
 
@@ -514,7 +514,7 @@ describe("supervised connector hub commands", () => {
 			createHubContext(),
 			connectorCommand("connector.stop", {
 				channel: "slack",
-				instanceId: "cline-slack",
+				instanceId: "induscode-slack",
 				disableAutostart: false,
 			}),
 		);
@@ -538,7 +538,7 @@ describe("supervised connector hub commands", () => {
 		).toEqual([
 			{
 				channel: "slack",
-				instanceId: "cline-slack",
+				instanceId: "induscode-slack",
 				state: "running",
 				origin: "spawned",
 				restarts: 2,
@@ -563,7 +563,7 @@ describe("supervised connector hub commands", () => {
 			createHubContext(),
 			connectorCommand("connector.start", {
 				channel: "slack",
-				instanceId: "cline-slack",
+				instanceId: "induscode-slack",
 			}),
 		);
 

@@ -1,17 +1,17 @@
 ---
-title: "Cline API"
+title: "IndusCode API"
 sidebarTitle: "Overview"
 description: "Programmatic access to AI models through an OpenAI-compatible Chat Completions API."
 ---
 
-Welcome to the Cline API documentation. Use the same models that power the Cline extension and CLI from any language, framework, or tool that speaks the OpenAI format.
+Welcome to the IndusCode API documentation. Use the same models that power the IndusCode extension and CLI from any language, framework, or tool that speaks the OpenAI format.
 
-## What is the Cline API?
+## What is the IndusCode API?
 
-The Cline API is an OpenAI-compatible Chat Completions endpoint. You authenticate once with a Cline API key and get access to models from Anthropic, OpenAI, Google, and more through a single base URL. No need to manage separate keys for each provider.
+The IndusCode API is an OpenAI-compatible Chat Completions endpoint. You authenticate once with a IndusCode API key and get access to models from Anthropic, OpenAI, Google, and more through a single base URL. No need to manage separate keys for each provider.
 
 ```
-Your App  →  Cline API (api.cline.bot)  →  Anthropic / OpenAI / Google / etc.
+Your App  →  IndusCode API (api.induscode.bot)  →  Anthropic / OpenAI / Google / etc.
 ```
 
 <CardGroup cols={2}>
@@ -25,7 +25,7 @@ Your App  →  Cline API (api.cline.bot)  →  Anthropic / OpenAI / Google / etc
     Full endpoint reference with request schemas, streaming, and tool calling.
   </Card>
   <Card title="Code Examples" icon="code" href="/api/sdk-examples">
-    Ready-to-copy examples for Python, Node.js, curl, and the Cline CLI.
+    Ready-to-copy examples for Python, Node.js, curl, and the IndusCode CLI.
   </Card>
 </CardGroup>
 
@@ -46,7 +46,7 @@ Your App  →  Cline API (api.cline.bot)  →  Anthropic / OpenAI / Google / etc
 ## Quick Start
 
 ```bash
-curl -X POST https://api.cline.bot/api/v1/chat/completions \
+curl -X POST https://api.induscode.bot/api/v1/chat/completions \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -55,4 +55,4 @@ curl -X POST https://api.cline.bot/api/v1/chat/completions \
   }'
 ```
 
-Get your API key at [app.cline.bot](https://app.cline.bot) (Settings > API Keys), then follow the [Getting Started](/api/getting-started) guide.
+Get your API key at [app.induscode.bot](https://app.induscode.bot) (Settings > API Keys), then follow the [Getting Started](/api/getting-started) guide.

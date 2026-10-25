@@ -185,7 +185,7 @@ jobs:
             - name: Install workspace dependencies
               run: bun install --frozen-lockfile
 
-            # @cline/* are local workspace symlinks to source packages; apps/vscode's
+            # @induscode/* are local workspace symlinks to source packages; apps/vscode's
             # `package` script does NOT build them, so without this the esbuild step
             # fails on a fresh checkout.
             - name: Build SDK packages
@@ -210,7 +210,7 @@ jobs:
             - name: Build and package VSIX
               working-directory: apps/vscode
               env:
-                  CLINE_ENVIRONMENT: production
+                  INDUSCODE_ENVIRONMENT: production
                   TELEMETRY_SERVICE_API_KEY: ${{ secrets.TELEMETRY_SERVICE_API_KEY }}
                   ERROR_SERVICE_API_KEY: ${{ secrets.ERROR_SERVICE_API_KEY }}
                   # OpenTelemetry production defaults (can be overridden at runtime)
@@ -218,7 +218,7 @@ jobs:
                   OTEL_LOGS_EXPORTER: otlp
                   OTEL_METRICS_EXPORTER: otlp
                   OTEL_TRACES_EXPORTER: otlp
-                  CLINE_TRACE_RECORD_CONTENT: "true"
+                  INDUSCODE_TRACE_RECORD_CONTENT: "true"
                   OTEL_EXPORTER_OTLP_PROTOCOL: ${{ secrets.OTEL_EXPORTER_OTLP_PROTOCOL }}
                   OTEL_EXPORTER_OTLP_ENDPOINT: ${{ secrets.OTEL_EXPORTER_OTLP_ENDPOINT }}
                   OTEL_EXPORTER_OTLP_HEADERS: ${{ secrets.OTEL_EXPORTER_OTLP_HEADERS }}
@@ -232,14 +232,14 @@ jobs:
                   trap 'node scripts/marketplace-readme.mjs restore' EXIT
 
                   # --no-dependencies: the extension is fully esbuild-bundled, and
-                  # under the bun workspace the @cline/* deps are symlinks pointing
+                  # under the bun workspace the @induscode/* deps are symlinks pointing
                   # outside the package, so without this vsce would walk them and
                   # pull the whole monorepo into the .vsix.
                   # --allow-package-secrets sendgrid: narrowly scoped scanner
                   # exemption carried over from every previous ext workflow. No
                   # SendGrid credential is intentionally supplied; inspect the
                   # reported artifact before widening it.
-                  vsce package --no-dependencies --allow-package-secrets sendgrid --out "cline-${{ github.event.inputs.version }}.vsix"
+                  vsce package --no-dependencies --allow-package-secrets sendgrid --out "induscode-${{ github.event.inputs.version }}.vsix"
 
             # Publish uploads this file as-is, so check the bytes that will
             # ship rather than the source tree: identity + version of the
@@ -255,7 +255,7 @@ jobs:
               working-directory: apps/vscode
               env:
                   EXPECTED_VERSION: ${{ github.event.inputs.version }}
-                  VSIX: cline-${{ github.event.inputs.version }}.vsix
+                  VSIX: induscode-${{ github.event.inputs.version }}.vsix
               run: |
                   unzip -p "$VSIX" extension/package.json > /tmp/packaged-package.json
                   node -e '
@@ -268,9 +268,9 @@ jobs:
                   '
                   unzip -p "$VSIX" extension/dist/extension.js > /tmp/packaged-extension.js
                   MISSING=""
-                  for VAR in CLINE_ENVIRONMENT TELEMETRY_SERVICE_API_KEY ERROR_SERVICE_API_KEY \
+                  for VAR in INDUSCODE_ENVIRONMENT TELEMETRY_SERVICE_API_KEY ERROR_SERVICE_API_KEY \
                              OTEL_TELEMETRY_ENABLED OTEL_LOGS_EXPORTER OTEL_METRICS_EXPORTER OTEL_TRACES_EXPORTER \
-                             CLINE_TRACE_RECORD_CONTENT OTEL_EXPORTER_OTLP_PROTOCOL OTEL_EXPORTER_OTLP_ENDPOINT OTEL_EXPORTER_OTLP_HEADERS; do
+                             INDUSCODE_TRACE_RECORD_CONTENT OTEL_EXPORTER_OTLP_PROTOCOL OTEL_EXPORTER_OTLP_ENDPOINT OTEL_EXPORTER_OTLP_HEADERS; do
                     if grep -q "process\.env\.$VAR\b" /tmp/packaged-extension.js; then
                       MISSING="$MISSING $VAR"
                     fi
@@ -285,8 +285,8 @@ jobs:
             - name: Upload VSIX artifact
               uses: actions/upload-artifact@v4
               with:
-                  name: cline-${{ github.event.inputs.version }}
-                  path: apps/vscode/cline-${{ github.event.inputs.version }}.vsix
+                  name: induscode-${{ github.event.inputs.version }}
+                  path: apps/vscode/induscode-${{ github.event.inputs.version }}.vsix
                   if-no-files-found: error
 
     publish:
@@ -316,7 +316,7 @@ jobs:
             - name: Download VSIX artifact
               uses: actions/download-artifact@v4
               with:
-                  name: cline-${{ github.event.inputs.version }}
+                  name: induscode-${{ github.event.inputs.version }}
                   path: staging
 
             - name: Install Publishing Tools
@@ -382,7 +382,7 @@ jobs:
                   # would skip the tag/release/Slack bookkeeping. Without the
                   # flag vsce throws "already exists".
                   for attempt in 1 2 3; do
-                    if vsce publish --no-dependencies --skip-duplicate --packagePath "cline-${{ github.event.inputs.version }}.vsix"; then
+                    if vsce publish --no-dependencies --skip-duplicate --packagePath "induscode-${{ github.event.inputs.version }}.vsix"; then
                       exit 0
                     fi
                     echo "vsce publish attempt $attempt failed."
@@ -397,7 +397,7 @@ jobs:
               working-directory: staging
               env:
                   OVSX_PAT: ${{ secrets.OVSX_PAT }}
-              run: npx ovsx publish --packagePath "cline-${{ github.event.inputs.version }}.vsix" --pat "$OVSX_PAT"
+              run: npx ovsx publish --packagePath "induscode-${{ github.event.inputs.version }}.vsix" --pat "$OVSX_PAT"
 
             # ---- Post-publish bookkeeping (tag / GitHub Release / Slack) ----
             # Every step here is continue-on-error, and gated on the MARKETPLACE
@@ -479,7 +479,7 @@ jobs:
               uses: softprops/action-gh-release@v1
               with:
                   tag_name: v${{ github.event.inputs.version }}
-                  files: staging/cline-${{ github.event.inputs.version }}.vsix
+                  files: staging/induscode-${{ github.event.inputs.version }}.vsix
                   body: |
                       ${{ steps.changelog.outputs.content }}
 
@@ -496,12 +496,12 @@ jobs:
                   token: ${{ secrets.SLACK_RELEASE_BOT_TOKEN }}
                   payload: |
                     channel: "C0APVKGGZFC"
-                    text: "Cline v${{ github.event.inputs.version }}"
+                    text: "IndusCode v${{ github.event.inputs.version }}"
                     blocks:
                       - type: "section"
                         text:
                           type: "mrkdwn"
-                          text: "*Cline v${{ github.event.inputs.version }}*"
+                          text: "*IndusCode v${{ github.event.inputs.version }}*"
                       - type: "section"
                         text:
                           type: "mrkdwn"

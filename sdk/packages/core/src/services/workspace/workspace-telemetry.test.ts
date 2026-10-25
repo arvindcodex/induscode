@@ -1,4 +1,4 @@
-import type { ITelemetryService } from "@cline/shared";
+import type { ITelemetryService } from "@induscode/shared";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import {
 	emitWorkspaceLifecycleTelemetry,
@@ -66,7 +66,7 @@ describe("emitWorkspaceLifecycleTelemetry", () => {
 
 	test("emits once for each client sharing the same runtime and workspace", () => {
 		const stub = createTelemetryStub();
-		for (const dedupeScope of ["cline-cli", "cline-desktop"]) {
+		for (const dedupeScope of ["induscode-cli", "induscode-desktop"]) {
 			emitWorkspaceLifecycleTelemetry({
 				telemetry: stub.telemetry,
 				rootPath: "/tmp/repo",

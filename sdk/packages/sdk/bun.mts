@@ -1,8 +1,8 @@
 export {};
 
-const sourcemap = Bun.env.CLINE_SOURCEMAPS === "1" ? "linked" : "none";
+const sourcemap = Bun.env.INDUSCODE_SOURCEMAPS === "1" ? "linked" : "none";
 // minify: true keeps identifier mangling active even when sourcemaps are enabled.
-const minify = Bun.env.CLINE_SOURCEMAPS !== "1";
+const minify = Bun.env.INDUSCODE_SOURCEMAPS !== "1";
 
 const result = await Bun.build({
 	entrypoints: ["./src/index.ts"],
@@ -12,7 +12,7 @@ const result = await Bun.build({
 	packages: "bundle",
 	minify,
 	sourcemap,
-	external: ["@cline/core"],
+	external: ["@induscode/core"],
 });
 
 if (result.logs.length > 0) {

@@ -30,7 +30,7 @@ describe("Button", () => {
 		const button = container.querySelector("button");
 		expect(button?.type).toBe("button");
 		expect(button?.dataset.slot).toBe("button");
-		expect(button?.className).toContain("bg-cline-ui-primary");
+		expect(button?.className).toContain("bg-induscode-ui-primary");
 	});
 
 	it("forwards native props, refs, and decisions", async () => {
@@ -53,7 +53,7 @@ describe("Button", () => {
 		const element = container.querySelector<HTMLButtonElement>("button");
 		expect(forwardedRef).toBe(element);
 		expect(element?.className).toContain("consumer-class");
-		expect(element?.className).toContain("text-cline-ui-destructive");
+		expect(element?.className).toContain("text-induscode-ui-destructive");
 		await act(async () => element?.click());
 		expect(onClick).toHaveBeenCalledOnce();
 	});

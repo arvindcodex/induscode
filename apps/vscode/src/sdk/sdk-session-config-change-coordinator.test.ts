@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import type { StateManager } from "@/core/storage/StateManager"
-import type { ActiveSession } from "./cline-session-factory"
+import type { ActiveSession } from "./induscode-session-factory"
 import {
 	SdkSessionConfigChangeCoordinator,
 	type SdkSessionConfigChangeCoordinatorOptions,

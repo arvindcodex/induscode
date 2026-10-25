@@ -12,7 +12,7 @@ import type {
 	HubClientToolContribution,
 	HubClientToolExecutorContribution,
 	JsonValue,
-} from "@cline/shared";
+} from "@induscode/shared";
 import {
 	HUB_CHECKPOINT_CAPABILITY,
 	HUB_COMPACTION_CAPABILITY,
@@ -22,7 +22,7 @@ import {
 	HUB_TOOL_EXECUTOR_CAPABILITY_PREFIX,
 	HUB_USER_INSTRUCTIONS_SNAPSHOT_CAPABILITY,
 	isHubToolExecutorName,
-} from "@cline/shared";
+} from "@induscode/shared";
 
 export {
 	HUB_CHECKPOINT_CAPABILITY,
@@ -32,7 +32,7 @@ export {
 	HUB_MISTAKE_LIMIT_CAPABILITY,
 	HUB_TOOL_EXECUTOR_CAPABILITY_PREFIX,
 	HUB_USER_INSTRUCTIONS_SNAPSHOT_CAPABILITY,
-} from "@cline/shared";
+} from "@induscode/shared";
 
 import type {
 	AvailableRuntimeCommand,
@@ -384,7 +384,7 @@ function createUserInstructionServiceProxy(
 		createSkillsExecutor: (allowedSkillNames) =>
 			createSnapshotSkillsExecutor(snapshot, allowedSkillNames),
 		createExtension: (options): AgentExtension => ({
-			name: "cline-hub-user-instructions",
+			name: "induscode-hub-user-instructions",
 			manifest: {
 				capabilities: [
 					options.includeRules ? "rules" : undefined,
@@ -399,7 +399,7 @@ function createUserInstructionServiceProxy(
 			setup(api) {
 				if (options.includeRules) {
 					api.registerRule({
-						id: "cline-hub-user-instructions:rules",
+						id: "induscode-hub-user-instructions:rules",
 						source: "hub-user-instructions",
 						content: () =>
 							loadRulesForSystemPromptFromRecords(snapshot.records.rule),

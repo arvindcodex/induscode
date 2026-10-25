@@ -1,7 +1,7 @@
-// Auto-discovery of OS trust anchors for the Cline CLI.
+// Auto-discovery of OS trust anchors for the IndusCode CLI.
 //
 // Bun does not read the OS trust store, so the 3.x CLI cannot see corporate
-// MITM / self-signed CAs out of the box. This runs in the Node `bin/cline`
+// MITM / self-signed CAs out of the box. This runs in the Node `bin/induscode`
 // wrapper (not Bun), reads the full OS store via tls.getCACertificates("system")
 // (Node >= 22, no --use-system-ca flag), and hands the certs to the Bun child
 // via NODE_EXTRA_CA_CERTS, which both runtimes honor. Mirrors the JetBrains
@@ -145,13 +145,13 @@ function readFileIfExists(fs, filePath) {
 	}
 }
 
-function resolveClineDir(env, os, path) {
-	return env.CLINE_DIR?.trim() || path.join(os.homedir(), ".cline");
+function resolveIndusCodeDir(env, os, path) {
+	return env.INDUSCODE_DIR?.trim() || path.join(os.homedir(), ".induscode");
 }
 
 /**
  * True when the api-unavailable warning should print. Stamped per Node version
- * in the cline dir so the nudge shows once rather than on every command; a
+ * in the induscode dir so the nudge shows once rather than on every command; a
  * version change (upgrade that still falls short, or downgrade) re-arms it.
  * When the stamp cannot be read or written, warn — bookkeeping failures must
  * never suppress a real diagnostic.
@@ -161,7 +161,7 @@ function shouldWarnApiUnavailable(env, deps = {}) {
 	const os = deps.os || require("node:os");
 	const path = deps.path || require("node:path");
 	const version = deps.nodeVersion || process.versions.node;
-	const dir = resolveClineDir(env, os, path);
+	const dir = resolveIndusCodeDir(env, os, path);
 	const stamp = path.join(dir, `.ca-api-warned-${version}`);
 	try {
 		if (fs.existsSync(stamp)) {
@@ -238,7 +238,7 @@ function configureNodeExtraCaCerts(env, deps = {}) {
 		};
 	}
 
-	const managedDir = resolveClineDir(env, os, path);
+	const managedDir = resolveIndusCodeDir(env, os, path);
 	const managedPath = path.join(managedDir, "cli-node-extra-ca-certs.pem");
 	const userValue = (env.NODE_EXTRA_CA_CERTS || "").trim() || null;
 	const userPems = readUserCerts(fs, path, userValue, managedPath);

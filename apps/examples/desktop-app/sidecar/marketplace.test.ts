@@ -1,7 +1,7 @@
 import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { installPlugin } from "@cline/core";
+import { installPlugin } from "@induscode/core";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
 	getOfficialPluginInstallPath,
@@ -10,10 +10,10 @@ import {
 } from "./marketplace";
 import type { JsonRecord } from "./types";
 
-// Marketplace plugin installs run in-process through @cline/core (spawning a
-// `cline` binary fails with 'Executable not found in $PATH: "cline"' in the
+// Marketplace plugin installs run in-process through @induscode/core (spawning a
+// `induscode` binary fails with 'Executable not found in $PATH: "induscode"' in the
 // packaged app). Stub only installPlugin; everything else stays real.
-vi.mock(import("@cline/core"), async (importOriginal) => ({
+vi.mock(import("@induscode/core"), async (importOriginal) => ({
 	...(await importOriginal()),
 	installPlugin: vi.fn(),
 }));
@@ -30,16 +30,16 @@ const SKILL_ENTRY = {
 	id: "example-skill",
 	type: "skill",
 	name: "Example Skill",
-	install: { args: ["https://github.com/cline/skills.git"] },
+	install: { args: ["https://github.com/induscode/skills.git"] },
 };
 
-let tempClineDir: string;
-let previousClineDir: string | undefined;
+let tempIndusCodeDir: string;
+let previousIndusCodeDir: string | undefined;
 
 beforeEach(async () => {
-	tempClineDir = await mkdtemp(join(tmpdir(), "desktop-marketplace-"));
-	previousClineDir = process.env.CLINE_DIR;
-	process.env.CLINE_DIR = tempClineDir;
+	tempIndusCodeDir = await mkdtemp(join(tmpdir(), "desktop-marketplace-"));
+	previousIndusCodeDir = process.env.INDUSCODE_DIR;
+	process.env.INDUSCODE_DIR = tempIndusCodeDir;
 	installPluginMock.mockReset().mockImplementation(async (options) => ({
 		source: options.source,
 		installPath: goalInstallDir(),
@@ -51,12 +51,12 @@ beforeEach(async () => {
 
 afterEach(async () => {
 	vi.unstubAllEnvs();
-	if (previousClineDir === undefined) {
-		delete process.env.CLINE_DIR;
+	if (previousIndusCodeDir === undefined) {
+		delete process.env.INDUSCODE_DIR;
 	} else {
-		process.env.CLINE_DIR = previousClineDir;
+		process.env.INDUSCODE_DIR = previousIndusCodeDir;
 	}
-	await rm(tempClineDir, { recursive: true, force: true });
+	await rm(tempIndusCodeDir, { recursive: true, force: true });
 });
 
 function goalInstallDir(): string {
@@ -68,7 +68,7 @@ function goalInstallDir(): string {
 }
 
 describe("official plugin install detection", () => {
-	it("installs plugins in-process through @cline/core", async () => {
+	it("installs plugins in-process through @induscode/core", async () => {
 		const result = await installMarketplaceEntry({ entry: GOAL_ENTRY });
 
 		expect(result).toMatchObject({
@@ -121,7 +121,7 @@ describe("official plugin install detection", () => {
 			JSON.stringify({
 				name: "goal",
 				private: true,
-				cline: { plugins: [{ paths: ["./package/index.ts"] }] },
+				induscode: { plugins: [{ paths: ["./package/index.ts"] }] },
 			}),
 		);
 		await writeFile(
@@ -139,9 +139,9 @@ describe("official plugin install detection", () => {
 	});
 
 	it("registers MCP servers in-process, honoring the -- args separator", async () => {
-		const settingsPath = join(tempClineDir, "cline_mcp_settings.json");
-		const previousSettingsPath = process.env.CLINE_MCP_SETTINGS_PATH;
-		process.env.CLINE_MCP_SETTINGS_PATH = settingsPath;
+		const settingsPath = join(tempIndusCodeDir, "induscode_mcp_settings.json");
+		const previousSettingsPath = process.env.INDUSCODE_MCP_SETTINGS_PATH;
+		process.env.INDUSCODE_MCP_SETTINGS_PATH = settingsPath;
 		try {
 			const result = await installMarketplaceEntry({
 				entry: {
@@ -168,9 +168,9 @@ describe("official plugin install detection", () => {
 			});
 		} finally {
 			if (previousSettingsPath === undefined) {
-				delete process.env.CLINE_MCP_SETTINGS_PATH;
+				delete process.env.INDUSCODE_MCP_SETTINGS_PATH;
 			} else {
-				process.env.CLINE_MCP_SETTINGS_PATH = previousSettingsPath;
+				process.env.INDUSCODE_MCP_SETTINGS_PATH = previousSettingsPath;
 			}
 		}
 	});
@@ -196,7 +196,7 @@ describe("official plugin install detection", () => {
 		expect(populated.installedKeys).toEqual(["plugin:goal"]);
 	});
 
-	it("does not match portable Agent Plugins to Cline marketplace entries", () => {
+	it("does not match portable Agent Plugins to IndusCode marketplace entries", () => {
 		const result = listMarketplaceInstalledEntries({ entries: [GOAL_ENTRY] }, {
 			plugins: [
 				{
@@ -214,12 +214,12 @@ describe("official plugin install detection", () => {
 
 describe("skill install failures", () => {
 	it("explains the missing Git dependency when the skills CLI cannot spawn git", async () => {
-		vi.stubEnv("HOME", tempClineDir);
+		vi.stubEnv("HOME", tempIndusCodeDir);
 		const spawnCommand = vi.fn().mockResolvedValue({
 			exitCode: 1,
 			stdout: "",
 			stderr:
-				"Failed to clone https://github.com/cline/skills.git: Error: spawn git ENOENT",
+				"Failed to clone https://github.com/induscode/skills.git: Error: spawn git ENOENT",
 		});
 
 		await expect(
@@ -231,16 +231,16 @@ describe("skill install failures", () => {
 			"-y",
 			"skills@latest",
 			"add",
-			"https://github.com/cline/skills.git",
+			"https://github.com/induscode/skills.git",
 			"-g",
 			"-a",
-			"cline",
+			"induscode",
 			"-y",
 		]);
 	});
 
 	it("keeps unrelated CLI errors without Git guidance", async () => {
-		vi.stubEnv("HOME", tempClineDir);
+		vi.stubEnv("HOME", tempIndusCodeDir);
 		const spawnCommand = vi.fn().mockResolvedValue({
 			exitCode: 1,
 			stdout: "",

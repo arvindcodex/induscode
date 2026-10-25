@@ -51,7 +51,7 @@ export function AgentContextUsage({
 			? "stroke-red-500"
 			: ratio >= 0.5
 				? "stroke-orange-500"
-				: "stroke-cline-ui-primary";
+				: "stroke-induscode-ui-primary";
 	const contextUsageLabel = `${formatCompactTokens(totalTokens)} / ${formatCompactTokens(contextWindow)} (${percent}%)`;
 	const cachedTokens = Math.min(usage.cacheReadTokens, usage.tokensIn);
 	const uncachedInputTokens = Math.max(usage.tokensIn - cachedTokens, 0);
@@ -73,7 +73,7 @@ export function AgentContextUsage({
 				width="22"
 			>
 				<circle
-					className="stroke-cline-ui-muted-foreground/20"
+					className="stroke-induscode-ui-muted-foreground/20"
 					cx="11"
 					cy="11"
 					fill="none"
@@ -95,22 +95,22 @@ export function AgentContextUsage({
 		),
 		details: (
 			<div className="px-3 py-3">
-				<div className="flex items-center justify-between gap-4 text-cline-ui-sm">
-					<span className="text-cline-ui-muted-foreground">Context window</span>
-					<span className="font-cline-ui-mono text-cline-ui-sm text-cline-ui-foreground">
+				<div className="flex items-center justify-between gap-4 text-induscode-ui-sm">
+					<span className="text-induscode-ui-muted-foreground">Context window</span>
+					<span className="font-induscode-ui-mono text-induscode-ui-sm text-induscode-ui-foreground">
 						{contextUsageLabel}
 					</span>
 				</div>
-				<div className="mt-2 flex h-1 overflow-hidden rounded-full bg-cline-ui-muted">
+				<div className="mt-2 flex h-1 overflow-hidden rounded-full bg-induscode-ui-muted">
 					<div
 						aria-hidden="true"
-						className="h-full shrink-0 bg-cline-ui-primary transition-[width] duration-120"
+						className="h-full shrink-0 bg-induscode-ui-primary transition-[width] duration-120"
 						data-token-kind="uncached-input"
 						style={{ width: segmentWidth(uncachedInputTokens) }}
 					/>
 					<div
 						aria-hidden="true"
-						className="h-full shrink-0 bg-cline-ui-primary/60 transition-[background,width] duration-120"
+						className="h-full shrink-0 bg-induscode-ui-primary/60 transition-[background,width] duration-120"
 						data-token-kind="cached-input"
 						style={{
 							backgroundImage:
@@ -129,33 +129,33 @@ export function AgentContextUsage({
 						}}
 					/>
 				</div>
-				<div className="mt-3 space-y-2 text-cline-ui-sm">
+				<div className="mt-3 space-y-2 text-induscode-ui-sm">
 					<div className="flex items-center justify-between gap-4">
-						<span className="text-cline-ui-muted-foreground">Input tokens</span>
-						<span className="font-cline-ui-mono text-cline-ui-foreground">
+						<span className="text-induscode-ui-muted-foreground">Input tokens</span>
+						<span className="font-induscode-ui-mono text-induscode-ui-foreground">
 							{usage.tokensIn.toLocaleString()}
 						</span>
 					</div>
 					<div className="flex items-center justify-between gap-4">
-						<span className="text-cline-ui-muted-foreground">
+						<span className="text-induscode-ui-muted-foreground">
 							Output tokens
 						</span>
-						<span className="font-cline-ui-mono text-cline-ui-foreground">
+						<span className="font-induscode-ui-mono text-induscode-ui-foreground">
 							{usage.tokensOut.toLocaleString()}
 						</span>
 					</div>
 					<div className="flex items-center justify-between gap-4">
-						<span className="text-cline-ui-muted-foreground">
+						<span className="text-induscode-ui-muted-foreground">
 							Cached tokens
 						</span>
-						<span className="font-cline-ui-mono text-cline-ui-foreground">
+						<span className="font-induscode-ui-mono text-induscode-ui-foreground">
 							{usage.cacheReadTokens.toLocaleString()}
 						</span>
 					</div>
 					{costLabel || costLabel === 0 ? (
 						<div className="flex items-center justify-between gap-4">
-							<span className="text-cline-ui-muted-foreground">Cost</span>
-							<span className="font-cline-ui-mono text-cline-ui-foreground">
+							<span className="text-induscode-ui-muted-foreground">Cost</span>
+							<span className="font-induscode-ui-mono text-induscode-ui-foreground">
 								{costLabel}
 							</span>
 						</div>

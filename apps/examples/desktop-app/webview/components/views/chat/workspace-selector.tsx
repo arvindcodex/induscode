@@ -1,6 +1,6 @@
 "use client";
 
-import { isChatWorkspacePath } from "@cline/shared/browser";
+import { isChatWorkspacePath } from "@induscode/shared/browser";
 import {
 	Check,
 	Folder,
@@ -225,7 +225,7 @@ export function WorkspaceSelector({
 		b.toLowerCase().includes(search.toLowerCase()),
 	);
 
-	// The catalog excludes non-project paths (home, Desktop, ~/.cline), but an
+	// The catalog excludes non-project paths (home, Desktop, ~/.induscode), but an
 	// explicitly opened workspace must stay visible while it is active.
 	const availableWorkspaces = useMemo(() => {
 		const byNormalizedPath = new Map<string, string>();

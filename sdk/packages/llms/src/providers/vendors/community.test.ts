@@ -193,7 +193,7 @@ describe("createSapAiCoreProviderModule", () => {
 		expect(model.config?.providerApi).toBe("orchestration");
 	});
 
-	it("sets requestConfig with fetch adapter and Cline client-type header", async () => {
+	it("sets requestConfig with fetch adapter and IndusCode client-type header", async () => {
 		const provider = await createSapAiCoreProviderModule({
 			providerId: "sapaicore",
 			baseUrl: "https://api.ai.example.aws.ml.hana.ondemand.com",
@@ -220,7 +220,7 @@ describe("createSapAiCoreProviderModule", () => {
 
 		expect(model.config?.requestConfig?.adapter).toBe("fetch");
 		expect(model.config?.requestConfig?.headers?.["ai-client-type"]).toBe(
-			"Cline",
+			"IndusCode",
 		);
 		expect(model.config?.requestConfig?.maxBodyLength).toBe(
 			Number.POSITIVE_INFINITY,

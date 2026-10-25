@@ -7,7 +7,7 @@
 // Usage:
 //   bun scripts/generate-update-manifest.ts \
 //     --version 0.1.0 --tag desktop-v0.1.0 --dir dist/desktop \
-//     --out dist/desktop/latest.json [--repo cline/cline] [--notes-file notes.md]
+//     --out dist/desktop/latest.json [--repo induscode/induscode] [--notes-file notes.md]
 
 import { readdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -145,7 +145,7 @@ const main = () => {
 	const repo =
 		getArgValue(args, "--repo") ??
 		process.env.GITHUB_REPOSITORY ??
-		"cline/cline";
+		"induscode/induscode";
 	const notesFile = getArgValue(args, "--notes-file");
 
 	if (!version || !tag || !dir || !out) {

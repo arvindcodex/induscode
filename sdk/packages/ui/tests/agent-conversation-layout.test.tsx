@@ -110,7 +110,7 @@ describe("conversation presentation", () => {
 		const render = (welcome: boolean) => (
 			<AgentConversationLayout
 				welcome={welcome}
-				bodyClassName="cline-view-enter"
+				bodyClassName="induscode-view-enter"
 				body={<Transcript />}
 				composer={<textarea />}
 				welcomeHeader={<h1>Welcome</h1>}
@@ -122,7 +122,7 @@ describe("conversation presentation", () => {
 		await act(async () => root.render(render(false)));
 		expect(container.querySelector("input")).toBe(input);
 		expect(input?.parentElement?.className).toBe(
-			"cline-view-enter h-full min-h-0 overflow-hidden",
+			"induscode-view-enter h-full min-h-0 overflow-hidden",
 		);
 		expect(container.querySelector("h1")).toBeNull();
 		expect(mounted).toHaveBeenCalledOnce();

@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 
-import type { ClineAccountOrganization } from "@cline/core";
-import type { AgendaTaskRecord } from "@cline/shared";
-import { getClineEnvironmentConfig } from "@cline/shared/browser";
+import type { IndusCodeAccountOrganization } from "@induscode/core";
+import type { AgendaTaskRecord } from "@induscode/shared";
+import { getIndusCodeEnvironmentConfig } from "@induscode/shared/browser";
 import { act, type ComponentProps, type ReactNode } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -25,7 +25,7 @@ const { invokeMock, subscribeMock, accountRef, openExternalUrlMock } =
 		),
 		accountRef: {
 			user: null as { id: string } | null,
-			activeOrganization: null as ClineAccountOrganization | null,
+			activeOrganization: null as IndusCodeAccountOrganization | null,
 		},
 	}));
 
@@ -180,7 +180,7 @@ describe("WelcomeScreen", () => {
 			executionTarget: "cloud",
 			cloudAgentsEnabled: true,
 		});
-		await clickButton("Sign in with Cline");
+		await clickButton("Sign in with IndusCode");
 		expect(container.textContent).toContain("Waiting for browser");
 		await clickButton("Cancel");
 		const cancelling = Array.from(container.querySelectorAll("button")).find(
@@ -188,7 +188,7 @@ describe("WelcomeScreen", () => {
 		);
 		expect(cancelling?.disabled).toBe(true);
 		expect(invokeMock).toHaveBeenCalledWith("cancel_provider_oauth_login", {
-			provider: "cline",
+			provider: "induscode",
 		});
 		await act(async () => {
 			if (first === "login") rejectLogin(new Error("Sign-in cancelled"));
@@ -204,7 +204,7 @@ describe("WelcomeScreen", () => {
 			else rejectLogin(new Error("Sign-in cancelled"));
 		});
 		expect(container.textContent).not.toContain("Sign in failed");
-		await clickButton("Sign in with Cline");
+		await clickButton("Sign in with IndusCode");
 		expect(
 			invokeMock.mock.calls.filter(
 				([command]) => command === "run_provider_oauth_login",
@@ -220,7 +220,7 @@ describe("WelcomeScreen", () => {
 	])("remembers the Cloud repository and branch (failure recovery: %s)", async (recovery) => {
 		accountRef.user = { id: "user-1" };
 		const scope = JSON.stringify([
-			getClineEnvironmentConfig().appBaseUrl,
+			getIndusCodeEnvironmentConfig().appBaseUrl,
 			"user-1",
 			null,
 		]);
@@ -310,7 +310,7 @@ describe("WelcomeScreen", () => {
 					branch: "main",
 				});
 				expect(container.textContent).not.toContain(
-					"Could not reach Cline Cloud",
+					"Could not reach IndusCode Cloud",
 				);
 				return;
 			}
@@ -342,7 +342,7 @@ describe("WelcomeScreen", () => {
 	])("does not restore over a changed %s context", async (scenario) => {
 		accountRef.user = { id: "user-1" };
 		const scope = JSON.stringify([
-			getClineEnvironmentConfig().appBaseUrl,
+			getIndusCodeEnvironmentConfig().appBaseUrl,
 			"user-1",
 			null,
 		]);
@@ -428,8 +428,8 @@ describe("WelcomeScreen", () => {
 					repositories: [],
 				};
 			}
-			if (command === "cline_integrations") {
-				return { url: "https://github.com/apps/cline/installations/new" };
+			if (command === "induscode_integrations") {
+				return { url: "https://github.com/apps/induscode/installations/new" };
 			}
 			return {};
 		});
@@ -442,11 +442,11 @@ describe("WelcomeScreen", () => {
 		});
 		await clickButton("Connect GitHub");
 
-		expect(invokeMock).toHaveBeenCalledWith("cline_integrations", {
+		expect(invokeMock).toHaveBeenCalledWith("induscode_integrations", {
 			operation: "githubInstallUrl",
 		});
 		expect(openExternalUrlMock).toHaveBeenCalledWith(
-			"https://github.com/apps/cline/installations/new",
+			"https://github.com/apps/induscode/installations/new",
 		);
 		accountRef.user = null;
 	});

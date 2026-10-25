@@ -34,8 +34,8 @@ export interface RunDashboardCommandOptions {
 	waitForShutdown?: (server: DashboardServerHandle) => Promise<void>;
 }
 
-const DASHBOARD_PORT_ENV = "CLINE_HUB_DASHBOARD_PORT";
-const WEBVIEW_DIST_ENV = "CLINE_HUB_WEBVIEW_DIST_DIR";
+const DASHBOARD_PORT_ENV = "INDUSCODE_HUB_DASHBOARD_PORT";
+const WEBVIEW_DIST_ENV = "INDUSCODE_HUB_WEBVIEW_DIST_DIR";
 
 function setEnvValue(name: string, value: string | undefined): () => void {
 	const previous = process.env[name];
@@ -52,14 +52,14 @@ function setEnvValue(name: string, value: string | undefined): () => void {
 }
 
 const SANDBOX_ENV_KEYS = [
-	"CLINE_SANDBOX",
-	"CLINE_SANDBOX_DATA_DIR",
-	"CLINE_DATA_DIR",
-	"CLINE_DB_DATA_DIR",
-	"CLINE_SESSION_DATA_DIR",
-	"CLINE_TEAM_DATA_DIR",
-	"CLINE_PROVIDER_SETTINGS_PATH",
-	"CLINE_HOOKS_LOG_PATH",
+	"INDUSCODE_SANDBOX",
+	"INDUSCODE_SANDBOX_DATA_DIR",
+	"INDUSCODE_DATA_DIR",
+	"INDUSCODE_DB_DATA_DIR",
+	"INDUSCODE_SESSION_DATA_DIR",
+	"INDUSCODE_TEAM_DATA_DIR",
+	"INDUSCODE_PROVIDER_SETTINGS_PATH",
+	"INDUSCODE_HOOKS_LOG_PATH",
 ] as const;
 
 async function withDashboardEnvironment<T>(
@@ -69,7 +69,7 @@ async function withDashboardEnvironment<T>(
 	const cwd = options.cwd ? resolve(options.cwd) : process.cwd();
 	const restore = [
 		setEnvValue("WORKSPACE_ROOT", options.cwd ? cwd : undefined),
-		setEnvValue("CLINE_DIR", options.configDir?.trim() || undefined),
+		setEnvValue("INDUSCODE_DIR", options.configDir?.trim() || undefined),
 		setEnvValue("HOST", options.host),
 		setEnvValue(DASHBOARD_PORT_ENV, options.port),
 		setEnvValue("PUBLIC_URL", options.publicUrl),
@@ -77,7 +77,7 @@ async function withDashboardEnvironment<T>(
 		setEnvValue(WEBVIEW_DIST_ENV, resolveDefaultWebviewDistDir()),
 		...SANDBOX_ENV_KEYS.map((key) => setEnvValue(key, undefined)),
 	];
-	if (options.dataDir || process.env.CLINE_SANDBOX?.trim() === "1") {
+	if (options.dataDir || process.env.INDUSCODE_SANDBOX?.trim() === "1") {
 		configureSandboxEnvironment({
 			enabled: true,
 			cwd,
@@ -102,11 +102,11 @@ function resolveDefaultWebviewDistDir(): string | undefined {
 	const candidates = [
 		...resolveInstalledPlatformPackageWebviewCandidates(),
 		// Source checkout: apps/cli/src/commands/dashboard.ts
-		join(moduleDir, "../../../cline-hub/dist/webview"),
+		join(moduleDir, "../../../induscode-hub/dist/webview"),
 		// Node bundle: apps/cli/dist/index.js
-		join(moduleDir, "cline-hub/webview"),
-		// Compiled platform package: apps/cli/dist/<platform>/bin/cline
-		join(dirname(process.execPath), "../cline-hub/webview"),
+		join(moduleDir, "induscode-hub/webview"),
+		// Compiled platform package: apps/cli/dist/<platform>/bin/induscode
+		join(dirname(process.execPath), "../induscode-hub/webview"),
 	];
 
 	return candidates.find((candidate) => existsSync(candidate));
@@ -115,8 +115,8 @@ function resolveDefaultWebviewDistDir(): string | undefined {
 function resolveInstalledPlatformPackageWebviewCandidates(): string[] {
 	const packageName = resolvePlatformPackageName();
 	const starts = [
-		process.env.CLINE_WRAPPER_PATH
-			? dirname(process.env.CLINE_WRAPPER_PATH)
+		process.env.INDUSCODE_WRAPPER_PATH
+			? dirname(process.env.INDUSCODE_WRAPPER_PATH)
 			: undefined,
 		dirname(process.execPath),
 	].filter((value): value is string => !!value?.trim());
@@ -125,7 +125,7 @@ function resolveInstalledPlatformPackageWebviewCandidates(): string[] {
 		let current = start;
 		for (;;) {
 			candidates.push(
-				join(current, "node_modules", packageName, "cline-hub/webview"),
+				join(current, "node_modules", packageName, "induscode-hub/webview"),
 			);
 			const parent = dirname(current);
 			if (parent === current) break;
@@ -137,12 +137,12 @@ function resolveInstalledPlatformPackageWebviewCandidates(): string[] {
 
 function resolvePlatformPackageName(): string {
 	const platformName = platform() === "win32" ? "windows" : platform();
-	return `@cline/cli-${platformName}-${arch()}`;
+	return `@induscode/cli-${platformName}-${arch()}`;
 }
 
 async function startDefaultDashboardServer(): Promise<DashboardServerHandle> {
-	const { startClineHubDashboardServer } = await import("@cline/cline-hub");
-	return await startClineHubDashboardServer();
+	const { startIndusCodeHubDashboardServer } = await import("@induscode/induscode-hub");
+	return await startIndusCodeHubDashboardServer();
 }
 
 async function openDefaultUrl(url: string): Promise<void> {
@@ -191,7 +191,7 @@ export async function runDashboardCommand(
 		const dashboardUrl =
 			server.inviteUrl || server.publicUrl || server.listenUrl;
 		options.io.writeln(
-			`${c.green}Cline dashboard listening at${c.reset} ${dashboardUrl}`,
+			`${c.green}IndusCode dashboard listening at${c.reset} ${dashboardUrl}`,
 		);
 		if (server.hubUrl) {
 			options.io.writeln(`${c.dim}Hub endpoint: ${server.hubUrl}${c.reset}`);

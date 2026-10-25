@@ -1,13 +1,13 @@
 import {
 	captureExtensionActivated,
-	createClineTelemetryServiceConfig,
+	createIndusCodeTelemetryServiceConfig,
 	createConfiguredTelemetryHandle,
 	type ITelemetryService,
 	identifyAccount,
 	ProviderSettingsManager,
 	setSdkLogger,
-} from "@cline/core";
-import type { UserContext } from "@cline/shared";
+} from "@induscode/core";
+import type { UserContext } from "@induscode/shared";
 import {
 	DESKTOP_TELEMETRY_METADATA,
 	resolveDesktopTelemetryUser,
@@ -31,13 +31,13 @@ export function createDesktopObservability(): DesktopObservability {
 	setSdkLogger(logger);
 
 	const telemetryHandle = createConfiguredTelemetryHandle({
-		...createClineTelemetryServiceConfig({
+		...createIndusCodeTelemetryServiceConfig({
 			metadata: DESKTOP_TELEMETRY_METADATA,
 		}),
 		logger,
 	});
 	const telemetry = telemetryHandle.telemetry;
-	const auth = new ProviderSettingsManager().getProviderSettings("cline")?.auth;
+	const auth = new ProviderSettingsManager().getProviderSettings("induscode")?.auth;
 	const telemetryUser = resolveDesktopTelemetryUser({
 		accountId: auth?.accountId,
 		organizationId: auth?.organizationId,
@@ -45,7 +45,7 @@ export function createDesktopObservability(): DesktopObservability {
 	if (auth?.accountId) {
 		identifyAccount(telemetry, {
 			id: auth.accountId,
-			provider: "cline",
+			provider: "induscode",
 			organizationId: auth.organizationId,
 			organizationName: auth.organizationName,
 			memberId: auth.memberId,

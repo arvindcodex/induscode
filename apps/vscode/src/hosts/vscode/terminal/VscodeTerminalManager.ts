@@ -226,7 +226,7 @@ export class VscodeTerminalManager {
 		})
 		process.once("error", () => {
 			// A stream/API failure does not prove the launched command stopped.
-			// Evict the terminal from Cline reuse without disposing potentially
+			// Evict the terminal from IndusCode reuse without disposing potentially
 			// active user work.
 			this.evictTerminal(vscodeTerminalInfo)
 		})
@@ -234,7 +234,7 @@ export class VscodeTerminalManager {
 		process.once("unobserved_command", (outcome) => {
 			Logger.log(`unobserved_command (${outcome.source}) received for terminal ${vscodeTerminalInfo.id}`)
 			this.evictTerminal(vscodeTerminalInfo)
-			// Markerless streams (for example, an SSH session) and commands Cline no
+			// Markerless streams (for example, an SSH session) and commands IndusCode no
 			// longer owns remain open. Ordinary managed sendText fallbacks are
 			// reclaimed at the next acquisition, after this tool result can report
 			// that their completion is indeterminate.
@@ -305,7 +305,7 @@ export class VscodeTerminalManager {
 	 * writes the ETX control character (`\x03`, i.e. Ctrl+C) without a trailing
 	 * newline; the pty's line discipline delivers it to the foreground process
 	 * group as SIGINT. Used when a task is cancelled so the spawned command
-	 * actually stops instead of continuing to run after Cline stops observing it.
+	 * actually stops instead of continuing to run after IndusCode stops observing it.
 	 * The terminal itself is left open for reuse.
 	 */
 	sendInterrupt(terminalInfo: ITerminalInfo): void {
@@ -343,7 +343,7 @@ export class VscodeTerminalManager {
 			if (VscodeTerminalManager.effectiveShellPath(t.shellPath) !== effectiveExpected) {
 				return false
 			}
-			const terminalCwd = t.terminal.shellIntegration?.cwd // one of cline's commands could have changed the cwd of the terminal
+			const terminalCwd = t.terminal.shellIntegration?.cwd // one of induscode's commands could have changed the cwd of the terminal
 			if (!terminalCwd) {
 				Logger.log(`[TerminalManager] Terminal ${t.id} has no cwd, skipping`)
 				return false

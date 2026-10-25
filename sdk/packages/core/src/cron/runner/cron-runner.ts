@@ -4,10 +4,10 @@ import type {
 	ChatRunTurnRequest,
 	ChatStartSessionRequest,
 	ITelemetryService,
-} from "@cline/shared";
-import { buildClineSystemPrompt } from "@cline/shared";
-import { nowIso } from "@cline/shared/db";
-import type { ResolveCronSpecsDirOptions } from "@cline/shared/storage";
+} from "@induscode/shared";
+import { buildIndusCodeSystemPrompt } from "@induscode/shared";
+import { nowIso } from "@induscode/shared/db";
+import type { ResolveCronSpecsDirOptions } from "@induscode/shared/storage";
 import { DefaultToolNames } from "../../extensions/tools/constants";
 import { mergeRulesForSystemPrompt } from "../../runtime/safety/rules";
 import { captureScheduleRun } from "../../services/telemetry/core-events";
@@ -182,7 +182,7 @@ export interface CronRunnerOptions {
 	) => void;
 	/** Default runtime workspace for the hub/daemon process. */
 	workspaceRoot: string;
-	/** Cron spec source/report location. Defaults to global `~/.cline/cron`. */
+	/** Cron spec source/report location. Defaults to global `~/.induscode/cron`. */
 	specs?: ResolveCronSpecsDirOptions;
 	logger?: BasicLogger;
 	telemetry?: ITelemetryService;
@@ -683,8 +683,8 @@ export class CronRunner {
 		const notes = buildNotesSystemPromptSection(spec.notesDirectory);
 		const additional = mergeRulesForSystemPrompt(undefined, notes);
 		const metadata = await buildWorkspaceMetadata(workspaceRoot);
-		const base = buildClineSystemPrompt({
-			ide: "Cline Cron",
+		const base = buildIndusCodeSystemPrompt({
+			ide: "IndusCode Cron",
 			workspaceRoot,
 			workspaceName: basename(workspaceRoot),
 			metadata,

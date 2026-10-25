@@ -14,9 +14,9 @@ const {
 	mockGetBooleanFlagEnabled: vi.fn(),
 }));
 
-vi.mock("@cline/core", async () => {
+vi.mock("@induscode/core", async () => {
 	const actual =
-		await vi.importActual<typeof import("@cline/core")>("@cline/core");
+		await vi.importActual<typeof import("@induscode/core")>("@induscode/core");
 	return {
 		...actual,
 		ProviderSettingsManager: class {
@@ -104,18 +104,18 @@ describe("buildConnectorStartRequest", () => {
 		expect(request.apiKey).toBe("env-openrouter-key");
 		expect(request.model).toBe("anthropic/claude-sonnet-4.6");
 		expect(mockGetLastUsedProviderSettings).toHaveBeenCalledWith({
-			isClinePassEnabled: true,
+			isIndusCodePassEnabled: true,
 		});
 	});
 
 	it("uses auth material resolved by provider settings manager", async () => {
-		mockGetLastUsedProviderSettings.mockReturnValue({ provider: "cline-pass" });
+		mockGetLastUsedProviderSettings.mockReturnValue({ provider: "induscode-pass" });
 		mockGetProviderSettings.mockReturnValue({
-			provider: "cline-pass",
+			provider: "induscode-pass",
 			auth: { accessToken: "workos:resolved-token" },
 		});
 		mockGetProviderCollection.mockReturnValue({
-			provider: { env: ["CLINE_API_KEY"] },
+			provider: { env: ["INDUSCODE_API_KEY"] },
 		});
 		mockResolveSystemPrompt.mockResolvedValue("system");
 
@@ -128,12 +128,12 @@ describe("buildConnectorStartRequest", () => {
 			io: { writeln: vi.fn(), writeErr: vi.fn() },
 			loggerConfig: { enabled: false, level: "info", destination: "stdout" },
 			systemRules: "Rules",
-			defaultModel: "cline-pass/glm-5.2",
+			defaultModel: "induscode-pass/glm-5.2",
 		});
 
-		expect(request.provider).toBe("cline-pass");
+		expect(request.provider).toBe("induscode-pass");
 		expect(request.apiKey).toBe("workos:resolved-token");
-		expect(request.model).toBe("cline-pass/glm-5.2");
+		expect(request.model).toBe("induscode-pass/glm-5.2");
 	});
 
 	it("falls back to the provider's declared default, skipping the placeholder", async () => {
@@ -164,13 +164,13 @@ describe("buildConnectorStartRequest", () => {
 	});
 
 	it("uses auth material resolved by provider settings manager", async () => {
-		mockGetLastUsedProviderSettings.mockReturnValue({ provider: "cline-pass" });
+		mockGetLastUsedProviderSettings.mockReturnValue({ provider: "induscode-pass" });
 		mockGetProviderSettings.mockReturnValue({
-			provider: "cline-pass",
+			provider: "induscode-pass",
 			auth: { accessToken: "workos:resolved-token" },
 		});
 		mockGetProviderCollection.mockReturnValue({
-			provider: { env: ["CLINE_API_KEY"] },
+			provider: { env: ["INDUSCODE_API_KEY"] },
 		});
 		mockResolveSystemPrompt.mockResolvedValue("system");
 
@@ -183,12 +183,12 @@ describe("buildConnectorStartRequest", () => {
 			io: { writeln: vi.fn(), writeErr: vi.fn() },
 			loggerConfig: { enabled: false, level: "info", destination: "stdout" },
 			systemRules: "Rules",
-			defaultModel: "cline-pass/glm-5.2",
+			defaultModel: "induscode-pass/glm-5.2",
 		});
 
-		expect(request.provider).toBe("cline-pass");
+		expect(request.provider).toBe("induscode-pass");
 		expect(request.apiKey).toBe("workos:resolved-token");
-		expect(request.model).toBe("cline-pass/glm-5.2");
+		expect(request.model).toBe("induscode-pass/glm-5.2");
 	});
 });
 

@@ -11,14 +11,14 @@ function isUsageCostDisplay(value: string | undefined): value is UsageCostDispla
 
 /**
  * Surfaces the SDK's `usageCostDisplay` decision for a single provider
- * id. The decision originates in the `@cline/llms` SDK (see
+ * id. The decision originates in the `@induscode/llms` SDK (see
  * `resolveProviderUsageCostDisplay` in
  * `apps/vscode/src/sdk/model-catalog/catalog.ts`) and is propagated
  * through the `ProviderListing.usage_cost_display` gRPC field.
  *
  * Returns `"hide"` when cost is unknowable or meaningless for the
  * provider, and `"subscription"` when usage is billed through a
- * flat-rate subscription (e.g. ChatGPT Plus/Pro, ClinePass) — in that
+ * flat-rate subscription (e.g. ChatGPT Plus/Pro, IndusCodePass) — in that
  * case any computed dollar figure is a per-token API-rate estimate, not
  * an actual charge. Cost displays must render only for `"show"`, which
  * matches the CLI's `shouldShowCliUsageCost` consumer.

@@ -1,4 +1,4 @@
-import { resolveProviderRequestHeaders } from "@cline/llms";
+import { resolveProviderRequestHeaders } from "@induscode/llms";
 import type {
 	AgentEvent,
 	AgentFinishReason,
@@ -12,7 +12,7 @@ import type {
 	JsonValue,
 	SessionPluginIssue,
 	ToolApprovalRequest,
-} from "@cline/shared";
+} from "@induscode/shared";
 import {
 	captureSdkError,
 	createSessionId,
@@ -25,7 +25,7 @@ import {
 	HUB_USER_INSTRUCTIONS_SNAPSHOT_CAPABILITY,
 	isGeneratedMedia,
 	isHubToolExecutorName,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { version as corePackageVersion } from "../../../package.json";
 import type { HookEventPayload } from "../../hooks";
 import type { RuntimeCapabilities } from "../../runtime/capabilities";
@@ -1129,7 +1129,7 @@ export class HubRuntimeHost implements RuntimeHost {
 			this.ensureSessionSubscription(newSessionId);
 		}
 		const messages = Array.isArray(reply.payload?.messages)
-			? (reply.payload.messages as import("@cline/llms").Message[])
+			? (reply.payload.messages as import("@induscode/llms").Message[])
 			: undefined;
 		const checkpoint = reply.payload?.checkpoint as
 			| RestoreSessionResult["checkpoint"]
@@ -1518,7 +1518,7 @@ export class HubRuntimeHost implements RuntimeHost {
 
 	async readSessionMessages(
 		sessionId: string,
-	): Promise<import("@cline/llms").MessageWithMetadata[]> {
+	): Promise<import("@induscode/llms").MessageWithMetadata[]> {
 		const target = sessionId.trim();
 		if (!target) {
 			return [];
@@ -1546,7 +1546,7 @@ export class HubRuntimeHost implements RuntimeHost {
 		}
 		const messages = reply.payload?.messages;
 		return Array.isArray(messages)
-			? (messages as import("@cline/llms").MessageWithMetadata[])
+			? (messages as import("@induscode/llms").MessageWithMetadata[])
 			: [];
 	}
 

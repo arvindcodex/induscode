@@ -1,7 +1,7 @@
 {
-	"name": "@cline/analysis",
+	"name": "@induscode/analysis",
 	"version": "1.0.0",
-	"description": "Analysis framework for Cline evaluations with failure classification and metrics",
+	"description": "Analysis framework for IndusCode evaluations with failure classification and metrics",
 	"type": "module",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -13,7 +13,7 @@
 		"test:ui": "vitest --ui"
 	},
 	"keywords": [
-		"cline",
+		"induscode",
 		"evaluation",
 		"benchmarking",
 		"ai-testing",

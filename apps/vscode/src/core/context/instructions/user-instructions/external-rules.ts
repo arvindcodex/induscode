@@ -1,6 +1,6 @@
 import { combineRuleToggles, synchronizeRuleToggles } from "@core/context/instructions/user-instructions/rule-helpers"
 import { GlobalFileNames } from "@core/storage/disk"
-import { ClineRulesToggles } from "@shared/cline-rules"
+import { IndusCodeRulesToggles } from "@shared/induscode-rules"
 import path from "path"
 import { Controller } from "@/core/controller"
 
@@ -11,9 +11,9 @@ export async function refreshExternalRulesToggles(
 	controller: Controller,
 	workingDirectory: string,
 ): Promise<{
-	windsurfLocalToggles: ClineRulesToggles
-	cursorLocalToggles: ClineRulesToggles
-	agentsLocalToggles: ClineRulesToggles
+	windsurfLocalToggles: IndusCodeRulesToggles
+	cursorLocalToggles: IndusCodeRulesToggles
+	agentsLocalToggles: IndusCodeRulesToggles
 }> {
 	// local windsurf toggles
 	const localWindsurfRulesToggles = controller.stateManager.getWorkspaceStateKey("localWindsurfRulesToggles")

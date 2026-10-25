@@ -2,15 +2,15 @@ import * as os from "node:os";
 import {
 	type ConfiguredTelemetryHandle,
 	createConfiguredTelemetryHandle,
-} from "@cline/core";
+} from "@induscode/core";
 import {
-	createClineTelemetryServiceConfig,
-	createClineTelemetryServiceMetadata,
-} from "@cline/shared";
+	createIndusCodeTelemetryServiceConfig,
+	createIndusCodeTelemetryServiceMetadata,
+} from "@induscode/shared";
 
 export interface VscodeTelemetryOptions {
 	extensionVersion: string;
-	clineType: string;
+	induscodeType: string;
 	platform: string;
 	platformVersion: string;
 	osType?: string;
@@ -36,10 +36,10 @@ export type VscodeTelemetryHandle = ConfiguredTelemetryHandle;
 export function createVscodeTelemetry(
 	options: VscodeTelemetryOptions,
 ): VscodeTelemetryHandle {
-	const config = createClineTelemetryServiceConfig({
-		metadata: createClineTelemetryServiceMetadata({
+	const config = createIndusCodeTelemetryServiceConfig({
+		metadata: createIndusCodeTelemetryServiceMetadata({
 			extension_version: options.extensionVersion,
-			cline_type: options.clineType,
+			induscode_type: options.induscodeType,
 			platform: options.platform,
 			platform_version: options.platformVersion,
 			os_type: options.osType ?? os.platform(),

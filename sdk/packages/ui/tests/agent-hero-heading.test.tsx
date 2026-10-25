@@ -37,14 +37,14 @@ describe("AgentHeroHeading", () => {
 			"What would you like to build?",
 		);
 		expect(
-			container.querySelector(".cline-ui-agent-hero-heading__word")
+			container.querySelector(".induscode-ui-agent-hero-heading__word")
 				?.textContent,
 		).toBe("build");
 
 		await act(async () => vi.advanceTimersByTime(5000));
 
 		expect(
-			container.querySelector(".cline-ui-agent-hero-heading__word")
+			container.querySelector(".induscode-ui-agent-hero-heading__word")
 				?.textContent,
 		).toBe("build");
 	});
@@ -57,7 +57,7 @@ describe("AgentHeroHeading", () => {
 		await act(async () => vi.advanceTimersByTime(5000));
 
 		expect(
-			container.querySelector(".cline-ui-agent-hero-heading__word")
+			container.querySelector(".induscode-ui-agent-hero-heading__word")
 				?.textContent,
 		).toBe("create");
 	});

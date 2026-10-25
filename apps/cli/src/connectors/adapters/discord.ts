@@ -4,15 +4,15 @@ import {
 } from "@chat-adapter/discord";
 // Note: discord.js@14 declares undici ^6.27.0, but the root package.json
 // override ("undici": ">=7.29.0 <8") forces undici 7.x for CVE-2026-1525.
-import type { ChatStartSessionRequest } from "@cline/core";
+import type { ChatStartSessionRequest } from "@induscode/core";
 import {
 	createUserInstructionConfigService,
 	HubSessionClient,
-} from "@cline/core";
+} from "@induscode/core";
 import type {
 	ConnectDiscordOptions,
 	DiscordConnectorState,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { Chat, ConsoleLogger, type Thread, ThreadImpl } from "chat";
 import type { Command } from "commander";
 import { createCliLoggerAdapter } from "../../logging/adapter";
@@ -434,7 +434,7 @@ async function fetchDiscordJson(input: {
 		headers: {
 			Authorization: `Bot ${input.botToken}`,
 			...(input.body ? { "Content-Type": "application/json" } : {}),
-			"User-Agent": "Cline Discord Connector",
+			"User-Agent": "IndusCode Discord Connector",
 		},
 		...(input.body ? { body: JSON.stringify(input.body) } : {}),
 	});
@@ -772,7 +772,7 @@ class DiscordConnector extends ConnectorBase<
 				.option(
 					"--rpc-address <host:port>",
 					"RPC address",
-					process.env.CLINE_RPC_ADDRESS?.trim() ||
+					process.env.INDUSCODE_RPC_ADDRESS?.trim() ||
 						resolveDefaultCliRpcAddress(),
 				)
 				.option("--host <host>", "Webhook listen host")
@@ -839,7 +839,7 @@ class DiscordConnector extends ConnectorBase<
 			userName:
 				opts.userName?.trim() ||
 				process.env.DISCORD_BOT_USERNAME?.trim() ||
-				"cline-discord",
+				"induscode-discord",
 			applicationId:
 				opts.applicationId?.trim() ||
 				opts.appId?.trim() ||
@@ -872,11 +872,11 @@ class DiscordConnector extends ConnectorBase<
 			enableTools: opts.tools !== false,
 			rpcAddress:
 				opts.rpcAddress?.trim() ||
-				process.env.CLINE_RPC_ADDRESS?.trim() ||
+				process.env.INDUSCODE_RPC_ADDRESS?.trim() ||
 				resolveDefaultCliRpcAddress(),
 			hookCommand:
 				opts.hookCommand?.trim() ||
-				process.env.CLINE_CONNECT_HOOK_COMMAND?.trim(),
+				process.env.INDUSCODE_CONNECT_HOOK_COMMAND?.trim(),
 			port,
 			host: opts.host?.trim() || process.env.HOST?.trim() || "0.0.0.0",
 			baseUrl:
@@ -1013,7 +1013,7 @@ class DiscordConnector extends ConnectorBase<
 			rawArgs,
 			io,
 			interactive: options.interactive,
-			childEnvVar: "CLINE_DISCORD_CONNECT_CHILD",
+			childEnvVar: "INDUSCODE_DISCORD_CONNECT_CHILD",
 			statePath,
 			readState: (path) => this.readConnectorState(path),
 			isRunning: (state) => isProcessRunning(state.pid),
@@ -1022,7 +1022,7 @@ class DiscordConnector extends ConnectorBase<
 			formatBackgroundStartMessage: (pid) =>
 				`[discord] starting background connector pid=${pid} application=${options.applicationId}`,
 			foregroundHint:
-				"[discord] use `cline connect discord -i ...` to run in the foreground",
+				"[discord] use `induscode connect discord -i ...` to run in the foreground",
 			launchFailureMessage: "failed to launch Discord connector in background",
 		});
 		if (backgroundExitCode !== undefined) {

@@ -52,15 +52,15 @@ describe("telemetryDefineArgs", () => {
 	it("inlines the trace policy vars the Langfuse relay reads at runtime", () => {
 		const defines = defineMap(
 			telemetryDefineArgs({
-				CLINE_TRACE_SAMPLE_PERCENT: "25",
-				CLINE_TRACE_RECORD_CONTENT: "true",
+				INDUSCODE_TRACE_SAMPLE_PERCENT: "25",
+				INDUSCODE_TRACE_RECORD_CONTENT: "true",
 			}),
 		);
-		expect(defines["process.env.CLINE_TRACE_SAMPLE_PERCENT"]).toBe('"25"');
-		expect(defines["process.env.CLINE_TRACE_RECORD_CONTENT"]).toBe('"true"');
+		expect(defines["process.env.INDUSCODE_TRACE_SAMPLE_PERCENT"]).toBe('"25"');
+		expect(defines["process.env.INDUSCODE_TRACE_RECORD_CONTENT"]).toBe('"true"');
 		const unset = defineMap(telemetryDefineArgs({}));
-		expect(unset["process.env.CLINE_TRACE_SAMPLE_PERCENT"]).toBe('""');
-		expect(unset["process.env.CLINE_TRACE_RECORD_CONTENT"]).toBe('""');
+		expect(unset["process.env.INDUSCODE_TRACE_SAMPLE_PERCENT"]).toBe('""');
+		expect(unset["process.env.INDUSCODE_TRACE_RECORD_CONTENT"]).toBe('""');
 	});
 
 	it("includes API key defines only when the vars are set", () => {
@@ -83,13 +83,13 @@ describe("telemetryDefineArgs", () => {
 	it("inlines the cloud-agents toggle only when set at build time", () => {
 		const withoutToggle = defineMap(telemetryDefineArgs({}));
 		expect(withoutToggle).not.toHaveProperty(
-			"process.env.CLINE_CODE_CLOUD_AGENTS",
+			"process.env.INDUSCODE_CODE_CLOUD_AGENTS",
 		);
 
 		const withToggle = defineMap(
-			telemetryDefineArgs({ CLINE_CODE_CLOUD_AGENTS: "1" }),
+			telemetryDefineArgs({ INDUSCODE_CODE_CLOUD_AGENTS: "1" }),
 		);
-		expect(withToggle["process.env.CLINE_CODE_CLOUD_AGENTS"]).toBe('"1"');
+		expect(withToggle["process.env.INDUSCODE_CODE_CLOUD_AGENTS"]).toBe('"1"');
 	});
 
 	it("JSON-escapes values so headers with quotes survive the define", () => {

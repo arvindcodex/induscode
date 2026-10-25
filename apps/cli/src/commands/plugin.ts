@@ -5,19 +5,19 @@ import {
 	type PluginMcpOAuthCandidate,
 	type PluginUninstallOptions,
 	uninstallPlugin,
-} from "@cline/core";
+} from "@induscode/core";
 
 export type {
 	PluginInstallOptions,
 	PluginInstallResult,
 	PluginMcpOAuthCandidate,
-} from "@cline/core";
+} from "@induscode/core";
 export {
 	collectPluginMcpOAuthCandidates,
 	installPlugin,
 	isOfficialPluginSlug,
 	parsePluginSource,
-} from "@cline/core";
+} from "@induscode/core";
 
 export interface PluginInstallMcpOAuthOptions {
 	interactive?: boolean;
@@ -131,7 +131,7 @@ async function runPluginMcpOAuthFollowup(
 			);
 		}
 		options.io?.writeln(
-			'Run "cline mcp" and choose "Authorize OAuth" to authorize them.',
+			'Run "induscode mcp" and choose "Authorize OAuth" to authorize them.',
 		);
 		return;
 	}
@@ -147,7 +147,7 @@ async function runPluginMcpOAuthFollowup(
 		} catch (error) {
 			const message = error instanceof Error ? error.message : String(error);
 			options.io?.writeErr(
-				`Warning: failed to authorize MCP server ${candidate.name}: ${message}. Run "cline mcp" and choose "Authorize OAuth" to retry.`,
+				`Warning: failed to authorize MCP server ${candidate.name}: ${message}. Run "induscode mcp" and choose "Authorize OAuth" to retry.`,
 			);
 		}
 	}

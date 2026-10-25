@@ -51,11 +51,11 @@ export function generateManifest(nextPkg, legacyPkg, version) {
 		legacyPkg.contributes?.walkthroughs,
 	);
 
-	// The nightly packaging rewrites the whole `cline.*` ID namespace to
-	// `cline-nightly.*` (scripts/nightlify.mjs), so the context key and the
+	// The nightly packaging rewrites the whole `induscode.*` ID namespace to
+	// `induscode-nightly.*` (scripts/nightlify.mjs), so the context key and the
 	// injected setting must follow the manifest's identity. Keep in sync with
 	// idPrefix/bundleContextKey/settingSection in src/cohort.ts.
-	const prefix = nextPkg.name === "cline-nightly" ? "cline-nightly" : "cline";
+	const prefix = nextPkg.name === "induscode-nightly" ? "induscode-nightly" : "induscode";
 	const nextGate = `${prefix}.sdkBundle`;
 	const legacyGate = `!${nextGate}`;
 
@@ -135,7 +135,7 @@ function loaderSettings(prefix) {
 			default: "auto",
 			scope: "application",
 			markdownDescription:
-				"Manual override for Cline's staged extension rollout. `next` forces the new (SDK-based) extension, `legacy` forces the previous one, `auto` follows the remote rollout assignment. Takes effect on window reload.",
+				"Manual override for IndusCode's staged extension rollout. `next` forces the new (SDK-based) extension, `legacy` forces the previous one, `auto` follows the remote rollout assignment. Takes effect on window reload.",
 		},
 	};
 }
@@ -150,7 +150,7 @@ function injectLoaderConfiguration(configuration, prefix) {
 		}
 		properties[key] = schema;
 	}
-	return { title: "Cline", ...(configuration ?? {}), properties };
+	return { title: "IndusCode", ...(configuration ?? {}), properties };
 }
 
 /**

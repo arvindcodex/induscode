@@ -3,8 +3,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
 	clearLiveModelsCatalogCache,
-	resetClineRecommendedModelsCacheForTests,
-} from "@cline/core";
+	resetIndusCodeRecommendedModelsCacheForTests,
+} from "@induscode/core";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { getCloudSessionManager } from "./cloud-sessions";
 import { handleCommand } from "./commands";
@@ -30,17 +30,17 @@ function createContext(): {
 let dataDir: string;
 
 beforeEach(() => {
-	dataDir = mkdtempSync(join(tmpdir(), "cline-commands-settings-"));
-	process.env.CLINE_DATA_DIR = dataDir;
+	dataDir = mkdtempSync(join(tmpdir(), "induscode-commands-settings-"));
+	process.env.INDUSCODE_DATA_DIR = dataDir;
 	resetDesktopFeatureFlagsForTesting();
 });
 
 afterEach(() => {
 	clearLiveModelsCatalogCache();
-	resetClineRecommendedModelsCacheForTests();
+	resetIndusCodeRecommendedModelsCacheForTests();
 	vi.unstubAllGlobals();
-	delete process.env.CLINE_CODE_CLOUD_AGENTS;
-	delete process.env.CLINE_DATA_DIR;
+	delete process.env.INDUSCODE_CODE_CLOUD_AGENTS;
+	delete process.env.INDUSCODE_DATA_DIR;
 	resetDesktopFeatureFlagsForTesting();
 	rmSync(dataDir, { recursive: true, force: true });
 });
@@ -82,7 +82,7 @@ describe("desktop settings commands", () => {
 		const { ctx } = createContext();
 		for (const target of ["local", "cloud"] as const) {
 			ctx.liveSessions.set(target, {
-				config: { executionTarget: target, provider: "cline", model: "test" },
+				config: { executionTarget: target, provider: "induscode", model: "test" },
 				prompt: "match",
 				messages: [],
 				promptsInQueue: [],
@@ -114,11 +114,11 @@ describe("desktop settings commands", () => {
 
 		expect(await rows()).toEqual(["cloud", "local"]);
 		discovery.mockImplementationOnce(async () => {
-			process.env.CLINE_CODE_CLOUD_AGENTS = "0";
+			process.env.INDUSCODE_CODE_CLOUD_AGENTS = "0";
 			return cloudRows;
 		});
 		expect(await rows()).toEqual(["local"]);
-		delete process.env.CLINE_CODE_CLOUD_AGENTS;
+		delete process.env.INDUSCODE_CODE_CLOUD_AGENTS;
 		discovery.mockClear();
 		flags.hydrateCache({
 			userId: null,
@@ -138,9 +138,9 @@ describe("desktop settings commands", () => {
 			}
 			return new Response(
 				JSON.stringify({
-					clineCloud: [
+					induscodeCloud: [
 						{
-							id: "cline-cloud/cloud-only",
+							id: "induscode-cloud/cloud-only",
 							name: "Cloud Only",
 						},
 					],
@@ -150,22 +150,22 @@ describe("desktop settings commands", () => {
 		});
 		vi.stubGlobal("fetch", fetchMock);
 
-		process.env.CLINE_CODE_CLOUD_AGENTS = "0";
+		process.env.INDUSCODE_CODE_CLOUD_AGENTS = "0";
 		const local = (await handleCommand(ctx, "list_provider_models", {
-			provider: "cline",
+			provider: "induscode",
 			includeCloudModels: true,
 		})) as { models: Array<{ id: string }> };
 		expect(
-			local.models.some((model) => model.id.startsWith("cline-cloud/")),
+			local.models.some((model) => model.id.startsWith("induscode-cloud/")),
 		).toBe(false);
 
-		process.env.CLINE_CODE_CLOUD_AGENTS = "1";
+		process.env.INDUSCODE_CODE_CLOUD_AGENTS = "1";
 		const cloud = (await handleCommand(ctx, "list_provider_models", {
-			provider: "cline",
+			provider: "induscode",
 			includeCloudModels: true,
 		})) as { models: Array<{ id: string }> };
 		expect(cloud.models).toContainEqual(
-			expect.objectContaining({ id: "cline-cloud/cloud-only" }),
+			expect.objectContaining({ id: "induscode-cloud/cloud-only" }),
 		);
 	});
 });

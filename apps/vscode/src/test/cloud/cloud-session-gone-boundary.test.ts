@@ -8,7 +8,7 @@ import { type LocalCloudEnvironment, startLocalCloudEnvironment } from "./local-
 // Only the IDE window and model-catalog refresh are replaced; the control
 // plane, proxy, Hub transport and coordinator are the shipped implementations.
 vi.mock("@/hosts/host-provider", () => ({ HostProvider: { window: { showMessage: vi.fn(async () => ({})) } } }))
-vi.mock("@/core/controller/models/refreshClineRecommendedModels", () => ({ refreshClineRecommendedModels: vi.fn() }))
+vi.mock("@/core/controller/models/refreshIndusCodeRecommendedModels", () => ({ refreshIndusCodeRecommendedModels: vi.fn() }))
 
 describe("opening a cloud session whose sandbox is gone", () => {
 	let environment: LocalCloudEnvironment | undefined
@@ -29,7 +29,7 @@ describe("opening a cloud session whose sandbox is gone", () => {
 			getAuthToken: async () => environment?.accessToken,
 			getActiveOrganizationId: () => undefined,
 		})
-		const record = await service.createSession({ modelId: "fixture-model", repoUrl: "https://github.com/cline/fixture" })
+		const record = await service.createSession({ modelId: "fixture-model", repoUrl: "https://github.com/induscode/fixture" })
 		let task: TaskProxy | undefined
 		const invalidateHistoryCache = vi.fn()
 		coordinator = new SdkCloudSessionCoordinator({
@@ -64,7 +64,7 @@ describe("opening a cloud session whose sandbox is gone", () => {
 		await service.deleteSession(record.id)
 		await coordinator.openCloudTask(record.id)
 
-		const messages = task?.messageStateHandler.getClineMessages() ?? []
+		const messages = task?.messageStateHandler.getIndusCodeMessages() ?? []
 		expect(messages).toHaveLength(1)
 		expect(messages[0]).toMatchObject({ say: "info" })
 		expect(messages[0].text).toContain("was deleted")

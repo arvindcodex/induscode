@@ -37,26 +37,26 @@ import {
 	SearchCombobox,
 	SessionStatus,
 	Switch,
-} from "@cline/ui";
-import { Conversation, Message } from "@cline/ui/components/agent-chat";
+} from "@induscode/ui";
+import { Conversation, Message } from "@induscode/ui/components/agent-chat";
 import {
 	MessageScroller,
 	MessageScrollerProvider,
 	useMessageScrollerVisibility,
-} from "@cline/ui/components/message-scroller";
-import { ToolFileDiff } from "@cline/ui/components/agent-chat/tool-diff";
-import { buildToolSummary } from "@cline/ui/components/agent-chat/tool-summary";
+} from "@induscode/ui/components/message-scroller";
+import { ToolFileDiff } from "@induscode/ui/components/agent-chat/tool-diff";
+import { buildToolSummary } from "@induscode/ui/components/agent-chat/tool-summary";
 import {
 	agentMarkdownControlsWithMermaid,
 	createLazyMermaidPlugin,
 	DIAGRAM_LINK_HREF_ATTRIBUTE,
 	neutralizeDiagramLinks,
-} from "@cline/ui/components/markdown";
-import { createMermaidRenderer } from "@cline/ui/components/mermaid-block";
+} from "@induscode/ui/components/markdown";
+import { createMermaidRenderer } from "@induscode/ui/components/mermaid-block";
 import {
 	computePngExportSize,
 	resolveDiagramSlug,
-} from "@cline/ui/components/mermaid-diagram";
+} from "@induscode/ui/components/mermaid-diagram";
 
 if (
 	[MessageScroller, MessageScrollerProvider, useMessageScrollerVisibility].some(
@@ -67,18 +67,18 @@ if (
 }
 
 for (const specifier of [
-	"@cline/ui/components.css",
-	"@cline/ui/components/markdown.css",
-	"@cline/ui/components/message-scroller.css",
-	"@cline/ui/theme/palette.css",
-	"@cline/ui/theme/scoped-tokens.css",
+	"@induscode/ui/components.css",
+	"@induscode/ui/components/markdown.css",
+	"@induscode/ui/components/message-scroller.css",
+	"@induscode/ui/theme/palette.css",
+	"@induscode/ui/theme/scoped-tokens.css",
 ]) {
 	if (!existsSync(fileURLToPath(import.meta.resolve(specifier)))) {
 		throw new Error("packed CSS export does not exist: " + specifier);
 	}
 }
 
-const packageJsonUrl = import.meta.resolve("@cline/ui/package.json");
+const packageJsonUrl = import.meta.resolve("@induscode/ui/package.json");
 for (const name of ["agent-changes", "agent-pull-request-bar"]) {
 	if (!existsSync(fileURLToPath(new URL("./components/" + name + ".css", packageJsonUrl)))) {
 		throw new Error("packed review UI stylesheet is missing: " + name);
@@ -94,8 +94,8 @@ if (inlineHeroMaskCount !== 4) {
 	throw new Error("packed hero CSS does not contain four inline SVG masks");
 }
 
-const css = import.meta.resolve("@cline/ui/components/agent-chat.css");
-const tokens = import.meta.resolve("@cline/ui/theme/tokens.css");
+const css = import.meta.resolve("@induscode/ui/components/agent-chat.css");
+const tokens = import.meta.resolve("@induscode/ui/theme/tokens.css");
 const summary = buildToolSummary({
 	toolName: "read_files",
 	input: { files: [{ path: "src/app.tsx", start_line: 10, end_line: 80 }] },
@@ -123,16 +123,16 @@ if (
 	throw new Error("markdown subpath did not export Mermaid opt-in controls");
 }
 // A substring check for the original href would also match the preserved
-// data-cline-diagram-href attribute, so assert on attribute boundaries instead.
+// data-induscode-diagram-href attribute, so assert on attribute boundaries instead.
 const neutralizedDiagram =
 	typeof neutralizeDiagramLinks === "function"
 		? neutralizeDiagramLinks('<svg><a href="https://example.com/">x</a></svg>')
 		: "";
 if (
-	DIAGRAM_LINK_HREF_ATTRIBUTE !== "data-cline-diagram-href" ||
+	DIAGRAM_LINK_HREF_ATTRIBUTE !== "data-induscode-diagram-href" ||
 	neutralizedDiagram.includes(" href=") ||
 	neutralizedDiagram.includes(" xlink:href=") ||
-	!neutralizedDiagram.includes('data-cline-diagram-href="https://example.com/"')
+	!neutralizedDiagram.includes('data-induscode-diagram-href="https://example.com/"')
 ) {
 	throw new Error("markdown subpath did not export diagram link neutralization");
 }
@@ -193,7 +193,7 @@ function createConsumer(root: string): void {
 	mkdirSync(root, { recursive: true });
 	writeFileSync(
 		join(root, "package.json"),
-		`${JSON.stringify({ name: "cline-ui-smoke", private: true, type: "module" }, null, 2)}\n`,
+		`${JSON.stringify({ name: "induscode-ui-smoke", private: true, type: "module" }, null, 2)}\n`,
 	);
 }
 
@@ -201,7 +201,7 @@ async function verifyDiffDeclarations(root: string): Promise<void> {
 	const consumer = join(root, "tool-diff-consumer.ts");
 	writeFileSync(
 		consumer,
-		`import { ToolFileDiff } from "@cline/ui/components/agent-chat/tool-diff";
+		`import { ToolFileDiff } from "@induscode/ui/components/agent-chat/tool-diff";
 import type { ComponentProps } from "react";
 const options: NonNullable<ComponentProps<typeof ToolFileDiff>["options"]> = {
 	diffStyle: "split",
@@ -274,8 +274,8 @@ async function verifyTailwindContract(
 		"tailwind",
 		[
 			'@import "tailwindcss";',
-			'@import "@cline/ui/theme/scoped-tokens.css";',
-			'@import "@cline/ui/components.css";',
+			'@import "@induscode/ui/theme/scoped-tokens.css";',
+			'@import "@induscode/ui/components.css";',
 			"@theme inline {",
 			"\t--color-background: var(--host-background);",
 			"\t--radius-lg: var(--host-radius-lg);",
@@ -286,10 +286,10 @@ async function verifyTailwindContract(
 		runner,
 	);
 	for (const candidate of [
-		"bg-cline-ui-background/95",
-		"border-cline-ui-border/60",
-		"text-cline-ui-muted-foreground",
-		"bg-cline-ui-primary/10",
+		"bg-induscode-ui-background/95",
+		"border-induscode-ui-border/60",
+		"text-induscode-ui-muted-foreground",
+		"bg-induscode-ui-primary/10",
 		"max-h-64",
 		"leading-none",
 		"max-h-44",
@@ -300,7 +300,7 @@ async function verifyTailwindContract(
 		"backdrop-blur-sm",
 		"border-dashed",
 		"pointer-events-none",
-		"group-hover/row:bg-cline-ui-surface-hover",
+		"group-hover/row:bg-induscode-ui-surface-hover",
 	]) {
 		expectCandidate(css, candidate);
 	}
@@ -319,8 +319,8 @@ async function verifyTailwindContract(
 		[
 			"@layer theme, base, components, utilities;",
 			'@import "tailwindcss/theme.css" layer(theme);',
-			'@import "@cline/ui/theme/scoped-tokens.css";',
-			'@import "@cline/ui/components.css";',
+			'@import "@induscode/ui/theme/scoped-tokens.css";',
+			'@import "@induscode/ui/components.css";',
 			'@import "tailwindcss/utilities.css" layer(utilities);',
 		],
 		runner,
@@ -337,23 +337,23 @@ async function verifyTailwindContract(
 	expectInlineHeroMasks(noPreflightCss, "no-Preflight Tailwind contract");
 	for (const output of [css, noPreflightCss]) {
 		for (const candidate of [
-			"font-cline-ui-mono",
-			"text-cline-ui-xs",
+			"font-induscode-ui-mono",
+			"text-induscode-ui-xs",
 			"cursor-zoom-out",
-			"rounded-cline-ui-lg",
+			"rounded-induscode-ui-lg",
 		]) {
 			expectCandidate(output, candidate);
 		}
-		expectFragment(output, ".cline-ui-switch__track", "packed switch CSS");
+		expectFragment(output, ".induscode-ui-switch__track", "packed switch CSS");
 		expectFragment(
 			output,
-			".cline-ui-switch__input:checked",
+			".induscode-ui-switch__input:checked",
 			"packed switch states",
 		);
 	}
 }
 
-const temporaryRoot = mkdtempSync(join(tmpdir(), "cline-ui-package-"));
+const temporaryRoot = mkdtempSync(join(tmpdir(), "induscode-ui-package-"));
 
 try {
 	let archive = process.argv[2] ? resolve(process.argv[2]) : undefined;

@@ -5,21 +5,21 @@ import {
 	prewarmFileIndex,
 	SessionSource,
 	type UserInstructionConfigService,
-} from "@cline/core";
-import type { ConsecutiveMistakeLimitContext } from "@cline/shared";
-import { createSessionId } from "@cline/shared";
+} from "@induscode/core";
+import type { ConsecutiveMistakeLimitContext } from "@induscode/shared";
+import { createSessionId } from "@induscode/shared";
 import { logCliError } from "../logging/errors";
 import { createCliCore } from "../session/session";
-import { resolveClineWelcomeLine } from "../tui/interactive-welcome";
+import { resolveIndusCodeWelcomeLine } from "../tui/interactive-welcome";
 import {
 	askQuestionInTerminal,
 	requestToolApproval,
 	submitAndExitInTerminal,
 } from "../utils/approval";
-import { formatCliErrorMessage } from "../utils/cline-pass-errors";
+import { formatCliErrorMessage } from "../utils/induscode-pass-errors";
 import { handleEvent, handleTeamEvent } from "../utils/events";
 import {
-	shouldZeroClineFreeModelCost,
+	shouldZeroIndusCodeFreeModelCost,
 	zeroCliAgentEventCost,
 	zeroCliUsageCost,
 } from "../utils/free-model-cost";
@@ -138,8 +138,8 @@ export async function runAgent(
 	config: Config,
 	userInstructionService?: UserInstructionConfigService,
 	options?: {
-		clineApiBaseUrl?: string;
-		clineProviderSettings?: ProviderSettings;
+		induscodeApiBaseUrl?: string;
+		induscodeProviderSettings?: ProviderSettings;
 	},
 ): Promise<void> {
 	// A clean one-shot run should not inherit a stale nonzero process exit code
@@ -147,13 +147,13 @@ export async function runAgent(
 	process.exitCode = 0;
 
 	if (config.verbose) {
-		const clineWelcomeLine = await resolveClineWelcomeLine({
+		const induscodeWelcomeLine = await resolveIndusCodeWelcomeLine({
 			config,
-			clineApiBaseUrl: options?.clineApiBaseUrl,
-			clineProviderSettings: options?.clineProviderSettings,
+			induscodeApiBaseUrl: options?.induscodeApiBaseUrl,
+			induscodeProviderSettings: options?.induscodeProviderSettings,
 		});
-		if (clineWelcomeLine && config.outputMode !== "json") {
-			writeln(clineWelcomeLine);
+		if (induscodeWelcomeLine && config.outputMode !== "json") {
+			writeln(induscodeWelcomeLine);
 		}
 	}
 
@@ -191,7 +191,7 @@ export async function runAgent(
 	let reasoningChunkCount = 0;
 	let redactedReasoningChunkCount = 0;
 	const displayedErrorMessages = new Set<string>();
-	const shouldZeroCost = await shouldZeroClineFreeModelCost(config);
+	const shouldZeroCost = await shouldZeroIndusCodeFreeModelCost(config);
 
 	const onAgentEvent = (rawEvent: AgentEvent): void => {
 		const event = zeroCliAgentEventCost(rawEvent, shouldZeroCost);

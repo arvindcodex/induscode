@@ -1,4 +1,4 @@
-import type { ITelemetryService } from "@cline/shared";
+import type { ITelemetryService } from "@induscode/shared";
 import { expect, it, vi } from "vitest";
 import { capturePullRequestEvent } from "./pull-request-telemetry";
 

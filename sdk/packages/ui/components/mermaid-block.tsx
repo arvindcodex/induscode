@@ -45,7 +45,7 @@ import {
  * Streamdown's built-in block so the header shows the diagram's filename,
  * downloads are PNG + MMD only (SVG is not an attachable image type and
  * renders blank without foreignObject support), PNGs get an opaque themed
- * background, and colors follow the Cline design tokens for light/dark/accent.
+ * background, and colors follow the IndusCode design tokens for light/dark/accent.
  */
 
 type RenderState =
@@ -160,7 +160,7 @@ function ToolbarButton({
 	return (
 		<button
 			aria-label={label}
-			className="cline-mermaid__button"
+			className="induscode-mermaid__button"
 			disabled={disabled}
 			onClick={onClick}
 			ref={buttonRef}
@@ -232,12 +232,12 @@ function DownloadMenu({
 	};
 
 	return (
-		<div className="cline-mermaid__menu-root" ref={rootRef}>
+		<div className="induscode-mermaid__menu-root" ref={rootRef}>
 			<button
 				aria-expanded={open}
 				aria-haspopup="menu"
 				aria-label="Download diagram"
-				className="cline-mermaid__button"
+				className="induscode-mermaid__button"
 				onClick={() => setOpen((current) => !current)}
 				ref={triggerRef}
 				title="Download diagram"
@@ -248,13 +248,13 @@ function DownloadMenu({
 			{open ? (
 				<div
 					aria-label="Download diagram"
-					className="cline-mermaid__menu"
+					className="induscode-mermaid__menu"
 					onKeyDown={onMenuKeyDown}
 					role="menu"
 					tabIndex={-1}
 				>
 					<button
-						className="cline-mermaid__menu-item"
+						className="induscode-mermaid__menu-item"
 						disabled={pngDisabled}
 						onClick={choose(onPng)}
 						role="menuitem"
@@ -263,7 +263,7 @@ function DownloadMenu({
 						PNG image
 					</button>
 					<button
-						className="cline-mermaid__menu-item"
+						className="induscode-mermaid__menu-item"
 						onClick={choose(onMmd)}
 						role="menuitem"
 						type="button"
@@ -413,14 +413,14 @@ function DiagramViewport({
 }) {
 	return (
 		<div
-			className="cline-mermaid__viewport"
+			className="induscode-mermaid__viewport"
 			data-pannable={api.canPan || undefined}
 			ref={api.setViewport}
 			{...api.pointerHandlers}
 		>
 			<div
 				aria-label={label}
-				className="cline-mermaid__canvas"
+				className="induscode-mermaid__canvas"
 				// Mermaid runs with securityLevel "strict", which sanitizes the SVG.
 				// biome-ignore lint/security/noDangerouslySetInnerHtml: sanitized Mermaid SVG output.
 				dangerouslySetInnerHTML={{ __html: svg }}
@@ -473,7 +473,7 @@ function FullscreenDialog({
 	return (
 		<dialog
 			aria-label={`${filename} (fullscreen)`}
-			className="cline-mermaid__dialog"
+			className="induscode-mermaid__dialog"
 			onCancel={(event) => {
 				event.preventDefault();
 				onClose();
@@ -481,11 +481,11 @@ function FullscreenDialog({
 			onKeyDown={onKeyDown}
 			ref={dialogRef}
 		>
-			<div className="cline-mermaid__header">
-				<span className="cline-mermaid__filename">{filename}</span>
+			<div className="induscode-mermaid__header">
+				<span className="induscode-mermaid__filename">{filename}</span>
 				<div
 					aria-label="Diagram actions"
-					className="cline-mermaid__actions"
+					className="induscode-mermaid__actions"
 					role="toolbar"
 				>
 					<ZoomControls api={api} />
@@ -559,7 +559,7 @@ export function MermaidBlock({
 		if (isIncomplete || !theme) return;
 		let cancelled = false;
 		renderCount.current += 1;
-		const id = `cline-mermaid-${instanceId}-${retryCount}-${renderCount.current}`;
+		const id = `induscode-mermaid-${instanceId}-${retryCount}-${renderCount.current}`;
 		void (async () => {
 			try {
 				await waitForFonts();
@@ -627,18 +627,18 @@ export function MermaidBlock({
 
 	return (
 		<figure
-			className="cline-mermaid"
-			data-cline-mermaid={state.status}
+			className="induscode-mermaid"
+			data-induscode-mermaid={state.status}
 			data-streamdown="mermaid-block"
 			ref={figureRef}
 		>
-			<figcaption className="cline-mermaid__header">
-				<span className="cline-mermaid__filename" title={sourceName}>
+			<figcaption className="induscode-mermaid__header">
+				<span className="induscode-mermaid__filename" title={sourceName}>
 					{sourceName}
 				</span>
 				<div
 					aria-label="Diagram actions"
-					className="cline-mermaid__actions"
+					className="induscode-mermaid__actions"
 					role="toolbar"
 				>
 					{ready ? <ZoomControls api={api} /> : null}
@@ -667,19 +667,19 @@ export function MermaidBlock({
 				<DiagramViewport api={api} label={label} svg={state.svg} />
 			) : null}
 			{state.status === "pending" ? (
-				<output aria-busy="true" className="cline-mermaid__skeleton">
-					<span aria-hidden="true" className="cline-mermaid__spinner" />
+				<output aria-busy="true" className="induscode-mermaid__skeleton">
+					<span aria-hidden="true" className="induscode-mermaid__spinner" />
 					{isIncomplete ? "Drawing diagram…" : "Rendering diagram…"}
 				</output>
 			) : null}
 			{state.status === "error" ? (
-				<div className="cline-mermaid__error" role="alert">
+				<div className="induscode-mermaid__error" role="alert">
 					<p>Mermaid Error: {state.message}</p>
 					<pre>
 						<code>{code}</code>
 					</pre>
 					<button
-						className="cline-mermaid__retry"
+						className="induscode-mermaid__retry"
 						onClick={() => {
 							setState({ status: "pending" });
 							setRetryCount((count) => count + 1);
@@ -691,7 +691,7 @@ export function MermaidBlock({
 				</div>
 			) : null}
 			{notice ? (
-				<output className="cline-mermaid__notice">{notice}</output>
+				<output className="induscode-mermaid__notice">{notice}</output>
 			) : null}
 			{fullscreen && state.status === "ready" ? (
 				<FullscreenDialog

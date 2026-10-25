@@ -1,16 +1,16 @@
 /**
- * List of email domains that are considered trusted testers for Cline.
+ * List of email domains that are considered trusted testers for IndusCode.
  */
-const CLINE_TRUSTED_TESTER_DOMAINS = ["fibilabs.tech"]
+const INDUSCODE_TRUSTED_TESTER_DOMAINS = ["fibilabs.tech"]
 
 /**
- * Checks if the given email belongs to a Cline bot user.
- * E.g. Emails ending with @cline.bot
+ * Checks if the given email belongs to a IndusCode bot user.
+ * E.g. Emails ending with @induscode.bot
  */
-function isClineBotUser(email: string): boolean {
-	return email.endsWith("@cline.bot")
+function isIndusCodeBotUser(email: string): boolean {
+	return email.endsWith("@induscode.bot")
 }
 
-export function isClineInternalTester(email: string): boolean {
-	return isClineBotUser(email) || CLINE_TRUSTED_TESTER_DOMAINS.some((d) => email.endsWith(`@${d}`))
+export function isIndusCodeInternalTester(email: string): boolean {
+	return isIndusCodeBotUser(email) || INDUSCODE_TRUSTED_TESTER_DOMAINS.some((d) => email.endsWith(`@${d}`))
 }

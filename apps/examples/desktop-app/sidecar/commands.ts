@@ -22,8 +22,8 @@ import {
 } from "node:path";
 import { isDeepStrictEqual, promisify } from "node:util";
 import type {
-	ClineAccountActionRequest,
-	ClineAccountUsageTransaction,
+	IndusCodeAccountActionRequest,
+	IndusCodeAccountUsageTransaction,
 	CoreSettingsSnapshot,
 	ProviderCapability,
 	ProviderClient,
@@ -32,17 +32,17 @@ import type {
 	RemoteEnvironmentConnection,
 	RemoteEnvironmentInput,
 	SaveProviderSettingsActionRequest,
-} from "@cline/core";
+} from "@induscode/core";
 import {
 	addLocalProvider,
-	ClineAccountService,
-	type ClineAccountUser,
+	IndusCodeAccountService,
+	type IndusCodeAccountUser,
 	clearAccountTelemetryIdentity,
 	createConfiguredStreamingTranscriptionSession,
 	createUserInstructionConfigService,
 	ensureCustomProvidersLoaded,
-	executeClineAccountAction,
-	fetchClineRecommendedModels,
+	executeIndusCodeAccountAction,
+	fetchIndusCodeRecommendedModels,
 	getCoreBuiltinToolCatalog,
 	getLocalProviderModels,
 	getLocalTranscriptionModels,
@@ -51,14 +51,15 @@ import {
 	isModelToolEnabledGlobally,
 	listHookConfigFiles,
 	listLocalProviders,
+	modelHealthManager,
 	normalizeOAuthProvider,
 	ProviderSettingsManager,
 	parseMcpServerRegistration,
-	persistClineAccountTelemetryIdentity,
+	persistIndusCodeAccountTelemetryIdentity,
 	probeMcpServerConnection,
 	RemoteEnvironmentService,
 	readGlobalSettings,
-	resolveClineAccountTelemetryIdentity,
+	resolveIndusCodeAccountTelemetryIdentity,
 	resolveMcpServerRegistration,
 	resolveSessionBackend,
 	resolveAgentConfigSearchPaths as resolveSharedAgentConfigSearchPaths,
@@ -76,32 +77,32 @@ import {
 	updateLocalProvider,
 	updateMcpSettingsFileSync,
 	upgradeManagedHub,
-} from "@cline/core";
-import { resolveAudioTranscriptionRoute } from "@cline/llms";
+} from "@induscode/core";
+import { resolveAudioTranscriptionRoute } from "@induscode/llms";
 import {
-	CLINE_DEFAULT_MODEL_ID,
+	INDUSCODE_DEFAULT_MODEL_ID,
 	formatSessionSearchPreview,
 	formatSessionSearchTitle,
-	getClineEnvironmentConfig,
+	getIndusCodeEnvironmentConfig,
 	isCanonicalBase64,
 	ONE_TIME_SCHEDULE_CRON_PATTERN,
 	ONE_TIME_SCHEDULE_RUN_AT_METADATA_KEY,
 	readHubScheduleMode,
-} from "@cline/shared";
-import { readFileSyncStrippingUtf8Bom } from "@cline/shared/node";
-import { resolveClineDir, resolveMcpSettingsPath } from "@cline/shared/storage";
+} from "@induscode/shared";
+import { readFileSyncStrippingUtf8Bom } from "@induscode/shared/node";
+import { resolveIndusCodeDir, resolveMcpSettingsPath } from "@induscode/shared/storage";
 import packageJson from "../package.json";
-import { CLINE_ACCOUNT_NOT_AUTHENTICATED_RESULT } from "../webview/lib/cline-account-state";
+import { INDUSCODE_ACCOUNT_NOT_AUTHENTICATED_RESULT } from "../webview/lib/induscode-account-state";
 import { MAX_RECORDED_AUDIO_BYTES } from "../webview/lib/voice-input-limits";
 import { resolveDesktopTelemetryUser } from "./client-context";
-import { resolveFreshClineAuthToken } from "./cline-auth";
+import { resolveFreshIndusCodeAuthToken } from "./induscode-auth";
 import {
 	getCloudSessionManager,
 	resetCloudSessionManager,
 } from "./cloud-sessions";
 import {
-	listClineGitHubRepositories,
-	listClineIntegrations,
+	listIndusCodeGitHubRepositories,
+	listIndusCodeIntegrations,
 	resolveGitHubInstallUrl,
 } from "./commands-integrations";
 import {
@@ -504,16 +505,16 @@ function syncAccountContextFromResult(
 	result: unknown,
 ): void {
 	if (operation === "fetchMe") {
-		const user = result as ClineAccountUser | undefined;
+		const user = result as IndusCodeAccountUser | undefined;
 		if (user?.id) {
-			const identity = resolveClineAccountTelemetryIdentity(user);
+			const identity = resolveIndusCodeAccountTelemetryIdentity(user);
 			ctx.telemetryUser = resolveDesktopTelemetryUser({
 				accountId: identity.id,
 				email: identity.email,
 				organizationId: identity.organizationId,
 			});
 			identifyAccount(ctx.telemetry, identity);
-			persistClineAccountTelemetryIdentity(manager, identity);
+			persistIndusCodeAccountTelemetryIdentity(manager, identity);
 			void identifyDesktopFeatureFlagsAccount(
 				{ id: user.id, email: user.email },
 				{ logger: ctx.logger, telemetry: ctx.telemetry },
@@ -527,7 +528,7 @@ function syncAccountContextFromSettings(
 	ctx: SidecarContext,
 	manager: ProviderSettingsManager,
 ): void {
-	const auth = manager.getProviderSettings("cline")?.auth;
+	const auth = manager.getProviderSettings("induscode")?.auth;
 	const accountId = auth?.accountId?.trim();
 	if (!auth || !accountId) {
 		syncSignedOutAccountContext(ctx);
@@ -539,7 +540,7 @@ function syncAccountContextFromSettings(
 	});
 	identifyAccount(ctx.telemetry, {
 		id: accountId,
-		provider: "cline",
+		provider: "induscode",
 		organizationId: auth.organizationId,
 		organizationName: auth.organizationName,
 		memberId: auth.memberId,
@@ -904,15 +905,15 @@ async function listGitBranches(
 	return { current, branches };
 }
 
-/** Where task worktrees live; honors `CLINE_DIR` like the rest of the Cline dir. */
+/** Where task worktrees live; honors `INDUSCODE_DIR` like the rest of the IndusCode dir. */
 function taskWorktreesRoot(): string {
-	return join(resolveClineDir(), "worktrees");
+	return join(resolveIndusCodeDir(), "worktrees");
 }
 
 /**
  * Creates a git worktree for the repo containing `cwd` and checks out a fresh
  * branch in it, so a task can run isolated from the user's working tree.
- * Mirrors the CLI's `--worktree` layout: `~/.cline/worktrees/<id>/<repo>`.
+ * Mirrors the CLI's `--worktree` layout: `~/.induscode/worktrees/<id>/<repo>`.
  */
 async function createGitWorktree(
 	cwd: string,
@@ -926,7 +927,7 @@ async function createGitWorktree(
 	});
 	const repoRoot = stdout.trim();
 	const id = randomUUID().replaceAll("-", "").slice(0, 5);
-	const branch = `cline/${id}`;
+	const branch = `induscode/${id}`;
 	const worktreePath = join(
 		taskWorktreesRoot(),
 		id,
@@ -941,17 +942,17 @@ async function createGitWorktree(
 	return { path: worktreePath, branch };
 }
 
-/** True for paths of the exact `~/.cline/worktrees/<id>/<repo>` shape. */
+/** True for paths of the exact `~/.induscode/worktrees/<id>/<repo>` shape. */
 function isTaskWorktreePath(path: string): boolean {
 	return path.length > 0 && dirname(dirname(path)) === taskWorktreesRoot();
 }
 
 /**
  * Removes a worktree created by `createGitWorktree`, discarding any
- * uncommitted work in it, and deletes its `cline/<id>` branch. Only that
+ * uncommitted work in it, and deletes its `induscode/<id>` branch. Only that
  * generated branch is deleted: if the task switched the worktree to another
  * branch, that branch (and its commits) is kept. Paths outside
- * `~/.cline/worktrees` are left alone. Best-effort: failures are logged.
+ * `~/.induscode/worktrees` are left alone. Best-effort: failures are logged.
  */
 async function removeTaskWorktree(
 	ctx: SidecarContext,
@@ -961,7 +962,7 @@ async function removeTaskWorktree(
 		execFileAsync("git", ["-C", worktreePath, ...args], {
 			encoding: "utf8",
 		}).then((result) => result.stdout.trim());
-	const branch = `cline/${basename(dirname(worktreePath))}`;
+	const branch = `induscode/${basename(dirname(worktreePath))}`;
 	let repoRoot: string | undefined;
 	try {
 		const commonDir = await git([
@@ -1129,7 +1130,7 @@ async function listWorkspaceDirectories(
 		args: [
 			"-c",
 			REMOTE_DIRECTORY_LIST_SCRIPT,
-			"cline-list-workspace-directories",
+			"induscode-list-workspace-directories",
 			currentPath,
 		],
 	});
@@ -1301,8 +1302,8 @@ async function handleRoutineScheduleCommand(
 			...timing,
 			prompt,
 			modelSelection: {
-				providerId: asTrimmedString(args?.provider) ?? "cline",
-				modelId: asTrimmedString(args?.model) ?? CLINE_DEFAULT_MODEL_ID,
+				providerId: asTrimmedString(args?.provider) ?? "induscode",
+				modelId: asTrimmedString(args?.model) ?? INDUSCODE_DEFAULT_MODEL_ID,
 			},
 			mode: readHubScheduleMode(args, "yolo"),
 			workspaceRoot,
@@ -1335,8 +1336,8 @@ async function handleRoutineScheduleCommand(
 			...timing,
 			prompt,
 			modelSelection: {
-				providerId: asTrimmedString(args?.provider) ?? "cline",
-				modelId: asTrimmedString(args?.model) ?? CLINE_DEFAULT_MODEL_ID,
+				providerId: asTrimmedString(args?.provider) ?? "induscode",
+				modelId: asTrimmedString(args?.model) ?? INDUSCODE_DEFAULT_MODEL_ID,
 			},
 			...(mode === undefined ? {} : { mode }),
 			workspaceRoot,
@@ -1602,7 +1603,7 @@ async function listUserInstructionConfigs(
 
 	const disabledTools = new Set(readGlobalSettings().disabledTools ?? []);
 	// Pin spawn/teams availability so this listing matches the hub's
-	// (apps/cline-hub/src/server/user-instructions.ts) even if the preset
+	// (apps/induscode-hub/src/server/user-instructions.ts) even if the preset
 	// defaults change.
 	const builtinToolCatalog = getCoreBuiltinToolCatalog({
 		enableSpawnAgent: true,
@@ -2250,16 +2251,16 @@ export async function handleCommand(
 		const result = await upgradeManagedHub({
 			workspaceRoot: ctx.localWorkspaceRoot,
 			force: true,
-			reason: "Cline Desktop hub update",
+			reason: "IndusCode Desktop hub update",
 		});
 		if (result.outcome === "hub_not_older") {
 			throw new Error(
-				"The running Cline Hub is newer than this app, so it was not replaced. Update Cline instead.",
+				"The running IndusCode Hub is newer than this app, so it was not replaced. Update IndusCode instead.",
 			);
 		}
 		if (result.outcome === "still_busy") {
 			throw new Error(
-				"The running Cline Hub picked up new sessions before it could be replaced, so it was left running. Try again.",
+				"The running IndusCode Hub picked up new sessions before it could be replaced, so it was left running. Try again.",
 			);
 		}
 		// The mismatch is resolved: a null broadcast closes the dialog in
@@ -2535,8 +2536,8 @@ export async function handleCommand(
 		// Never let the source tool's provider become the resume target: when
 		// the caller sends no selection, use the app default like other
 		// server-started sessions do.
-		const provider = asTrimmedString(args?.provider) ?? "cline";
-		const model = asTrimmedString(args?.model) ?? CLINE_DEFAULT_MODEL_ID;
+		const provider = asTrimmedString(args?.provider) ?? "induscode";
+		const model = asTrimmedString(args?.model) ?? INDUSCODE_DEFAULT_MODEL_ID;
 		const results = await importer.importMany(
 			requests,
 			(result, index) => {
@@ -2776,15 +2777,15 @@ export async function handleCommand(
 
 async function getLocalUsageTransactions(
 	userId = "indus_user",
-): Promise<ClineAccountUsageTransaction[]> {
-	const transactions: ClineAccountUsageTransaction[] = [];
+): Promise<IndusCodeAccountUsageTransaction[]> {
+	const transactions: IndusCodeAccountUsageTransaction[] = [];
 	const seenIds = new Set<string>();
 	const seenSessionIds = new Set<string>();
 
 	const candidateRoots = [
-		resolveClineDir(),
+		resolveIndusCodeDir(),
 		join(homedir(), ".induscode"),
-		join(homedir(), ".cline"),
+		join(homedir(), ".induscode"),
 	];
 
 	for (const root of candidateRoots) {
@@ -2842,7 +2843,7 @@ async function getLocalUsageTransactions(
 									msg.provider ||
 									sessionData?.provider ||
 									sessionData?.metadata?.provider ||
-									"openai-native";
+									"induscode";
 
 								const ts = msg.ts
 									? new Date(msg.ts).toISOString()
@@ -2895,7 +2896,7 @@ async function getLocalUsageTransactions(
 								aiInferenceProviderName:
 									sessionData.provider ||
 									sessionData.metadata?.provider ||
-									"openai-native",
+									"induscode",
 								aiModelTypeName: "chat",
 								promptTokens: inTokens,
 								completionTokens: outTokens,
@@ -2947,7 +2948,7 @@ async function getLocalUsageTransactions(
 								id: r.session_id,
 								generationId: r.session_id,
 								aiModelName: r.model || meta.model || "free/deepseek-v4.1-flash",
-								aiInferenceProviderName: r.provider || meta.provider || "openai-native",
+								aiInferenceProviderName: r.provider || meta.provider || "induscode",
 								aiModelTypeName: "chat",
 								promptTokens: inTokens,
 								completionTokens: outTokens,
@@ -2978,13 +2979,81 @@ async function getLocalUsageTransactions(
 	return transactions;
 }
 
-	// ── Cline account ──────────────────────────────────────────────────
-	if (command === "cline_account") {
+	// ── IndusCode account ──────────────────────────────────────────────────
+	if (command === "induscode_account") {
 		const operation = String(args?.operation ?? "").trim();
 		if (!operation) throw new Error("operation is required");
 
+		// Handle explicit sign-out/logout request
+		if (operation === "logout" || operation === "signOut") {
+			const candidateDirs = [
+				resolveIndusCodeDir(),
+				join(homedir(), ".induscode"),
+				join(homedir(), ".induscode"),
+			];
+			for (const dir of candidateDirs) {
+				try {
+					const settingsDir = join(dir, "data", "settings");
+					mkdirSync(settingsDir, { recursive: true });
+					const targetAuthFile = join(settingsDir, "auth.json");
+					writeFileSync(
+						targetAuthFile,
+						JSON.stringify(
+							{
+								authenticated: false,
+								user: null,
+								accessToken: null,
+								updatedAt: new Date().toISOString(),
+							},
+							null,
+							2,
+						),
+						"utf-8",
+					);
+				} catch {}
+			}
+			const logoutManager = new ProviderSettingsManager();
+			try {
+				logoutManager.saveProviderSettings(
+					{
+						provider: "induscode",
+						apiKey: "",
+						auth: {
+							accessToken: "",
+							refreshToken: "",
+							accountId: "",
+						},
+					},
+					{ setLastUsed: false },
+				);
+				logoutManager.saveProviderSettings(
+					{
+						provider: "induscode",
+						apiKey: "",
+						auth: {
+							accessToken: "",
+							refreshToken: "",
+							accountId: "",
+						},
+					},
+					{ setLastUsed: false },
+				);
+				const current = logoutManager.read();
+				if (current.providers?.induscode) {
+					delete current.providers.induscode;
+					logoutManager.write(current);
+				}
+			} catch {}
+			syncSignedOutAccountContext(ctx);
+			broadcastEvent(ctx, "account_changed", {
+				authenticated: false,
+				user: null,
+			});
+			return { success: true, authenticated: false };
+		}
+
 		// Check local website synced auth from IndusCode website login
-		const authFile = join(resolveClineDir(), "data", "settings", "auth.json");
+		const authFile = join(resolveIndusCodeDir(), "data", "settings", "auth.json");
 		if (existsSync(authFile)) {
 			try {
 				const authData = JSON.parse(readFileSync(authFile, "utf-8"));
@@ -2995,12 +3064,48 @@ async function getLocalUsageTransactions(
 							email: authData.user.email,
 							displayName:
 								authData.user.displayName || authData.user.email.split("@")[0],
+							photoUrl:
+								authData.user.photoUrl || authData.user.avatarUrl || "",
 							organizations: [],
 							createdAt: authData.updatedAt || new Date().toISOString(),
 						};
 					}
 					if (operation === "fetchBalance") {
-						return { balance: 100_000_000, currency: "USD" };
+						const tier = String(authData?.user?.subscriptionTier || "free").toLowerCase();
+						const tierBaseInr: Record<string, number> = {
+							ultra: 999,
+							super: 599,
+							pro: 299,
+							premium: 299,
+							starter: 99,
+							plus: 99,
+						};
+						let baseInr = tierBaseInr[tier] || 299;
+						if (tier === "ultra" && baseInr < 999) {
+							baseInr = 999;
+						}
+
+						// Calculate total tokens consumed across all session turns
+						let totalUsedMicroInr = 0;
+						try {
+							const usageTxs = await getLocalUsageTransactions(authData?.user?.id || "indus_user");
+							if (Array.isArray(usageTxs) && usageTxs.length > 0) {
+								for (const tx of usageTxs) {
+									const tokens = Number(tx.totalTokens || 0);
+									if (tokens > 0) {
+										// 100M tokens = ₹999 (approx 0.00999 microINR per token)
+										totalUsedMicroInr += Math.round(tokens * 0.00999);
+									} else if (Number(tx.creditsUsed || 0) > 0) {
+										totalUsedMicroInr += Math.round(Number(tx.creditsUsed) * 0.01);
+									}
+								}
+							}
+						} catch {}
+
+						const baseMicrounits = Math.round(baseInr * 1_000_000);
+						const remainingMicrounits = Math.max(0, baseMicrounits - totalUsedMicroInr);
+
+						return { balance: remainingMicrounits, currency: "INR" };
 					}
 					if (
 						operation === "fetchUserOrganizations" ||
@@ -3018,11 +3123,74 @@ async function getLocalUsageTransactions(
 						return await getLocalUsageTransactions(authData.user.id);
 					}
 					if (operation === "fetchPaymentTransactions") {
-						return [];
+						// Read locally stored payment transactions from auth.json
+						let payments = Array.isArray(authData.paymentTransactions)
+							? [...authData.paymentTransactions]
+							: [];
+
+						// If no local payment history, try querying Supabase payment_transactions table
+						if (payments.length === 0 && authData?.user?.email) {
+							try {
+								const sRes = await fetch(
+									`https://fmibgmxamgzvkxkvllpn.supabase.co/rest/v1/payment_transactions?email=eq.${encodeURIComponent(authData.user.email)}&select=*`,
+									{
+										headers: {
+											apikey:
+												"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZtaWJnbXhhbWd6dmt4a3ZsbHBuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIyOTU2MTMsImV4cCI6MjEwNzg3MTYxM30.hYgBmolWEQG561FB2byuP5awuTvqwLLQosHr5JYereE",
+										},
+									},
+								);
+								if (sRes.ok) {
+									const sPayments = await sRes.json();
+									if (Array.isArray(sPayments) && sPayments.length > 0) {
+										payments = sPayments.map((sp: any) => ({
+											id: sp.payment_id || sp.id,
+											amount: (Number(sp.amount_paise) || 100) / 100,
+											currency: sp.currency || "INR",
+											status: sp.status || "captured",
+											plan: sp.plan || "pro",
+											createdAt: sp.created_at,
+										}));
+									}
+								}
+							} catch {}
+						}
+
+						// Fallback: If user has a paid plan but no recorded payments, synthesize the invoice
+						if (payments.length === 0 && authData?.user?.subscriptionTier && authData.user.subscriptionTier !== "free") {
+							const planName = String(authData.user.subscriptionTier);
+							payments.push({
+								id: "pay_" + (authData.user.id || "indus_pro"),
+								amount: planName === "ultra" ? 999 : (planName === "super" ? 599 : 299),
+								currency: "INR",
+								status: "captured",
+								plan: planName,
+								createdAt: authData.updatedAt || new Date().toISOString(),
+							});
+						}
+
+						return payments.map((p: any) => ({
+							id: p.id || String(Date.now()),
+							paidAt: p.createdAt || authData.updatedAt || new Date().toISOString(),
+							// Amount in cents for display: ₹1 = 100 cents (displayed as $1.00)
+							amountCents: Math.round((Number(p.amount) || 1) * 100),
+							currency: p.currency || "INR",
+							status: p.status || "captured",
+							plan: p.plan || "pro",
+							// Credits awarded: Plan amount in INR microunits (e.g. Ultra = 999_000_000)
+							credits: (p.plan === "ultra" || authData?.user?.subscriptionTier === "ultra")
+								? 999_000_000
+								: ((p.plan === "super" || authData?.user?.subscriptionTier === "super")
+									? 599_000_000
+									: 299_000_000),
+						}));
 					}
 					if (operation === "switchAccount") {
 						return { success: true };
 					}
+				} else if (authData && authData.authenticated === false) {
+					syncSignedOutAccountContext(ctx);
+					return INDUSCODE_ACCOUNT_NOT_AUTHENTICATED_RESULT;
 				}
 			} catch {}
 		}
@@ -3032,7 +3200,7 @@ async function getLocalUsageTransactions(
 		// token up front and return a typed result the webview can act on
 		// instead of letting the account service throw a generic error that
 		// would be captured as error telemetry and shown raw to the user.
-		const authToken = await resolveFreshClineAuthToken(manager, ctx);
+		const authToken = await resolveFreshIndusCodeAuthToken(manager, ctx);
 		if (!authToken) {
 			if (
 				operation === "fetchUsageTransactions" ||
@@ -3045,18 +3213,18 @@ async function getLocalUsageTransactions(
 			// at its source in `save_provider_settings`; this catches the rest
 			// so a stale account never keeps serving its rollout cohort.
 			syncSignedOutAccountContext(ctx);
-			return CLINE_ACCOUNT_NOT_AUTHENTICATED_RESULT;
+			return INDUSCODE_ACCOUNT_NOT_AUTHENTICATED_RESULT;
 		}
-		const settings = manager.getProviderSettings("cline");
-		const accountService = new ClineAccountService({
+		const settings = manager.getProviderSettings("induscode");
+		const accountService = new IndusCodeAccountService({
 			apiBaseUrl:
-				settings?.baseUrl?.trim() || getClineEnvironmentConfig().apiBaseUrl,
+				settings?.baseUrl?.trim() || getIndusCodeEnvironmentConfig().apiBaseUrl,
 			getAuthToken: async () => authToken,
 		});
 		let result: unknown;
 		try {
-			result = await executeClineAccountAction(
-				args as ClineAccountActionRequest,
+			result = await executeIndusCodeAccountAction(
+				args as IndusCodeAccountActionRequest,
 				accountService,
 			);
 		} catch (err) {
@@ -3085,18 +3253,18 @@ async function getLocalUsageTransactions(
 		return result;
 	}
 
-	// ── Cline integrations (GitHub App) ────────────────────────────────
-	if (command === "cline_integrations") {
+	// ── IndusCode integrations (GitHub App) ────────────────────────────────
+	if (command === "induscode_integrations") {
 		const operation = String(args?.operation ?? "").trim();
 		if (!operation) throw new Error("operation is required");
 		const manager = new ProviderSettingsManager();
 
-		const authToken = await resolveFreshClineAuthToken(manager, ctx);
+		const authToken = await resolveFreshIndusCodeAuthToken(manager, ctx);
 		if (!authToken) {
-			return CLINE_ACCOUNT_NOT_AUTHENTICATED_RESULT;
+			return INDUSCODE_ACCOUNT_NOT_AUTHENTICATED_RESULT;
 		}
-		const settings = manager.getProviderSettings("cline");
-		const environment = getClineEnvironmentConfig();
+		const settings = manager.getProviderSettings("induscode");
+		const environment = getIndusCodeEnvironmentConfig();
 		const requestOptions = {
 			apiBaseUrl: settings?.baseUrl?.trim() || environment.apiBaseUrl,
 			appBaseUrl: environment.appBaseUrl,
@@ -3104,14 +3272,14 @@ async function getLocalUsageTransactions(
 		};
 		switch (operation) {
 			case "list":
-				return await listClineIntegrations(requestOptions);
+				return await listIndusCodeIntegrations(requestOptions);
 			case "listGitHubRepositories":
-				return await listClineGitHubRepositories(requestOptions);
+				return await listIndusCodeGitHubRepositories(requestOptions);
 			case "githubInstallUrl":
 				return await resolveGitHubInstallUrl(requestOptions);
 			default:
 				throw new Error(
-					`Unsupported Cline integrations operation: ${operation}`,
+					`Unsupported IndusCode integrations operation: ${operation}`,
 				);
 		}
 	}
@@ -3162,7 +3330,7 @@ async function getLocalUsageTransactions(
 	if (command === "list_provider_catalog") {
 		const manager = new ProviderSettingsManager();
 		await ensureCustomProvidersLoaded(manager);
-		return await listLocalProviders(manager, { isClinePassEnabled: false });
+		return await listLocalProviders(manager, { isIndusCodePassEnabled: false });
 	}
 	if (command === "list_transcription_models") {
 		const manager = new ProviderSettingsManager();
@@ -3176,19 +3344,40 @@ async function getLocalUsageTransactions(
 		const manager = new ProviderSettingsManager();
 		const providerId = String(args?.provider ?? "").trim();
 		const includeCloudModels =
-			providerId === "cline" &&
+			providerId === "induscode" &&
 			args?.includeCloudModels === true &&
 			isCloudAgentsEnabled();
-		return await getLocalProviderModels(
+		const result = await getLocalProviderModels(
 			providerId,
 			manager.getProviderConfig(providerId, { includeKnownModels: false }),
 			{ loadLatest: includeCloudModels },
 		);
+		return result;
 	}
-	if (command === "list_cline_recommended_models") {
-		// Tiered picker data (recommended / free / clinePass) with
+	if (command === "list_induscode_recommended_models") {
+		// Tiered picker data (recommended / free / induscodePass) with
 		// display-ready names; falls back to a bundled list offline.
-		return await fetchClineRecommendedModels();
+		const data = await fetchIndusCodeRecommendedModels();
+		return data;
+	}
+	if (command === "get_exhausted_models") {
+		return {
+			exhaustedModelIds: modelHealthManager.getExhaustedModelIds(),
+			exhaustedModelMap: modelHealthManager.getExhaustedModelMap(),
+		};
+	}
+	if (command === "mark_model_exhausted") {
+		const modelId = String(args?.modelId ?? "").trim();
+		const cooldownMs = typeof args?.cooldownMs === "number" ? args.cooldownMs : undefined;
+		const reason = typeof args?.reason === "string" ? args.reason : undefined;
+		if (modelId) {
+			modelHealthManager.markModelExhausted(modelId, cooldownMs, reason);
+			broadcastEvent(ctx, "model_exhausted", { modelId, reason });
+		}
+		return {
+			success: true,
+			exhaustedModelIds: modelHealthManager.getExhaustedModelIds(),
+		};
 	}
 	if (command === "create_streaming_transcription_session") {
 		const manager = new ProviderSettingsManager();
@@ -3331,7 +3520,7 @@ async function getLocalUsageTransactions(
 		const storageProviderId =
 			getProviderAuthHandler(providerId)?.storageProviderId ?? providerId;
 		const previous =
-			storageProviderId === "cline"
+			storageProviderId === "induscode"
 				? manager.getProviderSettings(storageProviderId)
 				: undefined;
 		const saved = await saveLocalProviderSettings(manager, {
@@ -3342,7 +3531,7 @@ async function getLocalUsageTransactions(
 			baseUrl: typeof args?.base_url === "string" ? args.base_url : undefined,
 		});
 		if (!saved.enabled) {
-			// Cline Pass keeps its credentials under "cline", so removing only
+			// IndusCode Pass keeps its credentials under "induscode", so removing only
 			// its own entry would leave the account signed in.
 			if (storageProviderId !== saved.providerId) {
 				await saveLocalProviderSettings(manager, {
@@ -3356,7 +3545,7 @@ async function getLocalUsageTransactions(
 			// the sign-out as failed and resyncs.
 			clearLegacyProviderCredentials(storageProviderId);
 		}
-		if (storageProviderId === "cline") {
+		if (storageProviderId === "induscode") {
 			const current = manager.getProviderSettings(storageProviderId);
 			// Ordinary provider preferences must not interrupt cloud sessions.
 			if (
@@ -3367,23 +3556,43 @@ async function getLocalUsageTransactions(
 				broadcastEvent(ctx, "cloud_sessions_changed", {});
 			}
 		}
-		// Sign-out is a `save_provider_settings` that blanks the cline auth block
+		// Sign-out is a `save_provider_settings` that blanks the induscode auth block
 		// (see signOut in webview settings/account-view.tsx), so this is the
 		// authoritative signal — it fires the moment credentials are cleared
 		// rather than waiting for the next account fetch.
-		if (saved.providerId === "cline" || saved.providerId === "cline-pass") {
+		if (saved.providerId === "induscode" || saved.providerId === "induscode-pass" || saved.providerId === "induscode") {
 			const settings = manager.getProviderSettings(saved.providerId);
 			if (!settings?.auth?.accessToken && !settings?.apiKey) {
-				const authFile = join(resolveClineDir(), "data", "settings", "auth.json");
-				if (existsSync(authFile)) {
+				const candidateDirs = [
+					resolveIndusCodeDir(),
+					join(homedir(), ".induscode"),
+					join(homedir(), ".induscode"),
+				];
+				for (const dir of candidateDirs) {
 					try {
+						const settingsDir = join(dir, "data", "settings");
+						mkdirSync(settingsDir, { recursive: true });
+						const authFile = join(settingsDir, "auth.json");
 						writeFileSync(
 							authFile,
-							JSON.stringify({ authenticated: false, user: null }, null, 2),
+							JSON.stringify(
+								{
+									authenticated: false,
+									user: null,
+									accessToken: null,
+									updatedAt: new Date().toISOString(),
+								},
+								null,
+								2,
+							),
 							"utf8",
 						);
 					} catch {}
 				}
+				broadcastEvent(ctx, "account_changed", {
+					authenticated: false,
+					user: null,
+				});
 			}
 			syncAccountContextFromSettings(ctx, manager);
 		}
@@ -3466,7 +3675,7 @@ async function getLocalUsageTransactions(
 		);
 		const storageProviderId =
 			getProviderAuthHandler(providerId)?.storageProviderId ?? providerId;
-		if (storageProviderId === "cline") {
+		if (storageProviderId === "induscode") {
 			// Re-scope cached cloud sessions after sign-in.
 			await resetCloudSessionManager(ctx);
 			broadcastEvent(ctx, "cloud_sessions_changed", {});
@@ -3787,7 +3996,7 @@ async function getLocalUsageTransactions(
 	}
 
 	// Rolls back a worktree from `create_git_worktree` whose session never
-	// started. Only the generated `~/.cline/worktrees/<id>/<repo>` shape is
+	// started. Only the generated `~/.induscode/worktrees/<id>/<repo>` shape is
 	// accepted, since removal also deletes the `<id>` parent directory.
 	if (command === "remove_git_worktree") {
 		const path = typeof args?.path === "string" ? args.path.trim() : "";

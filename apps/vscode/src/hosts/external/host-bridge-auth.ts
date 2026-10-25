@@ -6,7 +6,7 @@ import { type Channel, type ClientMiddleware, type CompatServiceDefinition, crea
  * host that started it. The name is part of the host<->core contract — keep it
  * in sync with the host-side interceptor (JetBrains: SessionTokenInterceptor).
  */
-export const HOST_BRIDGE_TOKEN_HEADER = "cline-hostbridge-token"
+export const HOST_BRIDGE_TOKEN_HEADER = "induscode-hostbridge-token"
 
 /**
  * The Host Bridge listens on loopback with insecure credentials, so binding
@@ -16,7 +16,7 @@ export const HOST_BRIDGE_TOKEN_HEADER = "cline-hostbridge-token"
  * orphaned/foreign one — or from unrelated local code.
  *
  * This reuses the token already issued for the core connection stream
- * (CLINE_CORE_CONNECTION_TOKEN) rather than introducing a second secret, so
+ * (INDUSCODE_CORE_CONNECTION_TOKEN) rather than introducing a second secret, so
  * there is one credential per spawn with one lifetime.
  *
  * The token lives here, in process memory, not in `process.env`: bootstrap
@@ -36,8 +36,8 @@ let hostBridgeToken: string | undefined
  * runs, older hosts) gets `undefined` and sends no header.
  */
 export function captureHostBridgeTokenFromEnvironment(): string | undefined {
-	hostBridgeToken = process.env.CLINE_CORE_CONNECTION_TOKEN || undefined
-	delete process.env.CLINE_CORE_CONNECTION_TOKEN
+	hostBridgeToken = process.env.INDUSCODE_CORE_CONNECTION_TOKEN || undefined
+	delete process.env.INDUSCODE_CORE_CONNECTION_TOKEN
 	return hostBridgeToken
 }
 

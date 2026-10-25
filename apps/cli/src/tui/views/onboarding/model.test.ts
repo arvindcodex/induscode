@@ -10,25 +10,25 @@ import {
 	getMainMenuOptions,
 	getOAuthProviderLabel,
 	resolveProviderSetupRoute,
-	shouldUseFeaturedClineModelPicker,
+	shouldUseFeaturedIndusCodeModelPicker,
 	toModelEntriesFromKnownModels,
 	toModelEntry,
 	toProviderEntry,
 } from "./model";
 
 describe("onboarding model helpers", () => {
-	it("hides ClinePass from the main menu unless its feature flag is enabled", () => {
+	it("hides IndusCodePass from the main menu unless its feature flag is enabled", () => {
 		expect(
-			getMainMenuOptions().some((option) => option.value === "cline-pass"),
+			getMainMenuOptions().some((option) => option.value === "induscode-pass"),
 		).toBe(false);
 		expect(
-			getMainMenuOptions({ isClinePassEnabled: false }).some(
-				(option) => option.value === "cline-pass",
+			getMainMenuOptions({ isIndusCodePassEnabled: false }).some(
+				(option) => option.value === "induscode-pass",
 			),
 		).toBe(false);
 		expect(
-			getMainMenuOptions({ isClinePassEnabled: true }).some(
-				(option) => option.value === "cline-pass",
+			getMainMenuOptions({ isIndusCodePassEnabled: true }).some(
+				(option) => option.value === "induscode-pass",
 			),
 		).toBe(true);
 	});
@@ -36,16 +36,16 @@ describe("onboarding model helpers", () => {
 	it("maps provider catalog entries into onboarding provider entries", () => {
 		expect(
 			toProviderEntry({
-				id: "cline",
-				name: "Cline",
+				id: "induscode",
+				name: "IndusCode",
 				apiKey: "",
 				oauthAccessTokenPresent: true,
 				models: 12,
 				defaultModelId: "openai/gpt-5.3-codex",
 			}),
 		).toEqual({
-			id: "cline",
-			name: "Cline",
+			id: "induscode",
+			name: "IndusCode",
 			isOAuth: true,
 			isLocalAuth: false,
 			hasAuth: true,
@@ -176,16 +176,16 @@ describe("onboarding model helpers", () => {
 	});
 
 	it("formats OAuth provider labels for onboarding status views", () => {
-		expect(getOAuthProviderLabel("cline")).toBe("Cline");
-		expect(getOAuthProviderLabel("cline-pass")).toBe("ClinePass");
+		expect(getOAuthProviderLabel("induscode")).toBe("IndusCode");
+		expect(getOAuthProviderLabel("induscode-pass")).toBe("IndusCodePass");
 		expect(getOAuthProviderLabel("openai-codex")).toBe("ChatGPT");
 		expect(getOAuthProviderLabel("oca")).toBe("oca");
 	});
 
-	it("uses the featured Cline model picker for the Cline and ClinePass providers", () => {
-		expect(shouldUseFeaturedClineModelPicker("cline")).toBe(true);
-		expect(shouldUseFeaturedClineModelPicker("cline-pass")).toBe(true);
-		expect(shouldUseFeaturedClineModelPicker("anthropic")).toBe(false);
+	it("uses the featured IndusCode model picker for the IndusCode and IndusCodePass providers", () => {
+		expect(shouldUseFeaturedIndusCodeModelPicker("induscode")).toBe(true);
+		expect(shouldUseFeaturedIndusCodeModelPicker("induscode-pass")).toBe(true);
+		expect(shouldUseFeaturedIndusCodeModelPicker("anthropic")).toBe(false);
 	});
 });
 

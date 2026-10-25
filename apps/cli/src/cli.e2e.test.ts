@@ -96,18 +96,18 @@ describe("cli e2e", () => {
 		return {
 			...process.env,
 			HOME: homeDir,
-			CLINE_DIR: path.join(homeDir, ".cline"),
-			CLINE_DATA_DIR: dataDir,
-			CLINE_DB_DATA_DIR: path.join(dataDir, "db"),
-			CLINE_SESSION_DATA_DIR: sessionDir,
-			CLINE_TEAM_DATA_DIR: teamDir,
-			CLINE_SESSION_BACKEND_MODE: "local",
-			CLINE_PROVIDER_SETTINGS_PATH: path.join(
+			INDUSCODE_DIR: path.join(homeDir, ".induscode"),
+			INDUSCODE_DATA_DIR: dataDir,
+			INDUSCODE_DB_DATA_DIR: path.join(dataDir, "db"),
+			INDUSCODE_SESSION_DATA_DIR: sessionDir,
+			INDUSCODE_TEAM_DATA_DIR: teamDir,
+			INDUSCODE_SESSION_BACKEND_MODE: "local",
+			INDUSCODE_PROVIDER_SETTINGS_PATH: path.join(
 				dataDir,
 				"settings",
 				"providers.json",
 			),
-			CLINE_HOOKS_LOG_PATH: path.join(dataDir, "logs", "hooks.jsonl"),
+			INDUSCODE_HOOKS_LOG_PATH: path.join(dataDir, "logs", "hooks.jsonl"),
 			...overrides,
 		};
 	};
@@ -219,8 +219,8 @@ describe("cli e2e", () => {
 
 	it("emits the same config JSON for either flag placement without a TTY", () => {
 		const env = createIsolatedEnv({
-			CLINE_NO_AUTO_UPDATE: "1",
-			CLINE_TELEMETRY_DISABLED: "1",
+			INDUSCODE_NO_AUTO_UPDATE: "1",
+			INDUSCODE_TELEMETRY_DISABLED: "1",
 		});
 		const options = { env, cwd: env.HOME, stdin: "" };
 		const local = runCli(["config", "--json"], options);
@@ -260,7 +260,7 @@ describe("cli e2e", () => {
 
 	it("prints hub help when no subcommand is provided", () => {
 		const result = runCli(["hub"], {
-			env: createIsolatedEnv({ CLINE_RUN_AS_HUB_DAEMON: undefined }),
+			env: createIsolatedEnv({ INDUSCODE_RUN_AS_HUB_DAEMON: undefined }),
 		});
 		expect(result.status).toBe(0);
 		expect(asText(result.stdout)).toContain("Usage: hub [options] [command]");
@@ -271,7 +271,7 @@ describe("cli e2e", () => {
 
 	it("prints hub dashboard help without starting a server", () => {
 		const result = runCli(["hub", "dashboard", "--help"], {
-			env: createIsolatedEnv({ CLINE_RUN_AS_HUB_DAEMON: undefined }),
+			env: createIsolatedEnv({ INDUSCODE_RUN_AS_HUB_DAEMON: undefined }),
 		});
 		expect(result.status).toBe(0);
 		const output = asText(result.stdout);
@@ -307,7 +307,7 @@ describe("cli e2e", () => {
 			env: {
 				...createIsolatedEnv(),
 				HOME: homeDir,
-				CLINE_DATA_DIR: dataDir,
+				INDUSCODE_DATA_DIR: dataDir,
 			},
 		});
 		expect(result.status).toBe(1);
@@ -324,7 +324,7 @@ describe("cli e2e", () => {
 			env: {
 				...createIsolatedEnv(),
 				HOME: homeDir,
-				CLINE_SESSION_DATA_DIR: sessionDir,
+				INDUSCODE_SESSION_DATA_DIR: sessionDir,
 			},
 		});
 
@@ -341,7 +341,7 @@ describe("cli e2e", () => {
 			env: {
 				...createIsolatedEnv(),
 				HOME: homeDir,
-				CLINE_SESSION_DATA_DIR: sessionDir,
+				INDUSCODE_SESSION_DATA_DIR: sessionDir,
 			},
 		});
 
@@ -362,7 +362,7 @@ describe("cli e2e", () => {
 	it("lists enabled workflows in text mode", () => {
 		const workspace = mkdtempSync(path.join(os.tmpdir(), "cli-e2e-workflows-"));
 		tempDirs.push(workspace);
-		const workflowsDir = path.join(workspace, ".clinerules", "workflows");
+		const workflowsDir = path.join(workspace, ".induscoderules", "workflows");
 		mkdirSync(workflowsDir, { recursive: true });
 		writeFileSync(
 			path.join(workflowsDir, "release.md"),
@@ -398,7 +398,7 @@ Do not list this.`,
 	it("lists workflows from workspace root when run in a subdirectory", () => {
 		const workspace = mkdtempSync(path.join(os.tmpdir(), "cli-e2e-workflows-"));
 		tempDirs.push(workspace);
-		const workflowsDir = path.join(workspace, ".clinerules", "workflows");
+		const workflowsDir = path.join(workspace, ".induscoderules", "workflows");
 		const nestedDir = path.join(workspace, "packages", "app");
 		mkdirSync(workflowsDir, { recursive: true });
 		mkdirSync(nestedDir, { recursive: true });
@@ -426,7 +426,7 @@ Release checklist.`,
 	it("lists enabled workflows in json mode", () => {
 		const workspace = mkdtempSync(path.join(os.tmpdir(), "cli-e2e-workflows-"));
 		tempDirs.push(workspace);
-		const workflowsDir = path.join(workspace, ".clinerules", "workflows");
+		const workflowsDir = path.join(workspace, ".induscoderules", "workflows");
 		mkdirSync(workflowsDir, { recursive: true });
 		writeFileSync(
 			path.join(workflowsDir, "review.md"),
@@ -448,14 +448,14 @@ Review checklist.`,
 		expect(parsed.some((workflow) => workflow.name === "review")).toBe(true);
 	});
 
-	it("includes Documents/Cline workflows", () => {
+	it("includes Documents/IndusCode workflows", () => {
 		const homeDir = mkdtempSync(path.join(os.tmpdir(), "cli-e2e-home-"));
 		const workspace = mkdtempSync(path.join(os.tmpdir(), "cli-e2e-workspace-"));
 		tempDirs.push(homeDir, workspace);
 		const docsWorkflowsDir = path.join(
 			homeDir,
 			"Documents",
-			"Cline",
+			"IndusCode",
 			"Workflows",
 		);
 		mkdirSync(docsWorkflowsDir, { recursive: true });
@@ -482,7 +482,7 @@ Release from docs path.`,
 	it("lists enabled rules", () => {
 		const workspace = mkdtempSync(path.join(os.tmpdir(), "cli-e2e-rules-"));
 		tempDirs.push(workspace);
-		const rulesDir = path.join(workspace, ".clinerules");
+		const rulesDir = path.join(workspace, ".induscoderules");
 		mkdirSync(rulesDir, { recursive: true });
 		writeFileSync(
 			path.join(rulesDir, "rule.md"),
@@ -506,7 +506,7 @@ Do not force push.`,
 	it("lists enabled skills", () => {
 		const workspace = mkdtempSync(path.join(os.tmpdir(), "cli-e2e-skills-"));
 		tempDirs.push(workspace);
-		const skillsDir = path.join(workspace, ".clinerules", "skills", "commit");
+		const skillsDir = path.join(workspace, ".induscoderules", "skills", "commit");
 		mkdirSync(skillsDir, { recursive: true });
 		writeFileSync(
 			path.join(skillsDir, "SKILL.md"),
@@ -527,15 +527,15 @@ Create a concise commit message.`,
 		expect(asText(result.stdout)).toContain(path.join(skillsDir, "SKILL.md"));
 	});
 
-	it("includes Documents/Cline rules and skills", () => {
+	it("includes Documents/IndusCode rules and skills", () => {
 		const homeDir = mkdtempSync(path.join(os.tmpdir(), "cli-e2e-home-"));
 		const workspace = mkdtempSync(path.join(os.tmpdir(), "cli-e2e-workspace-"));
 		tempDirs.push(homeDir, workspace);
-		const docsRulesDir = path.join(homeDir, "Documents", "Cline", "Rules");
+		const docsRulesDir = path.join(homeDir, "Documents", "IndusCode", "Rules");
 		const docsSkillsDir = path.join(
 			homeDir,
 			"Documents",
-			"Cline",
+			"IndusCode",
 			"Skills",
 			"review",
 		);
@@ -583,8 +583,8 @@ Skill from docs path.`,
 		const homeDir = mkdtempSync(path.join(os.tmpdir(), "cli-e2e-home-"));
 		const workspace = mkdtempSync(path.join(os.tmpdir(), "cli-e2e-workspace-"));
 		tempDirs.push(homeDir, workspace);
-		const globalAgentsDir = path.join(homeDir, ".cline", "agents");
-		const workspaceAgentsDir = path.join(workspace, ".cline", "agents");
+		const globalAgentsDir = path.join(homeDir, ".induscode", "agents");
+		const workspaceAgentsDir = path.join(workspace, ".induscode", "agents");
 		mkdirSync(globalAgentsDir, { recursive: true });
 		mkdirSync(workspaceAgentsDir, { recursive: true });
 		writeFileSync(
@@ -611,7 +611,7 @@ Break work into clear steps.`,
 			env: {
 				...createIsolatedEnv(),
 				HOME: homeDir,
-				CLINE_DIR: path.join(homeDir, ".cline"),
+				INDUSCODE_DIR: path.join(homeDir, ".induscode"),
 			},
 		});
 		expect(textResult.status).toBe(0);
@@ -630,7 +630,7 @@ Break work into clear steps.`,
 			env: {
 				...createIsolatedEnv(),
 				HOME: homeDir,
-				CLINE_DIR: path.join(homeDir, ".cline"),
+				INDUSCODE_DIR: path.join(homeDir, ".induscode"),
 			},
 		});
 		expect(jsonResult.status).toBe(0);
@@ -652,12 +652,12 @@ Break work into clear steps.`,
 		const dataDir = mkdtempSync(path.join(os.tmpdir(), "cli-e2e-data-"));
 		const workspace = mkdtempSync(path.join(os.tmpdir(), "cli-e2e-workspace-"));
 		tempDirs.push(homeDir, dataDir, workspace);
-		const workspacePluginsDir = path.join(workspace, ".cline", "plugins");
-		const userPluginsDir = path.join(homeDir, ".cline", "plugins");
+		const workspacePluginsDir = path.join(workspace, ".induscode", "plugins");
+		const userPluginsDir = path.join(homeDir, ".induscode", "plugins");
 		const documentsPluginsDir = path.join(
 			homeDir,
 			"Documents",
-			"Cline",
+			"IndusCode",
 			"Plugins",
 		);
 		mkdirSync(workspacePluginsDir, { recursive: true });
@@ -684,8 +684,8 @@ Break work into clear steps.`,
 			env: {
 				...createIsolatedEnv(),
 				HOME: homeDir,
-				CLINE_DIR: path.join(homeDir, ".cline"),
-				CLINE_DATA_DIR: dataDir,
+				INDUSCODE_DIR: path.join(homeDir, ".induscode"),
+				INDUSCODE_DATA_DIR: dataDir,
 			},
 		});
 		expect(textResult.status).toBe(0);
@@ -708,8 +708,8 @@ Break work into clear steps.`,
 			env: {
 				...createIsolatedEnv(),
 				HOME: homeDir,
-				CLINE_DIR: path.join(homeDir, ".cline"),
-				CLINE_DATA_DIR: dataDir,
+				INDUSCODE_DIR: path.join(homeDir, ".induscode"),
+				INDUSCODE_DATA_DIR: dataDir,
 			},
 		});
 		expect(jsonResult.status).toBe(0);
@@ -725,19 +725,19 @@ Break work into clear steps.`,
 		expect(
 			parsed.some((plugin) =>
 				plugin.path.endsWith(
-					path.join(".cline", "plugins", "workspace-plugin.ts"),
+					path.join(".induscode", "plugins", "workspace-plugin.ts"),
 				),
 			),
 		).toBe(true);
 		expect(
 			parsed.some((plugin) =>
-				plugin.path.endsWith(path.join(".cline", "plugins", "user-plugin.js")),
+				plugin.path.endsWith(path.join(".induscode", "plugins", "user-plugin.js")),
 			),
 		).toBe(true);
 		expect(
 			parsed.some((plugin) =>
 				plugin.path.endsWith(
-					path.join("Documents", "Cline", "Plugins", "docs-plugin.ts"),
+					path.join("Documents", "IndusCode", "Plugins", "docs-plugin.ts"),
 				),
 			),
 		).toBe(true);
@@ -746,7 +746,7 @@ Break work into clear steps.`,
 	it("lists configured mcp servers", () => {
 		const tempRoot = mkdtempSync(path.join(os.tmpdir(), "cli-e2e-mcp-"));
 		tempDirs.push(tempRoot);
-		const settingsPath = path.join(tempRoot, "cline_mcp_settings.json");
+		const settingsPath = path.join(tempRoot, "induscode_mcp_settings.json");
 		writeFileSync(
 			settingsPath,
 			JSON.stringify(
@@ -776,7 +776,7 @@ Break work into clear steps.`,
 		const textResult = runCli(["config", "mcp"], {
 			env: {
 				...createIsolatedEnv(),
-				CLINE_MCP_SETTINGS_PATH: settingsPath,
+				INDUSCODE_MCP_SETTINGS_PATH: settingsPath,
 			},
 		});
 		expect(textResult.status).toBe(0);
@@ -789,7 +789,7 @@ Break work into clear steps.`,
 		const jsonResult = runCli(["config", "mcp", "--json"], {
 			env: {
 				...createIsolatedEnv(),
-				CLINE_MCP_SETTINGS_PATH: settingsPath,
+				INDUSCODE_MCP_SETTINGS_PATH: settingsPath,
 			},
 		});
 		expect(jsonResult.status).toBe(0);
@@ -829,14 +829,14 @@ Break work into clear steps.`,
 
 		expect(result.status).toBe(1);
 		expect(asText(result.stderr)).toContain(
-			"cline mcp install opens the MCP wizard and requires a TTY.",
+			"induscode mcp install opens the MCP wizard and requires a TTY.",
 		);
 	});
 
 	it("routes mcp uninstall and its rm alias", () => {
 		const tempRoot = mkdtempSync(path.join(os.tmpdir(), "cli-e2e-mcp-rm-"));
 		tempDirs.push(tempRoot);
-		const settingsPath = path.join(tempRoot, "cline_mcp_settings.json");
+		const settingsPath = path.join(tempRoot, "induscode_mcp_settings.json");
 		const writeSettings = () => {
 			writeFileSync(
 				settingsPath,
@@ -868,7 +868,7 @@ Break work into clear steps.`,
 
 		writeSettings();
 		const uninstallResult = runCli(["mcp", "uninstall", "docs"], {
-			env: { ...createIsolatedEnv(), CLINE_MCP_SETTINGS_PATH: settingsPath },
+			env: { ...createIsolatedEnv(), INDUSCODE_MCP_SETTINGS_PATH: settingsPath },
 		});
 		expect(uninstallResult.status).toBe(0);
 		expect(asText(uninstallResult.stdout)).toContain(
@@ -878,7 +878,7 @@ Break work into clear steps.`,
 
 		writeSettings();
 		const aliasResult = runCli(["mcp", "rm", "remote", "--json"], {
-			env: { ...createIsolatedEnv(), CLINE_MCP_SETTINGS_PATH: settingsPath },
+			env: { ...createIsolatedEnv(), INDUSCODE_MCP_SETTINGS_PATH: settingsPath },
 		});
 		expect(aliasResult.status).toBe(0);
 		expect(JSON.parse(asText(aliasResult.stdout).trim())).toEqual({
@@ -889,7 +889,7 @@ Break work into clear steps.`,
 
 		writeSettings();
 		const missingResult = runCli(["mcp", "remove", "missing"], {
-			env: { ...createIsolatedEnv(), CLINE_MCP_SETTINGS_PATH: settingsPath },
+			env: { ...createIsolatedEnv(), INDUSCODE_MCP_SETTINGS_PATH: settingsPath },
 		});
 		expect(missingResult.status).toBe(1);
 		expect(asText(missingResult.stderr)).toContain(
@@ -903,7 +903,7 @@ Break work into clear steps.`,
 		const dataDir = mkdtempSync(path.join(os.tmpdir(), "cli-e2e-data-"));
 		const workspace = mkdtempSync(path.join(os.tmpdir(), "cli-e2e-workspace-"));
 		tempDirs.push(homeDir, dataDir, workspace);
-		const workspacePluginsDir = path.join(workspace, ".cline", "plugins");
+		const workspacePluginsDir = path.join(workspace, ".induscode", "plugins");
 		const globalSettingsPath = path.join(
 			dataDir,
 			"settings",
@@ -940,8 +940,8 @@ Break work into clear steps.`,
 			env: {
 				...createIsolatedEnv(),
 				HOME: homeDir,
-				CLINE_DATA_DIR: dataDir,
-				CLINE_GLOBAL_SETTINGS_PATH: globalSettingsPath,
+				INDUSCODE_DATA_DIR: dataDir,
+				INDUSCODE_GLOBAL_SETTINGS_PATH: globalSettingsPath,
 			},
 		});
 		expect(textResult.status).toBe(0);
@@ -964,8 +964,8 @@ Break work into clear steps.`,
 			env: {
 				...createIsolatedEnv(),
 				HOME: homeDir,
-				CLINE_DATA_DIR: dataDir,
-				CLINE_GLOBAL_SETTINGS_PATH: globalSettingsPath,
+				INDUSCODE_DATA_DIR: dataDir,
+				INDUSCODE_GLOBAL_SETTINGS_PATH: globalSettingsPath,
 			},
 		});
 		expect(jsonResult.status).toBe(0);
@@ -1027,7 +1027,7 @@ Break work into clear steps.`,
 		const hookPath = path.join(logDir, "hook-events.jsonl");
 		const defaultHookPath = path.join(
 			homeDir,
-			".cline",
+			".induscode",
 			"data",
 			"logs",
 			"hooks.jsonl",
@@ -1036,13 +1036,13 @@ Break work into clear steps.`,
 			env: {
 				...createIsolatedEnv(),
 				HOME: homeDir,
-				CLINE_SESSION_DATA_DIR: sessionDir,
-				CLINE_HOOKS_LOG_PATH: hookPath,
+				INDUSCODE_SESSION_DATA_DIR: sessionDir,
+				INDUSCODE_HOOKS_LOG_PATH: hookPath,
 			},
 			stdin: JSON.stringify({
 				hookName: "tool_call",
 				taskId: "conversation_1",
-				clineVersion: "",
+				induscodeVersion: "",
 				timestamp: new Date().toISOString(),
 				workspaceRoots: [],
 				userId: "agent_1",

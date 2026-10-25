@@ -7,9 +7,9 @@ import type {
 	ProviderLocalCli,
 } from "../../../utils/local-cli";
 import {
-	ClineModelPicker,
-	type ClineModelPickerEntry,
-} from "../../components/model-selector/cline-model-picker";
+	IndusCodeModelPicker,
+	type IndusCodeModelPickerEntry,
+} from "../../components/model-selector/induscode-model-picker";
 import {
 	type SearchableItem,
 	SearchableList,
@@ -23,8 +23,8 @@ import { useTheme } from "../../hooks/use-theme";
 import { getInputRuleColor, getUserMessageBackground } from "../../palette";
 import { FIELD_ORDER } from "./fields";
 import {
-	type ClinePassSubscriptionOption,
-	type ClinePassSubscriptionStatus,
+	type IndusCodePassSubscriptionOption,
+	type IndusCodePassSubscriptionStatus,
 	canContinueLocalCliSetup,
 	type MenuOption,
 	THINKING_LEVELS,
@@ -53,8 +53,8 @@ function useOnboardingColors() {
 	};
 }
 
-function getClinePassSubscriptionOptionId(index: number): string {
-	return `cline-pass-subscription-option-${index}`;
+function getIndusCodePassSubscriptionOptionId(index: number): string {
+	return `induscode-pass-subscription-option-${index}`;
 }
 
 interface OnboardingFrameProps {
@@ -248,7 +248,7 @@ export function OnboardingDeviceCodeScreen(props: {
 import type {
 	ProviderConfigFieldKey,
 	ProviderConfigFieldRequirement,
-} from "@cline/core";
+} from "@induscode/core";
 
 const DEFAULT_FIELD_LABELS: Partial<Record<ProviderConfigFieldKey, string>> = {
 	apiKey: "API key",
@@ -476,9 +476,9 @@ export function OnboardingProviderPickerScreen(props: {
 	);
 }
 
-export function OnboardingClineModelScreen(props: {
-	clineEntries: ClineModelPickerEntry[];
-	clineModelSelected: number;
+export function OnboardingIndusCodeModelScreen(props: {
+	induscodeEntries: IndusCodeModelPickerEntry[];
+	induscodeModelSelected: number;
 	compact: boolean;
 	contentWidth: number;
 	mouse: MouseTrackerState;
@@ -498,9 +498,9 @@ export function OnboardingClineModelScreen(props: {
 				You can change this anytime
 			</text>
 
-			<ClineModelPicker
-				entries={props.clineEntries}
-				selected={props.clineModelSelected}
+			<IndusCodeModelPicker
+				entries={props.induscodeEntries}
+				selected={props.induscodeModelSelected}
 				loading={props.recommendedLoading}
 			/>
 
@@ -511,17 +511,17 @@ export function OnboardingClineModelScreen(props: {
 	);
 }
 
-export function OnboardingClinePassSubscriptionScreen(props: {
+export function OnboardingIndusCodePassSubscriptionScreen(props: {
 	compact: boolean;
 	contentWidth: number;
 	currentPlanName: string;
 	error: string;
 	mouse: MouseTrackerState;
 	openStatus: string;
-	options: ClinePassSubscriptionOption[];
+	options: IndusCodePassSubscriptionOption[];
 	planFeatures: string[];
 	selected: number;
-	status: ClinePassSubscriptionStatus;
+	status: IndusCodePassSubscriptionStatus;
 	subscriptionUrl: string;
 }) {
 	const defaultFg = useDefaultFg();
@@ -539,7 +539,7 @@ export function OnboardingClinePassSubscriptionScreen(props: {
 		}
 		const scrollSelectedOptionIntoView = () => {
 			scrollRef.current?.scrollChildIntoView(
-				getClinePassSubscriptionOptionId(props.selected),
+				getIndusCodePassSubscriptionOptionId(props.selected),
 			);
 		};
 		scrollSelectedOptionIntoView();
@@ -579,32 +579,32 @@ export function OnboardingClinePassSubscriptionScreen(props: {
 							flexShrink={0}
 						>
 							{isSubscribed
-								? "ClinePass subscription active"
-								: "ClinePass subscription required"}
+								? "IndusCodePass subscription active"
+								: "IndusCodePass subscription required"}
 						</text>
 
 						{isLoading ? (
 							<box flexDirection="row" gap={1} flexShrink={0}>
 								<spinner name="dots" color="gray" />
-								<text fg="gray">Checking your ClinePass subscription...</text>
+								<text fg="gray">Checking your IndusCodePass subscription...</text>
 							</box>
 						) : isSubscribed ? (
 							<text fg={defaultFg} selectable flexShrink={0}>
-								Current plan: {props.currentPlanName || "ClinePass"}
+								Current plan: {props.currentPlanName || "IndusCodePass"}
 							</text>
 						) : isError ? (
 							<text
 								fg={defaultFg}
 								selectable
 								flexShrink={0}
-								content="Could not verify your ClinePass subscription. Re-check before choosing a ClinePass model."
+								content="Could not verify your IndusCodePass subscription. Re-check before choosing a IndusCodePass model."
 							/>
 						) : (
 							<text
 								fg={defaultFg}
 								selectable
 								flexShrink={0}
-								content="No access to ClinePass subscription models yet. Subscribe to ClinePass, the low cost open weights model coding plan."
+								content="No access to IndusCodePass subscription models yet. Subscribe to IndusCodePass, the low cost open weights model coding plan."
 							/>
 						)}
 
@@ -648,7 +648,7 @@ export function OnboardingClinePassSubscriptionScreen(props: {
 									const isSel = i === props.selected;
 									return (
 										<box
-											id={getClinePassSubscriptionOptionId(i)}
+											id={getIndusCodePassSubscriptionOptionId(i)}
 											key={option.value}
 											paddingX={1}
 											flexDirection="row"
@@ -893,7 +893,7 @@ export function OnboardingMainMenuScreen(props: {
 				marginTop={1}
 			>
 				<text fg={defaultFg}>
-					<strong>Welcome to Cline</strong>
+					<strong>Welcome to IndusCode</strong>
 				</text>
 				<text fg="gray" marginTop={1}>
 					Connect a model provider to get started.

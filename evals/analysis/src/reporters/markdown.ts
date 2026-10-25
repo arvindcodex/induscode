@@ -1,5 +1,5 @@
 /**
- * Markdown reporter for Cline analysis results
+ * Markdown reporter for IndusCode analysis results
  *
  * Generates human-readable reports with:
  * - Summary metrics (pass@k, cost, duration)
@@ -33,7 +33,7 @@ export class MarkdownReporter {
 
 	private generateHeader(output: AnalysisOutputV1, useColor: boolean): string {
 		const separator = "━".repeat(79)
-		const title = "Cline Bench Analysis Report"
+		const title = "IndusCode Bench Analysis Report"
 
 		const lines = [
 			useColor ? chalk.bold(separator) : separator,

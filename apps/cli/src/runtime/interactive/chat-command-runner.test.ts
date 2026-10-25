@@ -13,7 +13,7 @@ import {
 function makeConfig(): Config {
 	return {
 		apiKey: "",
-		providerId: "cline",
+		providerId: "induscode",
 		modelId: "openai/gpt-5.3-codex",
 		verbose: false,
 		sandbox: false,

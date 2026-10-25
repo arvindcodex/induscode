@@ -42,7 +42,7 @@ describe("mcp config loader", () => {
 	it("loads and validates mcp server registrations from JSON", async () => {
 		const tempRoot = await mkdtemp(join(tmpdir(), "core-mcp-config-loader-"));
 		tempRoots.push(tempRoot);
-		const filePath = join(tempRoot, "cline_mcp_settings.json");
+		const filePath = join(tempRoot, "induscode_mcp_settings.json");
 		await writeFile(
 			filePath,
 			JSON.stringify(
@@ -104,7 +104,7 @@ describe("mcp config loader", () => {
 	it("parses per-server timeout (seconds) in nested and legacy formats", async () => {
 		const tempRoot = await mkdtemp(join(tmpdir(), "core-mcp-config-loader-"));
 		tempRoots.push(tempRoot);
-		const filePath = join(tempRoot, "cline_mcp_settings.json");
+		const filePath = join(tempRoot, "induscode_mcp_settings.json");
 		await writeFile(
 			filePath,
 			JSON.stringify({
@@ -136,7 +136,7 @@ describe("mcp config loader", () => {
 	it("clamps out-of-range timeout values instead of failing the file", async () => {
 		const tempRoot = await mkdtemp(join(tmpdir(), "core-mcp-config-loader-"));
 		tempRoots.push(tempRoot);
-		const filePath = join(tempRoot, "cline_mcp_settings.json");
+		const filePath = join(tempRoot, "induscode_mcp_settings.json");
 		await writeFile(
 			filePath,
 			JSON.stringify({
@@ -164,7 +164,7 @@ describe("mcp config loader", () => {
 	it("preserves malformed timeout values as unconfigured without rejecting valid sibling servers", async () => {
 		const tempRoot = await mkdtemp(join(tmpdir(), "core-mcp-config-loader-"));
 		tempRoots.push(tempRoot);
-		const filePath = join(tempRoot, "cline_mcp_settings.json");
+		const filePath = join(tempRoot, "induscode_mcp_settings.json");
 		await writeFile(
 			filePath,
 			JSON.stringify({
@@ -192,7 +192,7 @@ describe("mcp config loader", () => {
 	it("registers loaded servers with an mcp manager", async () => {
 		const tempRoot = await mkdtemp(join(tmpdir(), "core-mcp-config-loader-"));
 		tempRoots.push(tempRoot);
-		const filePath = join(tempRoot, "cline_mcp_settings.json");
+		const filePath = join(tempRoot, "induscode_mcp_settings.json");
 		await writeFile(
 			filePath,
 			JSON.stringify(
@@ -237,7 +237,7 @@ describe("mcp config loader", () => {
 	it("throws a clear error for invalid config", async () => {
 		const tempRoot = await mkdtemp(join(tmpdir(), "core-mcp-config-loader-"));
 		tempRoots.push(tempRoot);
-		const filePath = join(tempRoot, "cline_mcp_settings.json");
+		const filePath = join(tempRoot, "induscode_mcp_settings.json");
 		await writeFile(
 			filePath,
 			JSON.stringify(
@@ -265,7 +265,7 @@ describe("mcp config loader", () => {
 	it("resolves a valid server without requiring malformed siblings to parse", async () => {
 		const tempRoot = await mkdtemp(join(tmpdir(), "core-mcp-config-loader-"));
 		tempRoots.push(tempRoot);
-		const filePath = join(tempRoot, "cline_mcp_settings.json");
+		const filePath = join(tempRoot, "induscode_mcp_settings.json");
 		await writeFile(
 			filePath,
 			JSON.stringify({
@@ -300,7 +300,7 @@ describe("mcp config loader", () => {
 	it("accepts legacy flat stdio format", async () => {
 		const tempRoot = await mkdtemp(join(tmpdir(), "core-mcp-config-loader-"));
 		tempRoots.push(tempRoot);
-		const filePath = join(tempRoot, "cline_mcp_settings.json");
+		const filePath = join(tempRoot, "induscode_mcp_settings.json");
 		await writeFile(
 			filePath,
 			JSON.stringify(
@@ -337,7 +337,7 @@ describe("mcp config loader", () => {
 	it("uses the native HTTP transport for an mcp-remote proxy entry", async () => {
 		const tempRoot = await mkdtemp(join(tmpdir(), "core-mcp-config-loader-"));
 		tempRoots.push(tempRoot);
-		const filePath = join(tempRoot, "cline_mcp_settings.json");
+		const filePath = join(tempRoot, "induscode_mcp_settings.json");
 		await writeFile(
 			filePath,
 			JSON.stringify({
@@ -384,7 +384,7 @@ describe("mcp config loader", () => {
 	it("accepts legacy flat url format and preserves explicit transportType", async () => {
 		const tempRoot = await mkdtemp(join(tmpdir(), "core-mcp-config-loader-"));
 		tempRoots.push(tempRoot);
-		const filePath = join(tempRoot, "cline_mcp_settings.json");
+		const filePath = join(tempRoot, "induscode_mcp_settings.json");
 		await writeFile(
 			filePath,
 			JSON.stringify(
@@ -433,7 +433,7 @@ describe("mcp config loader", () => {
 	it("updates disabled state while preserving legacy server shape and top-level settings", async () => {
 		const tempRoot = await mkdtemp(join(tmpdir(), "core-mcp-config-loader-"));
 		tempRoots.push(tempRoot);
-		const filePath = join(tempRoot, "cline_mcp_settings.json");
+		const filePath = join(tempRoot, "induscode_mcp_settings.json");
 		await writeFile(
 			filePath,
 			JSON.stringify(
@@ -477,7 +477,7 @@ describe("mcp config loader", () => {
 	it("loads and updates sdk-managed oauth state in server entries", async () => {
 		const tempRoot = await mkdtemp(join(tmpdir(), "core-mcp-config-loader-"));
 		tempRoots.push(tempRoot);
-		const filePath = join(tempRoot, "cline_mcp_settings.json");
+		const filePath = join(tempRoot, "induscode_mcp_settings.json");
 		await writeFile(
 			filePath,
 			JSON.stringify(
@@ -549,7 +549,7 @@ describe("mcp config loader", () => {
 	it("rejects inherited server names when updating oauth state", async () => {
 		const tempRoot = await mkdtemp(join(tmpdir(), "core-mcp-config-loader-"));
 		tempRoots.push(tempRoot);
-		const filePath = join(tempRoot, "cline_mcp_settings.json");
+		const filePath = join(tempRoot, "induscode_mcp_settings.json");
 		await writeFile(
 			filePath,
 			JSON.stringify(
@@ -589,7 +589,7 @@ describe("mcp config loader", () => {
 	it("serializes concurrent oauth updates so neither write is lost", async () => {
 		const tempRoot = await mkdtemp(join(tmpdir(), "core-mcp-config-loader-"));
 		tempRoots.push(tempRoot);
-		const filePath = join(tempRoot, "cline_mcp_settings.json");
+		const filePath = join(tempRoot, "induscode_mcp_settings.json");
 		await writeFile(
 			filePath,
 			JSON.stringify(
@@ -644,7 +644,7 @@ describe("mcp config loader", () => {
 	it("reclaims a stale lock directory older than the hang timeout", async () => {
 		const tempRoot = await mkdtemp(join(tmpdir(), "core-mcp-config-loader-"));
 		tempRoots.push(tempRoot);
-		const filePath = join(tempRoot, "cline_mcp_settings.json");
+		const filePath = join(tempRoot, "induscode_mcp_settings.json");
 		await writeFile(
 			filePath,
 			JSON.stringify({ mcpServers: {} }, null, 2),
@@ -674,7 +674,7 @@ describe("mcp config loader", () => {
 	it("does not delete another owner's replacement lock directory on release", async () => {
 		const tempRoot = await mkdtemp(join(tmpdir(), "core-mcp-config-loader-"));
 		tempRoots.push(tempRoot);
-		const filePath = join(tempRoot, "cline_mcp_settings.json");
+		const filePath = join(tempRoot, "induscode_mcp_settings.json");
 		await writeFile(
 			filePath,
 			JSON.stringify({ mcpServers: {} }, null, 2),
@@ -705,7 +705,7 @@ describe("mcp config loader", () => {
 	it("rejects impure settings mutators whose output changes across calls", async () => {
 		const tempRoot = await mkdtemp(join(tmpdir(), "core-mcp-config-loader-"));
 		tempRoots.push(tempRoot);
-		const filePath = join(tempRoot, "cline_mcp_settings.json");
+		const filePath = join(tempRoot, "induscode_mcp_settings.json");
 		await writeFile(
 			filePath,
 			JSON.stringify({ mcpServers: {} }, null, 2),
@@ -739,7 +739,7 @@ describe("updateMcpSettingsFile (async acquisition)", () => {
 			join(tmpdir(), "core-mcp-config-loader-async-"),
 		);
 		tempRoots.push(tempRoot);
-		const filePath = join(tempRoot, "cline_mcp_settings.json");
+		const filePath = join(tempRoot, "induscode_mcp_settings.json");
 		await writeFile(
 			filePath,
 			JSON.stringify({ mcpServers: {} }, null, 2),
@@ -856,7 +856,7 @@ describe("updateMcpSettingsFile (async acquisition)", () => {
 			join(tmpdir(), "core-mcp-config-loader-async-"),
 		);
 		tempRoots.push(tempRoot);
-		const filePath = join(tempRoot, "cline_mcp_settings.json");
+		const filePath = join(tempRoot, "induscode_mcp_settings.json");
 
 		await updateMcpSettingsFile(filePath, (settings) => {
 			const servers = settings.mcpServers as Record<string, unknown>;

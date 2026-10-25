@@ -1,4 +1,4 @@
-import type { ClineMessage, TurnState } from "@shared/ExtensionMessage"
+import type { IndusCodeMessage, TurnState } from "@shared/ExtensionMessage"
 import { act, fireEvent, render, screen } from "@testing-library/react"
 import type { ReactNode } from "react"
 import { describe, expect, it, vi } from "vitest"
@@ -19,7 +19,7 @@ vi.mock("../../../../../context/ExtensionStateContext", () => ({
 	useExtensionState: () => ({ turnState: mockTurnState() }),
 }))
 
-function fileApprovalAsk(ts: number, path: string): ClineMessage {
+function fileApprovalAsk(ts: number, path: string): IndusCodeMessage {
 	return {
 		ts,
 		type: "ask",
@@ -49,7 +49,7 @@ function makeChatState(): ChatState {
 describe("ActionButtons", () => {
 	it("does not render a scroll button when there are no action buttons", () => {
 		mockTurnState.mockReturnValue(undefined)
-		const task: ClineMessage = {
+		const task: IndusCodeMessage = {
 			ts: 1,
 			type: "ask",
 			ask: "followup",
@@ -112,8 +112,8 @@ describe("ActionButtons", () => {
 
 	it("passes Retry its preserving action without reading the draft", () => {
 		mockTurnState.mockReturnValue({ phase: "error", anchorTs: 2 })
-		const task: ClineMessage = { ts: 1, type: "say", say: "task", text: "task" }
-		const failed: ClineMessage = { ts: 2, type: "ask", ask: "api_req_failed", text: "server error" }
+		const task: IndusCodeMessage = { ts: 1, type: "say", say: "task", text: "task" }
+		const failed: IndusCodeMessage = { ts: 2, type: "ask", ask: "api_req_failed", text: "server error" }
 		const executeButtonAction = vi.fn().mockResolvedValue(true)
 		const chatState = {
 			...makeChatState(),
@@ -148,8 +148,8 @@ describe("ActionButtons", () => {
 
 	it("disables recovery buttons while a composer response is in flight", () => {
 		mockTurnState.mockReturnValue({ phase: "error", anchorTs: 2, seq: 3 })
-		const task: ClineMessage = { ts: 1, type: "say", say: "task", text: "task" }
-		const failed: ClineMessage = { ts: 2, type: "ask", ask: "api_req_failed", text: "server error" }
+		const task: IndusCodeMessage = { ts: 1, type: "say", say: "task", text: "task" }
+		const failed: IndusCodeMessage = { ts: 2, type: "ask", ask: "api_req_failed", text: "server error" }
 
 		render(
 			<ActionButtons
@@ -172,8 +172,8 @@ describe("ActionButtons", () => {
 
 	it("re-enables recovery buttons when the turn sequence advances", () => {
 		mockTurnState.mockReturnValue({ phase: "error", anchorTs: 2, seq: 3 })
-		const task: ClineMessage = { ts: 1, type: "say", say: "task", text: "task" }
-		const failed: ClineMessage = { ts: 2, type: "ask", ask: "api_req_failed", text: "server error" }
+		const task: IndusCodeMessage = { ts: 1, type: "say", say: "task", text: "task" }
+		const failed: IndusCodeMessage = { ts: 2, type: "ask", ask: "api_req_failed", text: "server error" }
 		const props = {
 			task,
 			chatState: makeChatState(),
@@ -195,8 +195,8 @@ describe("ActionButtons", () => {
 
 	it("releases its local latch when another recovery control owns the turn", async () => {
 		mockTurnState.mockReturnValue({ phase: "error", anchorTs: 2, seq: 3 })
-		const task: ClineMessage = { ts: 1, type: "say", say: "task", text: "task" }
-		const failed: ClineMessage = { ts: 2, type: "ask", ask: "api_req_failed", text: "server error" }
+		const task: IndusCodeMessage = { ts: 1, type: "say", say: "task", text: "task" }
+		const failed: IndusCodeMessage = { ts: 2, type: "ask", ask: "api_req_failed", text: "server error" }
 
 		render(
 			<ActionButtons
@@ -249,8 +249,8 @@ describe("ActionButtons", () => {
 
 	it("does not clear a draft when command output advances to the next request", () => {
 		mockTurnState.mockReturnValue({ phase: "streaming" })
-		const commandOutput: ClineMessage = { ts: 1, type: "ask", ask: "command_output", text: "partial output" }
-		const requestStarted: ClineMessage = { ts: 2, type: "say", say: "api_req_started", text: "{}" }
+		const commandOutput: IndusCodeMessage = { ts: 1, type: "ask", ask: "command_output", text: "partial output" }
+		const requestStarted: IndusCodeMessage = { ts: 2, type: "say", say: "api_req_started", text: "{}" }
 		const chatState = makeChatState()
 
 		render(

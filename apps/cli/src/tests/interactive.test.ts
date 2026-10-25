@@ -1,15 +1,15 @@
 import { expect, test } from "@microsoft/tui-test";
-import { CLINE_BIN } from "./helpers/constants.js";
-import { clineEnv } from "./helpers/env.js";
+import { INDUSCODE_BIN } from "./helpers/constants.js";
+import { induscodeEnv } from "./helpers/env.js";
 import { waitForChatReady } from "./helpers/page-objects/chat.js";
 import { expectVisible, waitForTerminalExit } from "./helpers/terminal.js";
 
-test.describe("cline interactive basics", () => {
+test.describe("induscode interactive basics", () => {
 	test.use({
-		program: { file: CLINE_BIN, args: [] },
+		program: { file: INDUSCODE_BIN, args: [] },
 		rows: 50,
 		columns: 120,
-		env: clineEnv("default"),
+		env: induscodeEnv("default"),
 	});
 
 	test("shows logo, prompt, and hints", async ({ terminal }) => {
@@ -37,12 +37,12 @@ test.describe("cline interactive basics", () => {
 	});
 });
 
-test.describe("cline interactive provider flag", () => {
+test.describe("induscode interactive provider flag", () => {
 	test.use({
-		program: { file: CLINE_BIN, args: ["-P", "cline"] },
+		program: { file: INDUSCODE_BIN, args: ["-P", "induscode"] },
 		rows: 50,
 		columns: 120,
-		env: clineEnv("default"),
+		env: induscodeEnv("default"),
 	});
 
 	test("exits idle TUI after one Ctrl+C", async ({ terminal }) => {

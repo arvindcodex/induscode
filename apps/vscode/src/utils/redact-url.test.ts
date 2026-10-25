@@ -14,8 +14,8 @@ function split(redacted: string): { text: string; fingerprint: string } {
 
 describe("redactUrlForLog", () => {
 	it("keeps only the origin", () => {
-		expect(split(redactUrlForLog("https://api.cline.bot/api/v1/auth/authorize?state=abc&code_challenge=xyz#frag")).text).toBe(
-			"https://api.cline.bot",
+		expect(split(redactUrlForLog("https://api.induscode.bot/api/v1/auth/authorize?state=abc&code_challenge=xyz#frag")).text).toBe(
+			"https://api.induscode.bot",
 		)
 	})
 

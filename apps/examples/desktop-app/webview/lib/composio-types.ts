@@ -1,7 +1,7 @@
 /**
  * Shared shapes for the Composio connectors feature (Gmail, Google Calendar,
  * GitHub, and the wider Composio toolkit catalog). Imported by both the
- * webview and the sidecar, mirroring `cline-integrations-types.ts`.
+ * webview and the sidecar, mirroring `induscode-integrations-types.ts`.
  */
 
 /** A Composio toolkit slug, e.g. "gmail", "googlecalendar", "github". */
@@ -39,7 +39,7 @@ export type ComposioIntegrationSummary = {
 export type ComposioStatusResponse = {
 	/**
 	 * True when connectors are available to this install: the user is signed
-	 * in to a Cline account that the Cline API connectors proxy entitles for
+	 * in to a IndusCode account that the IndusCode API connectors proxy entitles for
 	 * the feature. The Connectors UI is hidden entirely when false. There is
 	 * no user-entered or client-held API key — the proxy holds the Composio
 	 * key server-side.

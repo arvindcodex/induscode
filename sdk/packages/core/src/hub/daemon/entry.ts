@@ -1,10 +1,10 @@
-import { AgentRuntimeAbortError } from "@cline/agents";
+import { AgentRuntimeAbortError } from "@induscode/agents";
 import {
 	captureSdkError,
 	ensureLoopbackProxyBypass,
 	initVcr,
-	resolveClineBuildEnv,
-} from "@cline/shared";
+	resolveIndusCodeBuildEnv,
+} from "@induscode/shared";
 import {
 	resolveAgentPluginPathsWithDiagnostics,
 	resolvePluginExecutionMode,
@@ -34,7 +34,7 @@ import {
 } from "./shutdown-coordinator";
 import { createHubDaemonTelemetry } from "./telemetry";
 
-initVcr(process.env.CLINE_VCR);
+initVcr(process.env.INDUSCODE_VCR);
 
 let resolveHubDaemonReady!: () => void;
 let rejectHubDaemonReady!: (error: unknown) => void;
@@ -277,7 +277,7 @@ async function main(): Promise<void> {
 			port: endpoint.port,
 			pathname: endpoint.pathname,
 			owner:
-				resolveClineBuildEnv() === "production"
+				resolveIndusCodeBuildEnv() === "production"
 					? resolveProductionHubOwnerContext()
 					: resolveSharedHubOwnerContext(),
 			telemetry: daemonTelemetry.telemetry,

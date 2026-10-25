@@ -1,4 +1,4 @@
-import { ProviderConfigResponse, WriteProviderConfigRequest } from "@/shared/proto/cline/models"
+import { ProviderConfigResponse, WriteProviderConfigRequest } from "@/shared/proto/induscode/models"
 import {
 	type ProviderCatalogController,
 	parseProviderIdRequest,

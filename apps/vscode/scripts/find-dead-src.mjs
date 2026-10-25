@@ -2,7 +2,7 @@
 // that drives tree-shaking + minification mangling) to compute which src/ files
 // are reachable from BOTH shipped entry points:
 //   - src/extension.ts            (VS Code extension host)
-//   - src/standalone/cline-core.ts (standalone host used by JetBrains + CLI)
+//   - src/standalone/induscode-core.ts (standalone host used by JetBrains + CLI)
 //
 // A src/*.ts file that is NOT in the union of metafile inputs for those two
 // builds is unreachable from any shipped entry => dead (modulo dynamic import()
@@ -80,7 +80,7 @@ async function inputsFor(entry, external) {
 }
 
 const ext = await inputsFor("src/extension.ts", ["vscode"])
-const standalone = await inputsFor("src/standalone/cline-core.ts", [
+const standalone = await inputsFor("src/standalone/induscode-core.ts", [
 	"vscode",
 	"@grpc/reflection",
 	"grpc-health-check",

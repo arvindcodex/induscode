@@ -16,7 +16,7 @@ describe("syncRemoteMcpServersToSettings", () => {
 		sandbox = sinon.createSandbox()
 		tempDir = path.join(os.tmpdir(), `mcp-sync-test-${Date.now()}-${Math.random().toString(36).slice(2)}`)
 		await fs.mkdir(tempDir, { recursive: true })
-		settingsPath = path.join(tempDir, "cline_mcp_settings.json")
+		settingsPath = path.join(tempDir, "induscode_mcp_settings.json")
 
 		await fs.writeFile(settingsPath, JSON.stringify({ mcpServers: {} }, null, 2))
 	})

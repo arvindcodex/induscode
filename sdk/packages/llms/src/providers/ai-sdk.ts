@@ -14,7 +14,7 @@ import type {
 	ModelToolExecution,
 	ModelToolName,
 	ProviderErrorClass,
-} from "@cline/shared";
+} from "@induscode/shared";
 import {
 	type AiSdkFormatterMessage,
 	type AiSdkFormatterPart,
@@ -31,7 +31,7 @@ import {
 	validateAndReserveBase64Media,
 	validateAndReserveImageMedia,
 	validateImageMedia,
-} from "@cline/shared";
+} from "@induscode/shared";
 import {
 	type CallSettings,
 	generateImage,
@@ -704,7 +704,7 @@ function buildAiSdkRuntimeContext(
 		typeof metadata.distinctId === "string" ? metadata.distinctId : undefined;
 
 	return {
-		// `distinctId` is Cline's canonical identity field. Langfuse's data
+		// `distinctId` is IndusCode's canonical identity field. Langfuse's data
 		// model calls the same value `userId`, so expose both in runtime
 		// context and explicitly map distinctId to Langfuse's userId below.
 		...(distinctId ? { distinctId, userId: distinctId } : {}),
@@ -717,11 +717,11 @@ function buildAiSdkRuntimeContext(
 		...(typeof metadata.clientVersion === "string"
 			? { clientVersion: metadata.clientVersion }
 			: {}),
-		...(typeof metadata.clineCoreVersion === "string"
-			? { clineCoreVersion: metadata.clineCoreVersion }
+		...(typeof metadata.induscodeCoreVersion === "string"
+			? { induscodeCoreVersion: metadata.induscodeCoreVersion }
 			: {}),
 		...(tags && tags.length > 0 ? { tags } : {}),
-		// Keep Cline correlation fields available even when the integration
+		// Keep IndusCode correlation fields available even when the integration
 		// does not promote them to first-class Langfuse fields.
 		...(typeof metadata.conversationId === "string"
 			? { conversationId: metadata.conversationId }
@@ -1332,19 +1332,19 @@ export function normalizeUsage(
 		REASONING_TOKEN_PATHS,
 	);
 	const pricing = pricingValue as Record<string, unknown> | undefined;
-	// Cline's included models have no per-request charge, even when the
+	// IndusCode's included models have no per-request charge, even when the
 	// response includes the upstream inference or market cost.
-	const includedClineUsage =
-		selection?.providerId === "cline-pass" ||
-		(selection?.providerId === "cline" &&
-			(selection.modelId.startsWith("cline-pass/") ||
-				selection.modelId.startsWith("cline-free/") ||
+	const includedIndusCodeUsage =
+		selection?.providerId === "induscode-pass" ||
+		(selection?.providerId === "induscode" &&
+			(selection.modelId.startsWith("induscode-pass/") ||
+				selection.modelId.startsWith("induscode-free/") ||
 				selection.modelId.endsWith(":free") ||
 				(pricing?.input === 0 &&
 					pricing?.output === 0 &&
 					(pricing.cacheRead ?? 0) === 0 &&
 					(pricing.cacheWrite ?? 0) === 0)));
-	const resolvedTotalCost = includedClineUsage
+	const resolvedTotalCost = includedIndusCodeUsage
 		? 0
 		: totalCost !== undefined
 			? totalCost
@@ -2055,9 +2055,9 @@ async function createProviderModule(
 	context: GatewayProviderContext,
 ): Promise<ProviderFactoryResult> {
 	switch (kind) {
-		case "cline": {
-			const { createClineProviderModule } = await import("./vendors/cline");
-			return createClineProviderModule(config, context);
+		case "induscode": {
+			const { createIndusCodeProviderModule } = await import("./vendors/induscode");
+			return createIndusCodeProviderModule(config, context);
 		}
 		case "openai": {
 			const { createOpenAIProviderModule } = await import("./vendors/openai");
@@ -2132,7 +2132,7 @@ async function createProviderModule(
  *
  * All-empty turns (no text, no reasoning, no tool call) are a cross-provider
  * phenomenon: production telemetry shows them on hosted backends (openrouter,
- * cline, generic OpenAI-compatible endpoints), not just local Ollama. An
+ * induscode, generic OpenAI-compatible endpoints), not just local Ollama. An
  * empty assistant turn is a hard failure in the agent runtime ("Model
  * returned empty response"), so a single transient flake kills the task.
  * The same telemetry shows mid-stream network deaths (UND_ERR_SOCKET,
@@ -2447,14 +2447,14 @@ function createAiSdkProvider(
 							experimental_repairToolCall: repairMalformedToolCall as never,
 							telemetry: {
 								...aiSdkTelemetry,
-								functionId: "cline-agent-turn",
+								functionId: "induscode-agent-turn",
 								includeRuntimeContext: {
 									distinctId: true,
 									userId: true,
 									sessionId: true,
 									clientName: true,
 									clientVersion: true,
-									clineCoreVersion: true,
+									induscodeCoreVersion: true,
 									tags: true,
 									conversationId: true,
 									runId: true,
@@ -2548,7 +2548,7 @@ function resolveModelProviderKind(
 }
 
 export const createOpenAIProvider = createAiSdkProvider("openai");
-export const createClineProvider = createAiSdkProvider("cline");
+export const createIndusCodeProvider = createAiSdkProvider("induscode");
 export const createOpenAICompatibleProvider =
 	createAiSdkProvider("openai-compatible");
 export const createAnthropicProvider = createAiSdkProvider("anthropic");

@@ -11,7 +11,7 @@ const scroller = vi.hoisted(() => ({
 	currentAnchorId: null as string | null,
 	scrollToMessage: vi.fn(),
 }));
-vi.mock("@cline/ui/components/message-scroller", () => ({
+vi.mock("@induscode/ui/components/message-scroller", () => ({
 	useMessageScroller: () => ({ scrollToMessage: scroller.scrollToMessage }),
 	useMessageScrollerVisibility: () => ({
 		currentAnchorId: scroller.currentAnchorId,

@@ -2,7 +2,7 @@
  * Unit tests for `RuntimeEventAdapter` and `toLegacyAgentEvent`.
  *
  * Covers the `AgentRuntimeEvent` variants enumerated
- * in `@cline/shared/src/agent.ts:390-468`. For each variant the
+ * in `@induscode/shared/src/agent.ts:390-468`. For each variant the
  * test asserts the mapping described in PLAN.md §3.3.2 (with the
  * text/reasoning-delta correction documented at the top of
  * `runtime-event-adapter.ts`).
@@ -20,7 +20,7 @@ import type {
 	AgentRuntimeStateSnapshot,
 	AgentToolCallPart,
 	AgentUsage,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
 	RuntimeEventAdapter,
@@ -109,7 +109,7 @@ describe("RuntimeEventAdapter — model tools", () => {
 			toolCallId: "search_1",
 			toolName: "web_search",
 			execution: "provider" as const,
-			input: { query: "Cline" },
+			input: { query: "IndusCode" },
 		};
 
 		expect(
@@ -125,7 +125,7 @@ describe("RuntimeEventAdapter — model tools", () => {
 				contentType: "tool",
 				toolName: "web_search",
 				toolCallId: "search_1",
-				input: { query: "Cline" },
+				input: { query: "IndusCode" },
 				execution: "provider",
 			},
 		]);

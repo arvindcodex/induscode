@@ -39,14 +39,14 @@ describe("internal launch helpers", () => {
 
 	it("falls back to launching the compiled binary directly for bunfs argv", () => {
 		const command = buildCliSubcommandCommand("hub", ["start"], {
-			execPath: "/tmp/cline",
-			argv: ["bun", "/$bunfs/root/cline", "hey"],
+			execPath: "/tmp/induscode",
+			argv: ["bun", "/$bunfs/root/induscode", "hey"],
 			execArgv: [],
 			cwd: "/tmp",
 		});
 
 		expect(command).toEqual({
-			launcher: "/tmp/cline",
+			launcher: "/tmp/induscode",
 			childArgs: ["hub", "start"],
 		});
 	});
@@ -59,7 +59,7 @@ describe("internal launch helpers", () => {
 			argv: ["node", "./apps/cli/src/index.ts"],
 			execArgv: [],
 			cwd: repoRoot,
-			env: { CLINE_BUILD_ENV: "development" },
+			env: { INDUSCODE_BUILD_ENV: "development" },
 		});
 
 		expect(command).toEqual({

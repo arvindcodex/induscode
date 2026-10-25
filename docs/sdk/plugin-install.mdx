@@ -4,23 +4,23 @@ sidebarTitle: "Installing Plugins"
 description: "Install plugins from file URLs, npm, git, or local sources using the CLI or programmatically."
 ---
 
-The Cline CLI provides a `plugin install` command to install plugins from various sources. You can also load plugins programmatically via session config.
+The IndusCode CLI provides a `plugin install` command to install plugins from various sources. You can also load plugins programmatically via session config.
 
 ## CLI Installation
 
-Use the `cline plugin install` command to install plugins from file URLs, npm, git repositories, or local paths.
+Use the `induscode plugin install` command to install plugins from file URLs, npm, git repositories, or local paths.
 
 ```sh
-cline plugin install <source> [options]
+induscode plugin install <source> [options]
 ```
 
-The shorthand `cline plugin i` works as well.
+The shorthand `induscode plugin i` works as well.
 
 ### Install from a File URL
 
 ```sh
-cline plugin install https://github.com/cline/cline/blob/main/sdk/examples/plugins/weather-metrics.ts
-cline plugin install https://raw.githubusercontent.com/cline/cline/main/sdk/examples/plugins/weather-metrics.ts
+induscode plugin install https://github.com/induscode/induscode/blob/main/sdk/examples/plugins/weather-metrics.ts
+induscode plugin install https://raw.githubusercontent.com/induscode/induscode/main/sdk/examples/plugins/weather-metrics.ts
 ```
 
 Installs a single `.ts` or `.js` plugin file from an HTTPS URL. GitHub `blob` URLs are normalized to raw file downloads automatically.
@@ -28,16 +28,16 @@ Installs a single `.ts` or `.js` plugin file from an HTTPS URL. GitHub `blob` UR
 ### Install from npm
 
 ```sh
-cline plugin install --npm @scope/plugin-name
+induscode plugin install --npm @scope/plugin-name
 ```
 
-Installs the package from the npm registry into the Cline plugin directory.
+Installs the package from the npm registry into the IndusCode plugin directory.
 
 ### Install from Git
 
 ```sh
-cline plugin install --git https://github.com/owner/repo.git
-cline plugin install --git github.com/owner/repo
+induscode plugin install --git https://github.com/owner/repo.git
+induscode plugin install --git github.com/owner/repo
 ```
 
 Clones the repository (shallow, with blobless filter for speed) and installs its dependencies. The `.git` directory is excluded from the final install.
@@ -45,8 +45,8 @@ Clones the repository (shallow, with blobless filter for speed) and installs its
 ### Install from Local Source
 
 ```sh
-cline plugin install ./path/to/plugin.ts     # Single file
-cline plugin install /absolute/path/to/dir   # Directory with package.json
+induscode plugin install ./path/to/plugin.ts     # Single file
+induscode plugin install /absolute/path/to/dir   # Directory with package.json
 ```
 
 Supports both files and directories. Local installs copy the source, filter out `.git` and `node_modules`, and run `npm install` to resolve dependencies.
@@ -59,28 +59,28 @@ Supports both files and directories. Local installs copy the source, filter out 
 | `--git` | Treat the source as a git repository URL |
 | `--force` | Overwrite an existing plugin at the same path |
 | `--json` | Output results as JSON (useful for scripting) |
-| `--cwd` | Install to `<path>/.cline/plugins` and resolve relative local paths from `<path>` |
+| `--cwd` | Install to `<path>/.induscode/plugins` and resolve relative local paths from `<path>` |
 
 ### Examples
 
 ```sh
 # Install a local plugin directory
-cline plugin install ./my-custom-plugin
+induscode plugin install ./my-custom-plugin
 
 # Install a single plugin file from GitHub
-cline plugin install https://github.com/cline/cline/blob/main/sdk/examples/plugins/weather-metrics.ts
+induscode plugin install https://github.com/induscode/induscode/blob/main/sdk/examples/plugins/weather-metrics.ts
 
 # Install an npm package as a plugin
-cline plugin install --npm @cline/plugin-sql
+induscode plugin install --npm @induscode/plugin-sql
 
 # Install from a GitHub repo
-cline plugin install --git https://github.com/my-org/my-plugin.git
+induscode plugin install --git https://github.com/my-org/my-plugin.git
 
 # Force reinstall an existing plugin
-cline plugin install --force --npm @scope/plugin-name
+induscode plugin install --force --npm @scope/plugin-name
 
 # Use shorthand
-cline plugin i --git github.com/owner/repo
+induscode plugin i --git github.com/owner/repo
 ```
 
 ### Listing Installed Plugins
@@ -88,16 +88,16 @@ cline plugin i --git github.com/owner/repo
 Installed plugins appear in the `plugins` section of your CLI config:
 
 ```sh
-cline config
+induscode config
 ```
 
 ### Find All Your Plugins from your file system
 
-Project-scoped plugins live in the `.cline/plugins/` folder at your workspace root. The CLI auto-discovers plugins from this folder when you run Cline in that project.
+Project-scoped plugins live in the `.induscode/plugins/` folder at your workspace root. The CLI auto-discovers plugins from this folder when you run IndusCode in that project.
 
 ```text
 your-project/
-├── .cline/
+├── .induscode/
 │   └── plugins/
 │       ├── my-plugin.ts
 │       └── another-plugin/
@@ -107,23 +107,23 @@ your-project/
 To add a single-file plugin to a project, install it with `--cwd`:
 
 ```sh
-cline plugin install https://github.com/owner/repo/blob/main/plugins/my-plugin.ts --cwd .
+induscode plugin install https://github.com/owner/repo/blob/main/plugins/my-plugin.ts --cwd .
 ```
 
-Global plugins are discovered from `~/.cline/plugins/`, and Cline may also discover plugins from the system Plugins folder. Use `--cwd .` when you want plugins to stay with a specific project.
+Global plugins are discovered from `~/.induscode/plugins/`, and IndusCode may also discover plugins from the system Plugins folder. Use `--cwd .` when you want plugins to stay with a specific project.
 
 ## Programmatic Installation
 
-### Using `pluginPaths` (ClineCore)
+### Using `pluginPaths` (IndusCodeCore)
 
 In SDK code, load plugins from file paths using the `pluginPaths` session config option:
 
 ```typescript
-import { ClineCore } from "@cline/sdk"
+import { IndusCodeCore } from "@induscode/sdk"
 
-const cline = await ClineCore.create({ clientName: "my-app" })
+const induscode = await IndusCodeCore.create({ clientName: "my-app" })
 
-await cline.start({
+await induscode.start({
   config: {
     systemPrompt: "Analyze this project",
     // ...model/runtime config
@@ -132,14 +132,14 @@ await cline.start({
 })
 ```
 
-Plugin files must export an `AgentPlugin` as the default export. `pluginPaths` also accepts a package directory -- the SDK reads `package.json` and follows the `cline.plugins` entries, so you can `npm install` once inside a package and iterate without re-running `cline plugin install` on every edit.
+Plugin files must export an `AgentPlugin` as the default export. `pluginPaths` also accepts a package directory -- the SDK reads `package.json` and follows the `induscode.plugins` entries, so you can `npm install` once inside a package and iterate without re-running `induscode plugin install` on every edit.
 
 ### Using `plugins` (Agent Runtime)
 
 When using the `Agent` or `AgentRuntime` directly, pass plugin instances in the `plugins` array:
 
 ```typescript
-import { Agent } from "@cline/sdk"
+import { Agent } from "@induscode/sdk"
 import { myPlugin } from "./my-plugin"
 
 const agent = new Agent({
@@ -149,16 +149,16 @@ const agent = new Agent({
 })
 ```
 
-### Using `extensions` (ClineCore)
+### Using `extensions` (IndusCodeCore)
 
-With `ClineCore`, use the `extensions` config array instead:
+With `IndusCodeCore`, use the `extensions` config array instead:
 
 ```typescript
-import { ClineCore } from "@cline/sdk"
+import { IndusCodeCore } from "@induscode/sdk"
 
-const cline = await ClineCore.create({ clientName: "my-app" })
+const induscode = await IndusCodeCore.create({ clientName: "my-app" })
 
-await cline.start({
+await induscode.start({
   config: {
     systemPrompt: "Analyze customer records",
     extensions: [myPlugin],

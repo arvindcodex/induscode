@@ -10,7 +10,7 @@
 import * as assert from "assert"
 import { after, before, describe, it } from "mocha"
 import * as sinon from "sinon"
-import { ClineEndpoint } from "@/config"
+import { IndusCodeEndpoint } from "@/config"
 import { HostProvider } from "@/hosts/host-provider"
 import * as otelConfigModule from "@/shared/services/config/otel-config"
 import * as posthogConfigModule from "@/shared/services/config/posthog-config"
@@ -45,7 +45,7 @@ describe("Telemetry system is abstracted and can easily switch between providers
 	}
 	const MOCK_METADATA: TelemetryMetadata = {
 		extension_version: "1.2.3",
-		cline_type: "cline-unit-test",
+		induscode_type: "induscode-unit-test",
 		platform: "Test-IDE",
 		platform_version: "9.8.7-abc",
 		os_type: "win32",
@@ -66,13 +66,13 @@ describe("Telemetry system is abstracted and can easily switch between providers
 			hostVersionStub.onFirstCall().resolves({
 				platform: "VS Code",
 				version: "1.103.0",
-				clineType: "VSCode Extension",
+				induscodeType: "VSCode Extension",
 				remoteName: "ssh-remote",
 			})
 			hostVersionStub.onSecondCall().resolves({
 				platform: "VS Code",
 				version: "1.103.0",
-				clineType: "VSCode Extension",
+				induscodeType: "VSCode Extension",
 			})
 			createProvidersStub.onFirstCall().resolves([remoteProvider])
 			createProvidersStub.onSecondCall().resolves([localProvider])
@@ -99,14 +99,14 @@ describe("Telemetry system is abstracted and can easily switch between providers
 			await localService.dispose()
 		})
 
-		it("should derive host_plugin_version from the host's clineVersion", async () => {
+		it("should derive host_plugin_version from the host's induscodeVersion", async () => {
 			const cases = [
 				{
 					hostVersion: {
 						platform: "IntelliJ IDEA Ultimate",
 						version: "2026.1.1",
-						clineType: "Cline for JetBrains",
-						clineVersion: "1.1.61",
+						induscodeType: "IndusCode for JetBrains",
+						induscodeVersion: "1.1.61",
 					},
 					expectedHostPluginVersion: "1.1.61" as string | undefined,
 				},
@@ -114,7 +114,7 @@ describe("Telemetry system is abstracted and can easily switch between providers
 					hostVersion: {
 						platform: "VS Code",
 						version: "1.103.0",
-						clineType: "VSCode Extension",
+						induscodeType: "VSCode Extension",
 					},
 					expectedHostPluginVersion: undefined,
 				},
@@ -133,7 +133,7 @@ describe("Telemetry system is abstracted and can easily switch between providers
 					logSpy.resetHistory()
 					service.captureButtonClick("test-button", "task-123")
 
-					assert.ok(logSpy.calledOnce, `service should emit an event (${hostVersion.clineType})`)
+					assert.ok(logSpy.calledOnce, `service should emit an event (${hostVersion.induscodeType})`)
 					assert.strictEqual(logSpy.firstCall.args[1]?.host_plugin_version, expectedHostPluginVersion)
 				} finally {
 					sandbox.restore()
@@ -372,7 +372,7 @@ describe("Telemetry system is abstracted and can easily switch between providers
 		it("should return default configurations", () => {
 			// Mock PostHog config validation to return true for this test
 			const isPostHogConfigValidStub = sinon.stub(posthogConfigModule, "isPostHogConfigValid").returns(true)
-			const isSelfHostedStub = sinon.stub(ClineEndpoint, "isSelfHosted").returns(false)
+			const isSelfHostedStub = sinon.stub(IndusCodeEndpoint, "isSelfHosted").returns(false)
 
 			const defaultConfigs = TelemetryProviderFactory.getDefaultConfigs()
 
@@ -389,8 +389,8 @@ describe("Telemetry system is abstracted and can easily switch between providers
 		})
 
 		it("should NOT include PostHog config when in selfHosted mode", () => {
-			// Stub ClineEndpoint.isSelfHosted() to return true (selfHosted mode)
-			const isSelfHostedStub = sinon.stub(ClineEndpoint, "isSelfHosted").returns(true)
+			// Stub IndusCodeEndpoint.isSelfHosted() to return true (selfHosted mode)
+			const isSelfHostedStub = sinon.stub(IndusCodeEndpoint, "isSelfHosted").returns(true)
 			// Even if PostHog config is valid, it should be skipped
 			const isPostHogConfigValidStub = sinon.stub(posthogConfigModule, "isPostHogConfigValid").returns(true)
 
@@ -406,8 +406,8 @@ describe("Telemetry system is abstracted and can easily switch between providers
 		})
 
 		it("should include PostHog config when NOT in selfHosted mode and config is valid", () => {
-			// Stub ClineEndpoint.isSelfHosted() to return false (normal mode)
-			const isSelfHostedStub = sinon.stub(ClineEndpoint, "isSelfHosted").returns(false)
+			// Stub IndusCodeEndpoint.isSelfHosted() to return false (normal mode)
+			const isSelfHostedStub = sinon.stub(IndusCodeEndpoint, "isSelfHosted").returns(false)
 			const isPostHogConfigValidStub = sinon.stub(posthogConfigModule, "isPostHogConfigValid").returns(true)
 
 			const configs = TelemetryProviderFactory.getDefaultConfigs()
@@ -422,8 +422,8 @@ describe("Telemetry system is abstracted and can easily switch between providers
 		})
 
 		it("should NOT include build-time OTEL config when in selfHosted mode", () => {
-			// Stub ClineEndpoint.isSelfHosted() to return true (selfHosted mode)
-			const isSelfHostedStub = sinon.stub(ClineEndpoint, "isSelfHosted").returns(true)
+			// Stub IndusCodeEndpoint.isSelfHosted() to return true (selfHosted mode)
+			const isSelfHostedStub = sinon.stub(IndusCodeEndpoint, "isSelfHosted").returns(true)
 			// Even if build-time OTEL config is valid, it should be skipped
 			const getValidOtelConfigStub = sinon.stub(otelConfigModule, "getValidOpenTelemetryConfig").returns({
 				enabled: true,
@@ -448,8 +448,8 @@ describe("Telemetry system is abstracted and can easily switch between providers
 		})
 
 		it("should include build-time OTEL config when NOT in selfHosted mode", () => {
-			// Stub ClineEndpoint.isSelfHosted() to return false (normal mode)
-			const isSelfHostedStub = sinon.stub(ClineEndpoint, "isSelfHosted").returns(false)
+			// Stub IndusCodeEndpoint.isSelfHosted() to return false (normal mode)
+			const isSelfHostedStub = sinon.stub(IndusCodeEndpoint, "isSelfHosted").returns(false)
 			const getValidOtelConfigStub = sinon.stub(otelConfigModule, "getValidOpenTelemetryConfig").returns({
 				enabled: true,
 				metricsExporter: "otlp",
@@ -473,8 +473,8 @@ describe("Telemetry system is abstracted and can easily switch between providers
 		})
 
 		it("should STILL include runtime env OTEL config even in selfHosted mode", () => {
-			// Stub ClineEndpoint.isSelfHosted() to return true (selfHosted mode)
-			const isSelfHostedStub = sinon.stub(ClineEndpoint, "isSelfHosted").returns(true)
+			// Stub IndusCodeEndpoint.isSelfHosted() to return true (selfHosted mode)
+			const isSelfHostedStub = sinon.stub(IndusCodeEndpoint, "isSelfHosted").returns(true)
 			// Disable build-time OTEL
 			const getValidOtelConfigStub = sinon.stub(otelConfigModule, "getValidOpenTelemetryConfig").returns(null)
 			// Enable runtime OTEL (user explicitly configured it)

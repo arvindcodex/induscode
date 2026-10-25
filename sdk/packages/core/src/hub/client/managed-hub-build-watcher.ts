@@ -1,5 +1,5 @@
 import { existsSync } from "node:fs";
-import { isHubDaemonProcess, resolveClineBuildEnv } from "@cline/shared";
+import { isHubDaemonProcess, resolveIndusCodeBuildEnv } from "@induscode/shared";
 import {
 	compareHubBuilds,
 	getManagedHubCompatibility,
@@ -16,7 +16,7 @@ import {
 import { queryHubSessionActivity } from "./index";
 
 const DEFAULT_WATCH_INTERVAL_MS = 10_000;
-const WATCH_INTERVAL_ENV = "CLINE_HUB_BUILD_WATCH_INTERVAL_MS";
+const WATCH_INTERVAL_ENV = "INDUSCODE_HUB_BUILD_WATCH_INTERVAL_MS";
 
 function resolveDefaultWatchIntervalMs(): number {
 	const configured = Number(process.env[WATCH_INTERVAL_ENV]);
@@ -77,7 +77,7 @@ async function withHubSessionActivity(
 }
 
 function resolveDefaultHubOwnerContext(): HubOwnerContext {
-	return resolveClineBuildEnv() === "production"
+	return resolveIndusCodeBuildEnv() === "production"
 		? resolveProductionHubOwnerContext()
 		: resolveSharedHubOwnerContext();
 }
@@ -97,7 +97,7 @@ function isHubStartupLockHeld(discoveryPath: string): boolean {
  * transaction is in flight (another client may be mid-replacement), or the
  * running Hub matches this build.
  *
- * A mismatch means another Cline installation replaced the shared Hub with a
+ * A mismatch means another IndusCode installation replaced the shared Hub with a
  * different build (for example, the CLI was updated while the desktop app
  * kept running). This client can keep talking to it over the compatible wire
  * protocol, but it should prompt the user to update and restart so client
@@ -181,14 +181,14 @@ export interface WatchManagedHubBuildOptions {
 
 /**
  * Periodically watch the managed local Hub for a build-identity mismatch and
- * invoke `onMismatch` when another Cline installation has replaced the Hub
+ * invoke `onMismatch` when another IndusCode installation has replaced the Hub
  * with a different build. Fires once per observed Hub build (it will fire
  * again only if the Hub changes to yet another mismatched build after a
  * compatible one was seen, or a different mismatch reason appears).
  *
  * Start this only for managed Hub usage. Hosts configured with an explicit
  * Hub endpoint keep protocol-only compatibility and must not show update
- * prompts, so the watcher refuses to start when `CLINE_HUB_PORT` is set.
+ * prompts, so the watcher refuses to start when `INDUSCODE_HUB_PORT` is set.
  * The first check runs after one interval so app startup (which may itself
  * be replacing a stale Hub) has settled.
  *
@@ -197,7 +197,7 @@ export interface WatchManagedHubBuildOptions {
 export function watchManagedHubBuildMismatch(
 	options: WatchManagedHubBuildOptions,
 ): () => void {
-	if (isHubDaemonProcess() || process.env.CLINE_HUB_PORT?.trim()) {
+	if (isHubDaemonProcess() || process.env.INDUSCODE_HUB_PORT?.trim()) {
 		return () => {};
 	}
 	const intervalMs = options.intervalMs ?? resolveDefaultWatchIntervalMs();

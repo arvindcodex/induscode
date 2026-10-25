@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Cline Hook: PreToolUse (Inject File Context)
+# IndusCode Hook: PreToolUse (Inject File Context)
 # Extracts and injects file context before tool execution
-# Copy to ~/.cline/hooks/PreToolUse.sh and chmod +x
+# Copy to ~/.induscode/hooks/PreToolUse.sh and chmod +x
 
 input=$(cat)
 tool=$(echo "$input" | jq -r '.tool_call.name // ""')

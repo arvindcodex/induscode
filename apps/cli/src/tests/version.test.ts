@@ -1,15 +1,15 @@
 import { test } from "@microsoft/tui-test";
-import { CLINE_BIN } from "./helpers/constants.js";
-import { clineEnv } from "./helpers/env.js";
+import { INDUSCODE_BIN } from "./helpers/constants.js";
+import { induscodeEnv } from "./helpers/env.js";
 import { expectVisible } from "./helpers/terminal.js";
 
 // ---------------------------------------------------------------------------
-// cline --version  (root flag)
+// induscode --version  (root flag)
 // ---------------------------------------------------------------------------
-test.describe("cline --version", () => {
+test.describe("induscode --version", () => {
 	test.use({
-		program: { file: CLINE_BIN, args: ["--version"] },
-		env: clineEnv("claude-sonnet-4.6"),
+		program: { file: INDUSCODE_BIN, args: ["--version"] },
+		env: induscodeEnv("claude-sonnet-4.6"),
 	});
 
 	test("prints the version string", async ({ terminal }) => {
@@ -18,12 +18,12 @@ test.describe("cline --version", () => {
 });
 
 // ---------------------------------------------------------------------------
-// cline -V  (short flag)
+// induscode -V  (short flag)
 // ---------------------------------------------------------------------------
-test.describe("cline -V", () => {
+test.describe("induscode -V", () => {
 	test.use({
-		program: { file: CLINE_BIN, args: ["-V"] },
-		env: clineEnv("claude-sonnet-4.6"),
+		program: { file: INDUSCODE_BIN, args: ["-V"] },
+		env: induscodeEnv("claude-sonnet-4.6"),
 	});
 
 	test("prints the version string with short flag", async ({ terminal }) => {
@@ -32,15 +32,15 @@ test.describe("cline -V", () => {
 });
 
 // ---------------------------------------------------------------------------
-// cline version  (subcommand)
+// induscode version  (subcommand)
 // ---------------------------------------------------------------------------
-test.describe("cline version subcommand", () => {
+test.describe("induscode version subcommand", () => {
 	test.use({
-		program: { file: CLINE_BIN, args: ["version"] },
-		env: clineEnv("claude-sonnet-4.6"),
+		program: { file: INDUSCODE_BIN, args: ["version"] },
+		env: induscodeEnv("claude-sonnet-4.6"),
 	});
 
-	test("prints 'Cline CLI version:' message", async ({ terminal }) => {
+	test("prints 'IndusCode CLI version:' message", async ({ terminal }) => {
 		await expectVisible(terminal, /\d+\.\d+\.\d+/g);
 	});
 });

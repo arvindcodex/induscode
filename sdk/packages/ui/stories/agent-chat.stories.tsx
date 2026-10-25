@@ -224,7 +224,7 @@ export const CompleteConversation = () => (
 					Done. Settings now uses the shared background, card, border, and
 					typography tokens in both light and dark modes.
 				</p>
-				<ul className="cline-markdown list-disc pl-5">
+				<ul className="induscode-markdown list-disc pl-5">
 					<li>Aligned navigation surfaces</li>
 					<li>Preserved product-specific settings behavior</li>
 					<li>Verified keyboard focus states</li>
@@ -264,7 +264,7 @@ export const Streaming = () => (
 			<ToolActivity expandable={false}>
 				<ToolActivityTrigger
 					icon={<TerminalIcon />}
-					label="Running bun -F @cline/ui test"
+					label="Running bun -F @induscode/ui test"
 					status="running"
 				/>
 			</ToolActivity>
@@ -380,7 +380,7 @@ export const ToolStates = () => (
 					<ToolActivityCode>
 						{status === "error"
 							? "Error: expected --background token"
-							: "@cline/ui theme contract is valid"}
+							: "@induscode/ui theme contract is valid"}
 					</ToolActivityCode>
 				</ToolActivityContent>
 			</ToolActivity>
@@ -439,7 +439,7 @@ export const CollapsedWork = () => (
 				<ToolActivity expandable={false}>
 					<ToolActivityTrigger
 						icon={<TerminalIcon />}
-						label="Ran bun -F @cline/ui test"
+						label="Ran bun -F @induscode/ui test"
 						status="success"
 					/>
 				</ToolActivity>
@@ -558,7 +558,7 @@ function SummaryToolRow({ summary }: { summary: ToolSummary }) {
 
 /**
  * Rows driven end-to-end by `buildToolSummary` from
- * `@cline/ui/components/agent-chat/tool-summary` — the same payloads the
+ * `@induscode/ui/components/agent-chat/tool-summary` — the same payloads the
  * desktop app and cloud dashboard feed it.
  */
 export const ToolSummaries = () => (

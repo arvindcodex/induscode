@@ -1,4 +1,4 @@
-import type { AvailableRuntimeCommand } from "@cline/core"
+import type { AvailableRuntimeCommand } from "@induscode/core"
 
 /**
  * Matches a slash-command token that is either at the start of the message or
@@ -10,7 +10,7 @@ const SLASH_COMMAND_TOKEN_REGEX = /(^|\s)(\/[a-zA-Z0-9_.:@-]+)(?=\s|$)/g
 
 /**
  * File extensions the SDK's workflow discovery accepts (`MARKDOWN_EXTENSIONS`
- * in @cline/core's user-instruction-config-loader). The SDK strips the
+ * in @induscode/core's user-instruction-config-loader). The SDK strips the
  * extension when naming the command; the webview autocomplete and legacy
  * toggle state keep it.
  */
@@ -27,7 +27,7 @@ function canonicalWorkflowName(value: string): string {
 }
 
 /**
- * Verbatim port of @cline/shared's private `sanitizeSegment`
+ * Verbatim port of @induscode/shared's private `sanitizeSegment`
  * (src/remote-config/materializer.ts), which names the files that remote
  * workflows materialize to — lower-cased, disallowed character runs collapsed
  * to `-`, capped at 80 characters. Keep in sync with the original.
@@ -76,8 +76,8 @@ function fileBasename(filePath: string): string {
 	return filePath.replace(/^.*[/\\]/, "")
 }
 
-/** Matches files materialized from remote config (`.cline/remote-config/…`). */
-const REMOTE_CONFIG_PATH_REGEX = /[/\\]\.cline[/\\]remote-config[/\\]/
+/** Matches files materialized from remote config (`.induscode/remote-config/…`). */
+const REMOTE_CONFIG_PATH_REGEX = /[/\\]\.induscode[/\\]remote-config[/\\]/
 
 /** The discovered workflow files toggle filtering and matching operate on. */
 export interface WorkflowRecordRef {
@@ -108,7 +108,7 @@ export interface ExpandSlashCommandsOptions {
  * Find the runtime command matching a typed slash-command name.
  *
  * The SDK names workflows by frontmatter `name` or file basename *without* the
- * extension, but the webview autocomplete (and legacy Cline versions) surface
+ * extension, but the webview autocomplete (and legacy IndusCode versions) surface
  * workflow files as `/my-workflow.md`. Accept both spellings — and resolve a
  * typed file name to its frontmatter-renamed command — so workflows created
  * under the legacy extension keep working after an upgrade.

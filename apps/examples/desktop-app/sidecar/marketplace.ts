@@ -29,11 +29,11 @@ import {
 	uninstallMarketplaceEntry as uninstallCoreMarketplaceEntry,
 	uninstallPlugin as uninstallLocalPlugin,
 	updateMcpSettingsFileSync,
-} from "@cline/core";
+} from "@induscode/core";
 import {
 	discoverPluginModulePaths,
-	resolveClineDir,
-} from "@cline/shared/storage";
+	resolveIndusCodeDir,
+} from "@induscode/shared/storage";
 import { deleteMcpServer, readMcpServersResponse } from "./mcp";
 import type { JsonRecord } from "./types";
 
@@ -91,10 +91,10 @@ type CatalogLoader = () => Promise<unknown>;
 
 const MAX_OUTPUT_CHARS = 12_000;
 const INSTALL_COMMAND_TIMEOUT_MS = 120_000;
-const OFFICIAL_PLUGINS_REPO = "https://github.com/cline/plugins.git";
+const OFFICIAL_PLUGINS_REPO = "https://github.com/induscode/plugins.git";
 const MARKETPLACE_CATALOG_URL =
-	process.env.CLINE_MARKETPLACE_CATALOG_URL?.trim() ||
-	"https://cline.github.io/marketplace/catalog.json";
+	process.env.INDUSCODE_MARKETPLACE_CATALOG_URL?.trim() ||
+	"https://induscode.github.io/marketplace/catalog.json";
 const SECRET_PATTERN =
 	/(api[_ -]?key|access[_ -]?token|refresh[_ -]?token|auth(?:orization)?[_ -]?token|token|secret|password|authorization|credential)/i;
 const SECRET_KEY_VALUE_PATTERN =
@@ -117,13 +117,13 @@ export async function fetchMarketplaceCatalog(
 	}
 	const text = await response.text();
 	const sanitizedText = text
-		.replace(/cline mcp install/gi, "induscode mcp install")
-		.replace(/cline plugin install/gi, "induscode plugin install")
-		.replace(/cline skill add/gi, "induscode skill add")
-		.replace(/Connect Cline to/gi, "Connect IndusCode to")
-		.replace(/through Cline/gi, "through IndusCode")
-		.replace(/ClineCore/g, "IndusCodeCore")
-		.replace(/\bCline\b/g, "IndusCode");
+		.replace(/induscode mcp install/gi, "induscode mcp install")
+		.replace(/induscode plugin install/gi, "induscode plugin install")
+		.replace(/induscode skill add/gi, "induscode skill add")
+		.replace(/Connect IndusCode to/gi, "Connect IndusCode to")
+		.replace(/through IndusCode/gi, "through IndusCode")
+		.replace(/IndusCodeCore/g, "IndusCodeCore")
+		.replace(/\bIndusCode\b/g, "IndusCode");
 	let catalog: unknown;
 	try {
 		catalog = JSON.parse(sanitizedText);
@@ -627,7 +627,7 @@ export function getOfficialPluginInstallPath(
 	if (!isOfficialPluginSlug(slug)) return undefined;
 	const sourceKey = `official:${OFFICIAL_PLUGINS_REPO}#plugins/${slug}`;
 	return join(
-		resolveClineDir(),
+		resolveIndusCodeDir(),
 		"plugins",
 		"_installed",
 		"official",
@@ -705,7 +705,7 @@ function getSkillInstallCandidates(entry: MarketplaceInstallInput): string[] {
 
 function getGlobalSkillPaths(skillName: string): string[] {
 	return [
-		join(resolveClineDir(), "skills", skillName, "SKILL.md"),
+		join(resolveIndusCodeDir(), "skills", skillName, "SKILL.md"),
 		join(resolveHomeDir(), ".agents", "skills", skillName, "SKILL.md"),
 	].filter((path, index, paths) => paths.indexOf(path) === index);
 }
@@ -716,7 +716,7 @@ function ensureGlobalSkillsDirWritable(): void {
 		mkdirSync(skillsDir, { recursive: true });
 		const probePath = join(
 			skillsDir,
-			`.cline-marketplace-write-test-${process.pid}-${Date.now()}`,
+			`.induscode-marketplace-write-test-${process.pid}-${Date.now()}`,
 		);
 		writeFileSync(probePath, "", { flag: "wx" });
 		unlinkSync(probePath);
@@ -828,7 +828,7 @@ async function installSkill(
 		...(entry.install.args ?? []),
 		"-g",
 		"-a",
-		"cline",
+		"induscode",
 		"-y",
 	]);
 	const output = commandOutput(result);
@@ -877,10 +877,10 @@ async function installPlugin(
 			message: `${entry.name ?? entry.id} is already installed.`,
 		};
 	}
-	// Install in-process instead of shelling out to a `cline` binary: the
+	// Install in-process instead of shelling out to a `induscode` binary: the
 	// packaged desktop app cannot assume a CLI install exists on the user's
 	// PATH (GUI apps inherit launchd's minimal PATH on macOS), which surfaced
-	// as 'Executable not found in $PATH: "cline"' in the marketplace UI.
+	// as 'Executable not found in $PATH: "induscode"' in the marketplace UI.
 	//
 	// force reclaims a leftover directory from a failed or interrupted
 	// install: without it the installer refuses to replace the existing path
@@ -934,7 +934,7 @@ export async function installMarketplaceEntry(
 			);
 		}
 		// Register the server in-process; this only writes MCP settings, so
-		// there is no reason to depend on a `cline` binary being on PATH.
+		// there is no reason to depend on a `induscode` binary being on PATH.
 		const installOptions = parseMcpInstallArgs(rawArgs);
 		const result = installMcpServer(installOptions);
 

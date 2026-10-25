@@ -1,6 +1,6 @@
-import { syncStoredProviderRegistration } from "@cline/core"
+import { syncStoredProviderRegistration } from "@induscode/core"
 import { type ApiConfiguration, type ModelInfo, openAiModelInfoSafeDefaults } from "@shared/api"
-import { ApiFormat } from "@shared/proto/cline/models"
+import { ApiFormat } from "@shared/proto/induscode/models"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import type { ProviderConfigChange } from "./contracts"
 import { parseProviderId } from "./provider-id"
@@ -92,7 +92,7 @@ vi.mock("../provider-migration", () => ({
 	getProviderSettingsManager: mocks.getProviderSettingsManager,
 }))
 
-vi.mock("@cline/core", () => ({
+vi.mock("@induscode/core", () => ({
 	isPrivateModelCatalogProvider: (providerId: string) => ["baseten", "hicap", "litellm", "poolside"].includes(providerId),
 	syncStoredProviderRegistration: vi.fn(),
 	readModelsFileSync: vi.fn(() => mocks.getModelsFile()),
@@ -100,7 +100,7 @@ vi.mock("@cline/core", () => ({
 	writeModelsFileSync: vi.fn((_filePath: string, state: ReturnType<typeof mocks.getModelsFile>) => mocks.setModelsFile(state)),
 }))
 
-vi.mock("@cline/llms", () => ({
+vi.mock("@induscode/llms", () => ({
 	getGeneratedModelsForProvider: vi.fn((providerId: string) => mocks.getGeneratedModels(providerId)),
 	MODEL_COLLECTIONS_BY_PROVIDER_ID: {},
 }))
@@ -1196,14 +1196,14 @@ describe("createProviderConfigStore", () => {
 	})
 
 	// Contract test against the REAL SDK schemas (imported by relative path,
-	// bypassing the @cline/core mock above): the store's converters must pass
+	// bypassing the @induscode/core mock above): the store's converters must pass
 	// every SDK capability through, and a fully-populated stored entry must
 	// parse under the schema `writeModelsFileSync` enforces in production.
 	it("round-trips every SDK model capability and a full override set under the real stored-entry schema", async () => {
-		const { ModelCapabilitySchema } = await import("@cline/shared")
-		// vi.importActual bypasses the @cline/core mock above and resolves via
+		const { ModelCapabilitySchema } = await import("@induscode/shared")
+		// vi.importActual bypasses the @induscode/core mock above and resolves via
 		// the vitest alias to the stub, which re-exports the real schema.
-		const { StoredModelEntrySchema } = (await vi.importActual("@cline/core")) as {
+		const { StoredModelEntrySchema } = (await vi.importActual("@induscode/core")) as {
 			StoredModelEntrySchema: { parse(input: unknown): unknown }
 		}
 		const { createProviderConfigStore } = await import("./store")

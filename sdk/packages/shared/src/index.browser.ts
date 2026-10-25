@@ -289,13 +289,13 @@ export {
 } from "./parse/string";
 export { formatHumanReadableDate, formatUptime } from "./parse/time";
 export { validateWithZod, zodToJsonSchema } from "./parse/zod";
-export type { ClineSystemPromptOptions } from "./prompt/cline";
+export type { IndusCodeSystemPromptOptions } from "./prompt/induscode";
 export {
-	buildClineSystemPrompt,
+	buildIndusCodeSystemPrompt,
 	MODE_TAG_INSTRUCTIONS,
 	PLAN_MODE_INSTRUCTIONS,
 	PLAN_MODE_INSTRUCTIONS_MANUAL_SWITCH,
-} from "./prompt/cline";
+} from "./prompt/induscode";
 export type {
 	ModeSwitchNotice,
 	ModeSwitchNoticeTracker,
@@ -322,8 +322,8 @@ export {
 	resolveProviderApiKeyOptional,
 	resolveProviderLocalCli,
 } from "./provider-auth";
-export { CLINE_DEFAULT_MODEL_ID } from "./providers/defaults";
-export { isClineProvider } from "./providers/utils";
+export { INDUSCODE_DEFAULT_MODEL_ID } from "./providers/defaults";
+export { isIndusCodeProvider } from "./providers/utils";
 export { REMOTE_URI_SCHEME } from "./remote-config/constants";
 export type {
 	AnthropicModel,
@@ -355,8 +355,8 @@ export {
 	AwsBedrockCustomModelSchema,
 	AwsBedrockModelSchema,
 	AwsBedrockSettingsSchema,
-	ClineModelSchema,
-	ClineSettingsSchema,
+	IndusCodeModelSchema,
+	IndusCodeSettingsSchema,
 	EnterpriseTelemetrySchema,
 	GlobalInstructionsFileSchema,
 	LiteLLMModelSchema,
@@ -370,7 +370,7 @@ export {
 	VertexModelSchema,
 	VertexSettingsSchema,
 } from "./remote-config/schema";
-export { CLINE_DEFAULT_RPC_ADDRESS, CLINE_DEFAULT_RPC_PORT } from "./rpc";
+export { INDUSCODE_DEFAULT_RPC_ADDRESS, INDUSCODE_DEFAULT_RPC_PORT } from "./rpc";
 export type {
 	AddProviderActionRequest,
 	ChatAttachmentFile,
@@ -382,7 +382,7 @@ export type {
 	ChatStartSessionResponse,
 	ChatToolCallResult,
 	ChatTurnResult,
-	ClineAccountActionRequest,
+	IndusCodeAccountActionRequest,
 	EnterpriseAuthenticateRequest,
 	EnterpriseAuthenticateResponse,
 	EnterpriseStatusRequest,
@@ -432,24 +432,24 @@ export {
 	TEAM_LIFECYCLE_EVENT_TYPE,
 	TEAM_PROGRESS_EVENT_TYPE,
 } from "./rpc/team-progress";
-export type { ClineClientIdentity } from "./runtime/cline-client-identity";
+export type { IndusCodeClientIdentity } from "./runtime/induscode-client-identity";
 export {
-	getClineClientIdentity,
-	setClineClientIdentity,
-} from "./runtime/cline-client-identity";
+	getIndusCodeClientIdentity,
+	setIndusCodeClientIdentity,
+} from "./runtime/induscode-client-identity";
 export type {
-	ClineEnvironment,
-	ClineEnvironmentConfig,
-	ResolveClineEnvironmentOptions,
-} from "./runtime/cline-environment";
+	IndusCodeEnvironment,
+	IndusCodeEnvironmentConfig,
+	ResolveIndusCodeEnvironmentOptions,
+} from "./runtime/induscode-environment";
 export {
-	CLINE_ENVIRONMENT_ENV,
-	CLINE_ENVIRONMENT_OVERRIDE_ENV,
-	CLINE_ENVIRONMENTS,
-	DEFAULT_CLINE_ENVIRONMENT,
-	getClineEnvironmentConfig,
-	resolveClineEnvironment,
-} from "./runtime/cline-environment";
+	INDUSCODE_ENVIRONMENT_ENV,
+	INDUSCODE_ENVIRONMENT_OVERRIDE_ENV,
+	INDUSCODE_ENVIRONMENTS,
+	DEFAULT_INDUSCODE_ENVIRONMENT,
+	getIndusCodeEnvironmentConfig,
+	resolveIndusCodeEnvironment,
+} from "./runtime/induscode-environment";
 export type {
 	CaptureAgentUnexpectedReasoningTokensInput,
 	CaptureSdkErrorInput,
@@ -481,10 +481,10 @@ export {
 	TASK_PROVIDER_STREAM_FAILED_EVENT,
 	TASK_PROVIDER_STREAM_STARTED_EVENT,
 } from "./services/telemetry";
-export type { ClineTelemetryServiceConfig } from "./services/telemetry-config";
+export type { IndusCodeTelemetryServiceConfig } from "./services/telemetry-config";
 export {
-	createClineTelemetryServiceConfig,
-	createClineTelemetryServiceMetadata,
+	createIndusCodeTelemetryServiceConfig,
+	createIndusCodeTelemetryServiceMetadata,
 } from "./services/telemetry-config";
 export type {
 	TelemetrySelfcheckConfig,
@@ -524,8 +524,8 @@ export {
 export type { RuntimeEnv } from "./session/runtime-env";
 export * from "./session/workspace";
 export {
-	CLINE_CHAT_WORKSPACE_DIRECTORY_NAME,
-	CLINE_WORKSPACES_DIRECTORY_NAME,
+	INDUSCODE_CHAT_WORKSPACE_DIRECTORY_NAME,
+	INDUSCODE_WORKSPACES_DIRECTORY_NAME,
 	isChatWorkspacePath,
 } from "./storage/chat-workspace-paths";
 export * from "./tasks";

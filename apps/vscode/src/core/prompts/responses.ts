@@ -1,9 +1,9 @@
 import { Anthropic } from "@anthropic-ai/sdk"
-import { TOOL_REJECTION_SUFFIX, USER_REJECTED_TOOL_REASON } from "@cline/shared"
+import { TOOL_REJECTION_SUFFIX, USER_REJECTED_TOOL_REASON } from "@induscode/shared"
 import * as diff from "diff"
 import * as path from "path"
 import { Mode } from "@/shared/storage/types"
-import { ClineIgnoreController, LOCK_TEXT_SYMBOL } from "../ignore/ClineIgnoreController"
+import { IndusCodeIgnoreController, LOCK_TEXT_SYMBOL } from "../ignore/IndusCodeIgnoreController"
 
 const CONTEXT_WINDOW_WARNING_THRESHOLD_PERCENT = 50
 
@@ -26,8 +26,8 @@ export const formatResponse = {
 
 	toolError: (error?: string) => `The tool execution failed with the following error:\n<error>\n${error}\n</error>`,
 
-	clineIgnoreError: (path: string) =>
-		`Access to ${path} is blocked by the .clineignore file settings. You must try to continue in the task without using this file, or ask the user to update the .clineignore file.`,
+	induscodeIgnoreError: (path: string) =>
+		`Access to ${path} is blocked by the .induscodeignore file settings. You must try to continue in the task without using this file, or ask the user to update the .induscodeignore file.`,
 
 	noToolsUsed: (usingNativeToolCalls: boolean) =>
 		`[ERROR] You did not use a tool in your previous response! Please retry with a tool use.
@@ -160,7 +160,7 @@ Otherwise, if you have not completed the task and do not need additional informa
 		absolutePath: string,
 		files: string[],
 		didHitLimit: boolean,
-		clineIgnoreController?: ClineIgnoreController,
+		induscodeIgnoreController?: IndusCodeIgnoreController,
 	): string => {
 		const sorted = files
 			.map((file) => {
@@ -168,7 +168,7 @@ Otherwise, if you have not completed the task and do not need additional informa
 				const relativePath = path.relative(absolutePath, file).toPosix()
 				return file.endsWith("/") ? relativePath + "/" : relativePath
 			})
-			// Sort so files are listed under their respective directories to make it clear what files are children of what directories. Since we build file list top down, even if file list is truncated it will show directories that cline can then explore further.
+			// Sort so files are listed under their respective directories to make it clear what files are children of what directories. Since we build file list top down, even if file list is truncated it will show directories that induscode can then explore further.
 			.sort((a, b) => {
 				const aParts = a.split("/") // only works if we use toPosix first
 				const bParts = b.split("/")
@@ -193,13 +193,13 @@ Otherwise, if you have not completed the task and do not need additional informa
 				return aParts.length - bParts.length
 			})
 
-		const clineIgnoreParsed = clineIgnoreController
+		const induscodeIgnoreParsed = induscodeIgnoreController
 			? sorted.map((filePath) => {
 					// path is relative to absolute path, not cwd
 					// validateAccess expects either path relative to cwd or absolute path
 					// otherwise, for validating against ignore patterns like "assets/icons", we would end up with just "icons", which would result in the path not being ignored.
 					const absoluteFilePath = path.resolve(absolutePath, filePath)
-					const isIgnored = !clineIgnoreController.validateAccess(absoluteFilePath)
+					const isIgnored = !induscodeIgnoreController.validateAccess(absoluteFilePath)
 					if (isIgnored) {
 						return LOCK_TEXT_SYMBOL + " " + filePath
 					}
@@ -209,14 +209,14 @@ Otherwise, if you have not completed the task and do not need additional informa
 			: sorted
 
 		if (didHitLimit) {
-			return `${clineIgnoreParsed.join(
+			return `${induscodeIgnoreParsed.join(
 				"\n",
 			)}\n\n(File list truncated. Use list_files on specific subdirectories if you need to explore further.)`
 		}
-		if (clineIgnoreParsed.length === 0 || (clineIgnoreParsed.length === 1 && clineIgnoreParsed[0] === "")) {
+		if (induscodeIgnoreParsed.length === 0 || (induscodeIgnoreParsed.length === 1 && induscodeIgnoreParsed[0] === "")) {
 			return "No files found."
 		}
-		return clineIgnoreParsed.join("\n")
+		return induscodeIgnoreParsed.join("\n")
 	},
 
 	createPrettyPatch: (filename = "file", oldStr?: string, newStr?: string) => {
@@ -308,17 +308,17 @@ Otherwise, if you have not completed the task and do not need additional informa
 	repeatedToolCall: (toolName: string, count: number) =>
 		`Tool [${toolName}] has been called ${count} times consecutively with identical arguments. This is not making progress. Please use a different tool or different arguments instead of repeating the same call.`,
 
-	clineIgnoreInstructions: (content: string) =>
-		`# .clineignore\n\n(The following is provided by a root-level .clineignore file where the user has specified files and directories that should not be accessed. When using list_files, you'll notice a ${LOCK_TEXT_SYMBOL} next to files that are blocked. Attempting to access the file's contents e.g. through read_file will result in an error.)\n\n${content}\n.clineignore`,
+	induscodeIgnoreInstructions: (content: string) =>
+		`# .induscodeignore\n\n(The following is provided by a root-level .induscodeignore file where the user has specified files and directories that should not be accessed. When using list_files, you'll notice a ${LOCK_TEXT_SYMBOL} next to files that are blocked. Attempting to access the file's contents e.g. through read_file will result in an error.)\n\n${content}\n.induscodeignore`,
 
-	clineRulesGlobalDirectoryInstructions: (globalClineRulesFilePath: string, content: string) =>
-		`# .clinerules/\n\nThe following is provided by a global .clinerules/ directory, located at ${globalClineRulesFilePath.toPosix()}, where the user has specified instructions for all working directories:\n\n${content}`,
+	induscodeRulesGlobalDirectoryInstructions: (globalIndusCodeRulesFilePath: string, content: string) =>
+		`# .induscoderules/\n\nThe following is provided by a global .induscoderules/ directory, located at ${globalIndusCodeRulesFilePath.toPosix()}, where the user has specified instructions for all working directories:\n\n${content}`,
 
-	clineRulesLocalDirectoryInstructions: (cwd: string, content: string) =>
-		`# .clinerules/\n\nThe following is provided by a root-level .clinerules/ directory where the user has specified instructions for this working directory (${cwd.toPosix()})\n\n${content}`,
+	induscodeRulesLocalDirectoryInstructions: (cwd: string, content: string) =>
+		`# .induscoderules/\n\nThe following is provided by a root-level .induscoderules/ directory where the user has specified instructions for this working directory (${cwd.toPosix()})\n\n${content}`,
 
-	clineRulesLocalFileInstructions: (cwd: string, content: string) =>
-		`# .clinerules\n\nThe following is provided by a root-level .clinerules file where the user has specified instructions for this working directory (${cwd.toPosix()})\n\n${content}`,
+	induscodeRulesLocalFileInstructions: (cwd: string, content: string) =>
+		`# .induscoderules\n\nThe following is provided by a root-level .induscoderules file where the user has specified instructions for this working directory (${cwd.toPosix()})\n\n${content}`,
 
 	windsurfRulesLocalFileInstructions: (cwd: string, content: string) =>
 		`# .windsurfrules\n\nThe following is provided by a root-level .windsurfrules file where the user has specified instructions for this working directory (${cwd.toPosix()})\n\n${content}`,

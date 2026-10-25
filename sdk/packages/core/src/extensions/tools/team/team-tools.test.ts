@@ -1,25 +1,25 @@
 import { join } from "node:path";
-import { resolveTeamDataDir } from "@cline/shared/storage";
+import { resolveTeamDataDir } from "@induscode/shared/storage";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createDelegatedAgentConfigProvider } from "./delegated-agent";
 import { AgentTeamsRuntime } from "./multi-agent";
 import { createAgentTeamsTools } from "./team-tools";
 
 type EnvSnapshot = {
-	CLINE_DATA_DIR: string | undefined;
-	CLINE_TEAM_DATA_DIR: string | undefined;
+	INDUSCODE_DATA_DIR: string | undefined;
+	INDUSCODE_TEAM_DATA_DIR: string | undefined;
 };
 
 function captureEnv(): EnvSnapshot {
 	return {
-		CLINE_DATA_DIR: process.env.CLINE_DATA_DIR,
-		CLINE_TEAM_DATA_DIR: process.env.CLINE_TEAM_DATA_DIR,
+		INDUSCODE_DATA_DIR: process.env.INDUSCODE_DATA_DIR,
+		INDUSCODE_TEAM_DATA_DIR: process.env.INDUSCODE_TEAM_DATA_DIR,
 	};
 }
 
 function restoreEnv(snapshot: EnvSnapshot): void {
-	process.env.CLINE_DATA_DIR = snapshot.CLINE_DATA_DIR;
-	process.env.CLINE_TEAM_DATA_DIR = snapshot.CLINE_TEAM_DATA_DIR;
+	process.env.INDUSCODE_DATA_DIR = snapshot.INDUSCODE_DATA_DIR;
+	process.env.INDUSCODE_TEAM_DATA_DIR = snapshot.INDUSCODE_TEAM_DATA_DIR;
 }
 
 function makeTeammateConfigProvider(
@@ -39,18 +39,18 @@ describe("resolveTeamDataDir", () => {
 		restoreEnv(snapshot);
 	});
 
-	it("uses CLINE_TEAM_DATA_DIR when set", () => {
+	it("uses INDUSCODE_TEAM_DATA_DIR when set", () => {
 		snapshot = captureEnv();
-		process.env.CLINE_TEAM_DATA_DIR = "/tmp/team-dir";
-		process.env.CLINE_DATA_DIR = "/tmp/cline-data";
+		process.env.INDUSCODE_TEAM_DATA_DIR = "/tmp/team-dir";
+		process.env.INDUSCODE_DATA_DIR = "/tmp/induscode-data";
 		expect(resolveTeamDataDir()).toBe("/tmp/team-dir");
 	});
 
-	it("falls back to CLINE_DATA_DIR/teams", () => {
+	it("falls back to INDUSCODE_DATA_DIR/teams", () => {
 		snapshot = captureEnv();
-		delete process.env.CLINE_TEAM_DATA_DIR;
-		process.env.CLINE_DATA_DIR = "/tmp/cline-data";
-		expect(resolveTeamDataDir()).toBe(join("/tmp/cline-data", "teams"));
+		delete process.env.INDUSCODE_TEAM_DATA_DIR;
+		process.env.INDUSCODE_DATA_DIR = "/tmp/induscode-data";
+		expect(resolveTeamDataDir()).toBe(join("/tmp/induscode-data", "teams"));
 	});
 });
 
@@ -478,7 +478,7 @@ describe("createAgentTeamsTools runtime behavior", () => {
 			runtime,
 			requesterId: "lead",
 			teammateConfigProvider: makeTeammateConfigProvider({
-				providerId: "cline",
+				providerId: "induscode",
 				modelId: "anthropic/claude-sonnet-4.6",
 				headers: { Authorization: "Bearer token" },
 			}),
@@ -509,7 +509,7 @@ describe("createAgentTeamsTools runtime behavior", () => {
 		);
 	});
 
-	it("injects workspace metadata into cline teammate system prompt", async () => {
+	it("injects workspace metadata into induscode teammate system prompt", async () => {
 		const spawnTeammate = vi.fn();
 		const runtime = {
 			getMemberRole: vi.fn(() => "lead"),
@@ -521,7 +521,7 @@ describe("createAgentTeamsTools runtime behavior", () => {
 			runtime,
 			requesterId: "lead",
 			teammateConfigProvider: makeTeammateConfigProvider({
-				providerId: "cline",
+				providerId: "induscode",
 				modelId: "anthropic/claude-sonnet-4.6",
 				cwd: "/repo/app",
 			}),

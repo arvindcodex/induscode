@@ -1,4 +1,4 @@
-import { Boolean, Int64Request } from "@shared/proto/cline/common"
+import { Boolean, Int64Request } from "@shared/proto/induscode/common"
 import { Controller } from ".."
 
 /**

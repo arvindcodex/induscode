@@ -1,5 +1,5 @@
 import { Readable, Writable } from "node:stream";
-import { registerClineClientIdentity } from "../utils/cline-client-identity";
+import { registerIndusCodeClientIdentity } from "../utils/induscode-client-identity";
 import { writeDiagnostic } from "../utils/output";
 import type { ResolvedCliReasoning } from "../utils/reasoning";
 
@@ -14,7 +14,7 @@ export async function runAcpMode(options?: AcpModeOptions): Promise<void> {
 	);
 	const { AcpAgent } = await import("./acpAgent");
 
-	registerClineClientIdentity("cline-acp");
+	registerIndusCodeClientIdentity("induscode-acp");
 
 	writeDiagnostic("[acp] starting ACP mode over stdio…");
 

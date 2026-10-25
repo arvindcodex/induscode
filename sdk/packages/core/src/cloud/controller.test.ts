@@ -2,7 +2,7 @@ import type {
 	HubEventEnvelope,
 	HubReplyEnvelope,
 	MessageWithMetadata,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { describe, expect, it, vi } from "vitest";
 import { toHubSessionRecord } from "../hub/server/hub-session-records";
 import {
@@ -25,7 +25,7 @@ const record: CloudSessionRecord = {
 	id: "ses-outer",
 	status: "ready",
 	sandboxUrl: "",
-	repoContext: { repoUrl: "https://github.com/cline/test", branch: "main" },
+	repoContext: { repoUrl: "https://github.com/induscode/test", branch: "main" },
 	metadata: { modelId: "model", taskId: "inner" },
 	createdAt: "2026-01-01T00:00:00Z",
 	updatedAt: "2026-01-01T00:00:00Z",
@@ -484,7 +484,7 @@ describe("CloudSessionController neutral host contract", () => {
 			updatedAt: record.updatedAt,
 			workspaceRoot: "/workspace/repo",
 			cwd: "/workspace/repo",
-			provider: "cline",
+			provider: "induscode",
 			model: "model",
 			enableTools: true,
 			enableSpawn: false,
@@ -589,12 +589,12 @@ describe("CloudSessionController neutral host contract", () => {
 				Response.json(
 					String(input).endsWith("/models")
 						? [{ id: "model" }]
-						: { clinePass: [{ id: "pass-only" }] },
+						: { induscodePass: [{ id: "pass-only" }] },
 				),
 			);
 		try {
 			expect(await f.controller.listModels()).toEqual([
-				{ id: "model", name: "model", catalogId: "cline" },
+				{ id: "model", name: "model", catalogId: "induscode" },
 			]);
 			expect(getActiveOrganizationId).toHaveBeenCalledWith({ fresh: true });
 			expect(f.api.create).not.toHaveBeenCalled();
@@ -1148,7 +1148,7 @@ describe("CloudSessionController neutral host contract", () => {
 				(c) => c.command === "session.create",
 			)!.payload as { sessionConfig: { systemPrompt: string } };
 			const prompt = sessionConfig.systemPrompt;
-			expect(prompt).toContain("branch `cline/inner`");
+			expect(prompt).toContain("branch `induscode/inner`");
 			expect(prompt).toContain("never commit directly to the default branch");
 			expect(prompt).toContain("Do not force-push or amend commits");
 			expect(prompt.includes("SAVE YOUR WORK")).toBe(autoPush);
@@ -1311,7 +1311,7 @@ describe("seeded cloud handoff controller", () => {
 		id: "ses-seeded",
 		status: "ready",
 		sandboxUrl: "",
-		repoContext: { repoUrl: "https://github.com/cline/repo", branch: "main" },
+		repoContext: { repoUrl: "https://github.com/induscode/repo", branch: "main" },
 		metadata: { modelId: "model" },
 		createdAt: "2026-01-01",
 		updatedAt: "2026-01-01",
@@ -1428,7 +1428,7 @@ describe("seeded cloud handoff controller", () => {
 					{
 						id: 1,
 						name: "repo",
-						fullName: "cline/repo",
+						fullName: "induscode/repo",
 						url: record.repoContext.repoUrl!,
 						defaultBranch: "main",
 					},
@@ -1765,7 +1765,7 @@ describe("seeded cloud handoff controller", () => {
 			"network",
 		);
 		await f.controller.prepareHandoffRepository(
-			"https://github.com/cline/repo.git",
+			"https://github.com/induscode/repo.git",
 		);
 		await f.controller.dispose();
 	});

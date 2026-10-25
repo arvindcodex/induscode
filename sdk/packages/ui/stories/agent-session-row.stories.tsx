@@ -68,7 +68,7 @@ export const HostSlots: Story = {
 			<AgentSessionOverview
 				title="Session overview"
 				items={[
-					["Workspace", "cline", "/projects/cline"],
+					["Workspace", "induscode", "/projects/induscode"],
 					["Model", "Host-provided model"],
 					["Cost", "$0.12"],
 				]}

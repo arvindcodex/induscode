@@ -1,13 +1,13 @@
-import type { ProviderSettingsManager } from "@cline/core";
+import type { ProviderSettingsManager } from "@induscode/core";
 import {
-	completeClineDeviceAuth,
+	completeIndusCodeDeviceAuth,
 	getProviderAuthStorageId,
 	loginLocalProvider,
 	markLocalProviderEnabled,
 	saveLocalProviderOAuthCredentials,
-	startClineDeviceAuth,
-} from "@cline/core";
-import { getClineEnvironmentConfig } from "@cline/shared";
+	startIndusCodeDeviceAuth,
+} from "@induscode/core";
+import { getIndusCodeEnvironmentConfig } from "@induscode/shared";
 
 export class OAuthLoginCancelledError extends Error {
 	constructor(providerId: string) {
@@ -35,7 +35,7 @@ export type OAuthLoginDependencies = {
 };
 
 /**
- * Cline account providers sign in with the WorkOS device-code grant, whose
+ * IndusCode account providers sign in with the WorkOS device-code grant, whose
  * browser page asks the user to confirm a short code. `loginLocalProvider`
  * runs that flow but discards the code, so use the split helpers instead and
  * surface the code through `onUserCode` for the UI to display.
@@ -47,20 +47,19 @@ async function loginProviderForDesktop(
 	onUserCode?: (userCode: string) => void,
 	signal?: AbortSignal,
 ): ReturnType<typeof loginLocalProvider> {
-	if (providerId !== "cline" && providerId !== "cline-pass") {
+	if (providerId !== "induscode" && providerId !== "induscode-pass") {
 		return loginLocalProvider(providerId, existing, openUrl);
 	}
-	const device = await startClineDeviceAuth({ signal });
+	const device = await startIndusCodeDeviceAuth({ signal });
 	signal?.throwIfAborted();
-	onUserCode?.(device.userCode);
 	openUrl(device.verificationUriComplete ?? device.verificationUri);
-	return completeClineDeviceAuth({
+	return completeIndusCodeDeviceAuth({
 		signal,
 		deviceCode: device.deviceCode,
 		expiresInSeconds: device.expiresInSeconds,
 		pollIntervalSeconds: device.pollIntervalSeconds,
 		apiBaseUrl:
-			existing?.baseUrl?.trim() || getClineEnvironmentConfig().apiBaseUrl,
+			existing?.baseUrl?.trim() || getIndusCodeEnvironmentConfig().apiBaseUrl,
 		provider: providerId,
 	});
 }

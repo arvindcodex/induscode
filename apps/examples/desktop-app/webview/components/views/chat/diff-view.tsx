@@ -1,7 +1,7 @@
 "use client";
 
-import { AgentChangedFile, AgentChangesPanel } from "@cline/ui";
-import { ToolFileDiff } from "@cline/ui/components/agent-chat/tool-diff";
+import { AgentChangedFile, AgentChangesPanel } from "@induscode/ui";
+import { ToolFileDiff } from "@induscode/ui/components/agent-chat/tool-diff";
 import { AppWindow, ExternalLink } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -237,7 +237,7 @@ function DiffHunk({ hunk, path }: { hunk: SessionDiffHunk; path: string }) {
 	return (
 		<ToolFileDiff
 			background="var(--background)"
-			className="cline-chat-selectable"
+			className="induscode-chat-selectable"
 			fragment={!isCompleteNewContents}
 			newText={hunk.new}
 			oldText={isCompleteNewContents ? undefined : hunk.old}

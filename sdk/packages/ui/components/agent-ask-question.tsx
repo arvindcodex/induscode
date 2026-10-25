@@ -44,7 +44,7 @@ function Spinner() {
 	return (
 		<svg
 			aria-hidden="true"
-			className="cline-ui-agent-ask-question__spinner mr-1 size-3.5 flex-none fill-none stroke-current [stroke-linecap:round] [stroke-linejoin:round] stroke-2"
+			className="induscode-ui-agent-ask-question__spinner mr-1 size-3.5 flex-none fill-none stroke-current [stroke-linecap:round] [stroke-linejoin:round] stroke-2"
 			viewBox="0 0 24 24"
 		>
 			<path d="M21 12a9 9 0 1 1-6.219-8.56" />
@@ -69,7 +69,7 @@ export function AgentAskQuestion({
 	return (
 		<section
 			aria-label="Follow-up question"
-			className="cline-ui-agent-ask-question flex flex-col gap-2"
+			className="induscode-ui-agent-ask-question flex flex-col gap-2"
 		>
 			{items.map((item, itemIndex) => {
 				const pendingAnswer = pendingAnswers[item.id];
@@ -121,7 +121,7 @@ export function AgentAskQuestion({
 
 					const optionButtons = Array.from(
 						event.currentTarget.querySelectorAll<HTMLButtonElement>(
-							".cline-ui-agent-ask-question__option:not(:disabled)",
+							".induscode-ui-agent-ask-question__option:not(:disabled)",
 						),
 					);
 					const activeIndex = optionButtons.indexOf(
@@ -155,29 +155,29 @@ export function AgentAskQuestion({
 				return (
 					<div
 						aria-busy={isPending || undefined}
-						className="cline-ui-agent-ask-question__item"
+						className="induscode-ui-agent-ask-question__item"
 						key={item.id}
 					>
-						<div className="cline-ui-agent-ask-question__item-header flex items-start justify-between gap-3">
+						<div className="induscode-ui-agent-ask-question__item-header flex items-start justify-between gap-3">
 							<div className="min-w-0 flex-1 mt-1 w-full flex">
 								<div className="flex justify-between gap-1 w-full flex-col">
-									<h5 className="cline-ui-agent-ask-question__question font-cline-ui-medium text-cline-ui-foreground text-cline-ui-base w-full">
+									<h5 className="induscode-ui-agent-ask-question__question font-induscode-ui-medium text-induscode-ui-foreground text-induscode-ui-base w-full">
 										{item.question}
 									</h5>
 
 									{item.multiple ? (
-										<div className="cline-ui-agent-ask-question__multiple-hint text-cline-ui-sm text-cline-ui-muted-foreground">
+										<div className="induscode-ui-agent-ask-question__multiple-hint text-induscode-ui-sm text-induscode-ui-muted-foreground">
 											Select all that apply.
 										</div>
 									) : null}
 									{item.description ? (
-										<div className="cline-ui-agent-ask-question__description text-cline-ui-sm text-cline-ui-muted-foreground">
+										<div className="induscode-ui-agent-ask-question__description text-induscode-ui-sm text-induscode-ui-muted-foreground">
 											{item.description}
 										</div>
 									) : null}
 								</div>
 								{item.meta ? (
-									<Badge className="cline-ui-agent-ask-question__meta h-fit -mt-1">
+									<Badge className="induscode-ui-agent-ask-question__meta h-fit -mt-1">
 										{item.meta}
 									</Badge>
 								) : null}
@@ -186,7 +186,7 @@ export function AgentAskQuestion({
 
 						<fieldset
 							aria-label="Answer options"
-							className="cline-ui-agent-ask-question__options m-0 flex min-w-0 flex-col border-0 px-1 py-4"
+							className="induscode-ui-agent-ask-question__options m-0 flex min-w-0 flex-col border-0 px-1 py-4"
 							onKeyDown={handleOptionKeyDown}
 						>
 							{/* Options are model-supplied and may repeat; repeats submit the same answer. */}
@@ -194,7 +194,7 @@ export function AgentAskQuestion({
 								<Button
 									aria-pressed={selected.includes(option)}
 									autoFocus={itemIndex === 0 && index === 0 && !isPending}
-									className="cline-ui-agent-ask-question__option h-auto min-h-9.5 w-full max-w-full justify-start gap-3 rounded-cline-ui-md p-2 text-left text-cline-ui-sm"
+									className="induscode-ui-agent-ask-question__option h-auto min-h-9.5 w-full max-w-full justify-start gap-3 rounded-induscode-ui-md p-2 text-left text-induscode-ui-sm"
 									disabled={isPending}
 									key={option}
 									onClick={() => selectOption(option)}
@@ -205,21 +205,21 @@ export function AgentAskQuestion({
 									{index < 26 ? (
 										<span
 											aria-hidden="true"
-											className="cline-ui-agent-ask-question__option-key"
+											className="induscode-ui-agent-ask-question__option-key"
 										>
 											{optionLabel(index)}
 										</span>
 									) : null}
-									<span className="cline-ui-agent-ask-question__option-label min-w-0 flex-1 font-cline-ui-medium text-cline-ui-foreground">
+									<span className="induscode-ui-agent-ask-question__option-label min-w-0 flex-1 font-induscode-ui-medium text-induscode-ui-foreground">
 										{option}
 									</span>
 								</Button>
 							))}
 						</fieldset>
-						<div className="cline-ui-agent-ask-question__footer flex flex-col gap-2 border-cline-ui-border border-t px-2 py-2">
+						<div className="induscode-ui-agent-ask-question__footer flex flex-col gap-2 border-induscode-ui-border border-t px-2 py-2">
 							{error ? (
 								<div
-									className="cline-ui-agent-ask-question__error text-cline-ui-destructive text-cline-ui-xs px-2"
+									className="induscode-ui-agent-ask-question__error text-induscode-ui-destructive text-induscode-ui-xs px-2"
 									role="alert"
 								>
 									{error}
@@ -229,7 +229,7 @@ export function AgentAskQuestion({
 								{item.multiple ? null : (
 									<input
 										aria-label="Custom answer"
-										className="cline-ui-agent-ask-question__custom min-w-0 flex-1 h-8 rounded-cline-ui-md border border-cline-ui-border bg-cline-ui-background px-2 text-cline-ui-foreground text-cline-ui-sm outline-none focus:border-[color-mix(in_oklab,var(--cline-ui-primary)_50%,transparent)] focus:shadow-[0_0_0_1px_color-mix(in_oklab,var(--cline-ui-primary)_20%,transparent)]"
+										className="induscode-ui-agent-ask-question__custom min-w-0 flex-1 h-8 rounded-induscode-ui-md border border-induscode-ui-border bg-induscode-ui-background px-2 text-induscode-ui-foreground text-induscode-ui-sm outline-none focus:border-[color-mix(in_oklab,var(--induscode-ui-primary)_50%,transparent)] focus:shadow-[0_0_0_1px_color-mix(in_oklab,var(--induscode-ui-primary)_20%,transparent)]"
 										disabled={isPending}
 										onChange={(event) => {
 											const value = event.target.value;
@@ -250,7 +250,7 @@ export function AgentAskQuestion({
 									/>
 								)}
 								<Button
-									className="cline-ui-agent-ask-question__submit"
+									className="induscode-ui-agent-ask-question__submit"
 									disabled={!canSubmit || isPending}
 									onClick={submit}
 									size="sm"

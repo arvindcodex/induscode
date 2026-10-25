@@ -1,13 +1,13 @@
 "use client";
 
-import type { AgendaTaskRecord } from "@cline/shared";
-import { getClineEnvironmentConfig } from "@cline/shared/browser";
+import type { AgendaTaskRecord } from "@induscode/shared";
+import { getIndusCodeEnvironmentConfig } from "@induscode/shared/browser";
 import {
 	AgentConversationLayout,
 	type AgentQuickAction,
 	AgentQuickActions,
 	AgentWelcomeHero,
-} from "@cline/ui";
+} from "@induscode/ui";
 import { Cloud } from "lucide-react";
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -16,8 +16,8 @@ import { IndusRobotHero } from "@/components/indus-robot-hero";
 import { useAccount } from "@/contexts/account-context";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { isAgendaTaskExpired, useAgendaTasks } from "@/hooks/use-agenda-tasks";
-import { useClineSignIn } from "@/hooks/use-cline-sign-in";
-import { openPersonalGitHubInstallUrl } from "@/lib/cline-integrations";
+import { useIndusCodeSignIn } from "@/hooks/use-induscode-sign-in";
+import { openPersonalGitHubInstallUrl } from "@/lib/induscode-integrations";
 import {
 	type CloudBranchListOptions,
 	type CloudBranchListResult,
@@ -40,7 +40,7 @@ import { WelcomeWorkspaceControls } from "./welcome-workspace-controls";
 
 // Used only until the API's connectUrl arrives (or when it is blank), so a
 // staging/local build still points at its own dashboard.
-const FALLBACK_CONNECT_URL = `${getClineEnvironmentConfig().appBaseUrl}/dashboard/integrations`;
+const FALLBACK_CONNECT_URL = `${getIndusCodeEnvironmentConfig().appBaseUrl}/dashboard/integrations`;
 const INDUSCODE_LOGIN_URL =
 	process.env.NEXT_PUBLIC_INDUSCODE_LOGIN_URL || "http://localhost:3000/login";
 const CLOUD_SETUP_POLL_INTERVAL_MS = 6_000;
@@ -106,7 +106,7 @@ export function WelcomeScreen({
 	const { user, activeOrganization, refreshAccount } = useAccount();
 	const cloudScope = user
 		? JSON.stringify([
-				getClineEnvironmentConfig().appBaseUrl,
+				getIndusCodeEnvironmentConfig().appBaseUrl,
 				user.id,
 				activeOrganization?.organizationId ?? null,
 			])
@@ -117,7 +117,7 @@ export function WelcomeScreen({
 		signingIn,
 		cancelling,
 		error: signInError,
-	} = useClineSignIn({
+	} = useIndusCodeSignIn({
 		onSuccess: async () => {
 			invalidateProviderCatalogCache();
 			await refreshAccount();
@@ -458,12 +458,12 @@ export function WelcomeScreen({
 		<AgentConversationLayout
 			welcome={active}
 			body={body}
-			bodyClassName="cline-view-enter"
+			bodyClassName="induscode-view-enter"
 			composer={composer}
 			notice={notice && !showCloudOnboarding ? notice : null}
 			hideWelcomeComposer={showCloudOnboarding}
 			welcomeHeader={
-				<div className="cline-view-enter">
+				<div className="induscode-view-enter">
 					<h1 className="sr-only">What would you like to build?</h1>
 					<IndusRobotHero />
 
@@ -529,7 +529,7 @@ export function WelcomeScreen({
 						<>
 							<AgentQuickActions
 								actions={actions}
-								className="cline-view-enter mt-11"
+								className="induscode-view-enter mt-11"
 								disabled={runningTaskId !== null}
 								onSelect={(action) => {
 									const task = quickActionTasks.find(

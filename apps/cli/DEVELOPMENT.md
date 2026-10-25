@@ -1,6 +1,6 @@
 # CLI Development Guide
 
-This guide covers everything you need to build and run the Cline CLI locally after cloning the repository. It includes setup instructions, a tech stack overview, and a walkthrough of the TUI architecture.
+This guide covers everything you need to build and run the IndusCode CLI locally after cloning the repository. It includes setup instructions, a tech stack overview, and a walkthrough of the TUI architecture.
 
 For CLI command reference and usage, see [DOC.md](./DOC.md) and [README.md](./README.md).
 
@@ -38,7 +38,7 @@ bun run cli
 That last command is a shortcut for `cd apps/cli && bun run dev`, which runs:
 
 ```bash
-CLINE_BUILD_ENV=development bun --conditions=development ./src/index.ts
+INDUSCODE_BUILD_ENV=development bun --conditions=development ./src/index.ts
 ```
 
 ### Linking for Global Access
@@ -54,14 +54,14 @@ cd apps/cli
 bun link
 ```
 
-The `build:sdk` step is required because `bun link` runs without the `--conditions=development` flag, so Bun resolves workspace packages (`@cline/llms`, `@cline/core`, etc.) via their `package.json` exports which point to `dist/`. Without the build, those dist files don't exist and you'll get "Cannot find module" errors.
+The `build:sdk` step is required because `bun link` runs without the `--conditions=development` flag, so Bun resolves workspace packages (`@induscode/llms`, `@induscode/core`, etc.) via their `package.json` exports which point to `dist/`. Without the build, those dist files don't exist and you'll get "Cannot find module" errors.
 
-After linking, you can run `cline` from any directory:
+After linking, you can run `induscode` from any directory:
 
 ```bash
-cline              # interactive mode
-cline "prompt"     # single-prompt mode
-cline auth         # authenticate a provider
+induscode              # interactive mode
+induscode "prompt"     # single-prompt mode
+induscode auth         # authenticate a provider
 ```
 
 If you prefer to skip the build step, use `bun run dev` from `apps/cli/` instead -- it passes `--conditions=development` which resolves packages directly from source.
@@ -74,12 +74,12 @@ If you modify any package in `packages/` (shared, llms, agents, core, etc.), reb
 bun run build:sdk
 ```
 
-If you're using `bun run dev`, you don't need to rebuild after every SDK change -- dev mode resolves packages from source. But if you're using the linked `cline` binary, you do need to rebuild for changes to take effect.
+If you're using `bun run dev`, you don't need to rebuild after every SDK change -- dev mode resolves packages from source. But if you're using the linked `induscode` binary, you do need to rebuild for changes to take effect.
 
 ## Monorepo Structure
 
 ```
-cline-sdk/
+induscode-sdk/
   packages/           # SDK packages (published to npm)
     shared/           # Contracts, schemas, path helpers, runtime utilities
     llms/             # Provider settings, model catalogs, AI SDK handlers
@@ -362,10 +362,10 @@ bun run dev
 Use a temporary config directory to simulate a fresh install:
 
 ```bash
-bun run dev -- --interactive --config /tmp/cline-test
+bun run dev -- --interactive --config /tmp/induscode-test
 ```
 
-Or set `CLINE_FORCE_ONBOARDING=1` to force the onboarding view regardless of existing config.
+Or set `INDUSCODE_FORCE_ONBOARDING=1` to force the onboarding view regardless of existing config.
 
 ### Manually testing the TUI (agents / headless environments)
 
@@ -375,22 +375,22 @@ Or set `CLINE_FORCE_ONBOARDING=1` to force the onboarding view regardless of exi
 cd apps/cli
 
 # Launch the TUI in a background session
-bunx tuistory -s cline --cols 120 --rows 36 -- bun src/index.ts --provider anthropic -m claude-sonnet-4-6 -k test-key
+bunx tuistory -s induscode --cols 120 --rows 36 -- bun src/index.ts --provider anthropic -m claude-sonnet-4-6 -k test-key
 
 # Wait reactively for the chat view (no sleep guessing)
-bunx tuistory -s cline wait "What can I do for you?" --timeout 30000
+bunx tuistory -s induscode wait "What can I do for you?" --timeout 30000
 
 # Interact and inspect
-bunx tuistory -s cline type "/settings"
-bunx tuistory -s cline press enter
-bunx tuistory -s cline snapshot --trim     # current screen as text
-bunx tuistory -s cline screenshot          # current screen as a styled PNG
+bunx tuistory -s induscode type "/settings"
+bunx tuistory -s induscode press enter
+bunx tuistory -s induscode snapshot --trim     # current screen as text
+bunx tuistory -s induscode screenshot          # current screen as a styled PNG
 
 # A human can watch/drive the same session from another terminal
-tuistory attach -s cline
+tuistory attach -s induscode
 
 # Tear down
-bunx tuistory -s cline close
+bunx tuistory -s induscode close
 ```
 
 The same engine powers the `test:e2e:tuistory` vitest suite (`src/cli.tuistory.e2e.test.ts`), which uses the programmatic `launchTerminal()` API for assertions against the emulated screen.
@@ -430,7 +430,7 @@ npx react-devtools@7
 
 ```bash
 cd apps/cli
-CLINE_BUILD_ENV=development bun --conditions=development --inspect-brk=6499 ./src/index.ts
+INDUSCODE_BUILD_ENV=development bun --conditions=development --inspect-brk=6499 ./src/index.ts
 ```
 
 Then attach VS Code or Chrome DevTools to `ws://127.0.0.1:6499`.
@@ -447,7 +447,7 @@ Then attach VS Code or Chrome DevTools to `ws://127.0.0.1:6499`.
 
 ## Publishing
 
-The CLI is published as the `cline` wrapper package on npm with platform-specific binaries under `@cline/cli-*`. The release flow lives in the `publish-cli` skill (`.cline/skills/publish-cli/SKILL.md` at the repo root).
+The CLI is published as the `induscode` wrapper package on npm with platform-specific binaries under `@induscode/cli-*`. The release flow lives in the `publish-cli` skill (`.induscode/skills/publish-cli/SKILL.md` at the repo root).
 
 From the `apps/cli` workspace:
 
@@ -482,26 +482,26 @@ See [DISTRIBUTION.md](./DISTRIBUTION.md) for details on how the CLI is packaged.
 
 ## Logging adapter
 
-`cline` uses a `pino`-backed adapter that targets the core `BasicLogger` contract:
+`induscode` uses a `pino`-backed adapter that targets the core `BasicLogger` contract:
 
-- CLI runtime passes `logger` directly into local `@cline/core` sessions.
+- CLI runtime passes `logger` directly into local `@induscode/core` sessions.
 - Hub-backed sessions include a serialized logger payload in `ChatStartSessionRequest.logger`; the runtime reconstructs the same `pino` settings and injects them into core.
 - Hosts can attach stable runtime logger bindings (for example `clientId`, `clientType`, `clientApp`) through `RuntimeLoggerConfig.bindings`.
 
-After login, OAuth credentials are persisted with `auth.expiresAt`, and `@cline/core` refreshes these tokens automatically during session turns. Provider auth and model settings should be changed through `cline auth`, the interactive config UI, or core provider-settings APIs rather than editing provider settings files directly.
+After login, OAuth credentials are persisted with `auth.expiresAt`, and `@induscode/core` refreshes these tokens automatically during session turns. Provider auth and model settings should be changed through `induscode auth`, the interactive config UI, or core provider-settings APIs rather than editing provider settings files directly.
 
-On startup, `cline` also attempts a legacy settings import:
+On startup, `induscode` also attempts a legacy settings import:
 
-- Source files: `<CLINE_DATA_DIR>/globalState.json` and `<CLINE_DATA_DIR>/secrets.json`
-- Target file: `<CLINE_DATA_DIR>/settings/providers.json` (or `CLINE_PROVIDER_SETTINGS_PATH`)
+- Source files: `<INDUSCODE_DATA_DIR>/globalState.json` and `<INDUSCODE_DATA_DIR>/secrets.json`
+- Target file: `<INDUSCODE_DATA_DIR>/settings/providers.json` (or `INDUSCODE_PROVIDER_SETTINGS_PATH`)
 - Existing providers in `providers.json` are never overwritten
 - Missing providers discovered in legacy files are merged into `providers.json`
 - Migrated provider entries are annotated with `tokenSource: "migration"`
 
 Custom provider registry notes:
 
-- Provider runtime settings continue to persist in `<CLINE_DATA_DIR>/settings/providers.json`.
+- Provider runtime settings continue to persist in `<INDUSCODE_DATA_DIR>/settings/providers.json`.
 - Providers in `providers.json` can opt into the OpenAI Responses API with `"protocol": "openai-responses"`; this routes the runtime through the OpenAI client while keeping the user-defined provider ID, base URL, and model catalog.
-- User-added OpenAI-compatible provider model catalogs are persisted in `<CLINE_DATA_DIR>/settings/models.json` (or alongside `CLINE_PROVIDER_SETTINGS_PATH`).
+- User-added OpenAI-compatible provider model catalogs are persisted in `<INDUSCODE_DATA_DIR>/settings/models.json` (or alongside `INDUSCODE_PROVIDER_SETTINGS_PATH`).
 - `models.json` stores model lists by provider ID and is loaded by the runtime provider actions.
 - Entries with only `models` extend an existing provider; entries with `provider` metadata register or override a custom provider.

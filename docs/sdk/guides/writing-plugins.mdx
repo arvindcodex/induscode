@@ -17,8 +17,8 @@ A GitHub integration plugin that:
 
 ```typescript
 // github-plugin.ts
-import { type AgentPlugin } from "@cline/sdk"
-import { createTool } from "@cline/sdk"
+import { type AgentPlugin } from "@induscode/sdk"
+import { createTool } from "@induscode/sdk"
 
 interface GitHubConfig {
   token: string
@@ -189,7 +189,7 @@ function createPostCommentTool(config: GitHubConfig) {
 ## Step 3: Use the Plugin
 
 ```typescript
-import { Agent } from "@cline/sdk"
+import { Agent } from "@induscode/sdk"
 import { createGitHubPlugin } from "./github-plugin"
 
 const agent = new Agent({
@@ -211,11 +211,11 @@ await agent.run("List all open bugs and create a summary issue with the count")
 
 ## Distributing as a File Plugin
 
-To load this plugin from a file in ClineCore, pass its path in `pluginPaths`:
+To load this plugin from a file in IndusCodeCore, pass its path in `pluginPaths`:
 
 ```typescript
 // /absolute/path/to/github.ts
-import { type AgentPlugin, createTool } from "@cline/sdk"
+import { type AgentPlugin, createTool } from "@induscode/sdk"
 
 const plugin: AgentPlugin = {
   name: "github",
@@ -236,11 +236,11 @@ export default plugin
 Then include it in session config:
 
 ```typescript
-import { ClineCore } from "@cline/sdk"
+import { IndusCodeCore } from "@induscode/sdk"
 
-const cline = await ClineCore.create({ clientName: "my-app" })
+const induscode = await IndusCodeCore.create({ clientName: "my-app" })
 
-await cline.start({
+await induscode.start({
   config: {
     systemPrompt: "Use the GitHub plugin",
     // ...model/runtime config
@@ -254,24 +254,24 @@ await cline.start({
 Single-file plugins can be installed directly from a file URL:
 
 ```bash
-cline plugin install https://github.com/your-org/your-repo/blob/main/plugins/github-plugin.ts
+induscode plugin install https://github.com/your-org/your-repo/blob/main/plugins/github-plugin.ts
 ```
 
-Single-file plugins can only import Node builtins and `@cline/*`. As soon as you need an npm dependency (`zod`, an HTTP client, etc.) you must ship as a package: a directory with a `package.json` that declares a `cline` field for entry points and your runtime `dependencies`. Dependencies under the `@cline/` scope are provided by the host runtime -- the installer strips these and runs `npm install` for the rest, so declare any `@cline/*` package you import as an optional peer dependency:
+Single-file plugins can only import Node builtins and `@induscode/*`. As soon as you need an npm dependency (`zod`, an HTTP client, etc.) you must ship as a package: a directory with a `package.json` that declares a `induscode` field for entry points and your runtime `dependencies`. Dependencies under the `@induscode/` scope are provided by the host runtime -- the installer strips these and runs `npm install` for the rest, so declare any `@induscode/*` package you import as an optional peer dependency:
 
 ```json
 {
-  "cline": {
+  "induscode": {
     "plugins": [{ "paths": ["./github-plugin.ts"], "capabilities": ["tools", "hooks"] }]
   },
   "dependencies": {
     "@octokit/rest": "^21.0.0"
   },
   "peerDependencies": {
-    "@cline/sdk": "*"
+    "@induscode/sdk": "*"
   },
   "peerDependenciesMeta": {
-    "@cline/sdk": {
+    "@induscode/sdk": {
       "optional": true
     }
   }
@@ -281,7 +281,7 @@ Single-file plugins can only import Node builtins and `@cline/*`. As soon as you
 Users can also install package plugins from git, npm, or a local path:
 
 ```bash
-cline plugin install https://github.com/your-org/cline-github-plugin.git
+induscode plugin install https://github.com/your-org/induscode-github-plugin.git
 ```
 
 ## Bundling Skills
@@ -289,7 +289,7 @@ cline plugin install https://github.com/your-org/cline-github-plugin.git
 Package plugins can include skills by adding a top-level `skills/` directory next to `package.json`:
 
 ```txt
-cline-github-plugin/
+induscode-github-plugin/
   package.json
   github-plugin.ts
   skills/
@@ -297,9 +297,9 @@ cline-github-plugin/
       SKILL.md
 ```
 
-Each bundled skill follows the same directory format as any other [Cline skill](/customization/skills). When the plugin is installed or loaded through `pluginPaths`, Cline discovers those skills automatically.
+Each bundled skill follows the same directory format as any other [IndusCode skill](/customization/skills). When the plugin is installed or loaded through `pluginPaths`, IndusCode discovers those skills automatically.
 
-See [Plugins](/customization/plugins) for the full manifest format, directory layout, and the [typescript-lsp-plugin](https://github.com/cline/typescript-lsp-plugin) for a complete working example.
+See [Plugins](/customization/plugins) for the full manifest format, directory layout, and the [typescript-lsp-plugin](https://github.com/induscode/typescript-lsp-plugin) for a complete working example.
 
 ## Plugin Design Guidelines
 

@@ -71,20 +71,20 @@ export const AgentSessionRow = forwardRef<HTMLDivElement, AgentSessionRowProps>(
 							? "bg-blue-500"
 							: "";
 		const navigationClassName = clsx(
-			"group grid h-8 w-full max-w-full min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-1 overflow-hidden rounded-cline-ui-md px-2 text-left text-cline-ui-sm font-cline-ui-normal",
+			"group grid h-8 w-full max-w-full min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-1 overflow-hidden rounded-induscode-ui-md px-2 text-left text-induscode-ui-sm font-induscode-ui-normal",
 			active
-				? "bg-cline-ui-surface-hover text-cline-ui-sidebar-foreground"
-				: "text-cline-ui-sidebar-foreground/80 group-hover/row:bg-cline-ui-surface-hover",
+				? "bg-induscode-ui-surface-hover text-induscode-ui-sidebar-foreground"
+				: "text-induscode-ui-sidebar-foreground/80 group-hover/row:bg-induscode-ui-surface-hover",
 		);
 		const navigationContent = (
 			<>
 				<span className="flex max-w-full min-w-0 items-center gap-1.5 overflow-hidden">
 					{leading}
-					<span className="block min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-cline-ui-sm font-cline-ui-normal leading-tight">
+					<span className="block min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-induscode-ui-sm font-induscode-ui-normal leading-tight">
 						{label}
 					</span>
 				</span>
-				<span className="flex shrink-0 items-center gap-1.5 text-cline-ui-sm text-cline-ui-muted-foreground">
+				<span className="flex shrink-0 items-center gap-1.5 text-induscode-ui-sm text-induscode-ui-muted-foreground">
 					{statusDotClass ? (
 						<span
 							aria-hidden="true"
@@ -138,10 +138,10 @@ export function AgentSessionRowEditor({
 	return (
 		<div
 			className={clsx(
-				"grid h-8 w-full max-w-full min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-1 overflow-hidden rounded-cline-ui-md px-2",
+				"grid h-8 w-full max-w-full min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-1 overflow-hidden rounded-induscode-ui-md px-2",
 				active
-					? "bg-cline-ui-surface-hover text-cline-ui-sidebar-foreground"
-					: "text-cline-ui-sidebar-foreground/80",
+					? "bg-induscode-ui-surface-hover text-induscode-ui-sidebar-foreground"
+					: "text-induscode-ui-sidebar-foreground/80",
 			)}
 		>
 			{children}
@@ -162,15 +162,15 @@ export function AgentSessionOverview({
 }: AgentSessionOverviewProps) {
 	return (
 		<div className="min-w-0 space-y-2">
-			<div className="wrap-break-word text-cline-ui-sm font-cline-ui-medium">
+			<div className="wrap-break-word text-induscode-ui-sm font-induscode-ui-medium">
 				{title}
 			</div>
-			<div className="grid grid-cols-[max-content_minmax(0,1fr)] gap-x-2 gap-y-1.5 text-cline-ui-xs">
+			<div className="grid grid-cols-[max-content_minmax(0,1fr)] gap-x-2 gap-y-1.5 text-induscode-ui-xs">
 				{items.map(([label, value, fullValue]) => (
 					<div className="contents" key={label}>
-						<span className="text-cline-ui-muted-foreground">{label}</span>
+						<span className="text-induscode-ui-muted-foreground">{label}</span>
 						<span
-							className="min-w-0 truncate font-cline-ui-mono text-cline-ui-foreground"
+							className="min-w-0 truncate font-induscode-ui-mono text-induscode-ui-foreground"
 							title={fullValue}
 						>
 							{value}

@@ -1,9 +1,9 @@
 "use client";
 
 import {
-	CLINE_DEFAULT_MODEL_ID,
+	INDUSCODE_DEFAULT_MODEL_ID,
 	formatDisplayUserInput,
-} from "@cline/shared/browser";
+} from "@induscode/shared/browser";
 import {
 	AgentComposer,
 	AgentComposerActions,
@@ -18,7 +18,7 @@ import {
 	AgentComposerTextarea,
 	AgentPromptQueue,
 	SearchCombobox,
-} from "@cline/ui";
+} from "@induscode/ui";
 import {
 	ArrowUp,
 	Brain,
@@ -162,28 +162,25 @@ export function buildUserInstructionSlashCommands(
 }
 
 const FALLBACK_PROVIDER_MODELS: Record<string, string[]> = {
-	"openai-native": [
-		"free/deepseek-v4.1-flash",
-		"free/deepseek-v4-flash-0731",
-		"free/deepseek-v4-pro-0813",
-		"free/glm-5.3-flashx",
-		"free/glm-5.3-flash",
-		"free/glm-5.3",
-		"free/gemini-3.8-flash",
-		"free/qwen-3.8-max",
-		"free/gpt-6-luna",
-		"free/mimo-v2.6-pro",
-		"free/jev-1.13",
-	],
-	cline: ["free/deepseek-v4.1-flash"],
+	induscode: ["free/deepseek-v4.1-flash"],
 	induscode: ["free/deepseek-v4.1-flash"],
 };
 
 const FALLBACK_PROVIDER_REASONING_MODELS: Record<string, string[]> = {
-	"openai-native": ["free/deepseek-v4.1-flash", "free/deepseek-v4-pro-0813"],
-	cline: ["free/deepseek-v4.1-flash", "free/deepseek-v4-pro-0813"],
+	induscode: ["free/deepseek-v4.1-flash", "free/deepseek-v4-pro-0813"],
 	induscode: ["free/deepseek-v4.1-flash", "free/deepseek-v4-pro-0813"],
 };
+
+const SYSTEM_BACKEND_PROVIDER_IDS = new Set([
+	"openai-native",
+	"openai",
+	"openrouter",
+	"cloudflare",
+	"cohere",
+	"gemini-apinex",
+	"groq",
+	"nvidia",
+]);
 
 type ReasoningEffort = NonNullable<ChatSessionConfig["reasoningEffort"]>;
 type ReasoningEffortOption = {
@@ -803,9 +800,9 @@ function ChatInputBarImpl({
 	useEffect(() => {
 		if (
 			executionTarget === "cloud" &&
-			normalizeProviderId(provider) !== "cline"
+			normalizeProviderId(provider) !== "induscode"
 		) {
-			onProviderChange("cline");
+			onProviderChange("induscode");
 		}
 	}, [executionTarget, onProviderChange, provider]);
 	const hasExplicitReasoningSelection =
@@ -1723,11 +1720,11 @@ const ModelSelector = memo(function ModelSelector({
 		? (Object.keys(providerModels).find((id) =>
 				providerModels[id]?.includes(model),
 			) ??
-			(model.startsWith("cline-pass/")
-				? "cline-pass"
-				: model.startsWith("cline-cloud/")
-					? "cline-cloud"
-					: "cline"))
+			(model.startsWith("induscode-pass/")
+				? "induscode-pass"
+				: model.startsWith("induscode-cloud/")
+					? "induscode-cloud"
+					: "induscode"))
 		: normalizeProviderId(provider);
 	useEffect(() => {
 		if (!includeCloudModels) return;
@@ -1744,6 +1741,13 @@ const ModelSelector = memo(function ModelSelector({
 			),
 		[],
 	);
+	useEffect(() => {
+		return desktopClient.subscribe("model_exhausted", () => {
+			setProviderModels({});
+			setEnabledProviderIds([]);
+			setCatalogRevision((current) => current + 1);
+		});
+	}, []);
 	const applyProviderModels = useCallback(
 		(providerId: string, models: ProviderModel[]) => {
 			setProviderModels((current) => ({
@@ -1805,14 +1809,27 @@ const ModelSelector = memo(function ModelSelector({
 		if (providers.length === 0) {
 			return "";
 		}
+		const validProviders = providers.filter(
+			(p) => p === "induscode" || !SYSTEM_BACKEND_PROVIDER_IDS.has(p),
+		);
 		const rememberedProvider = normalizeProviderId(rememberedLastProvider);
-		if (normalizedProvider && providers.includes(normalizedProvider)) {
+		if (
+			normalizedProvider &&
+			validProviders.includes(normalizedProvider) &&
+			!SYSTEM_BACKEND_PROVIDER_IDS.has(normalizedProvider)
+		) {
 			return normalizedProvider;
 		}
-		if (rememberedProvider && providers.includes(rememberedProvider)) {
+		if (
+			rememberedProvider &&
+			validProviders.includes(rememberedProvider) &&
+			!SYSTEM_BACKEND_PROVIDER_IDS.has(rememberedProvider)
+		) {
 			return rememberedProvider;
 		}
-		return providers[0] ?? "";
+		return validProviders.includes("induscode")
+			? "induscode"
+			: (validProviders[0] ?? providers[0] ?? "");
 	}, [normalizedProvider, providers, rememberedLastProvider]);
 	useEffect(() => {
 		onModelReadyChange(
@@ -1831,7 +1848,7 @@ const ModelSelector = memo(function ModelSelector({
 		[resolvedProvider, visibleProviderModels],
 	);
 	// Sectioned picker data: display names plus the Recommended/Free tiers the
-	// SDK stamps onto cline/cline-pass models (ProviderModel.featured).
+	// SDK stamps onto induscode/induscode-pass models (ProviderModel.featured).
 	const pickerDataForProvider = useCallback(
 		(providerId: string): ModelPickerData => {
 			const detailsById = new Map(
@@ -1879,7 +1896,7 @@ const ModelSelector = memo(function ModelSelector({
 				? lastSelection.lastModelByProvider[rememberedLastProvider]
 				: undefined);
 		// Catalogs are discovery data, not validation: the bundled catalog can
-		// omit live ClinePass models, and refreshes can return partial lists.
+		// omit live IndusCodePass models, and refreshes can return partial lists.
 		// Keep the configured model for the current provider even if absent;
 		// otherwise loading the catalog silently changes the session's model.
 		if (
@@ -1916,7 +1933,7 @@ const ModelSelector = memo(function ModelSelector({
 		rememberedLastProvider,
 		resolvedProvider,
 	]);
-	// The picker can intentionally hide catalog models (the ClinePass offer
+	// The picker can intentionally hide catalog models (the IndusCodePass offer
 	// is exactly its subscribed/free tiers), but the active model must stay
 	// visible and selectable — e.g. a hydrated session configured with a
 	// model outside the current offer or missing from the catalog. Surface it
@@ -1979,13 +1996,30 @@ const ModelSelector = memo(function ModelSelector({
 					...(payload.providerModelDetails ?? {}),
 				}));
 				setReasoningCapabilitySource("catalog");
-				setEnabledProviderIds(() => {
-					const nextProviderIds = new Set(payload.enabledProviderIds);
+				setEnabledProviderIds((current) => {
+					const nextProviderIds = new Set(
+						payload.enabledProviderIds.filter(
+							(id) => !SYSTEM_BACKEND_PROVIDER_IDS.has(id),
+						),
+					);
 					if (
 						normalizedProvider &&
+						!SYSTEM_BACKEND_PROVIDER_IDS.has(normalizedProvider) &&
 						(!includeCloudModels || !autoCorrectModel)
 					) {
 						nextProviderIds.add(normalizedProvider);
+					}
+					for (const providerId of current) {
+						if (
+							!includeCloudModels &&
+							providerId in payload.providerModels &&
+							!SYSTEM_BACKEND_PROVIDER_IDS.has(providerId)
+						) {
+							nextProviderIds.add(providerId);
+						}
+					}
+					if (!nextProviderIds.has("induscode") && payload.providerModels["induscode"]) {
+						nextProviderIds.add("induscode");
 					}
 					return Array.from(nextProviderIds);
 				});
@@ -2136,13 +2170,14 @@ const ModelSelector = memo(function ModelSelector({
 				onOpenModelSettings?.();
 				return;
 			}
-			if (!includeCloudModels) onProviderChange(value);
-			const rememberedModel = lastSelection.lastModelByProvider[value];
-			const providerModelIds = visibleProviderModels[value] ?? [];
+			const targetProvider = SYSTEM_BACKEND_PROVIDER_IDS.has(value) ? "induscode" : value;
+			if (!includeCloudModels) onProviderChange(targetProvider);
+			const rememberedModel = lastSelection.lastModelByProvider[targetProvider];
+			const providerModelIds = visibleProviderModels[targetProvider] ?? [];
 			// Preserve live-only remembered models missing from the bundled
 			// catalog. Only fall back when a known model is hidden by the offer.
 			const providerOptionIds = new Set(
-				pickerDataForProvider(value).options.map((option) => option.value),
+				pickerDataForProvider(targetProvider).options.map((option) => option.value),
 			);
 			const nextModel =
 				rememberedModel &&
@@ -2151,7 +2186,7 @@ const ModelSelector = memo(function ModelSelector({
 					? rememberedModel
 					: (providerModelIds.find((id) => providerOptionIds.has(id)) ??
 						providerModelIds[0]);
-			rememberSelection(value, nextModel);
+			rememberSelection(targetProvider, nextModel);
 			if (nextModel && nextModel !== model) {
 				onModelChange(nextModel);
 			}
@@ -2177,38 +2212,31 @@ const ModelSelector = memo(function ModelSelector({
 	);
 	// The picker only lists providers with saved settings, so it is also the
 	// natural place to reach the rest of the catalog.
-	const providerOptions = useMemo(() => {
-		const seenLabels = new Set<string>();
-		const result: Array<{
-			icon?: React.ReactNode;
-			label: string;
-			value: string;
-		}> = [];
-		for (const value of providers) {
-			const label = providerNames[value]?.trim() || value;
-			if (label === "IndusCode") {
-				if (seenLabels.has("IndusCode")) continue;
-				seenLabels.add("IndusCode");
-				const preferredValue = providers.includes("openai-native")
-					? "openai-native"
-					: value;
-				result.push({ label: "IndusCode", value: preferredValue });
-				continue;
-			}
-			if (!seenLabels.has(label)) {
-				seenLabels.add(label);
-				result.push({ label, value });
-			}
-		}
-		if (onOpenModelSettings) {
-			result.push({
-				icon: <Plus className="size-3 shrink-0 text-muted-foreground" />,
-				label: "Set up another provider",
-				value: ADD_PROVIDER_OPTION_VALUE,
-			});
-		}
-		return result;
-	}, [onOpenModelSettings, providerNames, providers]);
+	const providerOptions = useMemo(
+		() => [
+			...providers
+				.filter(
+					(value) =>
+						value === "induscode" || !SYSTEM_BACKEND_PROVIDER_IDS.has(value),
+				)
+				.map((value) => ({
+					label:
+						providerNames[value]?.trim() ||
+						(value === "induscode" ? "IndusCode" : value),
+					value,
+				})),
+			...(onOpenModelSettings
+				? [
+						{
+							icon: <Plus className="size-3 shrink-0 text-muted-foreground" />,
+							label: "Set up another provider",
+							value: ADD_PROVIDER_OPTION_VALUE,
+						},
+					]
+				: []),
+		],
+		[onOpenModelSettings, providerNames, providers],
+	);
 	const selectedModelLabel =
 		visibleModelPicker.options.find((option) => option.value === resolvedModel)
 			?.label ?? resolvedModel;
@@ -2311,7 +2339,7 @@ const ModelSelector = memo(function ModelSelector({
 			) : null}
 
 			<div className="flex min-w-0 items-center gap-0.5 max-[560px]:hidden">
-				{/* Wide enough for the longest built-in provider names ("Cline
+				{/* Wide enough for the longest built-in provider names ("IndusCode
 				    Usage-Billing", "OpenAI ChatGPT Subscription") untruncated. */}
 				<div className="shrink-0">{renderProviderSelect("max-w-56")}</div>
 				<div className="bg-border-2 h-4 w-[0.1rem] shrink-0" />

@@ -6,8 +6,8 @@ description: "Subscribe to runtime and session events for UIs, logs, monitoring,
 
 The SDK exposes two related event surfaces:
 
-- `AgentRuntimeEvent` from `@cline/agents`, delivered through `agent.subscribe(listener)`.
-- `AgentEvent` / `CoreSessionEvent` from `@cline/core`, delivered through core session adapters and `cline.subscribe(listener)`.
+- `AgentRuntimeEvent` from `@induscode/agents`, delivered through `agent.subscribe(listener)`.
+- `AgentEvent` / `CoreSessionEvent` from `@induscode/core`, delivered through core session adapters and `induscode.subscribe(listener)`.
 
 Use this page for event handling patterns. For event shapes, see [Events reference](/sdk/reference/events).
 
@@ -28,7 +28,7 @@ unsubscribe()
 
 ## Core / Host-Facing Agent Events
 
-`AgentEvent` is the host-facing event shape used by `@cline/core` session orchestration. For direct `Agent` usage, prefer `agent.subscribe(...)` and `AgentRuntimeEvent`.
+`AgentEvent` is the host-facing event shape used by `@induscode/core` session orchestration. For direct `Agent` usage, prefer `agent.subscribe(...)` and `AgentRuntimeEvent`.
 
 Common host-facing event categories:
 
@@ -40,23 +40,23 @@ Common host-facing event categories:
 | Notices | `notice` | Recovery and status updates |
 | Completion | `done`, `error` | Final state and failure handling |
 
-## ClineCore Session Events
+## IndusCodeCore Session Events
 
-Use `cline.subscribe()` for session-level events:
+Use `induscode.subscribe()` for session-level events:
 
 ```typescript
-const unsubscribe = cline.subscribe((event) => {
+const unsubscribe = induscode.subscribe((event) => {
   console.log(event.type, event.sessionId)
 })
 
-await cline.start({ /* ... */ })
+await induscode.start({ /* ... */ })
 unsubscribe()
 ```
 
 Pass a `sessionId` filter when you only want one session:
 
 ```typescript
-const unsubscribe = cline.subscribe(listener, { sessionId })
+const unsubscribe = induscode.subscribe(listener, { sessionId })
 ```
 
 ## Streaming UI Pattern
@@ -82,7 +82,7 @@ agent.subscribe((event) => {
 })
 ```
 
-For a complete working example of streaming agent events to a browser via SSE, see the [multi-agent example](https://github.com/cline/cline/tree/main/apps/examples/multi-agent). It spawns multiple agents in parallel and streams each agent's events to separate UI cards.
+For a complete working example of streaming agent events to a browser via SSE, see the [multi-agent example](https://github.com/induscode/induscode/tree/main/apps/examples/multi-agent). It spawns multiple agents in parallel and streams each agent's events to separate UI cards.
 
 ## Usage Tracking Pattern
 

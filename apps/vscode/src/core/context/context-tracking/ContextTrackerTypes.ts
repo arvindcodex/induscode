@@ -2,9 +2,9 @@
 export interface FileMetadataEntry {
 	path: string
 	record_state: "active" | "stale"
-	record_source: "read_tool" | "user_edited" | "cline_edited" | "file_mentioned"
-	cline_read_date: number | null
-	cline_edit_date: number | null
+	record_source: "read_tool" | "user_edited" | "induscode_edited" | "file_mentioned"
+	induscode_read_date: number | null
+	induscode_edit_date: number | null
 	user_edit_date?: number | null
 }
 
@@ -22,7 +22,7 @@ interface EnvironmentMetadataEntry {
 	os_arch: string
 	host_name: string
 	host_version: string
-	cline_version: string
+	induscode_version: string
 }
 
 export interface TaskMetadata {

@@ -1,4 +1,4 @@
-import type { AgentToolContext } from "@cline/shared";
+import type { AgentToolContext } from "@induscode/shared";
 
 export interface McpToolDescriptor {
 	name: string;
@@ -83,7 +83,7 @@ export interface McpServerRegistration {
 	disabled?: boolean;
 	/**
 	 * Per-server request timeout in seconds, from the `timeout` field in
-	 * cline_mcp_settings.json. Undefined means the shared default for ordinary
+	 * induscode_mcp_settings.json. Undefined means the shared default for ordinary
 	 * requests; the stdio client uses its default connect budget for
 	 * initialize until a finite timeout is explicitly configured. Registrations are
 	 * resolved when the runtime is built, so changes take effect on the next

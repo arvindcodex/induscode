@@ -6,18 +6,18 @@ import {
 	setPlanActModeGlobally,
 	setToolAutoApproveGlobally,
 	type UserInstructionConfigService,
-} from "@cline/core";
-import { formatModeSwitchNotice } from "@cline/shared";
+} from "@induscode/core";
+import { formatModeSwitchNotice } from "@induscode/shared";
 import type { CliMigrationNotice } from "../kanban-migration/notice";
 import { logCliError } from "../logging/errors";
 import { exportHistorySession } from "../session/history-export";
 import { deleteSession } from "../session/session";
 import {
-	loadClineAccountSnapshot,
+	loadIndusCodeAccountSnapshot,
 	loadIndividualSubscriptionPlans,
 	onProviderChange,
-	switchClineAccount,
-} from "../tui/cline-account";
+	switchIndusCodeAccount,
+} from "../tui/induscode-account";
 import type {
 	InteractiveConfigItem,
 	LoadInteractiveConfigDataOptions,
@@ -25,14 +25,14 @@ import type {
 import {
 	type InteractiveSlashCommand,
 	listInteractiveSlashCommands,
-	resolveClineWelcomeLine,
+	resolveIndusCodeWelcomeLine,
 } from "../tui/interactive-welcome";
 import { disableOpenTuiGraphicsProbe } from "../tui/opentui-env";
 import type { QueuedPromptItem, TuiStartupTarget } from "../tui/types";
 import { type ChatCommandState, chatCommandHost } from "../utils/chat-commands";
 import { applyCliCompactionMode } from "../utils/compaction-mode";
 import {
-	shouldZeroClineFreeModelCost,
+	shouldZeroIndusCodeFreeModelCost,
 	zeroCliAgentEventCost,
 	zeroCliUsageCost,
 } from "../utils/free-model-cost";
@@ -150,16 +150,16 @@ export async function resumeInteractiveSession(
 	>,
 	sessionId: string,
 ) {
-	const previousAgentResume = process.env.CLINE_HOOK_AGENT_RESUME;
-	process.env.CLINE_HOOK_AGENT_RESUME = "1";
+	const previousAgentResume = process.env.INDUSCODE_HOOK_AGENT_RESUME;
+	process.env.INDUSCODE_HOOK_AGENT_RESUME = "1";
 	let messages: Awaited<ReturnType<typeof sessionRuntime.resumeSession>>;
 	try {
 		messages = await sessionRuntime.resumeSession(sessionId);
 	} catch (error) {
 		if (previousAgentResume === undefined) {
-			delete process.env.CLINE_HOOK_AGENT_RESUME;
+			delete process.env.INDUSCODE_HOOK_AGENT_RESUME;
 		} else {
-			process.env.CLINE_HOOK_AGENT_RESUME = previousAgentResume;
+			process.env.INDUSCODE_HOOK_AGENT_RESUME = previousAgentResume;
 		}
 		throw error;
 	}
@@ -179,8 +179,8 @@ export async function runInteractive(
 	userInstructionService?: UserInstructionConfigService,
 	resumeSessionId?: string,
 	options?: {
-		clineApiBaseUrl?: string;
-		clineProviderSettings?: ProviderSettings;
+		induscodeApiBaseUrl?: string;
+		induscodeProviderSettings?: ProviderSettings;
 		startupTarget?: TuiStartupTarget;
 		initialPrompt?: string;
 		initialNotice?: CliMigrationNotice;
@@ -526,27 +526,27 @@ export async function runInteractive(
 		workflowSlashCommands,
 		loadAdditionalSlashCommands,
 		loadWelcomeLine: async () =>
-			await resolveClineWelcomeLine({
+			await resolveIndusCodeWelcomeLine({
 				config,
-				clineApiBaseUrl: options?.clineApiBaseUrl,
-				clineProviderSettings: options?.clineProviderSettings,
+				induscodeApiBaseUrl: options?.induscodeApiBaseUrl,
+				induscodeProviderSettings: options?.induscodeProviderSettings,
 			}),
-		loadClineAccount: async () =>
-			await loadClineAccountSnapshot({
+		loadIndusCodeAccount: async () =>
+			await loadIndusCodeAccountSnapshot({
 				config,
-				clineApiBaseUrl: options?.clineApiBaseUrl,
+				induscodeApiBaseUrl: options?.induscodeApiBaseUrl,
 			}),
 		loadIndividualSubscriptionPlans: async () =>
 			await loadIndividualSubscriptionPlans({
 				config,
-				clineApiBaseUrl: options?.clineApiBaseUrl,
-				clineProviderSettings: options?.clineProviderSettings,
+				induscodeApiBaseUrl: options?.induscodeApiBaseUrl,
+				induscodeProviderSettings: options?.induscodeProviderSettings,
 			}),
-		switchClineAccount: async (organizationId) =>
-			await switchClineAccount({
+		switchIndusCodeAccount: async (organizationId) =>
+			await switchIndusCodeAccount({
 				config,
 				organizationId,
-				clineApiBaseUrl: options?.clineApiBaseUrl,
+				induscodeApiBaseUrl: options?.induscodeApiBaseUrl,
 			}),
 		loadConfigData: configDataLoader.loadConfigData,
 		onToggleConfigItem,
@@ -617,7 +617,7 @@ export async function runInteractive(
 				}
 				input = chatCommandResult.input;
 				commandOutput = chatCommandResult.commandOutput;
-				zeroTurnCost = await shouldZeroClineFreeModelCost(config);
+				zeroTurnCost = await shouldZeroIndusCodeFreeModelCost(config);
 				zeroCurrentTurnCost = zeroTurnCost;
 				const {
 					prompt: userInput,
@@ -805,13 +805,13 @@ export async function runInteractive(
 		},
 		onAccountChange: async () => {
 			await sessionRuntime.ensureReady();
-			await loadClineAccountSnapshot({
+			await loadIndusCodeAccountSnapshot({
 				config,
-				clineApiBaseUrl: options?.clineApiBaseUrl,
+				induscodeApiBaseUrl: options?.induscodeApiBaseUrl,
 			}).catch((error) => {
 				logCliError(
 					config.logger,
-					"Cline account refresh after account change failed",
+					"IndusCode account refresh after account change failed",
 					{ error },
 				);
 			});
@@ -819,7 +819,7 @@ export async function runInteractive(
 		},
 		// resumeSession initializes the manager and starts the selected session
 		// directly. Ensuring a session first would mint an empty history entry
-		// when the TUI was launched through `cline history`.
+		// when the TUI was launched through `induscode history`.
 		onResumeSession: async (sessionId: string) =>
 			await resumeInteractiveSession(sessionRuntime, sessionId),
 		onExportHistorySession: async (sessionId, format) =>
@@ -891,14 +891,14 @@ export async function runInteractive(
 			prepareTerminalForPostTuiOutput();
 		}
 		writeln(
-			"The shared Cline Hub was updated by another Cline installation. Updating this CLI…",
+			"The shared IndusCode Hub was updated by another IndusCode installation. Updating this CLI…",
 		);
 		const { checkForUpdates } = await import("../commands/update");
 		const exitCode = await checkForUpdates({ includeKanban: false });
 		writeln(
 			exitCode === 0
-				? "Start cline again to reconnect to the updated Hub."
-				: "Update did not complete. Run 'cline update' manually, then start cline again.",
+				? "Start induscode again to reconnect to the updated Hub."
+				: "Update did not complete. Run 'induscode update' manually, then start induscode again.",
 		);
 	}
 }

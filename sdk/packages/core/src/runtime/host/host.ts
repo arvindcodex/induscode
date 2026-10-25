@@ -1,5 +1,5 @@
-import { captureSdkError } from "@cline/shared";
-import type { ClineCoreOptions } from "../../cline-core/types";
+import { captureSdkError } from "@induscode/shared";
+import type { IndusCodeCoreOptions } from "../../induscode-core/types";
 import {
 	ensureCompatibleLocalHubUrl,
 	resolveCompatibleLocalHubUrl,
@@ -15,15 +15,15 @@ import { LocalRuntimeHost } from "./local-runtime-host";
 import type { RuntimeHost, RuntimeHostMode } from "./runtime-host";
 
 function resolveConfiguredBackendMode(
-	options: ClineCoreOptions,
+	options: IndusCodeCoreOptions,
 ): RuntimeHostMode {
 	if (options.backendMode) {
 		return options.backendMode;
 	}
-	if (process.env.CLINE_VCR?.trim()) {
+	if (process.env.INDUSCODE_VCR?.trim()) {
 		return "local";
 	}
-	const raw = process.env.CLINE_SESSION_BACKEND_MODE?.trim().toLowerCase();
+	const raw = process.env.INDUSCODE_SESSION_BACKEND_MODE?.trim().toLowerCase();
 	if (raw === "local" || raw === "hub" || raw === "remote") {
 		return raw;
 	}
@@ -37,7 +37,7 @@ let backendInitPromise: Promise<SessionBackend> | undefined;
 
 function prewarmLocalHubIfNeeded(
 	configuredMode: RuntimeHostMode,
-	options: ClineCoreOptions,
+	options: IndusCodeCoreOptions,
 ): void {
 	if (configuredMode !== "auto" && configuredMode !== "hub") {
 		return;
@@ -61,7 +61,7 @@ async function reconcileDeadSessionsIfSupported(
 	await service.reconcileDeadSessions?.().catch(() => {});
 }
 
-function createLocalBackend(options: ClineCoreOptions): SessionBackend {
+function createLocalBackend(options: IndusCodeCoreOptions): SessionBackend {
 	try {
 		const store = new SqliteSessionStore();
 		store.init();
@@ -97,7 +97,7 @@ function createLocalBackend(options: ClineCoreOptions): SessionBackend {
 }
 
 function createLocalRuntimeHost(
-	options: ClineCoreOptions,
+	options: IndusCodeCoreOptions,
 	distinctId: string,
 	backend?: SessionBackend,
 ): LocalRuntimeHost {
@@ -114,7 +114,7 @@ function createLocalRuntimeHost(
 }
 
 export async function resolveSessionBackend(
-	options: ClineCoreOptions,
+	options: IndusCodeCoreOptions,
 ): Promise<SessionBackend> {
 	if (cachedBackend) {
 		return cachedBackend;
@@ -135,7 +135,7 @@ export async function resolveSessionBackend(
 }
 
 export async function createRuntimeHost(
-	options: ClineCoreOptions,
+	options: IndusCodeCoreOptions,
 ): Promise<RuntimeHost> {
 	const distinctId = resolveCoreDistinctId(options.distinctId);
 	options.telemetry?.setDistinctId(distinctId);

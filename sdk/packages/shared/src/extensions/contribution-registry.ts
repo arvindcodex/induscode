@@ -163,7 +163,7 @@ export interface PluginSetupContext {
 	 * lifecycle hook contexts once SessionRuntime creates them.
 	 */
 	session?: AgentExtensionSessionContext;
-	/** Host/client identity such as `cline-cli`, `cline-vscode`, or an SDK app. */
+	/** Host/client identity such as `induscode-cli`, `induscode-vscode`, or an SDK app. */
 	client?: ClientContext;
 	/** Authenticated user or organization identity when the host provides it. */
 	user?: UserContext;
@@ -176,7 +176,7 @@ export interface PluginSetupContext {
 	 */
 	workspaceInfo?: WorkspaceInfo;
 	/**
-	 * Automation ingress made available by hosts that enable ClineCore
+	 * Automation ingress made available by hosts that enable IndusCodeCore
 	 * automation. Plugins should feature-detect this property so the same plugin
 	 * can run in hosts that do not enable automation.
 	 */
@@ -206,7 +206,7 @@ export interface PluginSetupContext {
 	cwd?: string;
 	/**
 	 * Sends a plugin event (for example `steer_message`) to the session that
-	 * set the plugin up. Replaces `globalThis.__clinePluginHost.emitEvent`,
+	 * set the plugin up. Replaces `globalThis.__induscodePluginHost.emitEvent`,
 	 * which is kept as a shim.
 	 */
 	emitEvent?: (name: string, payload?: unknown) => void;
@@ -262,7 +262,7 @@ export interface AgentExtensionRegistry<TTool = AgentTool, TMessage = unknown> {
  *
  * Hook handler properties are typed `unknown` here so that the generic base
  * interface stays free of agent-specific imports. Concrete extension types
- * (e.g. `AgentExtension` in `@cline/agents`) narrow them to the correct
+ * (e.g. `AgentExtension` in `@induscode/agents`) narrow them to the correct
  * context and return types.
  */
 export interface ContributionRegistryExtension<
@@ -276,7 +276,7 @@ export interface ContributionRegistryExtension<
 	manifest: PluginManifest;
 	/** Indicates whether this extension is disabled. Disabled extensions are ignored during setup. */
 	disabled?: boolean;
-	/** Runtime-native hooks consumed directly by `@cline/agents`. */
+	/** Runtime-native hooks consumed directly by `@induscode/agents`. */
 	hooks?: AgentExtensionHooks;
 	/**
 	 * Called once during registry setup to register tools, commands, and other

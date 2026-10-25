@@ -1,4 +1,4 @@
-import type { BasicLogger } from "@cline/shared";
+import type { BasicLogger } from "@induscode/shared";
 import { describe, expect, it, vi } from "vitest";
 import type { ITelemetryAdapter } from "./ITelemetryAdapter";
 import { TelemetryService } from "./TelemetryService";
@@ -10,7 +10,7 @@ describe("TelemetryService", () => {
 			adapters: [adapter],
 			metadata: {
 				extension_version: "1.2.3",
-				cline_type: "cli",
+				induscode_type: "cli",
 			},
 			distinctId: "distinct-1",
 			deviceId: "device-1",
@@ -23,7 +23,7 @@ describe("TelemetryService", () => {
 			event: "session.started",
 			properties: { sessionId: "session-1" },
 		});
-		service.recordCounter("cline.session.starts.total", 1, {
+		service.recordCounter("induscode.session.starts.total", 1, {
 			sessionId: "session-1",
 		});
 		await service.flush();
@@ -35,13 +35,13 @@ describe("TelemetryService", () => {
 				sessionId: "session-1",
 				organization_id: "org-1",
 				extension_version: "1.2.3",
-				cline_type: "cli",
+				induscode_type: "cli",
 				distinct_id: "distinct-1",
 				device_id: "device-1",
 			}),
 		);
 		expect(recordCounter).toHaveBeenCalledWith(
-			"cline.session.starts.total",
+			"induscode.session.starts.total",
 			1,
 			expect.objectContaining({
 				sessionId: "session-1",
@@ -79,8 +79,8 @@ describe("TelemetryService", () => {
 			adapters: [adapter],
 			metadata: {
 				extension_version: "0.0.82",
-				cline_type: "hub",
-				platform: "cline-hub-daemon",
+				induscode_type: "hub",
+				platform: "induscode-hub-daemon",
 			},
 		});
 
@@ -88,8 +88,8 @@ describe("TelemetryService", () => {
 			event: "task.created",
 			properties: {
 				extension_version: "0.0.23",
-				cline_type: "desktop",
-				platform: "Cline Desktop",
+				induscode_type: "desktop",
+				platform: "IndusCode Desktop",
 			},
 		});
 
@@ -97,8 +97,8 @@ describe("TelemetryService", () => {
 			"task.created",
 			expect.objectContaining({
 				extension_version: "0.0.23",
-				cline_type: "desktop",
-				platform: "Cline Desktop",
+				induscode_type: "desktop",
+				platform: "IndusCode Desktop",
 			}),
 		);
 	});
@@ -113,7 +113,7 @@ describe("TelemetryService", () => {
 			logger,
 			metadata: {
 				extension_version: "1.2.3",
-				cline_type: "cli",
+				induscode_type: "cli",
 			},
 			distinctId: "distinct-1",
 		});
@@ -123,7 +123,7 @@ describe("TelemetryService", () => {
 			properties: { sessionId: "session-1" },
 		});
 		service.captureRequired("user.opt_out", { reason: "manual" });
-		service.recordCounter("cline.session.starts.total", 1, {
+		service.recordCounter("induscode.session.starts.total", 1, {
 			sessionId: "session-1",
 		});
 
@@ -156,7 +156,7 @@ describe("TelemetryService", () => {
 			expect.objectContaining({
 				telemetrySink: "TelemetryLoggerSink",
 				instrument: "counter",
-				name: "cline.session.starts.total",
+				name: "induscode.session.starts.total",
 			}),
 		);
 	});

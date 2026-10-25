@@ -1,6 +1,6 @@
 import { stat } from "node:fs/promises";
 import path from "node:path";
-import { toPosixSeparators } from "@cline/shared";
+import { toPosixSeparators } from "@induscode/shared";
 import { type FastFileIndexOptions, getFileIndex } from "./file-indexer";
 
 const TRAILING_PUNCTUATION_CHARS = new Set("),.:;!?`'\"");

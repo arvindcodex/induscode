@@ -7,15 +7,15 @@ import {
 } from "../components/search-combobox";
 
 const repositoryOptions: SearchComboboxOption[] = [
-	{ label: "cline/cline", value: "cline" },
+	{ label: "induscode/induscode", value: "induscode" },
 	{
 		description: "Cloud dashboard",
-		label: "cline/core-platform",
+		label: "induscode/core-platform",
 		value: "core-platform",
 	},
 	{
 		description: "Shared agent UI",
-		label: "cline/ui",
+		label: "induscode/ui",
 		value: "ui",
 	},
 ];
@@ -56,7 +56,7 @@ const meta: Meta<typeof SearchCombobox> = {
 		options: repositoryOptions,
 		placeholder: "Select repository",
 		searchPlaceholder: "Search repositories…",
-		value: "cline",
+		value: "induscode",
 	},
 };
 

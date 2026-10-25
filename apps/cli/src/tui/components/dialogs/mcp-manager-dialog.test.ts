@@ -19,14 +19,14 @@ interface TestMcpSettings {
 	mcpServers?: Record<string, { disabled?: boolean }>;
 }
 
-vi.mock("@cline/core", () => ({
+vi.mock("@induscode/core", () => ({
 	resolveDefaultMcpSettingsPath: () =>
-		process.env.CLINE_MCP_SETTINGS_PATH ?? "cline_mcp_settings.json",
+		process.env.INDUSCODE_MCP_SETTINGS_PATH ?? "induscode_mcp_settings.json",
 	setMcpServerDisabled: (options: SetMcpServerDisabledOptions) => {
 		const filePath =
 			options.filePath ??
-			process.env.CLINE_MCP_SETTINGS_PATH ??
-			"cline_mcp_settings.json";
+			process.env.INDUSCODE_MCP_SETTINGS_PATH ??
+			"induscode_mcp_settings.json";
 		const settings = JSON.parse(readFileSync(filePath, "utf8")) as {
 			mcpServers?: Record<string, { disabled?: boolean }>;
 		};
@@ -54,14 +54,14 @@ async function readSettings(filePath: string): Promise<TestMcpSettings> {
 describe("mcp manager dialog helpers", () => {
 	const tempRoots: string[] = [];
 	const envSnapshot = {
-		CLINE_MCP_SETTINGS_PATH: process.env.CLINE_MCP_SETTINGS_PATH,
+		INDUSCODE_MCP_SETTINGS_PATH: process.env.INDUSCODE_MCP_SETTINGS_PATH,
 	};
 
 	afterEach(async () => {
-		if (envSnapshot.CLINE_MCP_SETTINGS_PATH === undefined) {
-			delete process.env.CLINE_MCP_SETTINGS_PATH;
+		if (envSnapshot.INDUSCODE_MCP_SETTINGS_PATH === undefined) {
+			delete process.env.INDUSCODE_MCP_SETTINGS_PATH;
 		} else {
-			process.env.CLINE_MCP_SETTINGS_PATH = envSnapshot.CLINE_MCP_SETTINGS_PATH;
+			process.env.INDUSCODE_MCP_SETTINGS_PATH = envSnapshot.INDUSCODE_MCP_SETTINGS_PATH;
 		}
 		await Promise.all(
 			tempRoots.map((directory) =>
@@ -76,7 +76,7 @@ describe("mcp manager dialog helpers", () => {
 		tempRoots.push(tempRoot);
 		const loadedPath = join(tempRoot, "loaded.json");
 		const currentDefaultPath = join(tempRoot, "current-default.json");
-		process.env.CLINE_MCP_SETTINGS_PATH = currentDefaultPath;
+		process.env.INDUSCODE_MCP_SETTINGS_PATH = currentDefaultPath;
 		const settings = {
 			mcpServers: {
 				docs: {
@@ -114,7 +114,7 @@ describe("mcp manager dialog helpers", () => {
 	it("does not toggle plugin-owned servers", async () => {
 		const tempRoot = await mkdtemp(join(tmpdir(), "cli-mcp-manager-"));
 		tempRoots.push(tempRoot);
-		const settingsPath = join(tempRoot, "cline_mcp_settings.json");
+		const settingsPath = join(tempRoot, "induscode_mcp_settings.json");
 		await writeFile(
 			settingsPath,
 			`${JSON.stringify(

@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react"
 import { AccountServiceClient } from "@/services/grpc-client"
 
 const COOLDOWN_MS = 5 * 60 * 1000 // 5 minutes
-const COOLDOWN_KEY = "cline:spendLimitRequestCooldown"
+const COOLDOWN_KEY = "induscode:spendLimitRequestCooldown"
 
 type RequestButtonState = "idle" | "sending" | "sent"
 

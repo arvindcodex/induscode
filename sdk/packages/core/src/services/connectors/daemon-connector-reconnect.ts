@@ -1,4 +1,4 @@
-import { readStartingConnectorInstance } from "@cline/shared";
+import { readStartingConnectorInstance } from "@induscode/shared";
 import {
 	type ReconnectAttempt,
 	reconnectPersistedConnectors,

@@ -1,10 +1,10 @@
 # messages.json contract — v1
 
 This document describes the persisted session messages artifact written by
-`@cline/core` at:
+`@induscode/core` at:
 
 ```
-~/.cline/data/sessions/<sessionId>/<sessionId>.messages.json
+~/.induscode/data/sessions/<sessionId>/<sessionId>.messages.json
 ```
 
 It is the canonical replay/export artifact. Downstream consumers (for example,

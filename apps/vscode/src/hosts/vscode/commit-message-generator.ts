@@ -71,7 +71,7 @@ The commit message should:
  * System prompt for commit message generation: the base instructions plus the
  * user's enabled rules, rendered the same way a session's system prompt renders
  * them (see `Controller.getRulesForSystemPrompt`). Without this the button
- * ignored `.clinerules` entirely — commit conventions users had written down
+ * ignored `.induscoderules` entirely — commit conventions users had written down
  * were applied in chat and dropped here.
  */
 export function buildCommitMessageSystemPrompt(rulesSection: string): string {
@@ -219,7 +219,7 @@ export async function performCommitMsgGeneration(controller: Controller, gitDiff
 	const abortController = new AbortController()
 	activeCommitGenerations.add(abortController)
 	try {
-		vscode.commands.executeCommand("setContext", "cline.isGeneratingCommit", true)
+		vscode.commands.executeCommand("setContext", "induscode.isGeneratingCommit", true)
 
 		const prompts = [PROMPT.instruction]
 
@@ -243,9 +243,9 @@ export async function performCommitMsgGeneration(controller: Controller, gitDiff
 		// avoids sending both reasoning.effort and reasoning.max_tokens, which
 		// some providers (e.g. OpenRouter) reject.
 		//
-		// Resolve the host client identity so the request carries the same Cline
-		// surface headers as a task: the Cline gateway serves models restricted to
-		// Cline product surfaces (the free models) only to requests that identify
+		// Resolve the host client identity so the request carries the same IndusCode
+		// surface headers as a task: the IndusCode gateway serves models restricted to
+		// IndusCode product surfaces (the free models) only to requests that identify
 		// themselves, and answers anything else with HTTP 403.
 		const apiHandler = await buildApiHandlerWithHostContext(apiConfiguration, currentMode, { disableReasoning: true })
 
@@ -298,7 +298,7 @@ export async function performCommitMsgGeneration(controller: Controller, gitDiff
 		// The button shows Stop while any generation runs, not just this one.
 		activeCommitGenerations.delete(abortController)
 		if (activeCommitGenerations.size === 0) {
-			vscode.commands.executeCommand("setContext", "cline.isGeneratingCommit", false)
+			vscode.commands.executeCommand("setContext", "induscode.isGeneratingCommit", false)
 		}
 	}
 }
@@ -307,7 +307,7 @@ export function abortCommitGeneration() {
 	for (const generation of activeCommitGenerations) {
 		generation.abort()
 	}
-	vscode.commands.executeCommand("setContext", "cline.isGeneratingCommit", false)
+	vscode.commands.executeCommand("setContext", "induscode.isGeneratingCommit", false)
 }
 
 /**

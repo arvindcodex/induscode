@@ -5,27 +5,27 @@ describe("parseCloudSessionError", () => {
 	it("parses environment-aware GitHub connection guidance", () => {
 		expect(
 			parseCloudSessionError(
-				'CLOUD_SESSION_ERROR:{"code":"github_not_connected","message":"Connect GitHub","connectUrl":"https://app.cline.bot/dashboard/integrations"}',
+				'CLOUD_SESSION_ERROR:{"code":"github_not_connected","message":"Connect GitHub","connectUrl":"https://app.induscode.bot/dashboard/integrations"}',
 			),
 		).toEqual({
 			code: "github_not_connected",
 			message: "Connect GitHub",
-			connectUrl: "https://app.cline.bot/dashboard/integrations",
+			connectUrl: "https://app.induscode.bot/dashboard/integrations",
 		});
 	});
 
-	it("accepts connect URLs from every known Cline app environment", () => {
+	it("accepts connect URLs from every known IndusCode app environment", () => {
 		expect(
 			parseCloudSessionError(
-				'CLOUD_SESSION_ERROR:{"code":"github_not_connected","message":"Connect GitHub","connectUrl":"https://staging-app.cline.bot/dashboard/organization/integrations"}',
+				'CLOUD_SESSION_ERROR:{"code":"github_not_connected","message":"Connect GitHub","connectUrl":"https://staging-app.induscode.bot/dashboard/organization/integrations"}',
 			)?.connectUrl,
-		).toBe("https://staging-app.cline.bot/dashboard/organization/integrations");
+		).toBe("https://staging-app.induscode.bot/dashboard/organization/integrations");
 	});
 
-	it("drops connect URLs outside the Cline app origins", () => {
+	it("drops connect URLs outside the IndusCode app origins", () => {
 		for (const hostile of [
 			"https://attacker.example/github-oauth",
-			"https://app.cline.bot.evil.example/dashboard",
+			"https://app.induscode.bot.evil.example/dashboard",
 			"javascript:alert(1)",
 			"not a url",
 		]) {

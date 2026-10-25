@@ -9,7 +9,7 @@ const meta: Meta<typeof SessionStatus> = {
 		docs: {
 			description: {
 				component:
-					"Compact session state indicator. The dot color follows the tone; set --cline-ui-session-status-color for a host-specific palette.",
+					"Compact session state indicator. The dot color follows the tone; set --induscode-ui-session-status-color for a host-specific palette.",
 			},
 		},
 	},

@@ -1,5 +1,5 @@
 import { createServer } from "node:http";
-import { Agent } from "@cline/sdk";
+import { Agent } from "@induscode/sdk";
 
 const PORT = Number(process.env.PORT || 3456);
 
@@ -1050,9 +1050,9 @@ const AGENT_ROLES = [
 
 function createAgentConfig() {
 	return {
-		providerId: "cline",
+		providerId: "induscode",
 		modelId: "anthropic/claude-sonnet-4.6",
-		apiKey: process.env.CLINE_API_KEY,
+		apiKey: process.env.INDUSCODE_API_KEY,
 		maxIterations: 1,
 	};
 }

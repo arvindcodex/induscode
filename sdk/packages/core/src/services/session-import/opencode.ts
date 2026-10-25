@@ -1,8 +1,8 @@
 import { copyFileSync, existsSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type * as LlmsProviders from "@cline/llms";
-import { loadSqliteDb, type SqliteDb } from "@cline/shared/db";
+import type * as LlmsProviders from "@induscode/llms";
+import { loadSqliteDb, type SqliteDb } from "@induscode/shared/db";
 import { nanoid } from "nanoid";
 import { opencodeDataDir } from "./paths";
 import {
@@ -33,14 +33,14 @@ function asMs(value: unknown): number | undefined {
 	return Number.isFinite(num) && num > 0 ? num : undefined;
 }
 
-/** opencode provider ids that differ from Cline's for the same vendor. */
-const OPENCODE_TO_CLINE_PROVIDER: Record<string, string> = {
+/** opencode provider ids that differ from IndusCode's for the same vendor. */
+const OPENCODE_TO_INDUSCODE_PROVIDER: Record<string, string> = {
 	openai: "openai-native",
 	google: "gemini",
 };
 
-function toClineProviderId(providerId: string): string {
-	return OPENCODE_TO_CLINE_PROVIDER[providerId] ?? providerId;
+function toIndusCodeProviderId(providerId: string): string {
+	return OPENCODE_TO_INDUSCODE_PROVIDER[providerId] ?? providerId;
 }
 
 export interface OpencodeAdapterOptions {
@@ -72,7 +72,7 @@ export class OpencodeImportAdapter implements SessionImportAdapter {
 
 	private openSnapshot(): SqliteDb {
 		if (this.snapshot) return this.snapshot.db;
-		const dir = mkdtempSync(join(tmpdir(), "cline-opencode-import-"));
+		const dir = mkdtempSync(join(tmpdir(), "induscode-opencode-import-"));
 		try {
 			const copied = join(dir, "opencode.db");
 			copyFileSync(this.dbPath, copied);
@@ -270,7 +270,7 @@ export class OpencodeImportAdapter implements SessionImportAdapter {
 				// tool_result forms the next user message) to keep the
 				// user/assistant structure providers expect.
 				if (typeof data.providerID === "string" && data.providerID.trim()) {
-					provider = toClineProviderId(data.providerID.trim());
+					provider = toIndusCodeProviderId(data.providerID.trim());
 				}
 				if (typeof data.modelID === "string" && data.modelID.trim()) {
 					model = data.modelID.trim();

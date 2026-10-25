@@ -44,7 +44,7 @@ class TestConnector extends ConnectorBase<
 			rawArgs: ["--token", "secret"],
 			io,
 			interactive: false,
-			childEnvVar: "CLINE_TEST_CONNECT_CHILD",
+			childEnvVar: "INDUSCODE_TEST_CONNECT_CHILD",
 			statePath: "/tmp/test-connector.json",
 			readState: options?.readState ?? (() => undefined),
 			isRunning: options?.isRunning ?? (() => false),
@@ -133,7 +133,7 @@ describe("ConnectorBase background launch", () => {
 		expect(mocks.spawnDetachedConnector).toHaveBeenCalledWith(
 			["connect", "test"],
 			["--token", "secret"],
-			"CLINE_TEST_CONNECT_CHILD",
+			"INDUSCODE_TEST_CONNECT_CHILD",
 			expect.objectContaining({
 				logPath: expect.stringContaining(
 					"logs/connectors/test/test-connector.log",

@@ -37,8 +37,8 @@ const {
 	}>,
 }));
 
-vi.mock("@cline/shared", async (importOriginal) => ({
-	...(await importOriginal<typeof import("@cline/shared")>()),
+vi.mock("@induscode/shared", async (importOriginal) => ({
+	...(await importOriginal<typeof import("@induscode/shared")>()),
 	registerDisposable: registerDisposableSpy,
 }));
 
@@ -108,9 +108,9 @@ vi.mock("@opentelemetry/context-async-hooks", () => ({
 }));
 
 const { globalSettingsPathRef } = vi.hoisted(() => ({
-	globalSettingsPathRef: { current: "/nonexistent/cline-global-settings.json" },
+	globalSettingsPathRef: { current: "/nonexistent/induscode-global-settings.json" },
 }));
-vi.mock("@cline/shared/storage", () => ({
+vi.mock("@induscode/shared/storage", () => ({
 	resolveGlobalSettingsPath: () => globalSettingsPathRef.current,
 }));
 
@@ -138,18 +138,18 @@ describe("langfuse telemetry", () => {
 		vi.stubEnv("LANGFUSE_BASE_URL", genericConfig.baseUrl);
 		vi.stubEnv("LANGFUSE_PUBLIC_KEY", genericConfig.publicKey);
 		vi.stubEnv("LANGFUSE_SECRET_KEY", genericConfig.secretKey);
-		vi.stubEnv("CLINE_TRACE_SAMPLE_PERCENT", "");
-		vi.stubEnv("CLINE_TRACE_RECORD_CONTENT", "");
+		vi.stubEnv("INDUSCODE_TRACE_SAMPLE_PERCENT", "");
+		vi.stubEnv("INDUSCODE_TRACE_RECORD_CONTENT", "");
 		vi.stubEnv("OTEL_SERVICE_NAME", "");
-		vi.stubEnv("CLINE_LANGFUSE_ALL_PROVIDERS", "");
-		vi.stubEnv("CLINE_LANGFUSE_TAGS", "");
-		vi.stubEnv("CLINE_LANGFUSE_METADATA", "");
+		vi.stubEnv("INDUSCODE_LANGFUSE_ALL_PROVIDERS", "");
+		vi.stubEnv("INDUSCODE_LANGFUSE_TAGS", "");
+		vi.stubEnv("INDUSCODE_LANGFUSE_METADATA", "");
 		vi.stubEnv("LANGFUSE_TRACING_ENVIRONMENT", "");
 	});
 
 	afterEach(() => {
 		vi.unstubAllEnvs();
-		globalSettingsPathRef.current = "/nonexistent/cline-global-settings.json";
+		globalSettingsPathRef.current = "/nonexistent/induscode-global-settings.json";
 		resetLangfuseTelemetryForTests();
 	});
 
@@ -158,7 +158,7 @@ describe("langfuse telemetry", () => {
 			isEnabled: false,
 		});
 		expect(spanProcessorConfigSpy).not.toHaveBeenCalled();
-		await expect(resolveAiSdkTelemetry("cline")).resolves.toEqual({
+		await expect(resolveAiSdkTelemetry("induscode")).resolves.toEqual({
 			isEnabled: true,
 			integrations: expect.any(Object),
 		});
@@ -168,10 +168,10 @@ describe("langfuse telemetry", () => {
 		expect(spanProcessorConfigSpy).toHaveBeenCalledOnce();
 	});
 
-	it("shares one isolated exporter between concurrent Cline backend requests", async () => {
+	it("shares one isolated exporter between concurrent IndusCode backend requests", async () => {
 		const [first, second] = await Promise.all([
-			resolveAiSdkTelemetry("cline"),
-			resolveAiSdkTelemetry("cline-pass"),
+			resolveAiSdkTelemetry("induscode"),
+			resolveAiSdkTelemetry("induscode-pass"),
 		]);
 		expect(first.integrations).toBeDefined();
 		expect(first.integrations).toBe(second.integrations);
@@ -185,7 +185,7 @@ describe("langfuse telemetry", () => {
 			forceFlush: forceFlushSpy,
 			shutdown: shutdownSpy,
 		});
-		const decision = await resolveAiSdkTelemetry("cline");
+		const decision = await resolveAiSdkTelemetry("induscode");
 		expect(decision.isEnabled).toBe(true);
 		expect(integrationOptionsSpy).toHaveBeenCalledWith({
 			tracer: {
@@ -207,12 +207,12 @@ describe("langfuse telemetry", () => {
 
 	it("never registers cleanup or touches the host when direct export is declined", async () => {
 		getDelegateSpy.mockReturnValue({
-			_clineOtlpTraceRelay: true,
+			_induscodeOtlpTraceRelay: true,
 			forceFlush: forceFlushSpy,
 			shutdown: shutdownSpy,
 		});
-		await resolveAiSdkTelemetry("cline");
-		await resolveAiSdkTelemetry("cline");
+		await resolveAiSdkTelemetry("induscode");
+		await resolveAiSdkTelemetry("induscode");
 		await disposeLangfuseTelemetry();
 		expect(registerDisposableSpy).not.toHaveBeenCalled();
 		expect(spanProcessorConfigSpy).not.toHaveBeenCalled();
@@ -221,18 +221,18 @@ describe("langfuse telemetry", () => {
 	});
 
 	it("recognizes a relay marker directly on the global provider", async () => {
-		getTracerProviderSpy.mockReturnValue({ _clineOtlpTraceRelay: true });
-		const decision = await resolveAiSdkTelemetry("cline", "task-a");
+		getTracerProviderSpy.mockReturnValue({ _induscodeOtlpTraceRelay: true });
+		const decision = await resolveAiSdkTelemetry("induscode", "task-a");
 		expect(decision.isEnabled).toBe(true);
 		expect(decision.recordInputs).toBe(false);
-		expect(globalGetTracerSpy).toHaveBeenCalledWith("cline-provider-langfuse");
+		expect(globalGetTracerSpy).toHaveBeenCalledWith("induscode-provider-langfuse");
 		expect(spanProcessorConfigSpy).not.toHaveBeenCalled();
 	});
 
 	it("takes the relay path even after direct integration has been cached", async () => {
-		const direct = await resolveAiSdkTelemetry("cline");
-		getDelegateSpy.mockReturnValue({ _clineOtlpTraceRelay: true });
-		const relay = await resolveAiSdkTelemetry("cline");
+		const direct = await resolveAiSdkTelemetry("induscode");
+		getDelegateSpy.mockReturnValue({ _induscodeOtlpTraceRelay: true });
+		const relay = await resolveAiSdkTelemetry("induscode");
 		expect(relay.integrations).not.toBe(direct.integrations);
 		expect(relay.recordInputs).toBe(false);
 		expect(integrationOptionsSpy).toHaveBeenLastCalledWith({
@@ -266,14 +266,14 @@ describe("langfuse telemetry", () => {
 				globalSettingsPathRef.current,
 				JSON.stringify({ telemetryOptOut: optedOut }),
 			);
-			vi.stubEnv("CLINE_TRACE_SAMPLE_PERCENT", sample);
-			vi.stubEnv("CLINE_TRACE_RECORD_CONTENT", "false");
+			vi.stubEnv("INDUSCODE_TRACE_SAMPLE_PERCENT", sample);
+			vi.stubEnv("INDUSCODE_TRACE_RECORD_CONTENT", "false");
 			// Register the host while the awaited direct runtime is still being
 			// constructed, before its promise resolves back to the caller.
 			integrationOptionsSpy.mockImplementationOnce(() => {
-				getDelegateSpy.mockReturnValue({ _clineOtlpTraceRelay: true });
+				getDelegateSpy.mockReturnValue({ _induscodeOtlpTraceRelay: true });
 			});
-			const decision = await resolveAiSdkTelemetry("cline", "task-a");
+			const decision = await resolveAiSdkTelemetry("induscode", "task-a");
 			expect(tracerProviderInstances).toHaveLength(1);
 			if (enabled) {
 				expect(decision).toEqual({
@@ -298,16 +298,16 @@ describe("langfuse telemetry", () => {
 
 	it("does not initialize direct export with incomplete credentials", async () => {
 		vi.stubEnv("LANGFUSE_SECRET_KEY", "");
-		await expect(resolveAiSdkTelemetry("cline")).resolves.toEqual({
+		await expect(resolveAiSdkTelemetry("induscode")).resolves.toEqual({
 			isEnabled: false,
 		});
 		expect(spanProcessorConfigSpy).not.toHaveBeenCalled();
 	});
 
 	it("recreates a direct runtime after disposal", async () => {
-		const first = await resolveAiSdkTelemetry("cline");
+		const first = await resolveAiSdkTelemetry("induscode");
 		await disposeLangfuseTelemetry();
-		const second = await resolveAiSdkTelemetry("cline");
+		const second = await resolveAiSdkTelemetry("induscode");
 		expect(second.integrations).not.toBe(first.integrations);
 		expect(tracerProviderInstances).toHaveLength(2);
 	});
@@ -325,13 +325,13 @@ describe("langfuse telemetry", () => {
 				getDelegate: () => ({
 					forceFlush: forceFlushSpy,
 					shutdown: shutdownSpy,
-					_clineOtlpTraceRelay: true,
+					_induscodeOtlpTraceRelay: true,
 				}),
 			});
 		}
 
 		it("keeps the direct Langfuse path unchanged: enabled with content recording untouched", async () => {
-			const decision = await resolveAiSdkTelemetry("cline", "task-a");
+			const decision = await resolveAiSdkTelemetry("induscode", "task-a");
 
 			expect(decision).toEqual({
 				isEnabled: true,
@@ -343,7 +343,7 @@ describe("langfuse telemetry", () => {
 			clearLangfuseEnv();
 			mockHostOtlpTracer();
 
-			const decision = await resolveAiSdkTelemetry("cline", "task-a");
+			const decision = await resolveAiSdkTelemetry("induscode", "task-a");
 
 			expect(decision).toEqual({
 				isEnabled: true,
@@ -355,16 +355,16 @@ describe("langfuse telemetry", () => {
 
 		it("stays disabled when the sample rate is explicitly zero", async () => {
 			clearLangfuseEnv();
-			process.env.CLINE_TRACE_SAMPLE_PERCENT = "0";
+			process.env.INDUSCODE_TRACE_SAMPLE_PERCENT = "0";
 
-			const decision = await resolveAiSdkTelemetry("cline", "task-a");
+			const decision = await resolveAiSdkTelemetry("induscode", "task-a");
 
 			expect(decision.isEnabled).toBe(false);
 		});
 
-		it("stays disabled for non-cline providers even with a sample rate", async () => {
+		it("stays disabled for non-induscode providers even with a sample rate", async () => {
 			clearLangfuseEnv();
-			process.env.CLINE_TRACE_SAMPLE_PERCENT = "100";
+			process.env.INDUSCODE_TRACE_SAMPLE_PERCENT = "100";
 
 			const decision = await resolveAiSdkTelemetry("openrouter", "task-a");
 
@@ -374,9 +374,9 @@ describe("langfuse telemetry", () => {
 		it("enables metadata-only telemetry at 100% when the host registered a tracer", async () => {
 			clearLangfuseEnv();
 			mockHostOtlpTracer();
-			process.env.CLINE_TRACE_SAMPLE_PERCENT = "100";
+			process.env.INDUSCODE_TRACE_SAMPLE_PERCENT = "100";
 
-			const decision = await resolveAiSdkTelemetry("cline", "task-a");
+			const decision = await resolveAiSdkTelemetry("induscode", "task-a");
 
 			expect(decision).toEqual({
 				isEnabled: true,
@@ -386,13 +386,13 @@ describe("langfuse telemetry", () => {
 			});
 		});
 
-		it("records content only when CLINE_TRACE_RECORD_CONTENT is set", async () => {
+		it("records content only when INDUSCODE_TRACE_RECORD_CONTENT is set", async () => {
 			clearLangfuseEnv();
 			mockHostOtlpTracer();
-			process.env.CLINE_TRACE_SAMPLE_PERCENT = "100";
-			process.env.CLINE_TRACE_RECORD_CONTENT = "true";
+			process.env.INDUSCODE_TRACE_SAMPLE_PERCENT = "100";
+			process.env.INDUSCODE_TRACE_RECORD_CONTENT = "true";
 
-			const decision = await resolveAiSdkTelemetry("cline", "task-a");
+			const decision = await resolveAiSdkTelemetry("induscode", "task-a");
 
 			expect(decision).toEqual({
 				isEnabled: true,
@@ -407,11 +407,11 @@ describe("langfuse telemetry", () => {
 			mockHostOtlpTracer();
 			// FNV-1a buckets: task-b=7, task-c=88. A 50% rate keeps the low
 			// bucket and drops the high one — on every call.
-			process.env.CLINE_TRACE_SAMPLE_PERCENT = "50";
+			process.env.INDUSCODE_TRACE_SAMPLE_PERCENT = "50";
 
 			for (let i = 0; i < 2; i++) {
-				const kept = await resolveAiSdkTelemetry("cline", "task-b");
-				const dropped = await resolveAiSdkTelemetry("cline", "task-c");
+				const kept = await resolveAiSdkTelemetry("induscode", "task-b");
+				const dropped = await resolveAiSdkTelemetry("induscode", "task-c");
 				expect(kept.isEnabled).toBe(true);
 				expect(dropped.isEnabled).toBe(false);
 			}
@@ -419,16 +419,16 @@ describe("langfuse telemetry", () => {
 
 		it("stays disabled below 100% without a sampling key", async () => {
 			clearLangfuseEnv();
-			process.env.CLINE_TRACE_SAMPLE_PERCENT = "50";
+			process.env.INDUSCODE_TRACE_SAMPLE_PERCENT = "50";
 
-			const decision = await resolveAiSdkTelemetry("cline", undefined);
+			const decision = await resolveAiSdkTelemetry("induscode", undefined);
 
 			expect(decision.isEnabled).toBe(false);
 		});
 
 		it("respects the global telemetry opt-out", async () => {
 			clearLangfuseEnv();
-			process.env.CLINE_TRACE_SAMPLE_PERCENT = "100";
+			process.env.INDUSCODE_TRACE_SAMPLE_PERCENT = "100";
 			const settingsPath = path.join(
 				await fs.mkdtemp(path.join(os.tmpdir(), "lf-optout-")),
 				"settings.json",
@@ -439,7 +439,7 @@ describe("langfuse telemetry", () => {
 			);
 			globalSettingsPathRef.current = settingsPath;
 
-			const decision = await resolveAiSdkTelemetry("cline", "task-a");
+			const decision = await resolveAiSdkTelemetry("induscode", "task-a");
 
 			expect(decision.isEnabled).toBe(false);
 		});
@@ -447,8 +447,8 @@ describe("langfuse telemetry", () => {
 		it("fails closed when the settings file is malformed", async () => {
 			clearLangfuseEnv();
 			mockHostOtlpTracer();
-			process.env.CLINE_TRACE_SAMPLE_PERCENT = "100";
-			process.env.CLINE_TRACE_RECORD_CONTENT = "true";
+			process.env.INDUSCODE_TRACE_SAMPLE_PERCENT = "100";
+			process.env.INDUSCODE_TRACE_RECORD_CONTENT = "true";
 			const settingsPath = path.join(
 				await fs.mkdtemp(path.join(os.tmpdir(), "lf-torn-")),
 				"settings.json",
@@ -457,7 +457,7 @@ describe("langfuse telemetry", () => {
 			await fs.writeFile(settingsPath, '{"telemetryOptOut":tr');
 			globalSettingsPathRef.current = settingsPath;
 
-			const decision = await resolveAiSdkTelemetry("cline", "task-a");
+			const decision = await resolveAiSdkTelemetry("induscode", "task-a");
 
 			expect(decision.isEnabled).toBe(false);
 		});
@@ -465,13 +465,13 @@ describe("langfuse telemetry", () => {
 		it("fails closed when the settings file exists but cannot be read", async () => {
 			clearLangfuseEnv();
 			mockHostOtlpTracer();
-			process.env.CLINE_TRACE_SAMPLE_PERCENT = "100";
+			process.env.INDUSCODE_TRACE_SAMPLE_PERCENT = "100";
 			// A directory at the settings path raises EISDIR, not ENOENT.
 			globalSettingsPathRef.current = await fs.mkdtemp(
 				path.join(os.tmpdir(), "lf-unreadable-"),
 			);
 
-			const decision = await resolveAiSdkTelemetry("cline", "task-a");
+			const decision = await resolveAiSdkTelemetry("induscode", "task-a");
 
 			expect(decision.isEnabled).toBe(false);
 		});
@@ -479,7 +479,7 @@ describe("langfuse telemetry", () => {
 		it("stays enabled when the settings file records no opt-out", async () => {
 			clearLangfuseEnv();
 			mockHostOtlpTracer();
-			process.env.CLINE_TRACE_SAMPLE_PERCENT = "100";
+			process.env.INDUSCODE_TRACE_SAMPLE_PERCENT = "100";
 			const settingsPath = path.join(
 				await fs.mkdtemp(path.join(os.tmpdir(), "lf-optin-")),
 				"settings.json",
@@ -490,7 +490,7 @@ describe("langfuse telemetry", () => {
 			);
 			globalSettingsPathRef.current = settingsPath;
 
-			const decision = await resolveAiSdkTelemetry("cline", "task-a");
+			const decision = await resolveAiSdkTelemetry("induscode", "task-a");
 
 			expect(decision.isEnabled).toBe(true);
 		});
@@ -506,7 +506,7 @@ describe("langfuse telemetry", () => {
 			);
 			globalSettingsPathRef.current = settingsPath;
 
-			const decision = await resolveAiSdkTelemetry("cline", "task-a");
+			const decision = await resolveAiSdkTelemetry("induscode", "task-a");
 
 			expect(decision).toEqual({
 				isEnabled: true,
@@ -516,7 +516,7 @@ describe("langfuse telemetry", () => {
 
 		it("does not treat a console-only tracer as the relay", async () => {
 			clearLangfuseEnv();
-			process.env.CLINE_TRACE_SAMPLE_PERCENT = "100";
+			process.env.INDUSCODE_TRACE_SAMPLE_PERCENT = "100";
 			// Recording provider without the relay marker — e.g. the SDK's
 			// console traces exporter.
 			getTracerProviderSpy.mockReturnValue({
@@ -526,7 +526,7 @@ describe("langfuse telemetry", () => {
 				}),
 			});
 
-			const decision = await resolveAiSdkTelemetry("cline", "task-a");
+			const decision = await resolveAiSdkTelemetry("induscode", "task-a");
 
 			expect(decision.isEnabled).toBe(false);
 		});
@@ -534,7 +534,7 @@ describe("langfuse telemetry", () => {
 		it("retries direct Langfuse once a declined relay goes away", async () => {
 			mockHostOtlpTracer();
 			// Relay present: direct declines, relay path serves the stream.
-			const withRelay = await resolveAiSdkTelemetry("cline", "task-a");
+			const withRelay = await resolveAiSdkTelemetry("induscode", "task-a");
 			expect(withRelay).toEqual({
 				isEnabled: true,
 				integrations: expect.any(Object),
@@ -547,7 +547,7 @@ describe("langfuse telemetry", () => {
 			getTracerProviderSpy.mockReturnValue({
 				getDelegate: getDelegateSpy,
 			});
-			const withoutRelay = await resolveAiSdkTelemetry("cline", "task-a");
+			const withoutRelay = await resolveAiSdkTelemetry("induscode", "task-a");
 			expect(withoutRelay).toEqual({
 				isEnabled: true,
 				integrations: expect.any(Object),
@@ -557,19 +557,19 @@ describe("langfuse telemetry", () => {
 
 		it("stays disabled when no recording tracer provider is registered", async () => {
 			clearLangfuseEnv();
-			process.env.CLINE_TRACE_SAMPLE_PERCENT = "100";
+			process.env.INDUSCODE_TRACE_SAMPLE_PERCENT = "100";
 			getTracerProviderSpy.mockReturnValue({
 				getDelegate: () => ({ constructor: { name: "NoopTracerProvider" } }),
 			});
 
-			const decision = await resolveAiSdkTelemetry("cline", "task-a");
+			const decision = await resolveAiSdkTelemetry("induscode", "task-a");
 
 			expect(decision.isEnabled).toBe(false);
 		});
 	});
-	describe("BYOK providers (CLINE_LANGFUSE_ALL_PROVIDERS)", () => {
+	describe("BYOK providers (INDUSCODE_LANGFUSE_ALL_PROVIDERS)", () => {
 		it("traces third-party providers through direct credentials when opted in", async () => {
-			vi.stubEnv("CLINE_LANGFUSE_ALL_PROVIDERS", "1");
+			vi.stubEnv("INDUSCODE_LANGFUSE_ALL_PROVIDERS", "1");
 
 			const decision = await resolveAiSdkTelemetry("openrouter");
 
@@ -587,7 +587,7 @@ describe("langfuse telemetry", () => {
 		});
 
 		it("stays disabled for third-party providers without direct credentials", async () => {
-			vi.stubEnv("CLINE_LANGFUSE_ALL_PROVIDERS", "true");
+			vi.stubEnv("INDUSCODE_LANGFUSE_ALL_PROVIDERS", "true");
 			delete process.env.LANGFUSE_SECRET_KEY;
 
 			await expect(resolveAiSdkTelemetry("openrouter")).resolves.toEqual({
@@ -597,12 +597,12 @@ describe("langfuse telemetry", () => {
 		});
 
 		it("never routes third-party providers through the host relay", async () => {
-			vi.stubEnv("CLINE_LANGFUSE_ALL_PROVIDERS", "yes");
+			vi.stubEnv("INDUSCODE_LANGFUSE_ALL_PROVIDERS", "yes");
 			getTracerProviderSpy.mockReturnValue({
 				getDelegate: () => ({
 					forceFlush: forceFlushSpy,
 					shutdown: shutdownSpy,
-					_clineOtlpTraceRelay: true,
+					_induscodeOtlpTraceRelay: true,
 				}),
 			});
 
@@ -619,7 +619,7 @@ describe("langfuse telemetry", () => {
 		});
 
 		it("ignores falsy opt-in values", async () => {
-			vi.stubEnv("CLINE_LANGFUSE_ALL_PROVIDERS", "0");
+			vi.stubEnv("INDUSCODE_LANGFUSE_ALL_PROVIDERS", "0");
 
 			await expect(resolveAiSdkTelemetry("openrouter")).resolves.toEqual({
 				isEnabled: false,
@@ -627,7 +627,7 @@ describe("langfuse telemetry", () => {
 		});
 
 		it("passes LANGFUSE_TRACING_ENVIRONMENT to the direct exporter", async () => {
-			vi.stubEnv("CLINE_LANGFUSE_ALL_PROVIDERS", "1");
+			vi.stubEnv("INDUSCODE_LANGFUSE_ALL_PROVIDERS", "1");
 			vi.stubEnv("LANGFUSE_TRACING_ENVIRONMENT", "benchmark");
 
 			await resolveAiSdkTelemetry("openrouter");
@@ -642,11 +642,11 @@ describe("langfuse telemetry", () => {
 	describe("env trace attributes", () => {
 		it("reads comma-separated tags and key=value metadata", () => {
 			vi.stubEnv(
-				"CLINE_LANGFUSE_TAGS",
+				"INDUSCODE_LANGFUSE_TAGS",
 				" benchmark-run-1, nightly ,benchmark-run-1,",
 			);
 			vi.stubEnv(
-				"CLINE_LANGFUSE_METADATA",
+				"INDUSCODE_LANGFUSE_METADATA",
 				"suite=swe-bench, commit=abc123 ,bad,=x",
 			);
 
@@ -658,7 +658,7 @@ describe("langfuse telemetry", () => {
 
 		it("reads JSON metadata and stringifies non-string values", () => {
 			vi.stubEnv(
-				"CLINE_LANGFUSE_METADATA",
+				"INDUSCODE_LANGFUSE_METADATA",
 				JSON.stringify({ suite: "swe-bench", attempt: 2, skip: null }),
 			);
 
@@ -668,14 +668,14 @@ describe("langfuse telemetry", () => {
 		});
 
 		it("returns nothing for malformed JSON metadata", () => {
-			vi.stubEnv("CLINE_LANGFUSE_METADATA", "{not json");
+			vi.stubEnv("INDUSCODE_LANGFUSE_METADATA", "{not json");
 
 			expect(readEnvTraceAttributes()).toEqual({});
 		});
 
 		it("merges env tags and metadata under the call's own attributes", async () => {
-			vi.stubEnv("CLINE_LANGFUSE_TAGS", "benchmark-run-1");
-			vi.stubEnv("CLINE_LANGFUSE_METADATA", "suite=swe-bench,runId=env-run");
+			vi.stubEnv("INDUSCODE_LANGFUSE_TAGS", "benchmark-run-1");
+			vi.stubEnv("INDUSCODE_LANGFUSE_METADATA", "suite=swe-bench,runId=env-run");
 
 			await withLangfuseTraceAttributes(
 				true,
@@ -698,7 +698,7 @@ describe("langfuse telemetry", () => {
 		});
 
 		it("propagates env-only attributes when the call supplies none", async () => {
-			vi.stubEnv("CLINE_LANGFUSE_TAGS", "benchmark-run-1");
+			vi.stubEnv("INDUSCODE_LANGFUSE_TAGS", "benchmark-run-1");
 
 			await withLangfuseTraceAttributes(true, {}, async () => "ok");
 
@@ -717,7 +717,7 @@ describe("langfuse telemetry", () => {
 		});
 
 		it("skips propagation when disabled", async () => {
-			vi.stubEnv("CLINE_LANGFUSE_TAGS", "benchmark-run-1");
+			vi.stubEnv("INDUSCODE_LANGFUSE_TAGS", "benchmark-run-1");
 
 			await withLangfuseTraceAttributes(false, {}, async () => "ok");
 

@@ -1,7 +1,7 @@
 import { CLOUD_CREATION_UNCONFIRMED_ERROR_CODE } from "@shared/cloud/cloud-sessions"
-import type { ClineMessage, ClineSayTool, TurnState } from "@shared/ExtensionMessage"
+import type { IndusCodeMessage, IndusCodeSayTool, TurnState } from "@shared/ExtensionMessage"
 import type { Mode } from "@shared/storage/types"
-import { ClineError } from "../../../../../../src/services/error/ClineError"
+import { IndusCodeError } from "../../../../../../src/services/error/IndusCodeError"
 
 /**
  * Button action types that determine the behavior
@@ -226,7 +226,7 @@ const errorTypes = ["api_req_failed", "mistake_limit_reached"]
  * Determines button configuration based on message type and state
  * This is the single source of truth used by both ActionButtons and useMessageHandlers
  */
-export function getButtonConfig(message: ClineMessage | undefined, _mode: Mode = "act"): ButtonConfig {
+export function getButtonConfig(message: IndusCodeMessage | undefined, _mode: Mode = "act"): ButtonConfig {
 	if (!message) {
 		return BUTTON_CONFIGS.default
 	}
@@ -251,7 +251,7 @@ export function getButtonConfig(message: ClineMessage | undefined, _mode: Mode =
 		switch (message.ask) {
 			// Error recovery states
 			case "api_req_failed":
-				return ClineError.parse(message.text)?._error.code === CLOUD_CREATION_UNCONFIRMED_ERROR_CODE
+				return IndusCodeError.parse(message.text)?._error.code === CLOUD_CREATION_UNCONFIRMED_ERROR_CODE
 					? BUTTON_CONFIGS.cloud_creation_unconfirmed
 					: BUTTON_CONFIGS.api_req_failed
 			case "mistake_limit_reached":
@@ -261,7 +261,7 @@ export function getButtonConfig(message: ClineMessage | undefined, _mode: Mode =
 			case "tool": {
 				// Only parse JSON if we need to determine save vs approve
 				try {
-					const tool = JSON.parse(message.text || "{}") as ClineSayTool
+					const tool = JSON.parse(message.text || "{}") as IndusCodeSayTool
 					if (tool.tool === "editedExistingFile" || tool.tool === "newFileCreated" || tool.tool === "fileDeleted") {
 						return BUTTON_CONFIGS.tool_save
 					}
@@ -324,7 +324,7 @@ export function getButtonConfig(message: ClineMessage | undefined, _mode: Mode =
 	return BUTTON_CONFIGS.partial
 }
 
-function isInertStatusMessage(message: ClineMessage): boolean {
+function isInertStatusMessage(message: IndusCodeMessage): boolean {
 	if (message.type !== "say") {
 		return false
 	}
@@ -349,7 +349,7 @@ function isInertStatusMessage(message: ClineMessage): boolean {
  * filtered out of the visible chat, but using the raw last message would hide
  * Approve/Reject and leave the user stuck. Prefer the last non-inert message.
  */
-export function getButtonConfigForMessages(messages: ClineMessage[], mode: Mode = "act"): ButtonConfig {
+export function getButtonConfigForMessages(messages: IndusCodeMessage[], mode: Mode = "act"): ButtonConfig {
 	for (let index = messages.length - 1; index >= 0; index--) {
 		const message = messages[index]
 		if (!isInertStatusMessage(message)) {
@@ -370,7 +370,7 @@ export function getButtonConfigForMessages(messages: ClineMessage[], mode: Mode 
  */
 export function buttonsForPhase(
 	turnState: TurnState,
-	anchoredMessage: ClineMessage | undefined,
+	anchoredMessage: IndusCodeMessage | undefined,
 	foregroundCommandRunning = false,
 ): ButtonConfig {
 	switch (turnState.phase) {
@@ -411,7 +411,7 @@ export function buttonsForPhase(
  * path); otherwise falls back to the legacy tail-walking heuristic (classic/older state).
  */
 export function getButtonConfigFromState(
-	messages: ClineMessage[],
+	messages: IndusCodeMessage[],
 	turnState: TurnState | undefined,
 	mode: Mode = "act",
 	foregroundCommandRunning = false,
@@ -423,15 +423,15 @@ export function getButtonConfigFromState(
 	return getButtonConfigForMessages(messages, mode)
 }
 
-export function getTurnStateMessage(messages: ClineMessage[], turnState: TurnState | undefined): ClineMessage | undefined {
+export function getTurnStateMessage(messages: IndusCodeMessage[], turnState: TurnState | undefined): IndusCodeMessage | undefined {
 	return turnState?.anchorTs !== undefined ? messages.find((message) => message.ts === turnState.anchorTs) : undefined
 }
 
 export function isOptionsAskActive(
-	message: ClineMessage,
+	message: IndusCodeMessage,
 	turnState: TurnState | undefined,
 	isLast: boolean,
-	lastModifiedMessage: ClineMessage | undefined,
+	lastModifiedMessage: IndusCodeMessage | undefined,
 ): boolean {
 	if (turnState) {
 		return turnState.phase === "awaiting_followup" && turnState.anchorTs === message.ts

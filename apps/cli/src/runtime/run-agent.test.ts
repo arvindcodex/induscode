@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { getCliSubscriptionUrl } from "../utils/cline-pass-errors";
+import { getCliSubscriptionUrl } from "../utils/induscode-pass-errors";
 
 const sessionManagerMocks = vi.hoisted(() => ({
 	start: vi.fn(),
@@ -38,51 +38,51 @@ const sessionEventsMocks = vi.hoisted(() => ({
 	),
 }));
 
-const CLINE_PASS_SUBSCRIPTION_URL =
-	"https://app.cline.bot/dashboard/subscription?personal=true";
-const SDK_CLINE_PASS_SUBSCRIPTION_MESSAGE = `No access to ClinePass subscription models yet. Subscribe to ClinePass, the low cost open weights model coding plan: ${CLINE_PASS_SUBSCRIPTION_URL}`;
-const CLI_CLINE_PASS_SUBSCRIPTION_MESSAGE = `No access to ClinePass subscription models yet. Subscribe to ClinePass, the low cost open weights model coding plan: ${getCliSubscriptionUrl()}`;
-const CLINE_PASS_LIMIT_DETAIL_MESSAGE =
-	"You have reached your 5-hour Clinepass limit. The limit resets in 5h, please try again later.";
-const CLI_CLINE_PASS_LIMIT_MESSAGE = [
-	"ClinePass limit reached",
-	CLINE_PASS_LIMIT_DETAIL_MESSAGE,
-	"Switch to Cline usage-based billing and retry with the Cline provider.",
-	"Interactive CLI: open the model selector with /model, choose Cline, then retry.",
-	"Headless CLI: rerun with --provider cline.",
+const INDUSCODE_PASS_SUBSCRIPTION_URL =
+	"https://app.induscode.bot/dashboard/subscription?personal=true";
+const SDK_INDUSCODE_PASS_SUBSCRIPTION_MESSAGE = `No access to IndusCodePass subscription models yet. Subscribe to IndusCodePass, the low cost open weights model coding plan: ${INDUSCODE_PASS_SUBSCRIPTION_URL}`;
+const CLI_INDUSCODE_PASS_SUBSCRIPTION_MESSAGE = `No access to IndusCodePass subscription models yet. Subscribe to IndusCodePass, the low cost open weights model coding plan: ${getCliSubscriptionUrl()}`;
+const INDUSCODE_PASS_LIMIT_DETAIL_MESSAGE =
+	"You have reached your 5-hour IndusCodepass limit. The limit resets in 5h, please try again later.";
+const CLI_INDUSCODE_PASS_LIMIT_MESSAGE = [
+	"IndusCodePass limit reached",
+	INDUSCODE_PASS_LIMIT_DETAIL_MESSAGE,
+	"Switch to IndusCode usage-based billing and retry with the IndusCode provider.",
+	"Interactive CLI: open the model selector with /model, choose IndusCode, then retry.",
+	"Headless CLI: rerun with --provider induscode.",
 ].join("\n");
-const CLINE_ORG_INDIVIDUAL_INFERENCE_SUBSCRIPTION_MESSAGE =
-	"Organization accounts cannot use ClinePass subscriptions. Go to /account -> change account to switch to your personal account for ClinePass";
+const INDUSCODE_ORG_INDIVIDUAL_INFERENCE_SUBSCRIPTION_MESSAGE =
+	"Organization accounts cannot use IndusCodePass subscriptions. Go to /account -> change account to switch to your personal account for IndusCodePass";
 
 vi.mock(
-	"@cline/core",
-	async (importActual: () => Promise<typeof import("@cline/core")>) => ({
+	"@induscode/core",
+	async (importActual: () => Promise<typeof import("@induscode/core")>) => ({
 		...(await importActual()),
-		getClineOrgIndividualInferenceSubscriptionMessage: () =>
-			CLINE_ORG_INDIVIDUAL_INFERENCE_SUBSCRIPTION_MESSAGE,
-		getClinePassSubscriptionUrl: () => CLINE_PASS_SUBSCRIPTION_URL,
-		isClineNotSubscribedError: (error: unknown) =>
-			error instanceof Error && error.name === "ClineNotSubscribedError",
-		isClineNotSubscribedMessage: (text: string) =>
+		getIndusCodeOrgIndividualInferenceSubscriptionMessage: () =>
+			INDUSCODE_ORG_INDIVIDUAL_INFERENCE_SUBSCRIPTION_MESSAGE,
+		getIndusCodePassSubscriptionUrl: () => INDUSCODE_PASS_SUBSCRIPTION_URL,
+		isIndusCodeNotSubscribedError: (error: unknown) =>
+			error instanceof Error && error.name === "IndusCodeNotSubscribedError",
+		isIndusCodeNotSubscribedMessage: (text: string) =>
 			text
 				.toLowerCase()
 				.includes("the user is not subscribed to required model plan"),
-		isClineOrgIndividualInferenceSubscriptionError: (error: unknown) =>
+		isIndusCodeOrgIndividualInferenceSubscriptionError: (error: unknown) =>
 			error instanceof Error &&
-			error.name === "ClineOrgIndividualInferenceSubscriptionError",
-		isClineOrgIndividualInferenceSubscriptionMessage: (text: string) =>
+			error.name === "IndusCodeOrgIndividualInferenceSubscriptionError",
+		isIndusCodeOrgIndividualInferenceSubscriptionMessage: (text: string) =>
 			text
 				.toLowerCase()
 				.includes(
 					"organization accounts cannot use individual model inference subscriptions",
 				),
-		isClinePassLimitError: (error: unknown) =>
-			error instanceof Error && error.name === "ClinePassLimitError",
-		isClinePassLimitMessage: (text: string) => {
+		isIndusCodePassLimitError: (error: unknown) =>
+			error instanceof Error && error.name === "IndusCodePassLimitError",
+		isIndusCodePassLimitMessage: (text: string) => {
 			const normalized = text.toLowerCase();
 			return (
 				normalized.includes("you have reached your") &&
-				normalized.includes("clinepass limit") &&
+				normalized.includes("induscodepass limit") &&
 				normalized.includes("please try again later.")
 			);
 		},
@@ -124,7 +124,7 @@ vi.mock("./format", () => ({
 }));
 
 vi.mock("./interactive-welcome", () => ({
-	resolveClineWelcomeLine: vi.fn(async () => undefined),
+	resolveIndusCodeWelcomeLine: vi.fn(async () => undefined),
 }));
 
 vi.mock("./prompt", () => ({
@@ -573,9 +573,9 @@ describe("runAgent", () => {
 		expect(outputMocks.writeErr).toHaveBeenCalledWith("Missing API key");
 	});
 
-	it("renders ClinePass subscription errors with friendly copy when startup throws", async () => {
-		const error = new Error(SDK_CLINE_PASS_SUBSCRIPTION_MESSAGE);
-		error.name = "ClineNotSubscribedError";
+	it("renders IndusCodePass subscription errors with friendly copy when startup throws", async () => {
+		const error = new Error(SDK_INDUSCODE_PASS_SUBSCRIPTION_MESSAGE);
+		error.name = "IndusCodeNotSubscribedError";
 		sessionManagerMocks.start.mockRejectedValue(error);
 
 		const { runAgent } = await import("./run-agent");
@@ -591,7 +591,7 @@ describe("runAgent", () => {
 				mode: "yolo",
 				modelId: "premium-model",
 				outputMode: "text",
-				providerId: "cline-pass",
+				providerId: "induscode-pass",
 				systemPrompt: "system",
 				thinking: false,
 				toolPolicies: { "*": { autoApprove: true } },
@@ -602,7 +602,7 @@ describe("runAgent", () => {
 
 		expect(process.exitCode).toBe(1);
 		expect(outputMocks.writeErr).toHaveBeenCalledWith(
-			CLI_CLINE_PASS_SUBSCRIPTION_MESSAGE,
+			CLI_INDUSCODE_PASS_SUBSCRIPTION_MESSAGE,
 		);
 	});
 
@@ -617,7 +617,7 @@ describe("runAgent", () => {
 				session_id: "session-1",
 			},
 			result: {
-				text: 'Missing API key for provider "cline".',
+				text: 'Missing API key for provider "induscode".',
 				usage: {
 					inputTokens: 0,
 					outputTokens: 0,
@@ -631,7 +631,7 @@ describe("runAgent", () => {
 				finishReason: "error",
 				model: {
 					id: "anthropic/claude-sonnet-4.6",
-					provider: "cline",
+					provider: "induscode",
 					info: {},
 				},
 				startedAt,
@@ -656,7 +656,7 @@ describe("runAgent", () => {
 				mode: "yolo",
 				modelId: "anthropic/claude-sonnet-4.6",
 				outputMode: "json",
-				providerId: "cline",
+				providerId: "induscode",
 				systemPrompt: "system",
 				thinking: false,
 				toolPolicies: { "*": { autoApprove: true } },
@@ -667,11 +667,11 @@ describe("runAgent", () => {
 
 		expect(process.exitCode).toBe(1);
 		expect(outputMocks.writeErr).toHaveBeenCalledWith(
-			'Missing API key for provider "cline".',
+			'Missing API key for provider "induscode".',
 		);
 	});
 
-	it("renders ClinePass subscription errors with friendly copy for failed results", async () => {
+	it("renders IndusCodePass subscription errors with friendly copy for failed results", async () => {
 		const startedAt = new Date("2026-03-22T00:00:00.000Z");
 		const endedAt = new Date("2026-03-22T00:00:01.000Z");
 		sessionManagerMocks.start.mockResolvedValue({
@@ -680,7 +680,7 @@ describe("runAgent", () => {
 			messagesPath: "/tmp/messages.json",
 			manifest: { session_id: "session-1" },
 			result: {
-				text: SDK_CLINE_PASS_SUBSCRIPTION_MESSAGE,
+				text: SDK_INDUSCODE_PASS_SUBSCRIPTION_MESSAGE,
 				usage: {
 					inputTokens: 0,
 					outputTokens: 0,
@@ -692,7 +692,7 @@ describe("runAgent", () => {
 				toolCalls: [],
 				iterations: 1,
 				finishReason: "error",
-				model: { id: "premium-model", provider: "cline-pass", info: {} },
+				model: { id: "premium-model", provider: "induscode-pass", info: {} },
 				startedAt,
 				endedAt,
 				durationMs: 1000,
@@ -713,7 +713,7 @@ describe("runAgent", () => {
 				mode: "yolo",
 				modelId: "premium-model",
 				outputMode: "text",
-				providerId: "cline-pass",
+				providerId: "induscode-pass",
 				systemPrompt: "system",
 				thinking: false,
 				toolPolicies: { "*": { autoApprove: true } },
@@ -724,17 +724,17 @@ describe("runAgent", () => {
 
 		expect(process.exitCode).toBe(1);
 		expect(outputMocks.writeErr).toHaveBeenCalledWith(
-			CLI_CLINE_PASS_SUBSCRIPTION_MESSAGE,
+			CLI_INDUSCODE_PASS_SUBSCRIPTION_MESSAGE,
 		);
 	});
 
-	it("does not duplicate ClinePass subscription errors already displayed by agent events", async () => {
+	it("does not duplicate IndusCodePass subscription errors already displayed by agent events", async () => {
 		const startedAt = new Date("2026-03-22T00:00:00.000Z");
 		const endedAt = new Date("2026-03-22T00:00:01.000Z");
 		sessionManagerMocks.start.mockImplementation(async () => {
 			sessionEventsMocks.listener?.({
 				type: "error",
-				error: new Error(SDK_CLINE_PASS_SUBSCRIPTION_MESSAGE),
+				error: new Error(SDK_INDUSCODE_PASS_SUBSCRIPTION_MESSAGE),
 				recoverable: false,
 			});
 
@@ -744,7 +744,7 @@ describe("runAgent", () => {
 				messagesPath: "/tmp/messages.json",
 				manifest: { session_id: "session-1" },
 				result: {
-					text: SDK_CLINE_PASS_SUBSCRIPTION_MESSAGE,
+					text: SDK_INDUSCODE_PASS_SUBSCRIPTION_MESSAGE,
 					usage: {
 						inputTokens: 0,
 						outputTokens: 0,
@@ -756,7 +756,7 @@ describe("runAgent", () => {
 					toolCalls: [],
 					iterations: 1,
 					finishReason: "error",
-					model: { id: "premium-model", provider: "cline-pass", info: {} },
+					model: { id: "premium-model", provider: "induscode-pass", info: {} },
 					startedAt,
 					endedAt,
 					durationMs: 1000,
@@ -778,7 +778,7 @@ describe("runAgent", () => {
 				mode: "yolo",
 				modelId: "premium-model",
 				outputMode: "text",
-				providerId: "cline-pass",
+				providerId: "induscode-pass",
 				systemPrompt: "system",
 				thinking: false,
 				toolPolicies: { "*": { autoApprove: true } },
@@ -791,7 +791,7 @@ describe("runAgent", () => {
 		expect(outputMocks.writeErr).not.toHaveBeenCalled();
 	});
 
-	it("formats ClinePass limit errors with usage-based billing guidance", async () => {
+	it("formats IndusCodePass limit errors with usage-based billing guidance", async () => {
 		const startedAt = new Date("2026-03-22T00:00:00.000Z");
 		const endedAt = new Date("2026-03-22T00:00:01.000Z");
 		sessionManagerMocks.start.mockResolvedValue({
@@ -800,7 +800,7 @@ describe("runAgent", () => {
 			messagesPath: "/tmp/messages.json",
 			manifest: { session_id: "session-1" },
 			result: {
-				text: `Error: ${CLINE_PASS_LIMIT_DETAIL_MESSAGE}`,
+				text: `Error: ${INDUSCODE_PASS_LIMIT_DETAIL_MESSAGE}`,
 				usage: {
 					inputTokens: 0,
 					outputTokens: 0,
@@ -812,7 +812,7 @@ describe("runAgent", () => {
 				toolCalls: [],
 				iterations: 1,
 				finishReason: "error",
-				model: { id: "premium-model", provider: "cline-pass", info: {} },
+				model: { id: "premium-model", provider: "induscode-pass", info: {} },
 				startedAt,
 				endedAt,
 				durationMs: 1000,
@@ -833,7 +833,7 @@ describe("runAgent", () => {
 				mode: "yolo",
 				modelId: "premium-model",
 				outputMode: "text",
-				providerId: "cline-pass",
+				providerId: "induscode-pass",
 				systemPrompt: "system",
 				thinking: false,
 				toolPolicies: { "*": { autoApprove: true } },
@@ -844,17 +844,17 @@ describe("runAgent", () => {
 
 		expect(process.exitCode).toBe(1);
 		expect(outputMocks.writeErr).toHaveBeenCalledWith(
-			CLI_CLINE_PASS_LIMIT_MESSAGE,
+			CLI_INDUSCODE_PASS_LIMIT_MESSAGE,
 		);
 	});
 
-	it("does not duplicate ClinePass limit errors already displayed by agent events", async () => {
+	it("does not duplicate IndusCodePass limit errors already displayed by agent events", async () => {
 		const startedAt = new Date("2026-03-22T00:00:00.000Z");
 		const endedAt = new Date("2026-03-22T00:00:01.000Z");
 		sessionManagerMocks.start.mockImplementation(async () => {
 			sessionEventsMocks.listener?.({
 				type: "error",
-				error: new Error(`Error: ${CLINE_PASS_LIMIT_DETAIL_MESSAGE}`),
+				error: new Error(`Error: ${INDUSCODE_PASS_LIMIT_DETAIL_MESSAGE}`),
 				recoverable: false,
 			});
 
@@ -864,7 +864,7 @@ describe("runAgent", () => {
 				messagesPath: "/tmp/messages.json",
 				manifest: { session_id: "session-1" },
 				result: {
-					text: `Error: ${CLINE_PASS_LIMIT_DETAIL_MESSAGE}`,
+					text: `Error: ${INDUSCODE_PASS_LIMIT_DETAIL_MESSAGE}`,
 					usage: {
 						inputTokens: 0,
 						outputTokens: 0,
@@ -876,7 +876,7 @@ describe("runAgent", () => {
 					toolCalls: [],
 					iterations: 1,
 					finishReason: "error",
-					model: { id: "premium-model", provider: "cline-pass", info: {} },
+					model: { id: "premium-model", provider: "induscode-pass", info: {} },
 					startedAt,
 					endedAt,
 					durationMs: 1000,
@@ -898,7 +898,7 @@ describe("runAgent", () => {
 				mode: "yolo",
 				modelId: "premium-model",
 				outputMode: "text",
-				providerId: "cline-pass",
+				providerId: "induscode-pass",
 				systemPrompt: "system",
 				thinking: false,
 				toolPolicies: { "*": { autoApprove: true } },
@@ -1173,7 +1173,7 @@ describe("runAgent", () => {
 		);
 	});
 
-	it("zeros Cline free model costs in JSON results and agent events", async () => {
+	it("zeros IndusCode free model costs in JSON results and agent events", async () => {
 		const startedAt = new Date("2026-03-22T00:00:00.000Z");
 		const endedAt = new Date("2026-03-22T00:00:01.000Z");
 		vi.stubGlobal(
@@ -1209,7 +1209,7 @@ describe("runAgent", () => {
 				finishReason: "completed",
 				model: {
 					id: "deepseek/deepseek-v4-flash",
-					provider: "cline",
+					provider: "induscode",
 					info: {},
 				},
 				startedAt,
@@ -1239,7 +1239,7 @@ describe("runAgent", () => {
 
 		await expect(
 			runAgent("test prompt", {
-				baseUrl: "https://cline.test/api/v1",
+				baseUrl: "https://induscode.test/api/v1",
 				cwd: process.cwd(),
 				enableAgentTeams: false,
 				enableSpawnAgent: false,
@@ -1251,7 +1251,7 @@ describe("runAgent", () => {
 				mode: "yolo",
 				modelId: "deepseek/deepseek-v4-flash",
 				outputMode: "json",
-				providerId: "cline",
+				providerId: "induscode",
 				systemPrompt: "system",
 				thinking: false,
 				toolPolicies: { "*": { autoApprove: true } },

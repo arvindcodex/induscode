@@ -3,11 +3,11 @@ import {
 	type IncomingMessage,
 	type ServerResponse,
 } from "node:http";
-import { Agent, createTool } from "@cline/sdk";
+import { Agent, createTool } from "@induscode/sdk";
 import { z } from "zod";
 
 const PORT = Number(process.env.PORT || 3457);
-const MODEL_ID = process.env.CLINE_MODEL_ID || "anthropic/claude-sonnet-4.6";
+const MODEL_ID = process.env.INDUSCODE_MODEL_ID || "anthropic/claude-sonnet-4.6";
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;
 const POSTING_ENABLED =
 	process.env.ENABLE_GITHUB_REVIEW_POSTING === "1" && Boolean(GITHUB_TOKEN);
@@ -1284,9 +1284,9 @@ async function runAiReview(
 	let summary: ReviewSummary | undefined;
 
 	const agent = new Agent({
-		providerId: "cline",
+		providerId: "induscode",
 		modelId: MODEL_ID,
-		apiKey: process.env.CLINE_API_KEY,
+		apiKey: process.env.INDUSCODE_API_KEY,
 		systemPrompt: `You are a senior code reviewer reviewing real GitHub pull requests.
 
 Use get_file_context when a hunk needs surrounding file context.
@@ -1576,7 +1576,7 @@ async function githubFetch(url: string, init: RequestInit = {}) {
 	const headers = new Headers(init.headers);
 	if (!headers.has("Accept"))
 		headers.set("Accept", "application/vnd.github+json");
-	headers.set("User-Agent", "cline-sdk-code-review-bot-example");
+	headers.set("User-Agent", "induscode-sdk-code-review-bot-example");
 	headers.set("X-GitHub-Api-Version", "2022-11-28");
 	if (GITHUB_TOKEN) headers.set("Authorization", `Bearer ${GITHUB_TOKEN}`);
 

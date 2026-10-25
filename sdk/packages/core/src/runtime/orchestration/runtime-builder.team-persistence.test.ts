@@ -268,13 +268,13 @@ describe("DefaultRuntimeBuilder team persistence boundary", () => {
 		);
 	});
 
-	it("forwards cline workspace metadata to teammate runtime bootstrap config", async () => {
+	it("forwards induscode workspace metadata to teammate runtime bootstrap config", async () => {
 		const { DefaultRuntimeBuilder } = await import("./runtime-builder");
 		bootstrapAgentTeamsMock.mockClear();
 
 		await new DefaultRuntimeBuilder().build({
 			config: {
-				providerId: "cline",
+				providerId: "induscode",
 				modelId: "anthropic/claude-sonnet-4.6",
 				apiKey: "key",
 				systemPrompt: `Base instructions.
@@ -302,15 +302,15 @@ describe("DefaultRuntimeBuilder team persistence boundary", () => {
 				}),
 			}),
 		);
-		const clineBootstrapCall = (
+		const induscodeBootstrapCall = (
 			bootstrapAgentTeamsMock.mock.calls as unknown as Array<[BootstrapCall]>
 		)[0]?.[0];
-		expect(clineBootstrapCall).toBeDefined();
+		expect(induscodeBootstrapCall).toBeDefined();
 		expect(
-			clineBootstrapCall?.teammateConfigProvider.getRuntimeConfig(),
+			induscodeBootstrapCall?.teammateConfigProvider.getRuntimeConfig(),
 		).toEqual(
 			expect.objectContaining({
-				providerId: "cline",
+				providerId: "induscode",
 				cwd: "/repo/demo",
 			}),
 		);

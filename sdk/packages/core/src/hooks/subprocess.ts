@@ -32,7 +32,7 @@ import {
 	type ToolResultHookPayload,
 	type UserPromptSubmitData,
 	type WorkspaceInfo,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { z } from "zod";
 import {
 	type RunSubprocessEventResult,
@@ -268,10 +268,10 @@ function basePayload(
 	options: SubprocessHooksOptions,
 ): HookEventPayloadBase {
 	const env = options.env ?? process.env;
-	const userId = env.CLINE_USER_ID?.trim() || env.USER?.trim() || "unknown";
+	const userId = env.INDUSCODE_USER_ID?.trim() || env.USER?.trim() || "unknown";
 	const workspaceRoot = options.cwd || process.cwd();
 	return {
-		clineVersion: env.CLINE_VERSION?.trim() || "",
+		induscodeVersion: env.INDUSCODE_VERSION?.trim() || "",
 		hookName,
 		timestamp: new Date().toISOString(),
 		taskId: ctx.conversationId,
@@ -419,7 +419,7 @@ export function createSubprocessHooks(
 	> => {
 		const base = runtimeBase(ctx);
 		const isResume =
-			(options.env ?? process.env).CLINE_HOOK_AGENT_RESUME === "1";
+			(options.env ?? process.env).INDUSCODE_HOOK_AGENT_RESUME === "1";
 		const payload: AgentResumeHookPayload | AgentStartHookPayload = isResume
 			? {
 					...basePayload("agent_resume", base, options),

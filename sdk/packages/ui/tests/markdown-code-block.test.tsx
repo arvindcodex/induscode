@@ -43,7 +43,7 @@ async function renderFence(content: string): Promise<HTMLElement> {
 	await act(async () =>
 		root.render(
 			<Streamdown
-				className="cline-markdown"
+				className="induscode-markdown"
 				controls={agentMarkdownControls}
 				lineNumbers={false}
 				mode="static"

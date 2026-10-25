@@ -1,4 +1,4 @@
-// SdkCloudSessionCoordinator — starts, reopens and monitors Cline Cloud sessions.
+// SdkCloudSessionCoordinator — starts, reopens and monitors IndusCode Cloud sessions.
 //
 // Cloud sessions run in a hosted sandbox and keep going after the user moves on,
 // so this coordinator owns two things the local task flow does not need:
@@ -13,10 +13,10 @@
 //      shape) so History, the home screen and the running-now strip list cloud
 //      tasks next to local ones.
 
-import type { ITelemetryService, SessionAccumulatedUsage, SessionHistoryRecord, StartSessionInput } from "@cline/core"
-import { CloudCreationUnconfirmedError } from "@cline/core/cloud"
-import type { MessageWithMetadata as SdkMessage } from "@cline/llms"
-import type { ToolApprovalRequest, ToolApprovalResult } from "@cline/shared"
+import type { ITelemetryService, SessionAccumulatedUsage, SessionHistoryRecord, StartSessionInput } from "@induscode/core"
+import { CloudCreationUnconfirmedError } from "@induscode/core/cloud"
+import type { MessageWithMetadata as SdkMessage } from "@induscode/llms"
+import type { ToolApprovalRequest, ToolApprovalResult } from "@induscode/shared"
 import {
 	ACTIVE_CLOUD_STATUSES,
 	CLOUD_CREATION_UNCONFIRMED_ERROR_CODE,
@@ -29,13 +29,13 @@ import {
 	isPersistedCloudSessionId,
 	type RememberedCloudStatuses,
 } from "@shared/cloud/cloud-sessions"
-import type { ClineMessage, TurnPhase } from "@shared/ExtensionMessage"
+import type { IndusCodeMessage, TurnPhase } from "@shared/ExtensionMessage"
 import type { HistoryItem } from "@shared/HistoryItem"
 import { ShowMessageType } from "@shared/proto/host/window"
 import {
-	getCachedClineRecommendedModels,
-	refreshClineRecommendedModels,
-} from "@/core/controller/models/refreshClineRecommendedModels"
+	getCachedIndusCodeRecommendedModels,
+	refreshIndusCodeRecommendedModels,
+} from "@/core/controller/models/refreshIndusCodeRecommendedModels"
 import type { StateManager } from "@/core/storage/StateManager"
 import { HostProvider } from "@/hosts/host-provider"
 import {
@@ -45,8 +45,8 @@ import {
 	type CloudSessionsService,
 	isCloudSessionExpired,
 } from "@/services/cloud/CloudSessionsService"
-import { ClineError } from "@/services/error/ClineError"
-import { CLINE_RECOMMENDED_MODELS_FALLBACK } from "@/shared/cline/recommended-models"
+import { IndusCodeError } from "@/services/error/IndusCodeError"
+import { INDUSCODE_RECOMMENDED_MODELS_FALLBACK } from "@/shared/induscode/recommended-models"
 import { Logger } from "@/shared/services/Logger"
 import { PendingStartJournal, type PendingStartRecord } from "./cloud-pending-starts"
 import { CloudSessionHost } from "./cloud-session-host"
@@ -54,7 +54,7 @@ import type { MessageIdMinter } from "./message-id-minter"
 import type { SdkMessageCoordinator } from "./sdk-message-coordinator"
 import type { SdkSessionConfigBuilder } from "./sdk-session-config-builder"
 import type { SdkSessionLifecycle } from "./sdk-session-lifecycle"
-import { sdkMessagesToDisplayClineMessages, sessionHistoryRecordToHistoryItem } from "./sdk-task-history"
+import { sdkMessagesToDisplayIndusCodeMessages, sessionHistoryRecordToHistoryItem } from "./sdk-task-history"
 import type { SdkSessionHost } from "./session-host"
 import { createTaskProxy, type TaskProxy } from "./task-proxy"
 
@@ -449,7 +449,7 @@ export class SdkCloudSessionCoordinator {
 			exitCode: status === "completed" ? 0 : undefined,
 			status: HISTORY_STATUS[status],
 			interactive: true,
-			provider: "cline",
+			provider: "induscode",
 			model: record.metadata.modelId ?? "",
 			cwd: CLOUD_WORKSPACE_ROOT,
 			workspaceRoot: CLOUD_WORKSPACE_ROOT,
@@ -902,19 +902,19 @@ export class SdkCloudSessionCoordinator {
 	// ---- Starting a task ----
 
 	/**
-	 * The Cline model a new sandbox runs: the user's Act-mode Cline model,
+	 * The IndusCode model a new sandbox runs: the user's Act-mode IndusCode model,
 	 * else the top recommendation known so far. Synchronous, and the only
 	 * source for both the composer label and the start path, so the sandbox
 	 * runs the model the user saw when they submitted.
 	 */
 	private nextCloudModelId(): string {
 		const apiConfig = this.options.stateManager.getApiConfiguration()
-		if (apiConfig.actModeApiProvider === "cline" && apiConfig.actModeClineModelId?.trim()) {
-			return apiConfig.actModeClineModelId.trim()
+		if (apiConfig.actModeApiProvider === "induscode" && apiConfig.actModeIndusCodeModelId?.trim()) {
+			return apiConfig.actModeIndusCodeModelId.trim()
 		}
 		this.warmRecommendedModels()
-		const recommended = getCachedClineRecommendedModels() ?? CLINE_RECOMMENDED_MODELS_FALLBACK
-		return recommended.recommended[0]?.id ?? CLINE_RECOMMENDED_MODELS_FALLBACK.recommended[0].id
+		const recommended = getCachedIndusCodeRecommendedModels() ?? INDUSCODE_RECOMMENDED_MODELS_FALLBACK
+		return recommended.recommended[0]?.id ?? INDUSCODE_RECOMMENDED_MODELS_FALLBACK.recommended[0].id
 	}
 
 	/**
@@ -925,19 +925,19 @@ export class SdkCloudSessionCoordinator {
 	 * leaves the cache empty waits briefly before another state post can retry.
 	 */
 	private warmRecommendedModels(): void {
-		if (this.recommendedModelsWarmup || getCachedClineRecommendedModels() || Date.now() < this.recommendedModelsRetryAt) {
+		if (this.recommendedModelsWarmup || getCachedIndusCodeRecommendedModels() || Date.now() < this.recommendedModelsRetryAt) {
 			return
 		}
-		const warmup = refreshClineRecommendedModels()
+		const warmup = refreshIndusCodeRecommendedModels()
 			.then(() => {
-				if (!this.disposed && getCachedClineRecommendedModels()) {
+				if (!this.disposed && getCachedIndusCodeRecommendedModels()) {
 					this.options.postStateToWebview().catch(() => {})
 				}
 			})
 			.catch(() => undefined)
 			.finally(() => {
 				if (this.recommendedModelsWarmup === warmup) {
-					if (!getCachedClineRecommendedModels())
+					if (!getCachedIndusCodeRecommendedModels())
 						this.recommendedModelsRetryAt = Date.now() + RECOMMENDED_MODELS_RETRY_MS
 					this.recommendedModelsWarmup = undefined
 				}
@@ -1036,15 +1036,15 @@ export class SdkCloudSessionCoordinator {
 			workspaceRoot: CLOUD_WORKSPACE_ROOT,
 			mode: CLOUD_SESSION_MODE,
 			runtime: {
-				modelSelection: { providerId: "cline", modelId },
+				modelSelection: { providerId: "induscode", modelId },
 				platform: "linux",
 			},
 		})
 		return {
 			...config,
 			// The sandbox bills inference server-side, so the user's account token
-			// (the Cline provider key) must never be shipped into it. It resolves
-			// Cline models itself, so the local catalog (~150 KB) stays home too.
+			// (the IndusCode provider key) must never be shipped into it. It resolves
+			// IndusCode models itself, so the local catalog (~150 KB) stays home too.
 			...(providerConfig ? { providerConfig: { ...providerConfig, apiKey: undefined, knownModels: undefined } } : {}),
 			cwd: CLOUD_WORKSPACE_ROOT,
 			workspaceRoot: CLOUD_WORKSPACE_ROOT,
@@ -1087,7 +1087,7 @@ export class SdkCloudSessionCoordinator {
 		const title = input.prompt.trim().split("\n")[0]?.trim().slice(0, 120) || input.prompt.trim()
 		const repoLabel = input.repoUrl.replace(/^https:\/\/github\.com\//, "")
 		const sandboxLabel = `${repoLabel}${input.branch ? ` (${input.branch})` : ""}`
-		const provisioningRow = (text: string): ClineMessage => ({
+		const provisioningRow = (text: string): IndusCodeMessage => ({
 			ts: startedAt + 1,
 			type: "say",
 			say: "text",
@@ -1177,13 +1177,13 @@ export class SdkCloudSessionCoordinator {
 				? `Cloud session creation could not be confirmed. Check History or the cloud dashboard (${this.options.cloudSessions.appBaseUrl}/agents) before starting another task; the first session may already exist.`
 				: `Failed to start the cloud session: ${error instanceof Error ? error.message : String(error)}`
 			const failedAt = Math.max(Date.now(), startedAt + 2)
-			const messages: ClineMessage[] = [{ ts: failedAt, type: "say", say: "error", text, partial: false }]
+			const messages: IndusCodeMessage[] = [{ ts: failedAt, type: "say", say: "error", text, partial: false }]
 			if (unconfirmed) {
 				messages.push({
 					ts: failedAt + 1,
 					type: "ask",
 					ask: "api_req_failed",
-					text: new ClineError({ message: text, code: CLOUD_CREATION_UNCONFIRMED_ERROR_CODE }).serialize(),
+					text: new IndusCodeError({ message: text, code: CLOUD_CREATION_UNCONFIRMED_ERROR_CODE }).serialize(),
 					partial: false,
 				})
 			}
@@ -1307,7 +1307,7 @@ export class SdkCloudSessionCoordinator {
 		try {
 			this.options.resetMessageTranslator()
 			const status = this.statusOf(entry)
-			let messages: ClineMessage[] = []
+			let messages: IndusCodeMessage[] = []
 			let attachedRunning = false
 			let observedStatus = status
 			if (status === "expired") {
@@ -1342,7 +1342,7 @@ export class SdkCloudSessionCoordinator {
 				await this.options.sessions.attachExistingSession({
 					sdkHost: host,
 					sessionId,
-					startConfig: { providerId: "cline", modelId: host.sessionModelId ?? record.model ?? "" },
+					startConfig: { providerId: "induscode", modelId: host.sessionModelId ?? record.model ?? "" },
 					isRunning: attachedRunning,
 					shouldContinue: () => !isStale(),
 				})
@@ -1456,7 +1456,7 @@ export class SdkCloudSessionCoordinator {
 	 * no messages is treated as none, so the notice never points at rows that
 	 * are not there.
 	 */
-	private async renderExpired(entry: CloudSessionEntry): Promise<ClineMessage[]> {
+	private async renderExpired(entry: CloudSessionEntry): Promise<IndusCodeMessage[]> {
 		let archived: SdkMessage[] | undefined
 		let archiveError: string | undefined
 		try {
@@ -1489,7 +1489,7 @@ export class SdkCloudSessionCoordinator {
 	private async explainConnectFailure(
 		entry: CloudSessionEntry,
 		error: unknown,
-	): Promise<{ messages: ClineMessage[]; deleted: boolean }> {
+	): Promise<{ messages: IndusCodeMessage[]; deleted: boolean }> {
 		const probe = await this.options.cloudSessions.getStatus(entry.record.id).then(
 			(status) => (status.status?.toLowerCase() === "expired" ? ("session_expired" as const) : undefined),
 			(probeError: unknown) => (probeError instanceof CloudSessionError ? probeError.code : undefined),
@@ -1497,7 +1497,7 @@ export class SdkCloudSessionCoordinator {
 		if (probe === "session_expired") {
 			return { messages: await this.renderExpired(entry), deleted: false }
 		}
-		const notice = (say: "info" | "error", text: string): ClineMessage[] => [
+		const notice = (say: "info" | "error", text: string): IndusCodeMessage[] => [
 			{ ts: Date.now(), type: "say", say, text, partial: false },
 		]
 		if (probe === "session_not_found") {
@@ -1518,8 +1518,8 @@ export class SdkCloudSessionCoordinator {
 		}
 	}
 
-	private renderTranscript(messages: SdkMessage[], finalTurnCompleted: boolean): ClineMessage[] {
-		return sdkMessagesToDisplayClineMessages(messages, this.options.getMinter(), {
+	private renderTranscript(messages: SdkMessage[], finalTurnCompleted: boolean): IndusCodeMessage[] {
+		return sdkMessagesToDisplayIndusCodeMessages(messages, this.options.getMinter(), {
 			finalTurnCompleted,
 			cwd: CLOUD_WORKSPACE_ROOT,
 		})

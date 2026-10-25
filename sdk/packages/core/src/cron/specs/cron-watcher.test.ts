@@ -29,7 +29,7 @@ describe("CronWatcher", () => {
 
 	beforeEach(() => {
 		vi.mocked(watch).mockClear();
-		root = mkdtempSync(join(tmpdir(), "cline-watcher-"));
+		root = mkdtempSync(join(tmpdir(), "induscode-watcher-"));
 		cronDir = join(root, "cron-specs");
 		mkdirSync(cronDir, { recursive: true });
 		store = new SqliteCronStore({ dbPath: join(root, "cron.db") });

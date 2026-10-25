@@ -249,8 +249,8 @@ describe("NodeHubClient connection headers", () => {
 						...(secure
 							? { HTTPS_PROXY: proxyUrl, NODE_EXTRA_CA_CERTS: certificatePath }
 							: { HTTP_PROXY: proxyUrl }),
-						CLINE_TEST_HUB_URL: url,
-						CLINE_TEST_HUB_AUTHORIZATION: "Bearer workos:destination-token",
+						INDUSCODE_TEST_HUB_URL: url,
+						INDUSCODE_TEST_HUB_AUTHORIZATION: "Bearer workos:destination-token",
 					},
 					stdio: ["ignore", "pipe", "pipe"],
 				});

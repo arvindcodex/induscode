@@ -1,57 +1,57 @@
 // Replaces classic message streaming from src/core/task/index.ts (see origin/main)
 //
-// Translates SDK session events into ClineMessage[] for webview consumption.
-// The webview expects ClineMessage objects with ask/say types; this module
+// Translates SDK session events into IndusCodeMessage[] for webview consumption.
+// The webview expects IndusCodeMessage objects with ask/say types; this module
 // maps SDK CoreSessionEvent and AgentEvent types to that format.
 //
 // Key mappings:
-// - SDK "chunk" event (agent stream) → ClineMessage say="text" with partial=true
-// - SDK "agent_event" content_start (text) → ClineMessage say="text" with partial=true
-// - SDK "agent_event" content_start (reasoning) → ClineMessage say="reasoning" with partial=true
-// - SDK "agent_event" content_start (tool) → ClineMessage say="tool" with partial=true
+// - SDK "chunk" event (agent stream) → IndusCodeMessage say="text" with partial=true
+// - SDK "agent_event" content_start (text) → IndusCodeMessage say="text" with partial=true
+// - SDK "agent_event" content_start (reasoning) → IndusCodeMessage say="reasoning" with partial=true
+// - SDK "agent_event" content_start (tool) → IndusCodeMessage say="tool" with partial=true
 //   IMPORTANT: The webview's ChatRow.tsx parses message.text as JSON when
-//   say==="tool", expecting ClineSayTool format: {tool, path, content, ...}.
+//   say==="tool", expecting IndusCodeSayTool format: {tool, path, content, ...}.
 //   We must convert SDK tool names (read_files, editor, run_commands, etc.)
 //   and their inputs to this format.
-// - SDK "agent_event" content_start (tool: MCP) → ClineMessage say="use_mcp_server" with partial=true
+// - SDK "agent_event" content_start (tool: MCP) → IndusCodeMessage say="use_mcp_server" with partial=true
 //   MCP tools use serverName__toolName naming convention. The webview renders
-//   MCP tool calls via say/ask="use_mcp_server" with ClineAskUseMcpServer JSON.
+//   MCP tool calls via say/ask="use_mcp_server" with IndusCodeAskUseMcpServer JSON.
 // - SDK "agent_event" content_end (tool: MCP) → say="use_mcp_server" + say="mcp_server_response"
-// - SDK "agent_event" content_end → ClineMessage with partial=false
-// - SDK "agent_event" content_start (tool: attempt_completion) → ClineMessage say="completion_result"
-// - SDK "agent_event" content_end (tool: attempt_completion) → ClineMessage say="completion_result" (final)
+// - SDK "agent_event" content_end → IndusCodeMessage with partial=false
+// - SDK "agent_event" content_start (tool: attempt_completion) → IndusCodeMessage say="completion_result"
+// - SDK "agent_event" content_end (tool: attempt_completion) → IndusCodeMessage say="completion_result" (final)
 // - SDK "agent_event" done (reason "completed", turn ended on text) → retags that final
 //   say="text" row in place to say="completion_result" (act) / say="plan_completion_result" (plan)
-// - SDK "agent_event" error → ClineMessage say="error"
-// - SDK "agent_event" usage → ClineMessage say="api_req_started" with ClineApiReqInfo JSON
+// - SDK "agent_event" error → IndusCodeMessage say="error"
+// - SDK "agent_event" usage → IndusCodeMessage say="api_req_started" with IndusCodeApiReqInfo JSON
 // - SDK "ended" event → finalizes the session
 
-import type { CoreSessionEvent } from "@cline/core"
-import { PATCH_MARKERS, projectSessionMessagesForDisplay, resolveMessageDisplayRole, truncateCommandOutput } from "@cline/core"
-import type { MessageWithMetadata as SdkMessage } from "@cline/llms"
-import { type AgentEvent, formatDisplayUserInput, type ProviderErrorClass } from "@cline/shared"
+import type { CoreSessionEvent } from "@induscode/core"
+import { PATCH_MARKERS, projectSessionMessagesForDisplay, resolveMessageDisplayRole, truncateCommandOutput } from "@induscode/core"
+import type { MessageWithMetadata as SdkMessage } from "@induscode/llms"
+import { type AgentEvent, formatDisplayUserInput, type ProviderErrorClass } from "@induscode/shared"
 import { COMMAND_OUTPUT_STRING } from "@shared/combineCommandSequences"
 import type {
-	ClineApiReqInfo,
-	ClineAskUseMcpServer,
-	ClineAskUseSubagents,
-	ClineCompactionInfo,
-	ClineMessage,
-	ClineSay,
-	ClineSaySubagentStatus,
-	ClineSayTool,
-	ClineSubagentUsageInfo,
+	IndusCodeApiReqInfo,
+	IndusCodeAskUseMcpServer,
+	IndusCodeAskUseSubagents,
+	IndusCodeCompactionInfo,
+	IndusCodeMessage,
+	IndusCodeSay,
+	IndusCodeSaySubagentStatus,
+	IndusCodeSayTool,
+	IndusCodeSubagentUsageInfo,
 	SubagentStatusItem,
 } from "@shared/ExtensionMessage"
 import { Logger } from "@shared/services/Logger"
 import * as path from "path"
-import { isClineManagedProvider } from "@/shared/utils/cline"
+import { isIndusCodeManagedProvider } from "@/shared/utils/induscode"
 import { arePathsEqual, getDesktopDir } from "@/utils/path"
 import {
-	CLINE_FREE_PROMOTION_ENDED_ERROR_CODE,
-	isClineFreePromotionEndedMessage,
+	INDUSCODE_FREE_PROMOTION_ENDED_ERROR_CODE,
+	isIndusCodeFreePromotionEndedMessage,
 	MODEL_NOT_FOUND_GUIDANCE,
-} from "../services/error/ClineError"
+} from "../services/error/IndusCodeError"
 import { MessageIdMinter } from "./message-id-minter"
 import { describeCredentialRejectedError, describeMissingCredentialError } from "./provider-credential-error"
 import { extractPersistedHookContextChips, isSyntheticSdkUserMessage, isSyntheticUserPrompt } from "./sdk-user-message-mapping"
@@ -62,12 +62,12 @@ import { isDeniedToolApprovalMistake, isKnownToolApprovalDenial } from "./tool-a
 // ---------------------------------------------------------------------------
 
 /**
- * Result of translating a single SDK event into ClineMessages.
+ * Result of translating a single SDK event into IndusCodeMessages.
  * May produce zero or more messages.
  */
 export interface TranslationResult {
 	/** Messages produced by this event */
-	messages: ClineMessage[]
+	messages: IndusCodeMessage[]
 	/** Whether the session has ended */
 	sessionEnded: boolean
 	/** Whether the agent turn is complete */
@@ -101,7 +101,7 @@ function normalizeUsageEvent(usageEvent: {
 	const cacheWrites = usageEvent.cacheWriteTokens ?? 0
 
 	// SDK provider usage reports inputTokens as the full request size, with
-	// cache reads/writes included. Classic Cline/webview metrics expect
+	// cache reads/writes included. Classic IndusCode/webview metrics expect
 	// tokensIn, cacheReads, and cacheWrites to be disjoint buckets.
 	const uncachedInputTokens = Math.max(0, inputTokens - cacheReads - cacheWrites)
 
@@ -506,8 +506,8 @@ export class MessageTranslatorState {
 		return this.spawnAgentStatusTs
 	}
 
-	/** Build a ClineSaySubagentStatus from the current entries */
-	buildSubagentStatus(overallStatus: ClineSaySubagentStatus["status"]): ClineSaySubagentStatus {
+	/** Build a IndusCodeSaySubagentStatus from the current entries */
+	buildSubagentStatus(overallStatus: IndusCodeSaySubagentStatus["status"]): IndusCodeSaySubagentStatus {
 		const items = this.getSpawnAgentItems()
 		const completed = items.filter((e) => e.status === "completed" || e.status === "failed").length
 		const successes = items.filter((e) => e.status === "completed").length
@@ -573,11 +573,11 @@ export class MessageTranslatorState {
 // ---------------------------------------------------------------------------
 
 /**
- * Tools whose ClineSayTool.path is a filesystem path. webFetch/webSearch/
+ * Tools whose IndusCodeSayTool.path is a filesystem path. webFetch/webSearch/
  * useSkill and MCP tools reuse `path` for URLs, queries, and names, so they
  * are deliberately excluded.
  */
-const FILESYSTEM_PATH_TOOLS: ReadonlySet<ClineSayTool["tool"]> = new Set([
+const FILESYSTEM_PATH_TOOLS: ReadonlySet<IndusCodeSayTool["tool"]> = new Set([
 	"readFile",
 	"listFilesTopLevel",
 	"listFilesRecursive",
@@ -589,12 +589,12 @@ const FILESYSTEM_PATH_TOOLS: ReadonlySet<ClineSayTool["tool"]> = new Set([
 ])
 
 /**
- * Relativize a ClineSayTool's filesystem paths against the task cwd before it
+ * Relativize a IndusCodeSayTool's filesystem paths against the task cwd before it
  * is shown in the chat view, restoring the classic extension's getReadablePath
  * display behavior that was lost in the SDK migration (the SDK works with
  * absolute paths). Display-only — executors receive the raw tool input.
  */
-function toDisplaySayTool(sayTool: ClineSayTool, cwd: string | undefined): ClineSayTool {
+function toDisplaySayTool(sayTool: IndusCodeSayTool, cwd: string | undefined): IndusCodeSayTool {
 	if (!cwd || !FILESYSTEM_PATH_TOOLS.has(sayTool.tool)) {
 		return sayTool
 	}
@@ -668,15 +668,15 @@ function relativizePatchPaths(patch: string | undefined, cwd: string): string | 
 }
 
 // ---------------------------------------------------------------------------
-// SDK tool name → classic ClineSayTool mapping
+// SDK tool name → classic IndusCodeSayTool mapping
 // ---------------------------------------------------------------------------
 
 /**
- * Map an SDK tool name and its input to a ClineSayTool object that the
+ * Map an SDK tool name and its input to a IndusCodeSayTool object that the
  * webview's ChatRow.tsx can render.
  *
- * The webview does `JSON.parse(message.text) as ClineSayTool` when
- * `say === "tool"`, so the text MUST be valid ClineSayTool JSON.
+ * The webview does `JSON.parse(message.text) as IndusCodeSayTool` when
+ * `say === "tool"`, so the text MUST be valid IndusCodeSayTool JSON.
  *
  * SDK tool names → classic tool names:
  *   read_files/read_file               → readFile
@@ -692,9 +692,9 @@ function relativizePatchPaths(patch: string | undefined, cwd: string): string | 
  *   web_search                         → webSearch
  *   skills/use_skill                   → useSkill
  *   ask_question/ask_followup_question → (not a visual tool — handled by askQuestion executor in SdkController)
- *   MCP tools (serverName__toolName)   → (handled before reaching sdkToolToClineSayTool — emitted as say="use_mcp_server")
+ *   MCP tools (serverName__toolName)   → (handled before reaching sdkToolToIndusCodeSayTool — emitted as say="use_mcp_server")
  */
-function sdkToolToClineSayTool(toolName: string, input?: unknown): ClineSayTool {
+function sdkToolToIndusCodeSayTool(toolName: string, input?: unknown): IndusCodeSayTool {
 	// Parse input if it's a string (some SDK tools pass stringified JSON)
 	const parsedInput = parseToolInput(input)
 
@@ -737,7 +737,7 @@ function sdkToolToClineSayTool(toolName: string, input?: unknown): ClineSayTool 
 			const oldText = getStringField(parsedInput, "old_text") ?? getStringField(parsedInput, "old_str")
 			// `insert_line` inserts into an existing file (the SDK editor executor requires
 			// the file to already exist), so it is an edit — not a new-file creation. Without
-			// this the card mislabels a prepend/insert as "Cline wants to create a new file".
+			// this the card mislabels a prepend/insert as "IndusCode wants to create a new file".
 			const insertLine = getNumberField(parsedInput, "insert_line")
 			const isEdit = toolName === "replace_in_file" || !!oldText || insertLine != null
 
@@ -865,7 +865,7 @@ function sdkToolToClineSayTool(toolName: string, input?: unknown): ClineSayTool 
 				getStringField(parsedInput, "command") ??
 				""
 			return {
-				tool: toolName as ClineSayTool["tool"],
+				tool: toolName as IndusCodeSayTool["tool"],
 				path: filePath,
 			}
 		}
@@ -951,11 +951,11 @@ function extractFileReads(input: Record<string, unknown> | undefined): FileReadR
 }
 
 /**
- * Map a read request's line range onto ClineSayTool fields. An omitted start_line with an
+ * Map a read request's line range onto IndusCodeSayTool fields. An omitted start_line with an
  * explicit end_line means the read began at line 1; an omitted end_line stays undefined
  * (open-ended read — the UI renders it as "start+").
  */
-function readLineRangeFields(read: FileReadRequest | undefined): Pick<ClineSayTool, "readLineStart" | "readLineEnd"> {
+function readLineRangeFields(read: FileReadRequest | undefined): Pick<IndusCodeSayTool, "readLineStart" | "readLineEnd"> {
 	if (!read || (read.startLine == null && read.endLine == null)) {
 		return {}
 	}
@@ -988,16 +988,16 @@ function getApplyPatchString(input: unknown): string | undefined {
 }
 
 /**
- * Split a multi-file apply_patch string into one ClineSayTool per file so each
- * "Cline wants to edit this file" row renders only that file's diff (cline#9904).
+ * Split a multi-file apply_patch string into one IndusCodeSayTool per file so each
+ * "IndusCode wants to edit this file" row renders only that file's diff (induscode#9904).
  *
  * Returns [] for single-file (or unparseable) patches so callers keep the existing
  * single-message behavior — only genuinely multi-file patches are split.
  */
-function splitApplyPatchByFile(patch: string): ClineSayTool[] {
+function splitApplyPatchByFile(patch: string): IndusCodeSayTool[] {
 	const lines = patch.split("\n")
-	const blocks: { tool: ClineSayTool["tool"]; path: string; lines: string[] }[] = []
-	let current: { tool: ClineSayTool["tool"]; path: string; lines: string[] } | undefined
+	const blocks: { tool: IndusCodeSayTool["tool"]; path: string; lines: string[] }[] = []
+	let current: { tool: IndusCodeSayTool["tool"]; path: string; lines: string[] } | undefined
 
 	for (const line of lines) {
 		if (line === PATCH_MARKERS.END) {
@@ -1008,7 +1008,7 @@ function splitApplyPatchByFile(patch: string): ClineSayTool[] {
 			if (current) {
 				blocks.push(current)
 			}
-			const tool: ClineSayTool["tool"] =
+			const tool: IndusCodeSayTool["tool"] =
 				marker === PATCH_MARKERS.ADD
 					? "newFileCreated"
 					: marker === PATCH_MARKERS.DELETE
@@ -1025,7 +1025,7 @@ function splitApplyPatchByFile(patch: string): ClineSayTool[] {
 
 	// Only split genuine multi-file patches. Bail out (→ single whole-patch
 	// message) if fewer than two files, or if any block has an empty path — a
-	// pathless row can't route to the per-file diff view (cline#9904).
+	// pathless row can't route to the per-file diff view (induscode#9904).
 	if (blocks.length < 2 || blocks.some((block) => block.path === "")) {
 		return []
 	}
@@ -1144,13 +1144,13 @@ function parseMcpToolName(toolName: string): { serverName: string; toolName: str
 }
 
 /**
- * Build a ClineAskUseMcpServer JSON payload for MCP tool calls.
+ * Build a IndusCodeAskUseMcpServer JSON payload for MCP tool calls.
  * This is what the webview's ChatRow expects when rendering MCP tool calls
  * (message.ask === "use_mcp_server" or message.say === "use_mcp_server").
  */
 function buildMcpToolPayload(mcpInfo: { serverName: string; toolName: string }, input?: unknown): string {
 	const parsedInput = parseToolInput(input)
-	// Format arguments as a JSON string (matching classic ClineAskUseMcpServer.arguments)
+	// Format arguments as a JSON string (matching classic IndusCodeAskUseMcpServer.arguments)
 	let argumentsStr: string | undefined
 	if (parsedInput && Object.keys(parsedInput).length > 0) {
 		argumentsStr = JSON.stringify(parsedInput, null, 2)
@@ -1163,7 +1163,7 @@ function buildMcpToolPayload(mcpInfo: { serverName: string; toolName: string }, 
 		serverName: mcpInfo.serverName,
 		toolName: mcpInfo.toolName,
 		arguments: argumentsStr,
-	} satisfies ClineAskUseMcpServer)
+	} satisfies IndusCodeAskUseMcpServer)
 }
 
 function extractCommandText(input: unknown): string {
@@ -1185,12 +1185,12 @@ function extractCommandText(input: unknown): string {
 }
 
 /**
- * Build the Cline approval ask message for an SDK tool approval request.
+ * Build the IndusCode approval ask message for an SDK tool approval request.
  * Keeps approval prompts aligned with the SDK event translator so the webview
  * can render specialized rows (MCP, commands, subagents) instead of a generic
  * tool approval with missing context.
  */
-export function buildToolApprovalAskMessage(toolName: string, input: unknown, ts: number, cwd?: string): ClineMessage {
+export function buildToolApprovalAskMessage(toolName: string, input: unknown, ts: number, cwd?: string): IndusCodeMessage {
 	const mcpInfo = parseMcpToolName(toolName)
 	if (mcpInfo) {
 		return {
@@ -1221,7 +1221,7 @@ export function buildToolApprovalAskMessage(toolName: string, input: unknown, ts
 			ask: "use_subagents",
 			text: JSON.stringify({
 				prompts: [taskPrompt],
-			} satisfies ClineAskUseSubagents),
+			} satisfies IndusCodeAskUseSubagents),
 			partial: false,
 		}
 	}
@@ -1230,7 +1230,7 @@ export function buildToolApprovalAskMessage(toolName: string, input: unknown, ts
 		ts,
 		type: "ask",
 		ask: "tool",
-		text: JSON.stringify(toDisplaySayTool(sdkToolToClineSayTool(toolName, input), cwd)),
+		text: JSON.stringify(toDisplaySayTool(sdkToolToIndusCodeSayTool(toolName, input), cwd)),
 		partial: false,
 	}
 }
@@ -1240,7 +1240,7 @@ export function buildToolApprovalAskMessage(toolName: string, input: unknown, ts
 // ---------------------------------------------------------------------------
 
 /**
- * Translate an SDK AgentEvent into ClineMessage(s).
+ * Translate an SDK AgentEvent into IndusCodeMessage(s).
  */
 /**
  * Extract a compaction divider payload from a status notice's metadata.
@@ -1248,7 +1248,7 @@ export function buildToolApprovalAskMessage(toolName: string, input: unknown, ts
  * (apps/cli/src/tui/utils/compaction-status.ts). Returns undefined for
  * non-compaction status notices.
  */
-export function parseCompactionNoticeMetadata(metadata: Record<string, unknown> | undefined): ClineCompactionInfo | undefined {
+export function parseCompactionNoticeMetadata(metadata: Record<string, unknown> | undefined): IndusCodeCompactionInfo | undefined {
 	if (!metadata || (metadata.phase !== "started" && metadata.phase !== "completed" && metadata.phase !== "skipped")) {
 		return undefined
 	}
@@ -1288,7 +1288,7 @@ function asFiniteNumber(value: unknown): number | undefined {
 const INTERNAL_STATUS_NOTICES = new Set(["compaction-budget-adjusted"])
 
 /** Build the say:"compaction" divider message for a compaction status payload. */
-export function buildCompactionMessage(info: ClineCompactionInfo, ts: number): ClineMessage {
+export function buildCompactionMessage(info: IndusCodeCompactionInfo, ts: number): IndusCodeMessage {
 	return {
 		ts,
 		type: "say",
@@ -1309,7 +1309,7 @@ export function buildCompactionMessage(info: ClineCompactionInfo, ts: number): C
  */
 function finalizeDanglingCompaction(
 	state: MessageTranslatorState,
-	messages: ClineMessage[],
+	messages: IndusCodeMessage[],
 	status: "cancelled" | "failed",
 ): void {
 	const ts = state.takeOpenCompactionTs()
@@ -1324,11 +1324,11 @@ function finalizeDanglingCompaction(
  * request row shows it via ErrorRow instead of a spinner, then
  * ask:"api_req_failed" as the last message, so the webview offers recovery
  * (Retry, Buy Credits, Sign In). The error text is reshaped into the
- * ClineError JSON that ErrorRow parses to pick a special card, e.g. the
- * Cline provider's 402 `insufficient_credits` body.
+ * IndusCodeError JSON that ErrorRow parses to pick a special card, e.g. the
+ * IndusCode provider's 402 `insufficient_credits` body.
  */
 function pushTurnErrorRows(
-	messages: ClineMessage[],
+	messages: IndusCodeMessage[],
 	state: MessageTranslatorState,
 	error: { message?: string; status?: number; code?: string },
 	errorClass?: ProviderErrorClass,
@@ -1339,15 +1339,15 @@ function pushTurnErrorRows(
 			ts: state.nextTs(),
 			type: "say",
 			say: "api_req_started",
-			text: JSON.stringify({ streamingFailedMessage: errorPayload } satisfies ClineApiReqInfo),
+			text: JSON.stringify({ streamingFailedMessage: errorPayload } satisfies IndusCodeApiReqInfo),
 			partial: false,
 		},
 		{ ts: state.nextTs(), type: "ask", ask: "api_req_failed", text: errorPayload, partial: false },
 	)
 }
 
-function translateAgentEvent(event: AgentEvent, state: MessageTranslatorState): ClineMessage[] {
-	const messages: ClineMessage[] = []
+function translateAgentEvent(event: AgentEvent, state: MessageTranslatorState): IndusCodeMessage[] {
+	const messages: IndusCodeMessage[] = []
 
 	switch (event.type) {
 		case "content_start": {
@@ -1461,13 +1461,13 @@ function translateAgentEvent(event: AgentEvent, state: MessageTranslatorState): 
 
 						// Emit the combined prompts list (replaces itself on each new spawn_agent)
 						const allPrompts = state.getSpawnAgentItems().map((e) => e.prompt)
-						const approvalPayload: ClineAskUseSubagents = {
+						const approvalPayload: IndusCodeAskUseSubagents = {
 							prompts: allPrompts,
 						}
 						messages.push({
 							ts: state.getSpawnAgentPromptsTs(),
 							type: "say",
-							say: "use_subagents" as ClineSay,
+							say: "use_subagents" as IndusCodeSay,
 							text: JSON.stringify(approvalPayload),
 							partial: true,
 						})
@@ -1479,27 +1479,27 @@ function translateAgentEvent(event: AgentEvent, state: MessageTranslatorState): 
 
 					// MCP tools use serverName__toolName naming convention.
 					// The webview renders MCP tool calls via say/ask="use_mcp_server"
-					// with ClineAskUseMcpServer JSON, not generic say="tool".
+					// with IndusCodeAskUseMcpServer JSON, not generic say="tool".
 					const mcpInfo = parseMcpToolName(toolName)
 					if (mcpInfo) {
 						const mcpPayload = buildMcpToolPayload(mcpInfo, input)
 						messages.push({
 							ts: state.getStreamingToolTs(),
 							type: "say",
-							say: "use_mcp_server" as ClineSay,
+							say: "use_mcp_server" as IndusCodeSay,
 							text: mcpPayload,
 							partial: true,
 						})
 						break
 					}
 
-					// All other tools → say="tool" with ClineSayTool JSON
+					// All other tools → say="tool" with IndusCodeSayTool JSON
 					// apply_patch is intentionally NOT split per-file here: the streaming
 					// (partial) row shows the whole patch, and the per-file split happens
 					// only at content_end (see below), mirroring read_files. Splitting at
 					// content_start would mint streaming ids that content_end cannot
-					// reproduce for files ≥2, orphaning those partial rows (cline#9904).
-					const sayTool = toDisplaySayTool(sdkToolToClineSayTool(toolName, input), state.currentCwd())
+					// reproduce for files ≥2, orphaning those partial rows (induscode#9904).
+					const sayTool = toDisplaySayTool(sdkToolToIndusCodeSayTool(toolName, input), state.currentCwd())
 					messages.push({
 						ts: state.getStreamingToolTs(),
 						type: "say",
@@ -1545,7 +1545,7 @@ function translateAgentEvent(event: AgentEvent, state: MessageTranslatorState): 
 			// spawn_agent progress updates → emit say:"subagent" with live stats.
 			// The SDK's spawn_agent tool may emit content_update events with
 			// sub-agent progress (iterations, tool calls, usage). We translate
-			// these into the ClineSaySubagentStatus format for the rich UI.
+			// these into the IndusCodeSaySubagentStatus format for the rich UI.
 			if (updateToolName === "spawn_agent" && state.hasSpawnAgents()) {
 				const callId = event.toolCallId ?? ""
 				const entry = callId ? state.getSpawnAgent(callId) : undefined
@@ -1569,7 +1569,7 @@ function translateAgentEvent(event: AgentEvent, state: MessageTranslatorState): 
 				messages.push({
 					ts: state.getSpawnAgentStatusTs(),
 					type: "say",
-					say: "subagent" as ClineSay,
+					say: "subagent" as IndusCodeSay,
 					text: JSON.stringify(status),
 					partial: true,
 				})
@@ -1680,7 +1680,7 @@ function translateAgentEvent(event: AgentEvent, state: MessageTranslatorState): 
 						const items = state.getSpawnAgentItems()
 						const allDone = items.every((e) => e.status === "completed" || e.status === "failed")
 						const hasFailed = items.some((e) => e.status === "failed")
-						const overallStatus: ClineSaySubagentStatus["status"] = allDone
+						const overallStatus: IndusCodeSaySubagentStatus["status"] = allDone
 							? hasFailed
 								? "failed"
 								: "completed"
@@ -1690,14 +1690,14 @@ function translateAgentEvent(event: AgentEvent, state: MessageTranslatorState): 
 						messages.push({
 							ts: state.getSpawnAgentStatusTs(),
 							type: "say",
-							say: "subagent" as ClineSay,
+							say: "subagent" as IndusCodeSay,
 							text: JSON.stringify(status),
 							partial: !allDone,
 						})
 
 						// When all done, emit subagent_usage for cost accounting
 						if (allDone) {
-							const usagePayload: ClineSubagentUsageInfo = {
+							const usagePayload: IndusCodeSubagentUsageInfo = {
 								source: "subagents",
 								tokensIn: items.reduce((acc, e) => acc + (e.inputTokens || 0), 0),
 								tokensOut: items.reduce((acc, e) => acc + (e.outputTokens || 0), 0),
@@ -1708,7 +1708,7 @@ function translateAgentEvent(event: AgentEvent, state: MessageTranslatorState): 
 							messages.push({
 								ts: state.nextTs(),
 								type: "say",
-								say: "subagent_usage" as ClineSay,
+								say: "subagent_usage" as IndusCodeSay,
 								text: JSON.stringify(usagePayload),
 								partial: false,
 							})
@@ -1780,7 +1780,7 @@ function translateAgentEvent(event: AgentEvent, state: MessageTranslatorState): 
 						messages.push({
 							ts: mcpTs,
 							type: "say",
-							say: "use_mcp_server" as ClineSay,
+							say: "use_mcp_server" as IndusCodeSay,
 							text: mcpPayload,
 							partial: false,
 						})
@@ -1791,7 +1791,7 @@ function translateAgentEvent(event: AgentEvent, state: MessageTranslatorState): 
 							messages.push({
 								ts: state.nextTs(),
 								type: "say",
-								say: "mcp_server_response" as ClineSay,
+								say: "mcp_server_response" as IndusCodeSay,
 								text: mcpOutputStr,
 								partial: false,
 							})
@@ -1814,7 +1814,7 @@ function translateAgentEvent(event: AgentEvent, state: MessageTranslatorState): 
 						if (fileReads.length > 1) {
 							const cwd = state.currentCwd()
 							fileReads.forEach((fileRead, index) => {
-								const sayTool: ClineSayTool = {
+								const sayTool: IndusCodeSayTool = {
 									tool: "readFile",
 									path: fileRead.path,
 									...readLineRangeFields(fileRead),
@@ -1833,7 +1833,7 @@ function translateAgentEvent(event: AgentEvent, state: MessageTranslatorState): 
 
 					// apply_patch may edit multiple files in one call. Emit one tool
 					// message per file so each diff row shows only that file's changes
-					// instead of the whole multi-file patch (cline#9904). Single-file
+					// instead of the whole multi-file patch (induscode#9904). Single-file
 					// patches fall through to the single-message path below.
 					if (toolName === "apply_patch" && !event.error) {
 						const patch = getApplyPatchString(storedInput)
@@ -1853,7 +1853,7 @@ function translateAgentEvent(event: AgentEvent, state: MessageTranslatorState): 
 						}
 					}
 
-					const sayTool = toDisplaySayTool(sdkToolToClineSayTool(toolName, storedInput), state.currentCwd())
+					const sayTool = toDisplaySayTool(sdkToolToIndusCodeSayTool(toolName, storedInput), state.currentCwd())
 					// If there's an error, include it in the tool message
 					if (event.error) {
 						messages.push({
@@ -1898,7 +1898,7 @@ function translateAgentEvent(event: AgentEvent, state: MessageTranslatorState): 
 				say: "api_req_started",
 				text: JSON.stringify({
 					request: undefined, // Will be filled in by usage event
-				} satisfies ClineApiReqInfo),
+				} satisfies IndusCodeApiReqInfo),
 				partial: false,
 			})
 			break
@@ -1944,10 +1944,10 @@ function translateAgentEvent(event: AgentEvent, state: MessageTranslatorState): 
 
 		case "usage": {
 			// Usage events carry token counts. The webview reads them from an
-			// api_req_started message's ClineApiReqInfo, so emit a follow-up
+			// api_req_started message's IndusCodeApiReqInfo, so emit a follow-up
 			// api_req_started update carrying the usage data for cost display.
 			const usageEvent = normalizeUsageEvent(event)
-			const apiReqInfo: ClineApiReqInfo = {
+			const apiReqInfo: IndusCodeApiReqInfo = {
 				tokensIn: usageEvent.tokensIn,
 				tokensOut: usageEvent.tokensOut,
 				cacheWrites: usageEvent.cacheWrites,
@@ -2086,7 +2086,7 @@ export function translateSessionEvent(event: CoreSessionEvent, state: MessageTra
 		}
 
 		case "agent_event": {
-			// Sub-agent events should NOT produce ClineMessages in the main chat.
+			// Sub-agent events should NOT produce IndusCodeMessages in the main chat.
 			// The sub-agent's work is represented by the parent's spawn_agent tool
 			// events (content_start/update/end), which we translate into the rich
 			// SubagentStatusRow UI. Without this filter, every sub-agent tool call,
@@ -2168,7 +2168,7 @@ export function translateSessionEvent(event: CoreSessionEvent, state: MessageTra
 				result.messages.push({
 					ts: state.nextTs(),
 					type: "say",
-					say: "hook_status" as ClineSay,
+					say: "hook_status" as IndusCodeSay,
 					text: toolName ? `Running ${toolName}...` : "Running tool...",
 					partial: false,
 				})
@@ -2176,7 +2176,7 @@ export function translateSessionEvent(event: CoreSessionEvent, state: MessageTra
 				result.messages.push({
 					ts: state.nextTs(),
 					type: "say",
-					say: "hook_status" as ClineSay,
+					say: "hook_status" as IndusCodeSay,
 					text: toolName ? `${toolName} completed` : "Tool completed",
 					partial: false,
 				})
@@ -2225,7 +2225,7 @@ export function translateSessionEvent(event: CoreSessionEvent, state: MessageTra
 		case "team_progress":
 		case "pending_prompts": {
 			// These are handled by the team/subagent system, not translated
-			// to ClineMessages at this layer
+			// to IndusCodeMessages at this layer
 			break
 		}
 
@@ -2269,7 +2269,7 @@ function textContentBlocksToText(content: SdkMessage["content"]): string {
 	return text.join("\n").trim()
 }
 
-function agentEventToMessages(event: AgentEvent, state: MessageTranslatorState): ClineMessage[] {
+function agentEventToMessages(event: AgentEvent, state: MessageTranslatorState): IndusCodeMessage[] {
 	return translateSessionEvent(
 		{
 			type: "agent_event",
@@ -2283,7 +2283,7 @@ function agentEventToMessages(event: AgentEvent, state: MessageTranslatorState):
 }
 
 function appendPersistedMetricsMessage(
-	clineMessages: ClineMessage[],
+	induscodeMessages: IndusCodeMessage[],
 	message: SdkMessageWithMetrics,
 	state: MessageTranslatorState,
 ): void {
@@ -2309,7 +2309,7 @@ function appendPersistedMetricsMessage(
 		return
 	}
 
-	clineMessages.push({
+	induscodeMessages.push({
 		ts: state.nextTs(),
 		type: "say",
 		say: "api_req_started",
@@ -2319,7 +2319,7 @@ function appendPersistedMetricsMessage(
 			cacheWrites: usage.cacheWrites,
 			cacheReads: usage.cacheReads,
 			cost: usage.totalCost,
-		} satisfies ClineApiReqInfo),
+		} satisfies IndusCodeApiReqInfo),
 		partial: false,
 	})
 }
@@ -2329,10 +2329,10 @@ function finalizePersistedToolUse(
 	state: MessageTranslatorState,
 	output?: unknown,
 	isError?: boolean,
-): ClineMessage[] {
+): IndusCodeMessage[] {
 	// Reuse the same content_start → content_end path as live SDK events. The
 	// start event seeds MessageTranslatorState with the tool input; the end event
-	// produces the final non-partial ClineMessage shape the webview expects.
+	// produces the final non-partial IndusCodeMessage shape the webview expects.
 	agentEventToMessages(
 		{
 			type: "content_start",
@@ -2357,7 +2357,7 @@ function finalizePersistedToolUse(
 	)
 }
 
-export interface SdkMessagesToClineMessagesOptions {
+export interface SdkMessagesToIndusCodeMessagesOptions {
 	/**
 	 * Whether the transcript's LAST agent turn ended cleanly (per the session record's status).
 	 * Only that final turn is ever retagged into the inferred completion row — persisted
@@ -2376,16 +2376,16 @@ export interface SdkMessagesToClineMessagesOptions {
 }
 
 /**
- * Convert SDK-persisted LLM messages back into the ClineMessage format used by
+ * Convert SDK-persisted LLM messages back into the IndusCodeMessage format used by
  * the webview. Keep this in the live message translator so history rendering
- * and streaming rendering share the same SDK tool → Cline UI mapping.
+ * and streaming rendering share the same SDK tool → IndusCode UI mapping.
  */
-export function sdkMessagesToClineMessages(
+export function sdkMessagesToIndusCodeMessages(
 	messages: SdkMessageWithMetrics[],
 	minter?: MessageIdMinter,
-	options?: SdkMessagesToClineMessagesOptions,
-): ClineMessage[] {
-	const clineMessages: ClineMessage[] = []
+	options?: SdkMessagesToIndusCodeMessagesOptions,
+): IndusCodeMessage[] {
+	const induscodeMessages: IndusCodeMessage[] = []
 	// Plan/act mode of the turn currently being replayed, recovered from each user message's
 	// persisted <user_input mode="..."> wrapper (stamped as `uiMode` before sanitization).
 	let currentMode: "plan" | "act" | "yolo" | undefined
@@ -2401,20 +2401,20 @@ export function sdkMessagesToClineMessages(
 
 	const flushUnmatchedToolUses = () => {
 		for (const toolUse of pendingToolUses.values()) {
-			clineMessages.push(...finalizePersistedToolUse(toolUse, state))
+			induscodeMessages.push(...finalizePersistedToolUse(toolUse, state))
 		}
 		pendingToolUses.clear()
 	}
 
 	// Add or update by ts — the synthesized turn-end `done` below retags an already-emitted
 	// text row in place (same ts), mirroring the live path's upsert-by-ts message store.
-	const upsertClineMessages = (updates: ClineMessage[]) => {
+	const upsertIndusCodeMessages = (updates: IndusCodeMessage[]) => {
 		for (const update of updates) {
-			const existingIndex = clineMessages.findIndex((m) => m.ts === update.ts)
+			const existingIndex = induscodeMessages.findIndex((m) => m.ts === update.ts)
 			if (existingIndex !== -1) {
-				clineMessages[existingIndex] = update
+				induscodeMessages[existingIndex] = update
 			} else {
-				clineMessages.push(update)
+				induscodeMessages.push(update)
 			}
 		}
 	}
@@ -2428,7 +2428,7 @@ export function sdkMessagesToClineMessages(
 	// interrupted response as a deliberate turn end. The final turn's outcome IS known (the
 	// caller gates it on the session record's status via `finalTurnCompleted`).
 	const endFinalTurn = () => {
-		upsertClineMessages(
+		upsertIndusCodeMessages(
 			agentEventToMessages({ type: "done", reason: "completed", text: "", iterations: 0 } as AgentEvent, state),
 		)
 		state.clearTurnOutcome()
@@ -2439,7 +2439,7 @@ export function sdkMessagesToClineMessages(
 		if (resolveMessageDisplayRole(message) === "error") {
 			flushUnmatchedToolUses()
 			const text = typeof message.content === "string" ? message.content : textContentBlocksToText(message.content)
-			clineMessages.push(
+			induscodeMessages.push(
 				...agentEventToMessages(
 					{ type: "error", error: new Error(text), recoverable: false, iteration: 0 } as AgentEvent,
 					state,
@@ -2453,11 +2453,11 @@ export function sdkMessagesToClineMessages(
 			if (typeof message.content === "string") {
 				const text = message.content.trim()
 				if (text) {
-					clineMessages.push(
+					induscodeMessages.push(
 						...agentEventToMessages({ type: "content_end", contentType: "text", text } as AgentEvent, state),
 					)
 				}
-				appendPersistedMetricsMessage(clineMessages, message, state)
+				appendPersistedMetricsMessage(induscodeMessages, message, state)
 				continue
 			}
 
@@ -2465,7 +2465,7 @@ export function sdkMessagesToClineMessages(
 				switch (block.type) {
 					case "text":
 						if (block.text.trim()) {
-							clineMessages.push(
+							induscodeMessages.push(
 								...agentEventToMessages(
 									{
 										type: "content_end",
@@ -2479,7 +2479,7 @@ export function sdkMessagesToClineMessages(
 						break
 					case "thinking":
 						if (block.thinking.trim()) {
-							clineMessages.push(
+							induscodeMessages.push(
 								...agentEventToMessages(
 									{
 										type: "content_end",
@@ -2493,7 +2493,7 @@ export function sdkMessagesToClineMessages(
 						break
 					case "image":
 						if (block.data && block.mediaType.startsWith("image/")) {
-							clineMessages.push(
+							induscodeMessages.push(
 								...agentEventToMessages(
 									{
 										type: "content_end",
@@ -2511,7 +2511,7 @@ export function sdkMessagesToClineMessages(
 						}
 						break
 					case "media":
-						clineMessages.push(
+						induscodeMessages.push(
 							...agentEventToMessages(
 								{
 									type: "content_end",
@@ -2531,7 +2531,7 @@ export function sdkMessagesToClineMessages(
 						break
 				}
 			}
-			appendPersistedMetricsMessage(clineMessages, message, state)
+			appendPersistedMetricsMessage(induscodeMessages, message, state)
 			continue
 		}
 
@@ -2541,7 +2541,7 @@ export function sdkMessagesToClineMessages(
 		const hookChips = extractPersistedHookContextChips(message)
 		if (hookChips.length > 0) {
 			for (const chip of hookChips) {
-				clineMessages.push({
+				induscodeMessages.push({
 					ts: state.nextTs(),
 					type: "say",
 					say: "hook_status",
@@ -2563,10 +2563,10 @@ export function sdkMessagesToClineMessages(
 				state.clearTurnOutcome()
 				currentMode = sourceMessage.uiMode ?? currentMode
 				if (!isSyntheticSdkUserMessage(message)) {
-					clineMessages.push({
+					induscodeMessages.push({
 						ts: state.nextTs(),
 						type: "say",
-						say: clineMessages.length === 0 ? "task" : "user_feedback",
+						say: induscodeMessages.length === 0 ? "task" : "user_feedback",
 						text,
 						partial: false,
 					})
@@ -2580,10 +2580,10 @@ export function sdkMessagesToClineMessages(
 			state.clearTurnOutcome()
 			currentMode = sourceMessage.uiMode ?? currentMode
 			if (!isSyntheticSdkUserMessage(message)) {
-				clineMessages.push({
+				induscodeMessages.push({
 					ts: state.nextTs(),
 					type: "say",
-					say: clineMessages.length === 0 ? "task" : "user_feedback",
+					say: induscodeMessages.length === 0 ? "task" : "user_feedback",
 					text: userText,
 					partial: false,
 				})
@@ -2601,7 +2601,7 @@ export function sdkMessagesToClineMessages(
 			}
 
 			pendingToolUses.delete(block.tool_use_id)
-			clineMessages.push(...finalizePersistedToolUse(toolUse, state, block.content, block.is_error))
+			induscodeMessages.push(...finalizePersistedToolUse(toolUse, state, block.content, block.is_error))
 		}
 	}
 
@@ -2620,7 +2620,7 @@ export function sdkMessagesToClineMessages(
 	// event is last, the webview shows "Thinking..." instead of
 	// the completion UI
 	if (!state.wasErrorSeen())
-		clineMessages.push({
+		induscodeMessages.push({
 			ts: state.nextTs(),
 			type: "ask",
 			ask: "completion_result",
@@ -2629,7 +2629,7 @@ export function sdkMessagesToClineMessages(
 		})
 
 	flushUnmatchedToolUses()
-	return clineMessages
+	return induscodeMessages
 }
 
 // ---------------------------------------------------------------------------
@@ -2721,7 +2721,7 @@ function describeVertexGlobalRegionError(rawMessage: string, providerId?: string
 }
 
 /**
- * Reshape an SDK error into the serialized ClineError JSON the webview's
+ * Reshape an SDK error into the serialized IndusCodeError JSON the webview's
  * ErrorRow expects (`code`, `providerId`, `details`), extracting structured
  * info from the error message when present and falling back to raw text.
  */
@@ -2731,25 +2731,25 @@ export function reshapeErrorForWebview(
 	modelId?: string,
 	errorClass?: ProviderErrorClass,
 ): string {
-	// The ClineError-JSON branches below are cline-provider flows (balance,
-	// spend limit), so "cline" stays their fallback id. The missing-credential
+	// The IndusCodeError-JSON branches below are induscode-provider flows (balance,
+	// spend limit), so "induscode" stays their fallback id. The missing-credential
 	// message instead gets the raw value: defaulting there would name the wrong
 	// provider when the active provider id is unknown.
-	const clineErrorProviderId = providerId ?? "cline"
+	const induscodeErrorProviderId = providerId ?? "induscode"
 	const rawMessage = error.message ?? "Unknown error"
 
-	// A retired cline-free/ model answers "model not found" once its free
+	// A retired induscode-free/ model answers "model not found" once its free
 	// promotion ends and the id is removed from the catalog. Stamp the payload
 	// with a dedicated code so the webview renders the promotion-ended card
 	// instead of the generic model-not-found guidance below.
-	if (isClineFreePromotionEndedMessage(rawMessage, modelId)) {
+	if (isIndusCodeFreePromotionEndedMessage(rawMessage, modelId)) {
 		return JSON.stringify({
 			message: rawMessage,
-			code: CLINE_FREE_PROMOTION_ENDED_ERROR_CODE,
-			providerId: clineErrorProviderId,
+			code: INDUSCODE_FREE_PROMOTION_ENDED_ERROR_CODE,
+			providerId: induscodeErrorProviderId,
 			modelId,
 			details: {
-				code: CLINE_FREE_PROMOTION_ENDED_ERROR_CODE,
+				code: INDUSCODE_FREE_PROMOTION_ENDED_ERROR_CODE,
 				message: rawMessage,
 			},
 		})
@@ -2767,11 +2767,11 @@ export function reshapeErrorForWebview(
 	// HTTP 401/403 while the typed error was still available). Raw provider
 	// bodies here are dead ends — e.g. Mistral's `{"detail":"Invalid API Key"}`
 	// is identical for a wrong, empty, or wrong-scope key — so point the user
-	// at the key configuration instead. Cline-account providers keep the JSON
+	// at the key configuration instead. IndusCode-account providers keep the JSON
 	// path below (the webview renders their auth failures as a sign-in card),
 	// and so does an *unknown* provider id: rewriting without knowing the
-	// provider could suppress that sign-in card for a cline-account failure.
-	if (errorClass === "auth" && providerId !== undefined && !isClineManagedProvider(providerId)) {
+	// provider could suppress that sign-in card for a induscode-account failure.
+	if (errorClass === "auth" && providerId !== undefined && !isIndusCodeManagedProvider(providerId)) {
 		return describeCredentialRejectedError(rawMessage, providerId)
 	}
 
@@ -2798,7 +2798,7 @@ export function reshapeErrorForWebview(
 		// and delivers only a human-readable string such as
 		// "Not enough credits available" or "Your daily spend limit of $20.00
 		// has been reached." Detect these by keyword and synthesize the
-		// ClineError-compatible JSON the webview expects.
+		// IndusCodeError-compatible JSON the webview expects.
 		const lower = rawMessage.toLowerCase()
 		if (
 			lower.includes("insufficient_credits") ||
@@ -2814,7 +2814,7 @@ export function reshapeErrorForWebview(
 			return JSON.stringify({
 				message: rawMessage,
 				code: "insufficient_credits",
-				providerId: clineErrorProviderId,
+				providerId: induscodeErrorProviderId,
 				details: {
 					current_balance: balance,
 					message: rawMessage,
@@ -2825,7 +2825,7 @@ export function reshapeErrorForWebview(
 			return JSON.stringify({
 				message: rawMessage,
 				code: "SPEND_LIMIT_EXCEEDED",
-				providerId: clineErrorProviderId,
+				providerId: induscodeErrorProviderId,
 				details: {
 					code: "SPEND_LIMIT_EXCEEDED",
 					message: rawMessage,
@@ -2844,13 +2844,13 @@ export function reshapeErrorForWebview(
 	}
 
 	// Detect insufficient credits (402) — needs code + current_balance for
-	// ClineError.getErrorType() to return ClineErrorType.Balance
+	// IndusCodeError.getErrorType() to return IndusCodeErrorType.Balance
 	const code = (parsed.code as string) ?? error.code
 	if (code === "insufficient_credits" && typeof parsed.current_balance === "number") {
 		return JSON.stringify({
 			message: (parsed.message as string) ?? rawMessage,
 			code: "insufficient_credits",
-			providerId: clineErrorProviderId,
+			providerId: induscodeErrorProviderId,
 			details: {
 				current_balance: parsed.current_balance,
 				total_spent: parsed.total_spent,
@@ -2866,7 +2866,7 @@ export function reshapeErrorForWebview(
 		return JSON.stringify({
 			message: (parsed.message as string) ?? rawMessage,
 			code: "SPEND_LIMIT_EXCEEDED",
-			providerId: clineErrorProviderId,
+			providerId: induscodeErrorProviderId,
 			details: {
 				code: "SPEND_LIMIT_EXCEEDED",
 				limit_scope: parsed.limit_scope,
@@ -2880,6 +2880,6 @@ export function reshapeErrorForWebview(
 	}
 
 	// For other structured errors, pass through the parsed JSON so
-	// ClineError.parse() can still extract what it can.
+	// IndusCodeError.parse() can still extract what it can.
 	return JSON.stringify(parsed)
 }

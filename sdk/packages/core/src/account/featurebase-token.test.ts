@@ -1,16 +1,16 @@
 import { describe, expect, it, vi } from "vitest";
-import { ClineAccountService } from "./cline-account-service";
+import { IndusCodeAccountService } from "./induscode-account-service";
 import {
-	type ClineAccountOperations,
-	executeClineAccountAction,
-	RpcClineAccountService,
+	type IndusCodeAccountOperations,
+	executeIndusCodeAccountAction,
+	RpcIndusCodeAccountService,
 } from "./rpc";
 
-describe("ClineAccountService.fetchFeaturebaseToken", () => {
+describe("IndusCodeAccountService.fetchFeaturebaseToken", () => {
 	it("returns featurebaseJwt on success", async () => {
 		const fetchImpl = vi.fn(async (input: unknown, init?: RequestInit) => {
 			expect(String(input)).toBe(
-				"https://api.cline.bot/api/v1/users/me/featurebase-token",
+				"https://api.induscode.bot/api/v1/users/me/featurebase-token",
 			);
 			expect(init?.headers).toMatchObject({
 				Authorization: "Bearer workos:token-123",
@@ -24,8 +24,8 @@ describe("ClineAccountService.fetchFeaturebaseToken", () => {
 			);
 		});
 
-		const service = new ClineAccountService({
-			apiBaseUrl: "https://api.cline.bot",
+		const service = new IndusCodeAccountService({
+			apiBaseUrl: "https://api.induscode.bot",
 			getAuthToken: async () => "workos:token-123",
 			fetchImpl: fetchImpl as unknown as typeof fetch,
 		});
@@ -42,8 +42,8 @@ describe("ClineAccountService.fetchFeaturebaseToken", () => {
 			throw new Error("Network error");
 		});
 
-		const service = new ClineAccountService({
-			apiBaseUrl: "https://api.cline.bot",
+		const service = new IndusCodeAccountService({
+			apiBaseUrl: "https://api.induscode.bot",
 			getAuthToken: async () => "workos:token-123",
 			fetchImpl: fetchImpl as unknown as typeof fetch,
 		});
@@ -55,8 +55,8 @@ describe("ClineAccountService.fetchFeaturebaseToken", () => {
 	it("returns undefined when auth token is missing", async () => {
 		const fetchImpl = vi.fn();
 
-		const service = new ClineAccountService({
-			apiBaseUrl: "https://api.cline.bot",
+		const service = new IndusCodeAccountService({
+			apiBaseUrl: "https://api.induscode.bot",
 			getAuthToken: async () => undefined,
 			fetchImpl: fetchImpl as unknown as typeof fetch,
 		});
@@ -74,8 +74,8 @@ describe("ClineAccountService.fetchFeaturebaseToken", () => {
 			});
 		});
 
-		const service = new ClineAccountService({
-			apiBaseUrl: "https://api.cline.bot",
+		const service = new IndusCodeAccountService({
+			apiBaseUrl: "https://api.induscode.bot",
 			getAuthToken: async () => "workos:token-123",
 			fetchImpl: fetchImpl as unknown as typeof fetch,
 		});
@@ -85,9 +85,9 @@ describe("ClineAccountService.fetchFeaturebaseToken", () => {
 	});
 });
 
-describe("executeClineAccountAction - fetchFeaturebaseToken", () => {
+describe("executeIndusCodeAccountAction - fetchFeaturebaseToken", () => {
 	it("dispatches fetchFeaturebaseToken", async () => {
-		const service: ClineAccountOperations = {
+		const service: IndusCodeAccountOperations = {
 			fetchMe: vi.fn(async () => ({
 				id: "u1",
 				email: "user1@example.com",
@@ -112,8 +112,8 @@ describe("executeClineAccountAction - fetchFeaturebaseToken", () => {
 			})),
 		};
 
-		const result = await executeClineAccountAction(
-			{ action: "clineAccount", operation: "fetchFeaturebaseToken" },
+		const result = await executeIndusCodeAccountAction(
+			{ action: "induscodeAccount", operation: "fetchFeaturebaseToken" },
 			service,
 		);
 		expect(service.fetchFeaturebaseToken).toHaveBeenCalledTimes(1);
@@ -121,7 +121,7 @@ describe("executeClineAccountAction - fetchFeaturebaseToken", () => {
 	});
 
 	it("returns undefined when fetchFeaturebaseToken is not implemented", async () => {
-		const service: ClineAccountOperations = {
+		const service: IndusCodeAccountOperations = {
 			fetchMe: vi.fn(async () => ({
 				id: "u1",
 				email: "user1@example.com",
@@ -143,15 +143,15 @@ describe("executeClineAccountAction - fetchFeaturebaseToken", () => {
 			switchAccount: vi.fn(async () => {}),
 		};
 
-		const result = await executeClineAccountAction(
-			{ action: "clineAccount", operation: "fetchFeaturebaseToken" },
+		const result = await executeIndusCodeAccountAction(
+			{ action: "induscodeAccount", operation: "fetchFeaturebaseToken" },
 			service,
 		);
 		expect(result).toBeUndefined();
 	});
 });
 
-describe("RpcClineAccountService.fetchFeaturebaseToken", () => {
+describe("RpcIndusCodeAccountService.fetchFeaturebaseToken", () => {
 	it("sends provider action payload and parses response", async () => {
 		const runProviderAction = vi.fn(async (request: unknown) => {
 			const parsed = request as {
@@ -159,14 +159,14 @@ describe("RpcClineAccountService.fetchFeaturebaseToken", () => {
 				operation: string;
 			};
 			expect(parsed).toEqual({
-				action: "clineAccount",
+				action: "induscodeAccount",
 				operation: "fetchFeaturebaseToken",
 			});
 			return {
 				result: { featurebaseJwt: "rpc-jwt-token" },
 			};
 		});
-		const service = new RpcClineAccountService({ runProviderAction });
+		const service = new RpcIndusCodeAccountService({ runProviderAction });
 
 		const result = await service.fetchFeaturebaseToken();
 		expect(runProviderAction).toHaveBeenCalledTimes(1);

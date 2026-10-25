@@ -1,4 +1,4 @@
-import type { AgentExtension } from "@cline/shared";
+import type { AgentExtension } from "@induscode/shared";
 import { describe, expect, it } from "vitest";
 import type { RuleConfig } from "../../extensions/config/user-instruction-config-loader";
 import {
@@ -15,7 +15,7 @@ function ruleRecord(name: string, extra: Partial<RuleConfig> = {}) {
 	return {
 		type: "rule",
 		id: name,
-		filePath: `/client/.clinerules/${name}.md`,
+		filePath: `/client/.induscoderules/${name}.md`,
 		item: {
 			name,
 			instructions: `${name} instructions`,

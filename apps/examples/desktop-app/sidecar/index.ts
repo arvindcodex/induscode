@@ -1,22 +1,23 @@
+import { existsSync, readFileSync, statSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import {
 	checkManagedHubBuildMismatch,
-	createClineTelemetryServiceConfig,
+	createIndusCodeTelemetryServiceConfig,
 	ensureLoginShellPath,
 	readGlobalSettings,
 	setHomeDirIfUnset,
 	setModelToolEnabledGlobally,
 	watchManagedHubBuildMismatch,
-} from "@cline/core";
+} from "@induscode/core";
 import {
 	buildTelemetrySelfcheckReport,
 	captureSdkError,
 	disableCurrentDirectoryExecutableSearch,
 	ensureLoopbackProxyBypass,
-	setClineClientIdentity,
-} from "@cline/shared";
-import { setClineDir } from "@cline/shared/storage";
+	setIndusCodeClientIdentity,
+} from "@induscode/shared";
+import { resolveIndusCodeDir, setIndusCodeDir } from "@induscode/shared/storage";
 import { prewarmWorkspaceMetadata } from "./chat-session";
 import { adoptDesktopCliRuntime, ensureHubWithDesktopCli } from "./cli-runtime";
 import { DESKTOP_CLIENT_CONTEXT } from "./client-context";
@@ -33,14 +34,23 @@ import { resolveWorkspaceRoot } from "./paths";
 import { startServer } from "./server";
 import { BunRuntime, SIDECAR_HOST, SIDECAR_MODE, SIDECAR_PORT } from "./types";
 
-const defaultIndusDir = process.env.CLINE_DIR?.trim() || join(homedir(), ".induscode");
-if (!process.env.CLINE_DIR) {
-	process.env.CLINE_DIR = defaultIndusDir;
+const defaultIndusDir =
+	process.env.INDUSCODE_DIR?.trim() ||
+	process.env.INDUSCODE_DIR?.trim() ||
+	join(homedir(), ".induscode");
+if (!process.env.INDUSCODE_DIR) {
+	process.env.INDUSCODE_DIR = defaultIndusDir;
 }
-if (!process.env.CLINE_DATA_DIR) {
-	process.env.CLINE_DATA_DIR = join(defaultIndusDir, "data");
+if (!process.env.INDUSCODE_DATA_DIR) {
+	process.env.INDUSCODE_DATA_DIR = join(defaultIndusDir, "data");
 }
-setClineDir(defaultIndusDir);
+if (!process.env.INDUSCODE_DIR) {
+	process.env.INDUSCODE_DIR = defaultIndusDir;
+}
+if (!process.env.INDUSCODE_DATA_DIR) {
+	process.env.INDUSCODE_DATA_DIR = join(defaultIndusDir, "data");
+}
+setIndusCodeDir(defaultIndusDir);
 
 const SHUTDOWN_TIMEOUT_MS = 5_000;
 let activeObservability:
@@ -87,9 +97,9 @@ async function main(desktopCliPath?: string) {
 		pid: process.pid,
 	});
 
-	// Web search is opt-in elsewhere in Cline, but the desktop app defaults
+	// Web search is opt-in elsewhere in IndusCode, but the desktop app defaults
 	// it to on. Seed the shared setting only when the user has never set it,
-	// so an explicit off (from any Cline app) stays off. Best-effort: an
+	// so an explicit off (from any IndusCode app) stays off. Best-effort: an
 	// unwritable settings file must not block startup over a default.
 	try {
 		if (readGlobalSettings().tools?.web_search === undefined) {
@@ -113,9 +123,9 @@ async function main(desktopCliPath?: string) {
 	if (desktopCliPath) {
 		try {
 			const hub = await ensureHubWithDesktopCli(desktopCliPath, workspaceRoot);
-			observability.logger.log("Hub ready via Cline CLI", { url: hub.url });
+			observability.logger.log("Hub ready via IndusCode CLI", { url: hub.url });
 		} catch (error) {
-			observability.logger.error?.("Cline CLI hub ensure failed", { error });
+			observability.logger.error?.("IndusCode CLI hub ensure failed", { error });
 		}
 	}
 	await initializeSessionManager(ctx);
@@ -182,7 +192,39 @@ async function main(desktopCliPath?: string) {
 		mode: SIDECAR_MODE,
 	});
 
-	// Another Cline installation (e.g. an updated CLI) can replace the shared
+	// Watch auth.json for changes (from website dashboard logins, logouts, DP updates, account deletions)
+	const watchDirs = [
+		resolveIndusCodeDir(),
+		defaultIndusDir,
+		join(homedir(), ".induscode"),
+		join(homedir(), ".induscode"),
+	]
+		.filter((dir, index, dirs) => dirs.indexOf(dir) === index)
+		.map((dir) => join(dir, "data", "settings"));
+	const lastAuthSignatures = new Map<string, string>();
+	setInterval(() => {
+		for (const sDir of watchDirs) {
+			const authPath = join(sDir, "auth.json");
+			if (existsSync(authPath)) {
+				try {
+					const stat = statSync(authPath);
+					const signature = `${stat.mtimeMs}:${stat.size}`;
+					if (signature !== lastAuthSignatures.get(authPath)) {
+						const authRaw = readFileSync(authPath, "utf-8");
+						const authData = JSON.parse(authRaw);
+						lastAuthSignatures.set(authPath, signature);
+						broadcastEvent(ctx, "account_changed", {
+							authenticated: !!authData?.authenticated,
+							user: authData?.user ?? null,
+						});
+						break;
+					}
+				} catch {}
+			}
+		}
+	}, 1000);
+
+	// Another IndusCode installation (e.g. an updated CLI) can replace the shared
 	// Hub daemon while this app is running. Surface that to the webview so it
 	// can prompt the user to update and restart.
 	watchManagedHubBuildMismatch({
@@ -203,9 +245,9 @@ async function main(desktopCliPath?: string) {
 	// init has already settled the hub state, so check once right away. The
 	// broadcast reaches webviews that are already connected; the replay in
 	// createWebSocketHandler covers ones that connect later. Skipped when
-	// CLINE_HUB_PORT pins an explicit endpoint, matching the watcher: such
+	// INDUSCODE_HUB_PORT pins an explicit endpoint, matching the watcher: such
 	// hosts keep protocol-only compatibility and must not show update prompts.
-	if (!process.env.CLINE_HUB_PORT?.trim()) {
+	if (!process.env.INDUSCODE_HUB_PORT?.trim()) {
 		void checkManagedHubBuildMismatch()
 			.then((mismatch) => {
 				if (!mismatch || ctx.hubBuildMismatch) {
@@ -251,7 +293,7 @@ async function main(desktopCliPath?: string) {
  */
 function runTelemetrySelfcheck(): void {
 	const report = buildTelemetrySelfcheckReport(
-		createClineTelemetryServiceConfig(),
+		createIndusCodeTelemetryServiceConfig(),
 	);
 	process.stdout.write(`${JSON.stringify(report)}\n`);
 }
@@ -263,7 +305,7 @@ async function runEntrypoint(): Promise<void> {
 		return;
 	}
 	const { cliPath } = adoptDesktopCliRuntime();
-	setClineClientIdentity(DESKTOP_CLIENT_CONTEXT);
+	setIndusCodeClientIdentity(DESKTOP_CLIENT_CONTEXT);
 
 	disableCurrentDirectoryExecutableSearch();
 	// Before the bundled CLI starts the Hub daemon and loads any plugin.

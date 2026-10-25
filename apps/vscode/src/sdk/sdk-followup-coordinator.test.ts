@@ -567,15 +567,15 @@ describe("SdkFollowupCoordinator", () => {
 		)
 	})
 
-	it("emits auth errors when resume fails because the cline provider is unauthenticated", async () => {
+	it("emits auth errors when resume fails because the induscode provider is unauthenticated", async () => {
 		const task = makeTask("task-1")
 		const { coordinator, options } = makeCoordinator({ task })
 		options.sessionConfigBuilder.build.mockRejectedValue(new Error("missing api key"))
-		options.isClineManagedProviderActive.mockReturnValue(true)
+		options.isIndusCodeManagedProviderActive.mockReturnValue(true)
 
 		await coordinator.askResponse("continue")
 
-		expect(options.emitClineAuthError).toHaveBeenCalledOnce()
+		expect(options.emitIndusCodeAuthError).toHaveBeenCalledOnce()
 		expect(options.onResumeFailed).toHaveBeenCalledOnce()
 		expect(options.postStateToWebview).toHaveBeenCalledOnce()
 	})
@@ -644,8 +644,8 @@ function makeCoordinator(input: Partial<MakeCoordinatorInput> = {}) {
 		loadInitialMessages: vi.fn().mockResolvedValue([{ role: "user", content: "hello" }]),
 		buildStartSessionInput: vi.fn(() => ({ prompt: "start" })),
 		resolveContextMentions: vi.fn(async (text: string) => `resolved: ${text}`),
-		isClineManagedProviderActive: vi.fn(() => false),
-		emitClineAuthError: vi.fn(),
+		isIndusCodeManagedProviderActive: vi.fn(() => false),
+		emitIndusCodeAuthError: vi.fn(),
 		resetMessageTranslator: vi.fn(),
 		postStateToWebview: vi.fn().mockResolvedValue(undefined),
 		runExclusive: input.runExclusive ?? vi.fn(async (operation: () => Promise<unknown>) => operation()),
@@ -680,8 +680,8 @@ function makeCoordinator(input: Partial<MakeCoordinatorInput> = {}) {
 		getWorkspaceRoot: ReturnType<typeof vi.fn>
 		loadInitialMessages: ReturnType<typeof vi.fn>
 		resolveContextMentions: ReturnType<typeof vi.fn>
-		isClineManagedProviderActive: ReturnType<typeof vi.fn>
-		emitClineAuthError: ReturnType<typeof vi.fn>
+		isIndusCodeManagedProviderActive: ReturnType<typeof vi.fn>
+		emitIndusCodeAuthError: ReturnType<typeof vi.fn>
 		resetMessageTranslator: ReturnType<typeof vi.fn>
 		postStateToWebview: ReturnType<typeof vi.fn>
 		runExclusive: ReturnType<typeof vi.fn>

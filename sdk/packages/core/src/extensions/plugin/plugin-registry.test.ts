@@ -9,7 +9,7 @@ import type {
 	Message,
 	PluginStatusRecord,
 	SessionPluginIssue,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
 	PluginCallTimeoutError,
@@ -875,7 +875,7 @@ export default { name: "orphan", manifest: { capabilities: ["tools"] } };`,
 					state: "failed",
 					lastError: expect.objectContaining({
 						phase: "import",
-						message: expect.stringContaining("CLINE_PLUGIN_BOOTSTRAP_PATH"),
+						message: expect.stringContaining("INDUSCODE_PLUGIN_BOOTSTRAP_PATH"),
 					}),
 				}),
 			]);

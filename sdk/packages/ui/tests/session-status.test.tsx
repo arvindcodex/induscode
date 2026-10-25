@@ -10,8 +10,8 @@ describe("SessionStatus", () => {
 
 		expect(markup).toContain("<output");
 		expect(markup).not.toContain("aria-label");
-		expect(markup).toContain("cline-ui-session-status--running");
-		expect(markup).toContain("cline-ui-sr-only");
+		expect(markup).toContain("induscode-ui-session-status--running");
+		expect(markup).toContain("induscode-ui-sr-only");
 		expect(markup).toContain(">Running</span>");
 	});
 
@@ -20,7 +20,7 @@ describe("SessionStatus", () => {
 			<SessionStatus label="Ready" tone="neutral" />,
 		);
 
-		expect(markup).not.toContain("cline-ui-sr-only");
+		expect(markup).not.toContain("induscode-ui-sr-only");
 		expect(markup).toContain(">Ready</span>");
 	});
 });

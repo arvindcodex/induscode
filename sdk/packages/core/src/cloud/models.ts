@@ -1,7 +1,7 @@
 export type CloudModel = {
 	id: string;
 	name: string;
-	catalogId: "cline" | "cline-pass" | "cline-cloud";
+	catalogId: "induscode" | "induscode-pass" | "induscode-cloud";
 };
 
 function readCloudModel(
@@ -34,6 +34,44 @@ function readCloudModels(
 		: [];
 }
 
+export const BUILTIN_FREE_MODELS: CloudModel[] = [
+	// High-Context & Deep Reasoning
+	{ id: "gemini-3.8-flash", name: "Gemini 3.8 Flash", catalogId: "induscode" },
+	{ id: "gemini-3.1-pro", name: "Gemini 3.1 Pro", catalogId: "induscode" },
+	{ id: "gemini-4-argon", name: "Gemini 4 Argon", catalogId: "induscode" },
+	{ id: "free/gemini-3.8-flash", name: "Gemini 3.8 Flash", catalogId: "induscode" },
+	{ id: "free/deepseek-v4.1-flash", name: "DeepSeek V4.1 Plus", catalogId: "induscode" },
+	{ id: "free/gpt-6-luna", name: "GPT-6 Luna", catalogId: "induscode" },
+	{ id: "free/muse-spark-1.3", name: "Muse Spark 1.3", catalogId: "induscode" },
+
+	// Ultra-Fast Inference
+	{ id: "openai/gpt-oss-120b", name: "GPT-OSS 120B", catalogId: "induscode" },
+	{ id: "openai/gpt-oss-20b", name: "GPT-OSS 20B", catalogId: "induscode" },
+	{ id: "qwen/qwen3.8-27b", name: "Qwen 3.8 27B", catalogId: "induscode" },
+
+	// Advanced Engineering & Reasoning
+	{ id: "cohere/north-mini-code:free", name: "North Mini Code", catalogId: "induscode" },
+	{ id: "google/gemma-4-31b-it:free", name: "Gemma 4 31B", catalogId: "induscode" },
+	{ id: "minimax/minimax-m3.1-flash:free", name: "MiniMax M3.1", catalogId: "induscode" },
+	{ id: "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free", name: "Nemotron 3 Nano Reasoning", catalogId: "induscode" },
+
+	// Agentic & Tool Execution
+	{ id: "command-r-plus-08-2024", name: "Command R+", catalogId: "induscode" },
+	{ id: "command-a-03-2025", name: "Command A", catalogId: "induscode" },
+
+	// Lightweight Distributed
+	{ id: "@cf/qwen/qwen2.5-coder-32b-instruct", name: "Qwen 2.5 Coder 32B", catalogId: "induscode" },
+	{ id: "@cf/deepseek-ai/deepseek-r1-distill-qwen-32b", name: "DeepSeek R1 Distill 32B", catalogId: "induscode" },
+	{ id: "@cf/meta/llama-3.3-70b-instruct-fp8-fast", name: "Llama 3.3 70B Fast", catalogId: "induscode" },
+
+	// Frontier Coding & Architecture
+	{ id: "deepseek-ai/deepseek-v4.1-flash", name: "DeepSeek V4.1 Flash", catalogId: "induscode" },
+	{ id: "mistralai/codestral-22b-instruct-v0.1", name: "Codestral 22B", catalogId: "induscode" },
+	{ id: "meta/codellama-70b", name: "CodeLlama 70B", catalogId: "induscode" },
+	{ id: "bigcode/starcoder2-15b", name: "StarCoder2 15B", catalogId: "induscode" },
+];
+
+
 export async function loadCloudModels(
 	apiBaseUrl: string,
 	options: { isOrganizationSession?: boolean; fetchImpl?: typeof fetch } = {},
@@ -54,13 +92,12 @@ export async function loadCloudModels(
 	let recommendedPayload: unknown;
 	try {
 		[catalogPayload, recommendedPayload] = await Promise.all([
-			load("/api/v1/ai/cline/models"),
-			load("/api/v1/ai/cline/recommended-models"),
+			load("/api/v1/ai/induscode/models"),
+			load("/api/v1/ai/induscode/recommended-models"),
 		]);
 	} catch (error) {
-		throw new Error("Could not load the cloud model catalog.", {
-			cause: error,
-		});
+		// Fallback to built-in free models so free users are never blocked
+		return [...BUILTIN_FREE_MODELS];
 	}
 	const catalogRecord =
 		catalogPayload && typeof catalogPayload === "object"
@@ -68,7 +105,7 @@ export async function loadCloudModels(
 			: undefined;
 	const catalog = readCloudModels(
 		Array.isArray(catalogPayload) ? catalogPayload : catalogRecord?.data,
-		"cline",
+		"induscode",
 	);
 	const recommendedEnvelope =
 		recommendedPayload && typeof recommendedPayload === "object"
@@ -78,8 +115,8 @@ export async function loadCloudModels(
 		recommendedEnvelope?.data && typeof recommendedEnvelope.data === "object"
 			? (recommendedEnvelope.data as Record<string, unknown>)
 			: recommendedEnvelope;
-	const pass = readCloudModels(recommended?.clinePass, "cline-pass");
-	const cloud = readCloudModels(recommended?.clineCloud, "cline-cloud");
+	const pass = readCloudModels(recommended?.induscodePass, "induscode-pass");
+	const cloud = readCloudModels(recommended?.induscodeCloud, "induscode-cloud");
 	const seen = new Set<string>();
 	return [
 		...(options.isOrganizationSession ? [] : pass),

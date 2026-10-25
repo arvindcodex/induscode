@@ -47,7 +47,7 @@ describe("installStreamErrorGuards", () => {
 });
 
 describe("credit balance formatting", () => {
-	it("normalizes Cline micro-credit balances before display", () => {
+	it("normalizes IndusCode micro-credit balances before display", () => {
 		expect(formatCreditBalance(normalizeCreditBalance(500_000))).toBe("$0.50");
 		expect(formatCreditBalance(normalizeCreditBalance(5_000_000))).toBe(
 			"$5.00",

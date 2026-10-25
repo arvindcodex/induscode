@@ -8,7 +8,7 @@
 import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { HubEventEnvelope } from "@cline/shared";
+import type { HubEventEnvelope } from "@induscode/shared";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@ai-sdk/provider-utils", () => ({
@@ -23,7 +23,7 @@ import type { HubTransportContext } from "./handlers/context";
 import { HubServerTransport } from "./hub-server-transport";
 
 function createStartedTransportOptions() {
-	const root = mkdtempSync(join(tmpdir(), "cline-hub-upgrades-"));
+	const root = mkdtempSync(join(tmpdir(), "induscode-hub-upgrades-"));
 	const sessions = new Map<string, Record<string, unknown>>();
 	const capturedStarts: StartSessionInput[] = [];
 	const startSession = vi.fn(
@@ -324,7 +324,7 @@ describe("Hub app-server upgrades", () => {
 
 	it("recovers queued runs and interrupts orphaned running runs across a restart", async () => {
 		const { options } = createStartedTransportOptions();
-		const root = mkdtempSync(join(tmpdir(), "cline-hub-recovery-"));
+		const root = mkdtempSync(join(tmpdir(), "induscode-hub-recovery-"));
 		const runsDb = join(root, "hub-runs.db");
 		// First hub generation: admit one run and crash before executing it.
 		const { HubRunQueue } = await import("./hub-run-queue");

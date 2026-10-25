@@ -10,11 +10,11 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "@microsoft/tui-test";
 import {
-	CLINE_BIN,
+	INDUSCODE_BIN,
 	EXIT_CODE_SUCCESS,
 	TERMINAL_WIDE,
 } from "../helpers/constants.js";
-import { clineEnv } from "../helpers/env.js";
+import { induscodeEnv } from "../helpers/env.js";
 import { expectExitCode, expectVisible } from "../helpers/terminal.js";
 
 function findMessagesArtifacts(root: string): string[] {
@@ -40,16 +40,16 @@ function findMessagesArtifacts(root: string): string[] {
 	return out.sort();
 }
 
-test.describe("cline --json persisted messages contract - authenticated @live", () => {
+test.describe("induscode --json persisted messages contract - authenticated @live", () => {
 	const sessionDataDir = mkdtempSync(
-		join(tmpdir(), "cline-headless-messages-contract-"),
+		join(tmpdir(), "induscode-headless-messages-contract-"),
 	);
 	test.use({
-		program: { file: CLINE_BIN, args: ["--json", "tell me a joke"] },
+		program: { file: INDUSCODE_BIN, args: ["--json", "tell me a joke"] },
 		...TERMINAL_WIDE,
-		env: clineEnv("default", {
-			CLINE_VCR_CASSETTE: "./fixtures/headless-json.json",
-			CLINE_SESSION_DATA_DIR: sessionDataDir,
+		env: induscodeEnv("default", {
+			INDUSCODE_VCR_CASSETTE: "./fixtures/headless-json.json",
+			INDUSCODE_SESSION_DATA_DIR: sessionDataDir,
 		}),
 	});
 

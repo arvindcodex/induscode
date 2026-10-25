@@ -1,4 +1,4 @@
-import type { ClineMessage } from "@shared/ExtensionMessage"
+import type { IndusCodeMessage } from "@shared/ExtensionMessage"
 import type { Mode } from "@shared/storage/types"
 import type { StateManager } from "@/core/storage/StateManager"
 import { Logger } from "@/shared/services/Logger"
@@ -153,7 +153,7 @@ export class SdkSessionConfigChangeCoordinator {
 		} catch (error) {
 			Logger.error(`[SdkController] Failed to restart session for ${details.description}:`, error)
 
-			const errorMessage: ClineMessage = {
+			const errorMessage: IndusCodeMessage = {
 				ts: Date.now(),
 				type: "say",
 				say: "error",

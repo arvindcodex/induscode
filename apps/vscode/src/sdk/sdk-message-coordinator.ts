@@ -1,11 +1,11 @@
-import type { CoreSessionEvent } from "@cline/core"
-import type { ClineApiReqInfo, ClineMessage } from "@shared/ExtensionMessage"
+import type { CoreSessionEvent } from "@induscode/core"
+import type { IndusCodeApiReqInfo, IndusCodeMessage } from "@shared/ExtensionMessage"
 import { Logger } from "@/shared/services/Logger"
 import type { MessageIdMinter } from "./message-id-minter"
 import type { TaskProxy } from "./task-proxy"
 import { pushMessageToWebview } from "./webview-grpc-bridge"
 
-export type SessionEventListener = (messages: ClineMessage[], event: CoreSessionEvent) => void
+export type SessionEventListener = (messages: IndusCodeMessage[], event: CoreSessionEvent) => void
 
 export interface SdkMessageCoordinatorOptions {
 	getTask: () => TaskProxy | undefined
@@ -19,7 +19,7 @@ export interface SdkMessageCoordinatorOptions {
 
 export class SdkMessageCoordinator {
 	private readonly sessionEventListeners = new Set<SessionEventListener>()
-	private saveClineMessagesTimer: ReturnType<typeof setTimeout> | undefined
+	private saveIndusCodeMessagesTimer: ReturnType<typeof setTimeout> | undefined
 
 	constructor(private readonly options: SdkMessageCoordinatorOptions) {}
 
@@ -30,7 +30,7 @@ export class SdkMessageCoordinator {
 	 * A message that is updated (partial → final, same id) passes through again and gets a NEW,
 	 * higher `seq`, so the webview always keeps the freshest copy regardless of arrival order.
 	 */
-	private stamp(messages: ClineMessage[]): void {
+	private stamp(messages: IndusCodeMessage[]): void {
 		const minter = this.options.getMinter?.()
 		if (!minter) {
 			return
@@ -48,9 +48,9 @@ export class SdkMessageCoordinator {
 	}
 
 	cancelPendingSave(): void {
-		if (this.saveClineMessagesTimer) {
-			clearTimeout(this.saveClineMessagesTimer)
-			this.saveClineMessagesTimer = undefined
+		if (this.saveIndusCodeMessagesTimer) {
+			clearTimeout(this.saveIndusCodeMessagesTimer)
+			this.saveIndusCodeMessagesTimer = undefined
 		}
 	}
 
@@ -61,7 +61,7 @@ export class SdkMessageCoordinator {
 		}
 	}
 
-	emitSessionEvents(messages: ClineMessage[], event: CoreSessionEvent): void {
+	emitSessionEvents(messages: IndusCodeMessage[], event: CoreSessionEvent): void {
 		for (const listener of this.sessionEventListeners) {
 			try {
 				listener(messages, event)
@@ -71,7 +71,7 @@ export class SdkMessageCoordinator {
 		}
 	}
 
-	appendMessages(messages: ClineMessage[]): void {
+	appendMessages(messages: IndusCodeMessage[]): void {
 		// Stamp seq/epoch BEFORE storing/emitting so both the message-state handler and the
 		// partial-message stream carry identical, freshness-ordered, epoch-fenced messages.
 		this.stamp(messages)
@@ -84,7 +84,7 @@ export class SdkMessageCoordinator {
 		task.messageStateHandler.addMessages(messages)
 	}
 
-	replaceMessages(messages: ClineMessage[]): void {
+	replaceMessages(messages: IndusCodeMessage[]): void {
 		this.stamp(messages)
 
 		const task = this.options.getTask()
@@ -95,12 +95,12 @@ export class SdkMessageCoordinator {
 		task.messageStateHandler.replaceMessages(messages)
 	}
 
-	appendAndEmit(messages: ClineMessage[], event: CoreSessionEvent): void {
+	appendAndEmit(messages: IndusCodeMessage[], event: CoreSessionEvent): void {
 		this.appendMessages(messages)
 		this.emitSessionEvents(messages, event)
 	}
 
-	emitHookMessage(message: ClineMessage): void {
+	emitHookMessage(message: IndusCodeMessage): void {
 		this.appendMessages([message])
 		pushMessageToWebview(message).catch(() => {})
 	}
@@ -110,7 +110,7 @@ export class SdkMessageCoordinator {
 	 * - Strips `partial` flags so the UI doesn't show a streaming/cancel state
 	 * - Updates the last `api_req_started` with a cancel reason if it has no cost
 	 */
-	finalizeMessagesForSave(messages: ClineMessage[]): ClineMessage[] {
+	finalizeMessagesForSave(messages: IndusCodeMessage[]): IndusCodeMessage[] {
 		return messages.map((msg, index) => {
 			const updated = { ...msg }
 
@@ -120,7 +120,7 @@ export class SdkMessageCoordinator {
 
 			if (updated.type === "say" && updated.say === "api_req_started") {
 				try {
-					const info: ClineApiReqInfo = JSON.parse(updated.text || "{}")
+					const info: IndusCodeApiReqInfo = JSON.parse(updated.text || "{}")
 					if (info.cost === undefined && info.cancelReason === undefined) {
 						const isLast = !messages.slice(index + 1).some((m) => m.type === "say" && m.say === "api_req_started")
 						if (isLast) {

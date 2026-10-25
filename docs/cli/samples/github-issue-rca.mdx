@@ -1,25 +1,25 @@
 ---
 title: "GitHub Issue RCA Sample"
-description: "Automated GitHub issue analysis using Cline CLI to identify root causes."
+description: "Automated GitHub issue analysis using IndusCode CLI to identify root causes."
 ---
 
-Automated GitHub issue analysis using Cline CLI. This script uses Cline's autonomous AI capabilities to fetch, analyze, and identify root causes of GitHub issues, outputting clean, parseable results that can be easily integrated into your development workflows.
+Automated GitHub issue analysis using IndusCode CLI. This script uses IndusCode's autonomous AI capabilities to fetch, analyze, and identify root causes of GitHub issues, outputting clean, parseable results that can be easily integrated into your development workflows.
 
 <Note>
-**New to Cline CLI?** This sample assumes you have already completed the [Installation Guide](https://docs.cline.bot/getting-started/installing-cline) and authenticated with `cline auth`. If you haven't set up Cline CLI yet, please start there first.
+**New to IndusCode CLI?** This sample assumes you have already completed the [Installation Guide](https://docs.induscode.bot/getting-started/installing-induscode) and authenticated with `induscode auth`. If you haven't set up IndusCode CLI yet, please start there first.
 </Note>
 
 <Frame>
-  <img src="https://storage.googleapis.com/cline_public_images/cli-rca.gif" alt="CLI Root Cause Analysis Demo" width="600" />
+  <img src="https://storage.googleapis.com/induscode_public_images/cli-rca.gif" alt="CLI Root Cause Analysis Demo" width="600" />
 </Frame>
 
 ## Prerequisites
 
 This sample assumes you have already:
 
-- **Cline CLI** installed and authenticated ([Installation Guide](https://docs.cline.bot/getting-started/installing-cline))
+- **IndusCode CLI** installed and authenticated ([Installation Guide](https://docs.induscode.bot/getting-started/installing-induscode))
 - **At least one AI model provider** configured (e.g., OpenRouter, Anthropic, OpenAI)
-- **Basic familiarity** with Cline CLI commands
+- **Basic familiarity** with IndusCode CLI commands
 
 Additionally, you'll need:
 
@@ -72,7 +72,7 @@ Save this script as `analyze-issue.sh`:
 
 ```bash
 #!/bin/bash
-# Analyze a GitHub issue using Cline CLI
+# Analyze a GitHub issue using IndusCode CLI
 
 if [ -z "$1" ]; then
     echo "Usage: $0 <github-issue-url> [prompt]"
@@ -85,11 +85,11 @@ fi
 ISSUE_URL="$1"
 PROMPT="${2:-What is the root cause of this issue?}"
 
-# Fail if Cline fails, not only if jq does
+# Fail if IndusCode fails, not only if jq does
 set -o pipefail
 
-# Ask Cline for its analysis, showing only the summary
-cline --auto-approve true --json "$PROMPT: $ISSUE_URL" | \
+# Ask IndusCode for its analysis, showing only the summary
+induscode --auto-approve true --json "$PROMPT: $ISSUE_URL" | \
     jq -r 'select(.type == "run_result") | .text'
 ```
 
@@ -126,7 +126,7 @@ Ask specific questions about the issue:
 ```
 
 <Note>
-The script will automatically handle everything: fetching the issue, analyzing it with Cline, and displaying the results. The analysis typically takes 30-60 seconds depending on the issue complexity.
+The script will automatically handle everything: fetching the issue, analyzing it with IndusCode, and displaying the results. The analysis typically takes 30-60 seconds depending on the issue complexity.
 </Note>
 
 ## How It Works
@@ -170,11 +170,11 @@ PROMPT="${2:-What is the root cause of this issue?}"
 This is where the magic happens:
 
 ```bash
-# Fail if Cline fails, not only if jq does
+# Fail if IndusCode fails, not only if jq does
 set -o pipefail
 
-# Ask Cline for its analysis, showing only the summary
-cline --auto-approve true --json "$PROMPT: $ISSUE_URL" | \
+# Ask IndusCode for its analysis, showing only the summary
+induscode --auto-approve true --json "$PROMPT: $ISSUE_URL" | \
     jq -r 'select(.type == "run_result") | .text'
 ```
 
@@ -182,8 +182,8 @@ When a run fails, the `run_result` line holds the error message, so the script p
 
 <Accordion title="Pipeline Breakdown: Understanding Each Component">
 
-**1. `cline --auto-approve true --json "$PROMPT: $ISSUE_URL"`**
-   - `cline` is the Cline CLI binary
+**1. `induscode --auto-approve true --json "$PROMPT: $ISSUE_URL"`**
+   - `induscode` is the IndusCode CLI binary
    - Act mode is the default for prompt runs
    - `--auto-approve true` allows tool use without interactive prompts
    - `--json` emits newline-delimited JSON for parsing
@@ -191,7 +191,7 @@ When a run fails, the `run_result` line holds the error message, so the script p
 
 **2. `jq -r 'select(.type == "run_result") | .text'`**
    - Keeps the `run_result` line, which the CLI prints when the run finishes
-   - Prints its `text` field, Cline's final answer
+   - Prints its `text` field, IndusCode's final answer
    - `-r` prints the text itself, with real line breaks and no JSON quotes
 
 </Accordion>
@@ -320,10 +320,10 @@ Get second opinions on proposed changes:
 
 ## Conclusion
 
-This sample demonstrates how to build an autonomous GitHub issue analysis tool using Cline CLI:
+This sample demonstrates how to build an autonomous GitHub issue analysis tool using IndusCode CLI:
 
-1. **Building autonomous CLI tools** using Cline's capabilities
-2. **Parsing structured JSON output** from Cline CLI
+1. **Building autonomous CLI tools** using IndusCode's capabilities
+2. **Parsing structured JSON output** from IndusCode CLI
 3. **Creating flexible automation scripts** with custom prompting
 4. **Integrating with GitHub** for issue analysis
 5. **Handling command-line arguments** effectively
@@ -332,6 +332,6 @@ This pattern can be adapted for many other automation scenarios, from pull reque
 
 ## Related Resources
 
-- [CLI Installation Guide](https://docs.cline.bot/getting-started/installing-cline)
-- [CLI Reference Documentation](https://docs.cline.bot/cli/cli-reference)
-- [Headless Mode](https://docs.cline.bot/usage/cli-overview#headless-mode)
+- [CLI Installation Guide](https://docs.induscode.bot/getting-started/installing-induscode)
+- [CLI Reference Documentation](https://docs.induscode.bot/cli/cli-reference)
+- [Headless Mode](https://docs.induscode.bot/usage/cli-overview#headless-mode)

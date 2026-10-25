@@ -30,7 +30,7 @@ const meta: Meta<typeof AgentConversationLayout> = {
 		composer: (
 			<textarea
 				aria-label="Message"
-				className="h-28 w-full rounded-lg border border-cline-ui-border bg-cline-ui-background p-4"
+				className="h-28 w-full rounded-lg border border-induscode-ui-border bg-induscode-ui-background p-4"
 				placeholder="Host-owned composer"
 			/>
 		),
@@ -42,7 +42,7 @@ const meta: Meta<typeof AgentConversationLayout> = {
 	},
 	decorators: [
 		(Story) => (
-			<div className="flex h-screen flex-col bg-cline-ui-background text-cline-ui-foreground">
+			<div className="flex h-screen flex-col bg-induscode-ui-background text-induscode-ui-foreground">
 				<AgentConversationHeader
 					actions={
 						<Button variant="ghost" size="sm">
@@ -66,7 +66,7 @@ export const Setup: Story = {
 	args: {
 		hideWelcomeComposer: true,
 		welcomeSetup: (
-			<div className="mt-4 rounded-lg border border-cline-ui-border p-6">
+			<div className="mt-4 rounded-lg border border-induscode-ui-border p-6">
 				Host-owned setup surface
 			</div>
 		),

@@ -1,7 +1,7 @@
 /**
- * @cline/agents
+ * @induscode/agents
  *
- * Browser-safe agent runtime for the next-generation Cline SDK.
+ * Browser-safe agent runtime for the next-generation IndusCode SDK.
  *
  * Exports:
  *   - `AgentRuntime` / `Agent` — the agentic loop class (two names for the
@@ -11,10 +11,10 @@
  *   - `AgentRuntimeConfig` and its two variants (`AgentRuntimeConfigWithModel`,
  *     `AgentRuntimeConfigWithProvider`) — the discriminated config union.
  *   - `AgentRunInput` / `AgentEventListener` — convenience type aliases.
- *   - `createTool` — re-exported from `@cline/shared` for authoring tools.
+ *   - `createTool` — re-exported from `@induscode/shared` for authoring tools.
  *
  * Shared types (`AgentMessage`, `AgentRunResult`, etc.) should be imported
- * directly from `@cline/shared`.
+ * directly from `@induscode/shared`.
  */
 
 export type {
@@ -39,8 +39,8 @@ export type {
 	AgentUsage,
 	ToolApprovalResult,
 	ToolPolicy,
-} from "@cline/shared";
-export { createTool } from "@cline/shared";
+} from "@induscode/shared";
+export { createTool } from "@induscode/shared";
 export type {
 	AgentEventListener,
 	AgentRunInput,

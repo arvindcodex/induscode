@@ -4,7 +4,7 @@ import { isBunEmbeddedModulePath } from "./bun-embedded-path";
 describe("isBunEmbeddedModulePath", () => {
 	it.each([
 		"/$bunfs/root/entry.js",
-		"/$bunfs/root/cline",
+		"/$bunfs/root/induscode",
 		"B:\\~BUN\\root\\entry.js",
 		"B:/~BUN/root/entry.js",
 		"b:\\~bun\\root\\entry.js",
@@ -17,8 +17,8 @@ describe("isBunEmbeddedModulePath", () => {
 		undefined,
 		"",
 		"   ",
-		"/usr/local/bin/cline",
-		"C:\\Users\\me\\AppData\\Local\\Cline\\code-sidecar.exe",
+		"/usr/local/bin/induscode",
+		"C:\\Users\\me\\AppData\\Local\\IndusCode\\code-sidecar.exe",
 		"./entry.js",
 		"B:\\real-drive\\entry.js",
 		"/home/user/$bunfs/root/entry.js",

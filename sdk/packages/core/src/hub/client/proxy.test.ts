@@ -127,7 +127,7 @@ describe("NodeHubClient proxy selection", () => {
 	it("maps WSS to HTTPS_PROXY and preserves destination headers and URL", async () => {
 		process.env.HTTPS_PROXY = "http://proxy.example:8443";
 		const client = new NodeHubClient({
-			url: "wss://api.cline.bot/api/v1/session/session-1",
+			url: "wss://api.induscode.bot/api/v1/session/session-1",
 			resolveConnectionHeaders: () => ({
 				Authorization: "Bearer workos:account-token",
 			}),
@@ -136,7 +136,7 @@ describe("NodeHubClient proxy selection", () => {
 		try {
 			await client.connect();
 			const socket = FakeNodeWebSocket.instances[0];
-			expect(socket.url).toBe("wss://api.cline.bot/api/v1/session/session-1");
+			expect(socket.url).toBe("wss://api.induscode.bot/api/v1/session/session-1");
 			expect(socket.options.headers).toEqual({
 				Authorization: "Bearer workos:account-token",
 			});

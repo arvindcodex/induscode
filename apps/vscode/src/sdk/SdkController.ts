@@ -2,7 +2,7 @@
 //
 // The SDK-backed Controller. It provides the same interface as the classic
 // Controller but delegates session lifecycle (initTask, askResponse,
-// cancelTask, …) to the Cline SDK (@cline/core) and bridges SDK events to
+// cancelTask, …) to the IndusCode SDK (@induscode/core) and bridges SDK events to
 // the webview's gRPC streams.
 import * as fs from "node:fs/promises"
 import * as path from "node:path"
@@ -21,20 +21,20 @@ import {
 	type SessionHistoryRecord,
 	setTelemetryOptOutGlobally,
 	type UserInstructionConfigService,
-} from "@cline/core"
-import { formatDisplayUserInput, type RemoteConfig, type RemoteConfigBundle } from "@cline/shared"
+} from "@induscode/core"
+import { formatDisplayUserInput, type RemoteConfig, type RemoteConfigBundle } from "@induscode/shared"
 import type { ApiConfiguration } from "@shared/api"
 import type { ChatContent } from "@shared/ChatContent"
-import { CLINE_ACCOUNT_AUTH_ERROR_MESSAGE } from "@shared/ClineAccount"
+import { INDUSCODE_ACCOUNT_AUTH_ERROR_MESSAGE } from "@shared/IndusCodeAccount"
 import { CLOUD_CREATION_UNCONFIRMED_ERROR_CODE, CLOUD_SESSION_MODE, isCloudSessionId } from "@shared/cloud/cloud-sessions"
 import { mentionRegexGlobal } from "@shared/context-mentions"
-import type { ClineApiReqInfo, ClineMessage, ExtensionState } from "@shared/ExtensionMessage"
+import type { IndusCodeApiReqInfo, IndusCodeMessage, ExtensionState } from "@shared/ExtensionMessage"
 import type { HistoryItem } from "@shared/HistoryItem"
-import { DeleteAllTaskHistoryCount, type GetTaskHistoryRequest, TaskHistoryArray, TaskResponse } from "@shared/proto/cline/task"
+import { DeleteAllTaskHistoryCount, type GetTaskHistoryRequest, TaskHistoryArray, TaskResponse } from "@shared/proto/induscode/task"
 import type { Settings } from "@shared/storage/state-keys"
 import type { Mode } from "@shared/storage/types"
 import type { TelemetrySetting } from "@shared/TelemetrySetting"
-import type { ClineCheckpointRestore } from "@shared/WebviewMessage"
+import type { IndusCodeCheckpointRestore } from "@shared/WebviewMessage"
 import { parseMentions } from "@/core/mentions"
 import { ensureMcpServersDirectoryExists } from "@/core/storage/disk"
 import { clearSdkRemoteConfig, refreshSdkRemoteConfig } from "@/core/storage/remote-config/sdk-refresh"
@@ -47,20 +47,20 @@ import { OcaAuthService } from "@/services/auth/oca/OcaAuthService"
 import { UrlContentFetcher } from "@/services/browser/UrlContentFetcher"
 import { CloudSessionsService } from "@/services/cloud/CloudSessionsService"
 import { isCloudSessionsFeatureAvailable, isCloudSessionsFeatureEnabled } from "@/services/cloud/cloudSessionsFeature"
-import { ClineError } from "@/services/error/ClineError"
+import { IndusCodeError } from "@/services/error/IndusCodeError"
 import { McpHub } from "@/services/mcp/McpHub"
 import { telemetryService } from "@/services/telemetry"
-import type { ClineExtensionContext } from "@/shared/cline"
+import type { IndusCodeExtensionContext } from "@/shared/induscode"
 import { toLegacyApiProvider } from "@/shared/model-catalog/provider-helpers"
 import { ShowMessageRequest, ShowMessageType } from "@/shared/proto/host/window"
 import { Logger } from "@/shared/services/Logger"
 import { resolveDataDirFromEnv } from "@/shared/storage/storage-context"
-import { isClineManagedProvider } from "@/shared/utils/cline"
+import { isIndusCodeManagedProvider } from "@/shared/utils/induscode"
 import { arePathsEqual, getDesktopDir } from "@/utils/path"
-import { ClineAccountService } from "./account-service"
+import { IndusCodeAccountService } from "./account-service"
 import { AuthService, LogoutReason } from "./auth-service"
 import { BUILTIN_SLASH_COMMANDS } from "./builtin-slash-commands"
-import { buildStartSessionInput, createHistoryItemFromSession } from "./cline-session-factory"
+import { buildStartSessionInput, createHistoryItemFromSession } from "./induscode-session-factory"
 import { MessageTranslatorState, reshapeErrorForWebview } from "./message-translator"
 import { createProviderCatalog } from "./model-catalog/catalog"
 import type { Disposable, ProviderCatalog, ProviderConfigChange, ProviderConfigStore } from "./model-catalog/contracts"
@@ -131,8 +131,8 @@ function metadataNumber(metadata: SessionHistoryRecord["metadata"] | undefined, 
 	return typeof value === "number" && Number.isFinite(value) ? value : undefined
 }
 
-function usesClineAccountAuth(providerId: string): boolean {
-	return getProviderAuthStorageId(providerId) === "cline"
+function usesIndusCodeAccountAuth(providerId: string): boolean {
+	return getProviderAuthStorageId(providerId) === "induscode"
 }
 
 function metadataBoolean(metadata: SessionHistoryRecord["metadata"] | undefined, key: string): boolean | undefined {
@@ -172,7 +172,7 @@ function historyItemToTaskResponse(item: HistoryItem): TaskResponse {
 /**
  * A task start that failed before it had a session, kept so the footer's
  * Retry (or a prompt typed into the composer) can run it again: a local start
- * refused with "Sign in to Cline", or a cloud start whose sandbox never came
+ * refused with "Sign in to IndusCode", or a cloud start whose sandbox never came
  * up. `task` is the task view that shows the error.
  */
 interface StartRetry {
@@ -241,7 +241,7 @@ export class Controller {
 	task?: TaskProxy
 
 	mcpHub: McpHub
-	accountService: ClineAccountService
+	accountService: IndusCodeAccountService
 	authService: AuthService
 	ocaAuthService: OcaAuthService
 	readonly stateManager: StateManager
@@ -281,7 +281,7 @@ export class Controller {
 	})
 
 	// Watches user-instruction files (workflows/skills/rules), including those
-	// materialized by remote config under `.cline/remote-config/`. Used to expand
+	// materialized by remote config under `.induscode/remote-config/`. Used to expand
 	// `/workflow` and `/skill` slash commands into their instruction bodies before
 	// the prompt reaches the model — the same mechanism the CLI uses in
 	// `buildUserInputMessage`. The agent loop never auto-expands commands, so this
@@ -313,7 +313,7 @@ export class Controller {
 		return this.remoteConfigRevision
 	}
 
-	constructor(readonly context: ClineExtensionContext) {
+	constructor(readonly context: IndusCodeExtensionContext) {
 		// StateManager must be initialized before creating the Controller
 		this.stateManager = StateManager.get()
 		syncTelemetrySettingFromSharedGlobalSettings(this.stateManager)
@@ -328,10 +328,10 @@ export class Controller {
 			this.handleProviderConfigChange(event)
 		})
 
-		// IMPORTANT: Use ~/.cline/data/settings/ for the settings directory,
+		// IMPORTANT: Use ~/.induscode/data/settings/ for the settings directory,
 		// NOT ensureSettingsDirectoryExists() which returns the VSCode extension
 		// storage path (HostProvider.globalStorageFsPath/settings/). The MCP
-		// settings file lives at ~/.cline/data/settings/cline_mcp_settings.json
+		// settings file lives at ~/.induscode/data/settings/induscode_mcp_settings.json
 		// (shared across VSCode, CLI, and JetBrains clients).
 		this.mcpHub = new McpHub(
 			() => ensureMcpServersDirectoryExists(),
@@ -347,14 +347,14 @@ export class Controller {
 		// Initialize SDK-backed auth and account services.
 		this.authService = AuthService.getInstance(this, this.sdkTelemetry.telemetry)
 		this.ocaAuthService = OcaAuthService.initialize(this)
-		this.accountService = ClineAccountService.getInstance()
+		this.accountService = IndusCodeAccountService.getInstance()
 
 		// Initialize message translator state. The mode getter styles the inferred turn-final
 		// completion row (plan → yellow plan box, act → green completion box).
 		this.messageTranslatorState = new MessageTranslatorState(
 			undefined,
 			// Provider backing the active turn — error reshaping branches on it
-			// (BYOK credential guidance vs the cline sign-in card). Prefer the
+			// (BYOK credential guidance vs the induscode sign-in card). Prefer the
 			// active session's start metadata over the current settings
 			// selection: a provider/mode switch made while a turn is in flight
 			// changes the settings selection immediately, but the failing turn
@@ -365,7 +365,7 @@ export class Controller {
 			() => this.getDisplayedTaskMode(),
 			() => this.lastKnownWorkspaceRoot,
 			// Model backing the active turn — lets error reshaping recognize
-			// retired cline-free/ models (the error payload itself never names one).
+			// retired induscode-free/ models (the error payload itself never names one).
 			// The task shim is preferred over session-start metadata: a mid-task
 			// model-only switch updates the running session's model in place
 			// (updateActiveSessionModel) and refreshes the shim, but never touches
@@ -472,13 +472,13 @@ export class Controller {
 				this.turnStateTracker.set("error")
 				const errorMessage = error instanceof Error ? error.message : String(error)
 				const providerId = this.getSessionProviderId(sessionId) ?? this.getActiveProviderId()
-				const isClineAuthError =
-					isClineManagedProvider(providerId) &&
-					(errorMessage.includes(CLINE_ACCOUNT_AUTH_ERROR_MESSAGE) ||
+				const isIndusCodeAuthError =
+					isIndusCodeManagedProvider(providerId) &&
+					(errorMessage.includes(INDUSCODE_ACCOUNT_AUTH_ERROR_MESSAGE) ||
 						errorMessage.toLowerCase().includes("missing api key") ||
 						errorMessage.toLowerCase().includes("unauthorized"))
 
-				if (isClineAuthError) {
+				if (isIndusCodeAuthError) {
 					this.captureProviderFailure({
 						sessionId,
 						error,
@@ -486,8 +486,8 @@ export class Controller {
 						errorType: PROVIDER_FAILURE_ERROR_TYPE.AUTH,
 						failurePhase: PROVIDER_FAILURE_PHASE.PREFLIGHT,
 					})
-					this.emitClineAuthError()
-				} else if (isClineManagedProvider(providerId) && this.isClineBalanceError(errorMessage)) {
+					this.emitIndusCodeAuthError()
+				} else if (isIndusCodeManagedProvider(providerId) && this.isIndusCodeBalanceError(errorMessage)) {
 					this.captureProviderFailure({
 						sessionId,
 						error,
@@ -495,7 +495,7 @@ export class Controller {
 						errorType: PROVIDER_FAILURE_ERROR_TYPE.BALANCE,
 						failurePhase: PROVIDER_FAILURE_PHASE.PREFLIGHT,
 					})
-					this.emitClineBalanceError(errorMessage)
+					this.emitIndusCodeBalanceError(errorMessage)
 				} else {
 					this.captureProviderFailure({
 						sessionId,
@@ -548,7 +548,7 @@ export class Controller {
 			loadInitialMessages: async (sdkHost, sessionId) =>
 				(await this.sessionHistory.loadInitialMessages(sdkHost, sessionId)) ?? [],
 			buildStartSessionInput,
-			emitClineAuthError: () => this.emitClineAuthErrorWithTelemetry(),
+			emitIndusCodeAuthError: () => this.emitIndusCodeAuthErrorWithTelemetry(),
 			resetMessageTranslator: () => this.resetMessageTranslatorAndFence(),
 			postStateToWebview: () => this.postStateToWebview(),
 			getTurnPhase: () => this.turnStateTracker.currentPhase,
@@ -614,8 +614,8 @@ export class Controller {
 			loadInitialMessages: (sessionHost, taskId) => this.sessionHistory.loadInitialMessages(sessionHost, taskId),
 			buildStartSessionInput,
 			resolveContextMentions: (text) => this.resolveContextMentions(text),
-			isClineManagedProviderActive: () => this.isClineManagedProviderActive(),
-			emitClineAuthError: () => this.emitClineAuthErrorWithTelemetry(),
+			isIndusCodeManagedProviderActive: () => this.isIndusCodeManagedProviderActive(),
+			emitIndusCodeAuthError: () => this.emitIndusCodeAuthErrorWithTelemetry(),
 			resetMessageTranslator: () => this.resetMessageTranslatorAndFence(),
 			postStateToWebview: () => this.postStateToWebview(),
 			onResumeFailed: () => {
@@ -673,8 +673,8 @@ export class Controller {
 			createTempSessionHost: () => this.createRemoteConfigAwareSessionHost(),
 			loadInitialMessages: (reader, taskId) => this.sessionHistory.loadInitialMessages(reader, taskId),
 			resolveContextMentions: (text) => this.resolveContextMentions(text),
-			isClineManagedProviderActive: () => this.isClineManagedProviderActive(),
-			emitClineAuthError: (task) => this.emitClineAuthErrorWithTelemetry(task),
+			isIndusCodeManagedProviderActive: () => this.isIndusCodeManagedProviderActive(),
+			emitIndusCodeAuthError: (task) => this.emitIndusCodeAuthErrorWithTelemetry(task),
 			captureProviderApiError: (event) => this.captureProviderFailure(event),
 			postStateToWebview: () => this.postStateToWebview(),
 		})
@@ -989,7 +989,7 @@ export class Controller {
 			return false
 		}
 		// Remote config may have materialized new workflows/skills/rules under
-		// `.cline/remote-config/`. Refresh the watcher so slash-command expansion
+		// `.induscode/remote-config/`. Refresh the watcher so slash-command expansion
 		// sees them without waiting on filesystem events.
 		await this.refreshUserInstructionWatchers()
 		return refreshed
@@ -1055,8 +1055,8 @@ export class Controller {
 	/**
 	 * Lazily create (or rebuild on workspace-root change) the user-instruction
 	 * watcher. Pointed at the workspace root so it discovers both local config
-	 * (`.clinerules/workflows`, `.cline/workflows`, …) and remote-config files
-	 * materialized under `<root>/.cline/remote-config/{workflows,skills,rules}`.
+	 * (`.induscoderules/workflows`, `.induscode/workflows`, …) and remote-config files
+	 * materialized under `<root>/.induscode/remote-config/{workflows,skills,rules}`.
 	 *
 	 * `workspaceRoot` is resolved by the caller so the memoization check below runs
 	 * synchronously on entry — there is no `await` before the assignment, so
@@ -1105,7 +1105,7 @@ export class Controller {
 	 *
 	 * "Enabled" means what the SDK means by it: the rule file has no
 	 * `disabled: true` frontmatter. The Rules panel's on/off toggles are stored
-	 * in extension state that the SDK does not read (CLINE-3120), so a rule
+	 * in extension state that the SDK does not read (INDUSCODE-3120), so a rule
 	 * switched off there is still sent here — exactly as it is still sent to
 	 * chat. Fixing that in one place fixes both.
 	 */
@@ -1245,7 +1245,7 @@ export class Controller {
 
 	/**
 	 * Directory used when no workspace folder is open: the SDK's shared chat
-	 * workspace (`~/.cline/data/workspaces/chat`, seeded with an AGENTS.md
+	 * workspace (`~/.induscode/data/workspaces/chat`, seeded with an AGENTS.md
 	 * etiquette file), matching how the desktop app and CLI host sessions
 	 * started without a project. Desktop is only a last resort when the chat
 	 * workspace cannot be created. Memoized so repeated no-workspace calls
@@ -1281,7 +1281,7 @@ export class Controller {
 	// ---- Session event subscription ----
 
 	/**
-	 * Subscribe to session events translated to ClineMessages.
+	 * Subscribe to session events translated to IndusCodeMessages.
 	 * Returns an unsubscribe function.
 	 */
 	onSessionEvent(listener: SessionEventListener): () => void {
@@ -1331,10 +1331,10 @@ export class Controller {
 	}
 
 	/**
-	 * Check if the active API provider uses Cline account auth for the current mode.
+	 * Check if the active API provider uses IndusCode account auth for the current mode.
 	 */
-	private isClineManagedProviderActive(): boolean {
-		return isClineManagedProvider(this.getActiveProviderId())
+	private isIndusCodeManagedProviderActive(): boolean {
+		return isIndusCodeManagedProvider(this.getActiveProviderId())
 	}
 
 	private captureProviderFailure(event: ProviderFailureTelemetry): void {
@@ -1351,15 +1351,15 @@ export class Controller {
 
 		const provider = event.providerId ?? this.getSessionProviderId(event.sessionId) ?? "unknown"
 		const model = event.modelId ?? this.getSessionModelId(event.sessionId) ?? this.getTaskModelId() ?? "unknown"
-		const clineError = ClineError.transform(event.error, model, provider)
+		const induscodeError = IndusCodeError.transform(event.error, model, provider)
 
 		telemetryService.captureProviderApiError({
 			ulid,
 			model,
 			provider,
-			errorMessage: clineError.message || String(event.error),
-			errorStatus: clineError.status,
-			requestId: clineError.requestId,
+			errorMessage: induscodeError.message || String(event.error),
+			errorStatus: induscodeError.status,
+			requestId: induscodeError.requestId,
 			errorType: event.errorType,
 			failurePhase: event.failurePhase,
 			// Every event here is a failure the user actually saw: transient
@@ -1371,11 +1371,11 @@ export class Controller {
 		})
 	}
 
-	private emitClineAuthErrorWithTelemetry(task?: string, sessionId?: string): void {
-		this.emitClineAuthError(task)
+	private emitIndusCodeAuthErrorWithTelemetry(task?: string, sessionId?: string): void {
+		this.emitIndusCodeAuthError(task)
 		this.captureProviderFailure({
 			sessionId: sessionId ?? this.task?.taskId,
-			error: CLINE_ACCOUNT_AUTH_ERROR_MESSAGE,
+			error: INDUSCODE_ACCOUNT_AUTH_ERROR_MESSAGE,
 			providerId: this.getActiveProviderId(),
 			errorType: PROVIDER_FAILURE_ERROR_TYPE.AUTH,
 			failurePhase: PROVIDER_FAILURE_PHASE.PREFLIGHT,
@@ -1394,16 +1394,16 @@ export class Controller {
 	}
 
 	/**
-	 * Emit a proper auth error for the 'cline' provider when the user is not
+	 * Emit a proper auth error for the 'induscode' provider when the user is not
 	 * logged in. The message sequence drives ErrorRow to render the
-	 * "Sign in to Cline" button.
+	 * "Sign in to IndusCode" button.
 	 *
 	 * Message sequence:
 	 *   1. say:'task'           – the user's message text
 	 *   2. say:'api_req_started' – opens the API request row
-	 *   3. ask:'api_req_failed'  – ClineError JSON → ErrorRow renders auth UI
+	 *   3. ask:'api_req_failed'  – IndusCodeError JSON → ErrorRow renders auth UI
 	 */
-	private emitClineAuthError(task?: string): void {
+	private emitIndusCodeAuthError(task?: string): void {
 		const ts = Date.now()
 		const hasConversation = this.task !== undefined
 		if (!this.task) {
@@ -1415,15 +1415,15 @@ export class Controller {
 		}
 		this.pendingStartRetry = task === undefined ? undefined : { task: this.task, prompt: task, hasConversation }
 
-		const clineError = new ClineError(
-			{ message: CLINE_ACCOUNT_AUTH_ERROR_MESSAGE, status: 401 },
+		const induscodeError = new IndusCodeError(
+			{ message: INDUSCODE_ACCOUNT_AUTH_ERROR_MESSAGE, status: 401 },
 			undefined, // modelId
-			"cline",
+			"induscode",
 		)
-		const serializedError = clineError.serialize()
+		const serializedError = induscodeError.serialize()
 
 		const failedAskTs = ts + 2
-		const messages: ClineMessage[] = [
+		const messages: IndusCodeMessage[] = [
 			{
 				ts,
 				type: "say",
@@ -1437,7 +1437,7 @@ export class Controller {
 				say: "api_req_started",
 				text: JSON.stringify({
 					streamingFailedMessage: serializedError,
-				} satisfies ClineApiReqInfo),
+				} satisfies IndusCodeApiReqInfo),
 				partial: false,
 			},
 			{
@@ -1464,9 +1464,9 @@ export class Controller {
 
 	/**
 	 * Check if an error message indicates an insufficient credits / balance error
-	 * by reshaping it into ClineError format and inspecting the result.
+	 * by reshaping it into IndusCodeError format and inspecting the result.
 	 */
-	private isClineBalanceError(errorMessage: string): boolean {
+	private isIndusCodeBalanceError(errorMessage: string): boolean {
 		try {
 			const shaped = JSON.parse(reshapeErrorForWebview({ message: errorMessage }))
 			return shaped.code === "insufficient_credits"
@@ -1476,33 +1476,33 @@ export class Controller {
 	}
 
 	/**
-	 * Emit a balance error for the 'cline' provider when the user has insufficient
-	 * credits. Produces the same message sequence as emitClineAuthError so the
+	 * Emit a balance error for the 'induscode' provider when the user has insufficient
+	 * credits. Produces the same message sequence as emitIndusCodeAuthError so the
 	 * webview renders the "Buy Credits" button via CreditLimitError.
 	 *
 	 * Message sequence:
-	 *   1. say:'api_req_started' – streamingFailedMessage holds the ClineError JSON
-	 *   2. ask:'api_req_failed'  – ClineError JSON → ErrorRow renders balance UI
+	 *   1. say:'api_req_started' – streamingFailedMessage holds the IndusCodeError JSON
+	 *   2. ask:'api_req_failed'  – IndusCodeError JSON → ErrorRow renders balance UI
 	 */
-	private emitClineBalanceError(rawErrorMessage: string): void {
+	private emitIndusCodeBalanceError(rawErrorMessage: string): void {
 		const ts = Date.now()
 
 		// reshapeErrorForWebview extracts structured fields from the SDK error
 		// message (which may be plain text or embedded JSON) and produces the
-		// ClineError-serialized JSON that the webview's ErrorRow expects.
+		// IndusCodeError-serialized JSON that the webview's ErrorRow expects.
 		const serializedError = reshapeErrorForWebview({
 			message: rawErrorMessage,
 		})
 
 		const failedAskTs = ts + 1
-		const messages: ClineMessage[] = [
+		const messages: IndusCodeMessage[] = [
 			{
 				ts,
 				type: "say",
 				say: "api_req_started",
 				text: JSON.stringify({
 					streamingFailedMessage: serializedError,
-				} satisfies ClineApiReqInfo),
+				} satisfies IndusCodeApiReqInfo),
 				partial: false,
 			},
 			{
@@ -1711,9 +1711,9 @@ export class Controller {
 			// not change.
 			const provisioning = this.cloud.getCurrentTaskInfo()?.status === "provisioning"
 			const anchorTs = this.turnStateTracker.get().anchorTs
-			const anchor = this.task.messageStateHandler.getClineMessages().find((message) => message.ts === anchorTs)
+			const anchor = this.task.messageStateHandler.getIndusCodeMessages().find((message) => message.ts === anchorTs)
 			const anchoredError =
-				anchor?.type === "ask" && anchor.ask === "api_req_failed" ? ClineError.parse(anchor.text) : undefined
+				anchor?.type === "ask" && anchor.ask === "api_req_failed" ? IndusCodeError.parse(anchor.text) : undefined
 			const guidance =
 				anchoredError?._error.code === CLOUD_CREATION_UNCONFIRMED_ERROR_CODE ? anchoredError.message : undefined
 			this.messages.appendAndEmit(
@@ -1782,18 +1782,18 @@ export class Controller {
 			throw new Error("Editing an earlier message is not available for cloud tasks yet.")
 		}
 
-		const clineMessages = currentTask.messageStateHandler.getClineMessages()
-		const targetIndex = clineMessages.findIndex((message) => message.ts === input.messageTs)
+		const induscodeMessages = currentTask.messageStateHandler.getIndusCodeMessages()
+		const targetIndex = induscodeMessages.findIndex((message) => message.ts === input.messageTs)
 		if (targetIndex === -1) {
 			throw new Error("Message to edit was not found")
 		}
-		const targetMessage = clineMessages[targetIndex]
+		const targetMessage = induscodeMessages[targetIndex]
 		if (targetMessage.type !== "say" || (targetMessage.say !== "task" && targetMessage.say !== "user_feedback")) {
 			throw new Error("Only user messages can be edited")
 		}
 
-		const userOrdinal = clineMessages.slice(0, targetIndex + 1).filter(isVisibleCheckpointUserMessage).length
-		const canRestoreWorkspace = getCheckpointRunCountForMessage(clineMessages, targetIndex) !== undefined
+		const userOrdinal = induscodeMessages.slice(0, targetIndex + 1).filter(isVisibleCheckpointUserMessage).length
+		const canRestoreWorkspace = getCheckpointRunCountForMessage(induscodeMessages, targetIndex) !== undefined
 		const sourceSessionId = activeSession?.sessionId ?? currentTask.taskId
 		let sdkMessages: SdkUserMessage[]
 		let tempHost: VscodeSessionHost | undefined
@@ -1815,7 +1815,7 @@ export class Controller {
 			const historyTitle =
 				userOrdinal === 1
 					? editedText
-					: extractSdkUserText(firstUserMessage ?? {}) || clineMessages[0]?.text || editedText
+					: extractSdkUserText(firstUserMessage ?? {}) || induscodeMessages[0]?.text || editedText
 			const fallbackCwd = await this.getWorkspaceRoot()
 			const [sessionRecord, historyItem] = await Promise.all([
 				sessionHost.get(sourceSessionId).catch(() => undefined),
@@ -1835,8 +1835,8 @@ export class Controller {
 				fallbackCwd
 			const mode = this.stateManager.getGlobalSettingsKey("mode") === "plan" ? "plan" : "act"
 			const config = await this.sessionConfigBuilder.build({ cwd, mode, prompt: historyTitle })
-			if (usesClineAccountAuth(config.providerId) && !config.apiKey) {
-				this.emitClineAuthErrorWithTelemetry(editedText)
+			if (usesIndusCodeAccountAuth(config.providerId) && !config.apiKey) {
+				this.emitIndusCodeAuthErrorWithTelemetry(editedText)
 				return
 			}
 
@@ -1894,7 +1894,7 @@ export class Controller {
 			const newHistoryItem = createHistoryItemFromSession(startResult.sessionId, historyTitle, config.modelId, cwd)
 			await this.taskHistory.updateTaskHistoryItem(newHistoryItem)
 
-			const visibleMessages = clineMessages.slice(0, targetIndex)
+			const visibleMessages = induscodeMessages.slice(0, targetIndex)
 			if (visibleMessages.length > 0) {
 				task.messageStateHandler.addMessages(visibleMessages)
 			}
@@ -1917,7 +1917,7 @@ export class Controller {
 		}
 	}
 
-	async restoreCheckpoint(input: { checkpointRunCount: number; restoreType: ClineCheckpointRestore }): Promise<void> {
+	async restoreCheckpoint(input: { checkpointRunCount: number; restoreType: IndusCodeCheckpointRestore }): Promise<void> {
 		const restoreMessages = input.restoreType === "task" || input.restoreType === "taskAndWorkspace"
 		const restoreWorkspace = input.restoreType === "workspace" || input.restoreType === "taskAndWorkspace"
 		const checkpointRunCount = Number(input.checkpointRunCount)
@@ -1934,7 +1934,7 @@ export class Controller {
 			await this.cancelTask()
 		}
 
-		const currentMessages = currentTask.messageStateHandler.getClineMessages()
+		const currentMessages = currentTask.messageStateHandler.getIndusCodeMessages()
 		const target = restoreMessages ? findVisibleCheckpointUserMessageByRun(currentMessages, checkpointRunCount) : undefined
 		if (restoreMessages && !target) {
 			throw new Error(`Could not find user message for checkpoint run ${checkpointRunCount}`)
@@ -1946,8 +1946,8 @@ export class Controller {
 		const restoredText = target?.message.text ?? ""
 		const historyTitle = checkpointRunCount === 1 ? restoredText : firstUserMessage?.text || restoredText
 		const config = restoreMessages ? await this.sessionConfigBuilder.build({ cwd, mode, prompt: historyTitle }) : undefined
-		if (config && usesClineAccountAuth(config.providerId) && !config.apiKey) {
-			this.emitClineAuthErrorWithTelemetry(restoredText)
+		if (config && usesIndusCodeAccountAuth(config.providerId) && !config.apiKey) {
+			this.emitIndusCodeAuthErrorWithTelemetry(restoredText)
 			return
 		}
 
@@ -2069,12 +2069,12 @@ export class Controller {
 		if (!currentTask) {
 			return false
 		}
-		const clineMessages = currentTask.messageStateHandler.getClineMessages()
-		const targetIndex = clineMessages.findIndex((message) => message.ts === messageTs)
-		if (targetIndex === -1 || getCheckpointRunCountForMessage(clineMessages, targetIndex) === undefined) {
+		const induscodeMessages = currentTask.messageStateHandler.getIndusCodeMessages()
+		const targetIndex = induscodeMessages.findIndex((message) => message.ts === messageTs)
+		if (targetIndex === -1 || getCheckpointRunCountForMessage(induscodeMessages, targetIndex) === undefined) {
 			return false
 		}
-		const userOrdinal = clineMessages.slice(0, targetIndex + 1).filter(isVisibleCheckpointUserMessage).length
+		const userOrdinal = induscodeMessages.slice(0, targetIndex + 1).filter(isVisibleCheckpointUserMessage).length
 		const sessionId = activeSession?.sessionId ?? currentTask.taskId
 		let tempHost: VscodeSessionHost | undefined
 		try {
@@ -2158,7 +2158,7 @@ export class Controller {
 	 * this.task = undefined and may trigger async operations (session stop/dispose)
 	 * that race with the new task proxy creation. If any of those async operations
 	 * trigger postStateToWebview() while this.task is undefined, the webview
-	 * receives a state with no currentTaskItem/clineMessages and flashes back
+	 * receives a state with no currentTaskItem/induscodeMessages and flashes back
 	 * to the welcome screen (S6-6/S6-23 fix).
 	 *
 	 * Instead, we:
@@ -2204,7 +2204,7 @@ export class Controller {
 		// Capture before deauth nulls the auth info, so the per-org config cache
 		// (which can hold enterprise secrets) is actually deleted on sign-out.
 		const organizationId = this.authService.getActiveOrganizationId() ?? undefined
-		await this.taskControl.cancelClineTaskOnSignOut(isClineManagedProvider(sessionProviderId))
+		await this.taskControl.cancelIndusCodeTaskOnSignOut(isIndusCodeManagedProvider(sessionProviderId))
 		if (this.task && this.cloud.isCloudSessionId(this.task.taskId)) {
 			await this.clearTask()
 		}
@@ -2227,7 +2227,7 @@ export class Controller {
 	}
 
 	async handleAuthCallback(customToken: string, provider: string | null = null): Promise<void> {
-		await this.authService.handleAuthCallback(customToken, provider ?? "cline")
+		await this.authService.handleAuthCallback(customToken, provider ?? "induscode")
 		// Fetch remote config immediately after login so enterprise policies
 		// (provider lockdown, MCP servers, OTel, etc.) are applied right away.
 		await this.refreshRemoteConfig()
@@ -2381,7 +2381,7 @@ export class Controller {
 
 		if (offset === 0 && !favoritesOnly && this.task?.taskId && !tasks.some((task) => task.id === this.task?.taskId)) {
 			const taskMessage = this.task.messageStateHandler
-				.getClineMessages()
+				.getIndusCodeMessages()
 				.find((message) => message.type === "say" && message.say === "task" && message.text)
 			const matchesSearch = !searchQuery || taskMessage?.text?.toLowerCase().includes(searchQuery.toLowerCase())
 			const currentCloudTask = this.cloud.getCurrentTaskInfo()
@@ -2603,7 +2603,7 @@ export class Controller {
 			// asserts that taskHistory reflects newTask before the model turn completes.
 			if (snapshotTask?.taskId && !mergedTaskHistoryById.has(snapshotTask.taskId)) {
 				const taskMessage = snapshotTask.messageStateHandler
-					.getClineMessages()
+					.getIndusCodeMessages()
 					.find((message) => message.type === "say" && message.say === "task" && message.text)
 				if (taskMessage?.text) {
 					const currentCloudTask = this.cloud.getCurrentTaskInfo()

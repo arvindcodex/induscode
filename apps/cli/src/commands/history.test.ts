@@ -1,7 +1,7 @@
 import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { SessionHistoryRecord } from "@cline/core";
+import type { SessionHistoryRecord } from "@induscode/core";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { exportHistorySession } from "../session/history-export";
 import {
@@ -274,7 +274,7 @@ describe("runHistoryExport", () => {
 	});
 
 	it("writes standalone html from a persisted messages artifact", async () => {
-		tempDir = await mkdtemp(join(tmpdir(), "cline-history-export-"));
+		tempDir = await mkdtemp(join(tmpdir(), "induscode-history-export-"));
 		const outputPath = join(tempDir, "export.html");
 		const artifact = {
 			version: 1,
@@ -312,7 +312,7 @@ describe("runHistoryExport", () => {
 	});
 
 	it("writes structured JSON from a persisted messages artifact", async () => {
-		tempDir = await mkdtemp(join(tmpdir(), "cline-history-export-"));
+		tempDir = await mkdtemp(join(tmpdir(), "induscode-history-export-"));
 		const artifact = {
 			version: 1,
 			updated_at: "2026-04-22T17:42:10.123Z",
@@ -348,7 +348,7 @@ describe("runHistoryExport", () => {
 	});
 
 	it("exports run_commands history with structured command objects", async () => {
-		tempDir = await mkdtemp(join(tmpdir(), "cline-history-export-"));
+		tempDir = await mkdtemp(join(tmpdir(), "induscode-history-export-"));
 		const outputPath = join(tempDir, "export.html");
 		const artifact = {
 			version: 1,

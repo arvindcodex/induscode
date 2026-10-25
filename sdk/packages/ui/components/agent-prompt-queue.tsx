@@ -27,7 +27,7 @@ type IconName =
 	| "x";
 
 const ACTION_CLASS_NAME =
-	"cline-ui-agent-prompt-queue__action inline-flex cursor-pointer items-center justify-center rounded-cline-ui-md border-0 bg-transparent p-1 text-cline-ui-muted-foreground transition-[color,background-color] duration-150 ease-[ease] [&>svg]:size-3.5 enabled:hover:bg-cline-ui-accent enabled:hover:text-cline-ui-foreground focus-visible:outline-2 focus-visible:outline-cline-ui-ring focus-visible:outline-offset-0 disabled:cursor-not-allowed disabled:opacity-50";
+	"induscode-ui-agent-prompt-queue__action inline-flex cursor-pointer items-center justify-center rounded-induscode-ui-md border-0 bg-transparent p-1 text-induscode-ui-muted-foreground transition-[color,background-color] duration-150 ease-[ease] [&>svg]:size-3.5 enabled:hover:bg-induscode-ui-accent enabled:hover:text-induscode-ui-foreground focus-visible:outline-2 focus-visible:outline-induscode-ui-ring focus-visible:outline-offset-0 disabled:cursor-not-allowed disabled:opacity-50";
 
 function Icon({ name, small = false }: { name: IconName; small?: boolean }) {
 	return (
@@ -35,7 +35,7 @@ function Icon({ name, small = false }: { name: IconName; small?: boolean }) {
 			aria-hidden="true"
 			className={[
 				"shrink-0",
-				small ? "cline-ui-agent-prompt-queue__icon--small size-3.5" : "size-4",
+				small ? "induscode-ui-agent-prompt-queue__icon--small size-3.5" : "size-4",
 			].join(" ")}
 			fill="none"
 			stroke="currentColor"
@@ -182,13 +182,13 @@ export function AgentPromptQueue({
 	if (items.length === 0) return null;
 
 	return (
-		<div className="cline-ui-agent-prompt-queue mb-2 border-b border-cline-ui-border pb-0">
+		<div className="induscode-ui-agent-prompt-queue mb-2 border-b border-induscode-ui-border pb-0">
 			<button
 				aria-controls={queueId}
 				aria-expanded={hasMultipleItems ? expanded : true}
 				className={
 					hasMultipleItems
-						? "cline-ui-agent-prompt-queue__toggle flex w-full cursor-pointer items-center gap-2 rounded-cline-ui-md border-0 bg-transparent px-0 py-1 text-left font-cline-ui-medium text-cline-ui-foreground text-cline-ui-xs transition-[background-color] duration-150 ease-[ease] hover:bg-cline-ui-accent/60 focus-visible:outline-2 focus-visible:outline-cline-ui-ring focus-visible:outline-offset-0"
+						? "induscode-ui-agent-prompt-queue__toggle flex w-full cursor-pointer items-center gap-2 rounded-induscode-ui-md border-0 bg-transparent px-0 py-1 text-left font-induscode-ui-medium text-induscode-ui-foreground text-induscode-ui-xs transition-[background-color] duration-150 ease-[ease] hover:bg-induscode-ui-accent/60 focus-visible:outline-2 focus-visible:outline-induscode-ui-ring focus-visible:outline-offset-0"
 						: "sr-only"
 				}
 				onClick={() => {
@@ -202,7 +202,7 @@ export function AgentPromptQueue({
 				</span>
 			</button>
 			<div
-				className="cline-ui-agent-prompt-queue__items flex max-h-[40dvh] flex-col gap-0.5 overflow-y-auto py-0"
+				className="induscode-ui-agent-prompt-queue__items flex max-h-[40dvh] flex-col gap-0.5 overflow-y-auto py-0"
 				hidden={hasMultipleItems && !expanded}
 				id={queueId}
 			>
@@ -216,12 +216,12 @@ export function AgentPromptQueue({
 					return (
 						<div
 							aria-busy={isPending || undefined}
-							className="cline-ui-agent-prompt-queue__item flex min-w-0 items-center gap-2 rounded-cline-ui-md px-0 py-1 hover:bg-[color-mix(in_oklab,var(--cline-ui-accent)_35%,transparent)] data-[steer=true]:bg-cline-ui-primary/5"
+							className="induscode-ui-agent-prompt-queue__item flex min-w-0 items-center gap-2 rounded-induscode-ui-md px-0 py-1 hover:bg-[color-mix(in_oklab,var(--induscode-ui-accent)_35%,transparent)] data-[steer=true]:bg-induscode-ui-primary/5"
 							data-steer={item.steer || undefined}
 							key={item.id}
 						>
 							<span
-								className="cline-ui-agent-prompt-queue__status-icon inline-flex size-4 shrink-0 text-cline-ui-muted-foreground data-[steer=true]:text-cline-ui-primary"
+								className="induscode-ui-agent-prompt-queue__status-icon inline-flex size-4 shrink-0 text-induscode-ui-muted-foreground data-[steer=true]:text-induscode-ui-primary"
 								data-steer={item.steer || undefined}
 							>
 								{item.steer ? (
@@ -230,11 +230,11 @@ export function AgentPromptQueue({
 									<Icon name="clock" />
 								)}
 							</span>
-							<div className="cline-ui-agent-prompt-queue__content min-w-0 flex-1">
+							<div className="induscode-ui-agent-prompt-queue__content min-w-0 flex-1">
 								{isEditing ? (
 									<textarea
 										aria-label="Edit queued prompt"
-										className="cline-ui-agent-prompt-queue__editor block min-h-8 w-full resize-none rounded-cline-ui-md border border-cline-ui-border bg-cline-ui-background px-2 py-1.5 text-cline-ui-foreground text-cline-ui-xs leading-4 outline-none focus:border-[color-mix(in_oklab,var(--cline-ui-primary)_50%,transparent)] focus:shadow-[0_0_0_1px_color-mix(in_oklab,var(--cline-ui-primary)_20%,transparent)]"
+										className="induscode-ui-agent-prompt-queue__editor block min-h-8 w-full resize-none rounded-induscode-ui-md border border-induscode-ui-border bg-induscode-ui-background px-2 py-1.5 text-induscode-ui-foreground text-induscode-ui-xs leading-4 outline-none focus:border-[color-mix(in_oklab,var(--induscode-ui-primary)_50%,transparent)] focus:shadow-[0_0_0_1px_color-mix(in_oklab,var(--induscode-ui-primary)_20%,transparent)]"
 										disabled={isPending}
 										onChange={(event) => setEditingValue(event.target.value)}
 										onKeyDown={(event) => {
@@ -255,18 +255,18 @@ export function AgentPromptQueue({
 										value={editingValue}
 									/>
 								) : (
-									<div className="cline-ui-agent-prompt-queue__summary flex min-w-0 items-center gap-2">
-										<span className="cline-ui-agent-prompt-queue__prompt min-w-0 truncate text-cline-ui-foreground text-cline-ui-xs">
+									<div className="induscode-ui-agent-prompt-queue__summary flex min-w-0 items-center gap-2">
+										<span className="induscode-ui-agent-prompt-queue__prompt min-w-0 truncate text-induscode-ui-foreground text-induscode-ui-xs">
 											{item.prompt}
 										</span>
 										{hasAttachments ? (
-											<span className="cline-ui-agent-prompt-queue__attachments shrink-0 text-[10px] text-cline-ui-muted-foreground">
+											<span className="induscode-ui-agent-prompt-queue__attachments shrink-0 text-[10px] text-induscode-ui-muted-foreground">
 												{item.attachmentCount} attachment
 												{item.attachmentCount === 1 ? "" : "s"}
 											</span>
 										) : null}
 										{item.steer ? (
-											<span className="cline-ui-agent-prompt-queue__badge shrink-0 rounded-full bg-cline-ui-primary/10 px-1.5 py-0.5 font-cline-ui-medium text-[10px] text-cline-ui-primary">
+											<span className="induscode-ui-agent-prompt-queue__badge shrink-0 rounded-full bg-induscode-ui-primary/10 px-1.5 py-0.5 font-induscode-ui-medium text-[10px] text-induscode-ui-primary">
 												Next turn
 											</span>
 										) : null}
@@ -274,14 +274,14 @@ export function AgentPromptQueue({
 								)}
 								{actionError?.id === item.id ? (
 									<p
-										className="cline-ui-agent-prompt-queue__error m-0 mt-1 text-cline-ui-destructive text-cline-ui-xs"
+										className="induscode-ui-agent-prompt-queue__error m-0 mt-1 text-induscode-ui-destructive text-induscode-ui-xs"
 										role="alert"
 									>
 										{actionError.message}
 									</p>
 								) : null}
 							</div>
-							<div className="cline-ui-agent-prompt-queue__actions flex shrink-0 items-center gap-0.5">
+							<div className="induscode-ui-agent-prompt-queue__actions flex shrink-0 items-center gap-0.5">
 								{isEditing ? (
 									<>
 										<button

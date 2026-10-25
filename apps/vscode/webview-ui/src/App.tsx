@@ -1,15 +1,15 @@
-import type { Boolean, EmptyRequest } from "@shared/proto/cline/common"
+import type { Boolean, EmptyRequest } from "@shared/proto/induscode/common"
 import { useCallback, useEffect } from "react"
 import AccountView from "./components/account/AccountView"
 import ChatView from "./components/chat/ChatView"
 import HistoryView from "./components/history/HistoryView"
 import MarketplaceView from "./components/marketplace/MarketplaceView"
 import McpView from "./components/mcp/configuration/McpConfigurationView"
-import { openClinePassSubscriptionIfPending } from "./components/onboarding/clinePassSubscribe"
+import { openIndusCodePassSubscriptionIfPending } from "./components/onboarding/induscodePassSubscribe"
 import OnboardingView from "./components/onboarding/OnboardingView"
 import SettingsView from "./components/settings/SettingsView"
 import WorktreesView from "./components/worktrees/WorktreesView"
-import { useClineAuth } from "./context/ClineAuthContext"
+import { useIndusCodeAuth } from "./context/IndusCodeAuthContext"
 import { useExtensionState } from "./context/ExtensionStateContext"
 import { Providers } from "./Providers"
 import { UiServiceClient } from "./services/grpc-client"
@@ -40,7 +40,7 @@ const AppContent = () => {
 		hideAnnouncement,
 	} = useExtensionState()
 
-	const { clineUser, organizations, activeOrganization, accountSwitch, accountSwitchError } = useClineAuth()
+	const { induscodeUser, organizations, activeOrganization, accountSwitch, accountSwitchError } = useIndusCodeAuth()
 
 	const showUpdateAnnouncementModal = useCallback(() => {
 		setShowAnnouncement(true)
@@ -60,13 +60,13 @@ const AppContent = () => {
 		showUpdateAnnouncementModal()
 	}, [didHydrateState, showWelcome, shouldShowAnnouncement, showAnnouncement, showUpdateAnnouncementModal])
 
-	// Open the ClinePass subscription page once auth completes. Lives here (not in OnboardingView)
-	// because handleAuthCallback unmounts onboarding before the clineUser update arrives.
+	// Open the IndusCodePass subscription page once auth completes. Lives here (not in OnboardingView)
+	// because handleAuthCallback unmounts onboarding before the induscodeUser update arrives.
 	useEffect(() => {
-		if (clineUser?.uid) {
-			openClinePassSubscriptionIfPending(clineUser.appBaseUrl)
+		if (induscodeUser?.uid) {
+			openIndusCodePassSubscriptionIfPending(induscodeUser.appBaseUrl)
 		}
-	}, [clineUser?.uid, clineUser?.appBaseUrl])
+	}, [induscodeUser?.uid, induscodeUser?.appBaseUrl])
 
 	if (!didHydrateState) {
 		return null
@@ -94,7 +94,7 @@ const AppContent = () => {
 			{showAccount && (
 				<AccountView
 					activeOrganization={activeOrganization}
-					clineUser={clineUser}
+					induscodeUser={induscodeUser}
 					onDone={hideAccount}
 					organizations={organizations}
 				/>

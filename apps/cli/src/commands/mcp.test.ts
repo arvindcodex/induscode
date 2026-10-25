@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { TextOptions } from "@clack/prompts";
 import * as p from "@clack/prompts";
-import { installMcpServer } from "@cline/core";
+import { installMcpServer } from "@induscode/core";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
 	buildMcpInstallDefaults,
@@ -47,8 +47,8 @@ async function withTempSettings(
 	run: (readTransport: (name: string) => unknown) => Promise<void>,
 ): Promise<void> {
 	const root = mkdtempSync(join(tmpdir(), "cli-mcp-install-wizard-"));
-	const settingsPath = join(root, "cline_mcp_settings.json");
-	vi.stubEnv("CLINE_MCP_SETTINGS_PATH", settingsPath);
+	const settingsPath = join(root, "induscode_mcp_settings.json");
+	vi.stubEnv("INDUSCODE_MCP_SETTINGS_PATH", settingsPath);
 	try {
 		await run((name) => {
 			const written = JSON.parse(readFileSync(settingsPath, "utf8")) as {
@@ -73,8 +73,8 @@ function addRemoteServerInWizard(headers: string[]): Promise<number> {
 	});
 }
 
-vi.mock("@cline/core", async (importOriginal) => {
-	const actual = await importOriginal<typeof import("@cline/core")>();
+vi.mock("@induscode/core", async (importOriginal) => {
+	const actual = await importOriginal<typeof import("@induscode/core")>();
 	return {
 		...actual,
 		installMcpServer: vi.fn((options) => {
@@ -332,7 +332,7 @@ describe("mcp install command", () => {
 		expect(code).toBe(1);
 		expect(runWizard).not.toHaveBeenCalled();
 		expect(writeErr).toHaveBeenCalledWith(
-			"cline mcp install opens the MCP wizard and requires a TTY. Pass --yes to install noninteractively.",
+			"induscode mcp install opens the MCP wizard and requires a TTY. Pass --yes to install noninteractively.",
 		);
 	});
 
@@ -347,7 +347,7 @@ describe("mcp install command", () => {
 
 		expect(code).toBe(1);
 		expect(writeErr).toHaveBeenCalledWith(
-			"cline mcp install opens the MCP wizard and requires a TTY. Pass --yes to install noninteractively.",
+			"induscode mcp install opens the MCP wizard and requires a TTY. Pass --yes to install noninteractively.",
 		);
 	});
 
@@ -422,7 +422,7 @@ describe("mcp uninstall command", () => {
 	});
 
 	function writeSettings(): string {
-		const settingsPath = join(root, "cline_mcp_settings.json");
+		const settingsPath = join(root, "induscode_mcp_settings.json");
 		writeFileSync(
 			settingsPath,
 			JSON.stringify(

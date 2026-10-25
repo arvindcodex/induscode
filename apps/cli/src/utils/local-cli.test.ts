@@ -1,4 +1,4 @@
-import { isLocalAuthProvider } from "@cline/core";
+import { isLocalAuthProvider } from "@induscode/core";
 import { describe, expect, it } from "vitest";
 import { getLocalCliInfo } from "./local-cli";
 

@@ -7,8 +7,8 @@ import {
 	type EditFileInput,
 	type EditorExecutor,
 	PatchActionType,
-} from "@cline/core"
-import type { AgentToolContext } from "@cline/shared"
+} from "@induscode/core"
+import type { AgentToolContext } from "@induscode/shared"
 import * as fs from "fs/promises"
 import * as path from "path"
 import { HostProvider } from "@/hosts/host-provider"
@@ -328,7 +328,7 @@ export class SdkDiffEditCoordinator {
 		const title =
 			content.editType === "create"
 				? `${fileName}: New File (Preview)`
-				: `${fileName}: Original ↔ Cline's Changes (Preview)`
+				: `${fileName}: Original ↔ IndusCode's Changes (Preview)`
 		// The preview is cosmetic, so a vscode.diff call that rejects or stalls must never
 		// block the approval ask or fail the edit: race the open against a timer and let
 		// callers catch the failure and proceed without a preview.
@@ -386,7 +386,7 @@ function normalizeLineEndings(text: string, eol: "\r\n" | "\n"): string {
  * before matching: reads strip "\r", so models emit LF-only text even for CRLF
  * files, and an exact match would fail on every multi-line old_text in a CRLF
  * file — silently skipping the preview while the executor applies the edit
- * (github.com/cline/cline/issues/13296).
+ * (github.com/induscode/induscode/issues/13296).
  */
 export function computeNewEditorContent(
 	originalContent: string,

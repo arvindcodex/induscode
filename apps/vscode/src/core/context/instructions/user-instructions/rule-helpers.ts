@@ -1,4 +1,4 @@
-import { ClineRulesToggles } from "@shared/cline-rules"
+import { IndusCodeRulesToggles } from "@shared/induscode-rules"
 import { GlobalInstructionsFile } from "@shared/remote-config/schema"
 import { fileExistsAtPath, isDirectory, readDirectory } from "@utils/fs"
 import fs from "fs/promises"
@@ -39,10 +39,10 @@ async function readDirectoryRecursive(
  */
 export async function synchronizeRuleToggles(
 	rulesDirectoryPath: string,
-	currentToggles: ClineRulesToggles,
+	currentToggles: IndusCodeRulesToggles,
 	allowedFileExtension = "",
 	excludedPaths: string[][] = [],
-): Promise<ClineRulesToggles> {
+): Promise<IndusCodeRulesToggles> {
 	// Create a copy of toggles to modify
 	const updatedToggles = { ...currentToggles }
 
@@ -109,9 +109,9 @@ export async function synchronizeRuleToggles(
  */
 export function synchronizeRemoteRuleToggles(
 	remoteRules: GlobalInstructionsFile[],
-	currentToggles: ClineRulesToggles,
-): ClineRulesToggles {
-	const updatedToggles: ClineRulesToggles = {}
+	currentToggles: IndusCodeRulesToggles,
+): IndusCodeRulesToggles {
+	const updatedToggles: IndusCodeRulesToggles = {}
 
 	// Create set of current remote rule names
 	const existingRuleNames = new Set(remoteRules.map((rule) => rule.name))
@@ -136,20 +136,20 @@ export function synchronizeRemoteRuleToggles(
 /**
  * Certain project rules have more than a single location where rules are allowed to be stored
  */
-export function combineRuleToggles(toggles1: ClineRulesToggles, toggles2: ClineRulesToggles): ClineRulesToggles {
+export function combineRuleToggles(toggles1: IndusCodeRulesToggles, toggles2: IndusCodeRulesToggles): IndusCodeRulesToggles {
 	return { ...toggles1, ...toggles2 }
 }
 
 /**
  * Read the content of rules files
  */
-const getRuleFilesTotalContent = async (rulesFilePaths: string[], basePath: string, toggles: ClineRulesToggles) => {
+const getRuleFilesTotalContent = async (rulesFilePaths: string[], basePath: string, toggles: IndusCodeRulesToggles) => {
 	return (await getRuleFilesTotalContentWithMetadata(rulesFilePaths, basePath, toggles)).content
 }
 
 const LOCAL_RULE_PATHS = {
-	clineRules: ".clinerules",
-	workflows: ".clinerules/workflows",
+	induscodeRules: ".induscoderules",
+	workflows: ".induscoderules/workflows",
 } as const
 
 type ActivatedConditionalRule = {
@@ -159,24 +159,24 @@ type ActivatedConditionalRule = {
 
 type RuleFileController = {
 	stateManager: {
-		getGlobalSettingsKey(key: "globalWorkflowToggles" | "globalClineRulesToggles"): ClineRulesToggles
-		setGlobalState(key: "globalWorkflowToggles" | "globalClineRulesToggles", value: ClineRulesToggles): void
+		getGlobalSettingsKey(key: "globalWorkflowToggles" | "globalIndusCodeRulesToggles"): IndusCodeRulesToggles
+		setGlobalState(key: "globalWorkflowToggles" | "globalIndusCodeRulesToggles", value: IndusCodeRulesToggles): void
 		getWorkspaceStateKey(
 			key:
 				| "workflowToggles"
 				| "localCursorRulesToggles"
 				| "localWindsurfRulesToggles"
 				| "localAgentsRulesToggles"
-				| "localClineRulesToggles",
-		): ClineRulesToggles
+				| "localIndusCodeRulesToggles",
+		): IndusCodeRulesToggles
 		setWorkspaceState(
 			key:
 				| "workflowToggles"
 				| "localCursorRulesToggles"
 				| "localWindsurfRulesToggles"
 				| "localAgentsRulesToggles"
-				| "localClineRulesToggles",
-			value: ClineRulesToggles,
+				| "localIndusCodeRulesToggles",
+			value: IndusCodeRulesToggles,
 		): void
 	}
 }
@@ -196,7 +196,7 @@ export type RuleLoadResult = {
 
 /**
  * Result type for rule loading functions that return formatted instructions.
- * Used by getGlobalClineRules and getLocalClineRules.
+ * Used by getGlobalIndusCodeRules and getLocalIndusCodeRules.
  */
 type RuleLoadResultWithInstructions = {
 	instructions?: string
@@ -206,7 +206,7 @@ type RuleLoadResultWithInstructions = {
 export const getRuleFilesTotalContentWithMetadata = async (
 	rulesFilePaths: string[],
 	basePath: string,
-	toggles: ClineRulesToggles,
+	toggles: IndusCodeRulesToggles,
 	opts?: { evaluationContext?: RuleEvaluationContext; ruleNamePrefix?: keyof typeof RULE_SOURCE_PREFIX },
 ): Promise<RuleLoadResult> => {
 	const evaluationContext = opts?.evaluationContext ?? {}
@@ -260,7 +260,7 @@ export const getRuleFilesTotalContentWithMetadata = async (
 
 function getRemoteRulesTotalContentWithMetadata(
 	remoteRules: GlobalInstructionsFile[],
-	remoteToggles: ClineRulesToggles,
+	remoteToggles: IndusCodeRulesToggles,
 	opts?: { evaluationContext?: RuleEvaluationContext },
 ): RuleLoadResult {
 	const activatedConditionalRules: ActivatedConditionalRule[] = []
@@ -297,31 +297,31 @@ function getRemoteRulesTotalContentWithMetadata(
 }
 
 /**
- * Handles converting any directory into a file (specifically used for .clinerules and .clinerules/workflows)
- * The old .clinerules file or .clinerules/workflows file will be renamed to a default filename
+ * Handles converting any directory into a file (specifically used for .induscoderules and .induscoderules/workflows)
+ * The old .induscoderules file or .induscoderules/workflows file will be renamed to a default filename
  * Doesn't do anything if the dir already exists or doesn't exist
  * Returns whether there are any uncaught errors
  */
-async function ensureLocalClineDirExists(clinerulePath: string, defaultRuleFilename: string): Promise<boolean> {
+async function ensureLocalIndusCodeDirExists(induscoderulePath: string, defaultRuleFilename: string): Promise<boolean> {
 	try {
-		const exists = await fileExistsAtPath(clinerulePath)
+		const exists = await fileExistsAtPath(induscoderulePath)
 
-		if (exists && !(await isDirectory(clinerulePath))) {
-			// logic to convert .clinerules file into directory, and rename the rules file to {defaultRuleFilename}
-			const content = await fs.readFile(clinerulePath, "utf8")
-			const tempPath = clinerulePath + ".bak"
-			await fs.rename(clinerulePath, tempPath) // create backup
+		if (exists && !(await isDirectory(induscoderulePath))) {
+			// logic to convert .induscoderules file into directory, and rename the rules file to {defaultRuleFilename}
+			const content = await fs.readFile(induscoderulePath, "utf8")
+			const tempPath = induscoderulePath + ".bak"
+			await fs.rename(induscoderulePath, tempPath) // create backup
 			try {
-				await fs.mkdir(clinerulePath, { recursive: true })
-				await fs.writeFile(path.join(clinerulePath, defaultRuleFilename), content, "utf8")
+				await fs.mkdir(induscoderulePath, { recursive: true })
+				await fs.writeFile(path.join(induscoderulePath, defaultRuleFilename), content, "utf8")
 				await fs.unlink(tempPath).catch(() => {}) // delete backup
 
 				return false // conversion successful with no errors
 			} catch (_conversionError) {
 				// attempt to restore backup on conversion failure
 				try {
-					await fs.rm(clinerulePath, { recursive: true, force: true }).catch(() => {})
-					await fs.rename(tempPath, clinerulePath) // restore backup
+					await fs.rm(induscoderulePath, { recursive: true, force: true }).catch(() => {})
+					await fs.rename(tempPath, induscoderulePath) // restore backup
 				} catch (_restoreError) {}
 				return true // in either case here we consider this an error
 			}
@@ -345,26 +345,26 @@ export const createRuleFile = async (isGlobal: boolean, filename: string, cwd: s
 				ensureRulesDirectoryExists: () => Promise<string>
 			}
 			if (type === "workflow") {
-				const globalClineWorkflowFilePath = await disk.ensureWorkflowsDirectoryExists()
-				filePath = path.join(globalClineWorkflowFilePath, filename)
+				const globalIndusCodeWorkflowFilePath = await disk.ensureWorkflowsDirectoryExists()
+				filePath = path.join(globalIndusCodeWorkflowFilePath, filename)
 			} else {
-				const globalClineRulesFilePath = await disk.ensureRulesDirectoryExists()
-				filePath = path.join(globalClineRulesFilePath, filename)
+				const globalIndusCodeRulesFilePath = await disk.ensureRulesDirectoryExists()
+				filePath = path.join(globalIndusCodeRulesFilePath, filename)
 			}
 		} else {
-			const localClineRulesFilePath = path.resolve(cwd, LOCAL_RULE_PATHS.clineRules)
+			const localIndusCodeRulesFilePath = path.resolve(cwd, LOCAL_RULE_PATHS.induscodeRules)
 
-			const hasError = await ensureLocalClineDirExists(localClineRulesFilePath, "default-rules.md")
+			const hasError = await ensureLocalIndusCodeDirExists(localIndusCodeRulesFilePath, "default-rules.md")
 			if (hasError === true) {
 				return { filePath: null, fileExists: false }
 			}
 
-			await fs.mkdir(localClineRulesFilePath, { recursive: true })
+			await fs.mkdir(localIndusCodeRulesFilePath, { recursive: true })
 
 			if (type === "workflow") {
 				const localWorkflowsFilePath = path.resolve(cwd, LOCAL_RULE_PATHS.workflows)
 
-				const hasError = await ensureLocalClineDirExists(localWorkflowsFilePath, "default-workflows.md")
+				const hasError = await ensureLocalIndusCodeDirExists(localWorkflowsFilePath, "default-workflows.md")
 				if (hasError === true) {
 					return { filePath: null, fileExists: false }
 				}
@@ -373,8 +373,8 @@ export const createRuleFile = async (isGlobal: boolean, filename: string, cwd: s
 
 				filePath = path.join(localWorkflowsFilePath, filename)
 			} else {
-				// clinerules file creation
-				filePath = path.join(localClineRulesFilePath, filename)
+				// induscoderules file creation
+				filePath = path.join(localIndusCodeRulesFilePath, filename)
 			}
 		}
 
@@ -424,9 +424,9 @@ export async function deleteRuleFile(
 				delete toggles[rulePath]
 				controller.stateManager.setGlobalState("globalWorkflowToggles", toggles)
 			} else {
-				const toggles = controller.stateManager.getGlobalSettingsKey("globalClineRulesToggles")
+				const toggles = controller.stateManager.getGlobalSettingsKey("globalIndusCodeRulesToggles")
 				delete toggles[rulePath]
-				controller.stateManager.setGlobalState("globalClineRulesToggles", toggles)
+				controller.stateManager.setGlobalState("globalIndusCodeRulesToggles", toggles)
 			}
 		} else {
 			if (type === "workflow") {
@@ -446,9 +446,9 @@ export async function deleteRuleFile(
 				delete toggles[rulePath]
 				controller.stateManager.setWorkspaceState("localAgentsRulesToggles", toggles)
 			} else {
-				const toggles = controller.stateManager.getWorkspaceStateKey("localClineRulesToggles")
+				const toggles = controller.stateManager.getWorkspaceStateKey("localIndusCodeRulesToggles")
 				delete toggles[rulePath]
-				controller.stateManager.setWorkspaceState("localClineRulesToggles", toggles)
+				controller.stateManager.setWorkspaceState("localIndusCodeRulesToggles", toggles)
 			}
 		}
 

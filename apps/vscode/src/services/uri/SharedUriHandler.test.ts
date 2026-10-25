@@ -41,7 +41,7 @@ describe("SharedUriHandler", () => {
 		const mockErrorService = {
 			logMessage: sandbox.stub(),
 			logException: sandbox.stub(),
-			toClineError: sandbox.stub(),
+			toIndusCodeError: sandbox.stub(),
 			isEnabled: sandbox.stub().returns(false),
 			getSettings: sandbox.stub().returns({ enabled: false, hostEnabled: false }),
 			getProvider: sandbox.stub(),
@@ -72,21 +72,21 @@ describe("SharedUriHandler", () => {
 	describe("handleUri", () => {
 		describe("OpenRouter callback handling", () => {
 			it("should successfully handle OpenRouter callback with code", async () => {
-				const result = await SharedUriHandler.handleUri("vscode://cline.cline/openrouter?code=test123")
+				const result = await SharedUriHandler.handleUri("vscode://induscode.induscode/openrouter?code=test123")
 
 				expect(result).to.be.true
 				sinon.assert.calledOnceWithExactly(handleOpenRouterCallbackStub, "test123")
 			})
 
 			it("should return false when OpenRouter code is missing", async () => {
-				const result = await SharedUriHandler.handleUri("vscode://cline.cline/openrouter")
+				const result = await SharedUriHandler.handleUri("vscode://induscode.induscode/openrouter")
 
 				expect(result).to.be.false
 				expect(handleOpenRouterCallbackStub.called).to.be.false
 			})
 
 			it("should handle URL with plus signs in code parameter", async () => {
-				const result = await SharedUriHandler.handleUri("vscode://cline.cline/openrouter?code=test+123+abc")
+				const result = await SharedUriHandler.handleUri("vscode://induscode.induscode/openrouter?code=test+123+abc")
 
 				expect(result).to.be.true
 				// Plus signs in query params are preserved
@@ -96,21 +96,21 @@ describe("SharedUriHandler", () => {
 
 		describe("Auth callback handling", () => {
 			it("should successfully handle auth callback with idToken", async () => {
-				const result = await SharedUriHandler.handleUri("vscode://cline.cline/auth?idToken=jwt123&provider=google")
+				const result = await SharedUriHandler.handleUri("vscode://induscode.induscode/auth?idToken=jwt123&provider=google")
 
 				expect(result).to.be.true
 				sinon.assert.calledOnceWithExactly(handleAuthCallbackStub, "jwt123", "google")
 			})
 
 			it("should successfully handle auth callback without provider", async () => {
-				const result = await SharedUriHandler.handleUri("vscode://cline.cline/auth?idToken=jwt123")
+				const result = await SharedUriHandler.handleUri("vscode://induscode.induscode/auth?idToken=jwt123")
 
 				expect(result).to.be.true
 				sinon.assert.calledOnceWithExactly(handleAuthCallbackStub, "jwt123", null)
 			})
 
 			it("should return false when idToken is missing", async () => {
-				const result = await SharedUriHandler.handleUri("vscode://cline.cline/auth?provider=google")
+				const result = await SharedUriHandler.handleUri("vscode://induscode.induscode/auth?provider=google")
 
 				expect(result).to.be.false
 				expect(handleAuthCallbackStub.called).to.be.false
@@ -119,7 +119,7 @@ describe("SharedUriHandler", () => {
 
 		describe("Unknown path handling", () => {
 			it("should return false for unknown paths", async () => {
-				const result = await SharedUriHandler.handleUri("vscode://cline.cline/unknown?param=value")
+				const result = await SharedUriHandler.handleUri("vscode://induscode.induscode/unknown?param=value")
 
 				expect(result).to.be.false
 				expect(handleAuthCallbackStub.called).to.be.false
@@ -144,7 +144,7 @@ describe("SharedUriHandler", () => {
 					writeHooksStub.resolves()
 
 					const result = await SharedUriHandler.handleUri(
-						`vscode://cline.cline/lg-task?prompt-file=${encodeURIComponent(
+						`vscode://induscode.induscode/lg-task?prompt-file=${encodeURIComponent(
 							promptFilePath,
 						)}&webhook-url=${encodeURIComponent(webhookUrl)}&webhook-token=${encodeURIComponent(webhookToken)}`,
 					)
@@ -170,7 +170,7 @@ describe("SharedUriHandler", () => {
 				writeHooksStub.reset()
 				writeHooksStub.resolves()
 				const result = await SharedUriHandler.handleUri(
-					"vscode://cline.cline/lg-task?prompt-file=%2Ftmp%2Fspec.md&webhook-url=https%3A%2F%2Fexample.com",
+					"vscode://induscode.induscode/lg-task?prompt-file=%2Ftmp%2Fspec.md&webhook-url=https%3A%2F%2Fexample.com",
 				)
 
 				expect(result).to.be.false
@@ -184,7 +184,7 @@ describe("SharedUriHandler", () => {
 			it("should catch and log errors from controller methods", async () => {
 				handleOpenRouterCallbackStub.rejects(new Error("Controller error"))
 
-				const result = await SharedUriHandler.handleUri("vscode://cline.cline/openrouter?code=test123")
+				const result = await SharedUriHandler.handleUri("vscode://induscode.induscode/openrouter?code=test123")
 
 				expect(result).to.be.false
 			})
@@ -201,7 +201,7 @@ describe("SharedUriHandler", () => {
 		describe("Query parameter parsing", () => {
 			it("should correctly parse multiple query parameters", async () => {
 				const result = await SharedUriHandler.handleUri(
-					"vscode://cline.cline/auth?idToken=jwt123&provider=github&extra=param",
+					"vscode://induscode.induscode/auth?idToken=jwt123&provider=github&extra=param",
 				)
 
 				expect(result).to.be.true
@@ -210,7 +210,7 @@ describe("SharedUriHandler", () => {
 
 			it("should handle URL-encoded parameters", async () => {
 				const result = await SharedUriHandler.handleUri(
-					"vscode://cline.cline/auth?idToken=jwt%20with%20spaces&provider=google",
+					"vscode://induscode.induscode/auth?idToken=jwt%20with%20spaces&provider=google",
 				)
 
 				expect(result).to.be.true
@@ -219,7 +219,7 @@ describe("SharedUriHandler", () => {
 			})
 
 			it("should handle empty query string", async () => {
-				const result = await SharedUriHandler.handleUri("vscode://cline.cline/openrouter")
+				const result = await SharedUriHandler.handleUri("vscode://induscode.induscode/openrouter")
 
 				expect(result).to.be.false
 				expect(handleAuthCallbackStub.called).to.be.false

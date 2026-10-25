@@ -6,7 +6,7 @@ describe("parseChangelog", () => {
 	it("splits versions and bullets, folding continuation lines", () => {
 		const releases = parseChangelog(
 			[
-				"# Cline Desktop Changelog",
+				"# IndusCode Desktop Changelog",
 				"",
 				"## 0.0.2",
 				"",
@@ -45,7 +45,7 @@ describe("parseChangelog", () => {
 		expect(releases[0]?.version).toBe(packageJson.version);
 		expect(releases[0]?.notes.length).toBeGreaterThan(0);
 		expect(releaseUrl(releases[0].version)).toBe(
-			`https://github.com/cline/cline/releases/tag/desktop-v${packageJson.version}`,
+			`https://github.com/induscode/induscode/releases/tag/desktop-v${packageJson.version}`,
 		);
 	});
 });

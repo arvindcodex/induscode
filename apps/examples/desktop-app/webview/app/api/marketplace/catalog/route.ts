@@ -1,6 +1,6 @@
 const MARKETPLACE_CATALOG_URL =
-	process.env.CLINE_MARKETPLACE_CATALOG_URL?.trim() ||
-	"https://cline.github.io/marketplace/catalog.json";
+	process.env.INDUSCODE_MARKETPLACE_CATALOG_URL?.trim() ||
+	"https://induscode.github.io/marketplace/catalog.json";
 
 export const dynamic = "force-static";
 

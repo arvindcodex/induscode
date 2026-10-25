@@ -1,5 +1,5 @@
 /**
- * Schema exports for Cline Analysis Framework
+ * Schema exports for IndusCode Analysis Framework
  *
  * This module provides TypeScript type definitions for:
  * - Harbor framework output (read-only validation)

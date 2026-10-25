@@ -1,4 +1,4 @@
-import { StringRequest } from "@shared/proto/cline/common"
+import { StringRequest } from "@shared/proto/induscode/common"
 import {
 	type AwsProviderConfig,
 	CommitModelSelectionRequest,
@@ -6,7 +6,7 @@ import {
 	type ProviderConfigResponse,
 	WriteProviderConfigPatch,
 	WriteProviderConfigRequest,
-} from "@shared/proto/cline/models"
+} from "@shared/proto/induscode/models"
 import {
 	type ProviderModelOverrides,
 	toProtobufModelOverrides as toProtobufProviderModelOverrides,

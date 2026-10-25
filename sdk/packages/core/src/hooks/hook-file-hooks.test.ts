@@ -2,11 +2,11 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import {
-	resolveClineDir,
-	resolveDocumentsClineDirectoryPath,
-	setClineDir,
+	resolveIndusCodeDir,
+	resolveDocumentsIndusCodeDirectoryPath,
+	setIndusCodeDir,
 	setHomeDir,
-} from "@cline/shared/storage";
+} from "@induscode/shared/storage";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import {
 	createHookAuditHooks,
@@ -64,7 +64,7 @@ async function createWorkspaceWithHook(
 	body: string,
 ): Promise<{ workspace: string; hookPath: string }> {
 	const workspace = await mkdtemp(join(tmpdir(), "hooks-workspace-"));
-	const hooksDir = join(workspace, ".clinerules", "hooks");
+	const hooksDir = join(workspace, ".induscoderules", "hooks");
 	await mkdir(hooksDir, { recursive: true });
 	const hookPath = join(hooksDir, fileName);
 	await writeFile(hookPath, body, "utf8");
@@ -119,24 +119,24 @@ function afterToolContext(input: unknown = { path: "README.md" }) {
 
 describe("createHookConfigFileHooks", () => {
 	const originalHomeDir = dirname(
-		dirname(resolveDocumentsClineDirectoryPath()),
+		dirname(resolveDocumentsIndusCodeDirectoryPath()),
 	);
-	const originalClineDir = resolveClineDir();
+	const originalIndusCodeDir = resolveIndusCodeDir();
 	let isolatedRoot = "";
 
 	beforeAll(async () => {
 		isolatedRoot = await mkdtemp(join(tmpdir(), "hooks-home-"));
 		const isolatedHomeDir = join(isolatedRoot, "home");
-		const isolatedClineDir = join(isolatedRoot, "cline");
+		const isolatedIndusCodeDir = join(isolatedRoot, "induscode");
 		await mkdir(isolatedHomeDir, { recursive: true });
-		await mkdir(isolatedClineDir, { recursive: true });
+		await mkdir(isolatedIndusCodeDir, { recursive: true });
 		setHomeDir(isolatedHomeDir);
-		setClineDir(isolatedClineDir);
+		setIndusCodeDir(isolatedIndusCodeDir);
 	});
 
 	afterAll(async () => {
 		setHomeDir(originalHomeDir);
-		setClineDir(originalClineDir);
+		setIndusCodeDir(originalIndusCodeDir);
 		if (isolatedRoot) {
 			await rm(isolatedRoot, { recursive: true, force: true });
 		}
@@ -620,7 +620,7 @@ describe("createHookConfigFileHooks", () => {
 		);
 		try {
 			await writeFile(
-				join(workspace, ".clinerules", "hooks", "PostToolUse.js"),
+				join(workspace, ".induscoderules", "hooks", "PostToolUse.js"),
 				`console.log('HOOK_CONTROL\\t' + JSON.stringify({ cancel: true, errorMessage: "post-hook says stop" }))\n`,
 				"utf8",
 			);
@@ -765,8 +765,8 @@ describe("createHookConfigFileHooks", () => {
 
 	it("writes audit tool timing and completed turn payloads", async () => {
 		const outputPath = join(tmpdir(), `hooks-audit-${Date.now()}.jsonl`);
-		const originalLogPath = process.env.CLINE_HOOKS_LOG_PATH;
-		process.env.CLINE_HOOKS_LOG_PATH = outputPath;
+		const originalLogPath = process.env.INDUSCODE_HOOKS_LOG_PATH;
+		process.env.INDUSCODE_HOOKS_LOG_PATH = outputPath;
 		try {
 			const hooks = createHookAuditHooks({
 				workspacePath: "/workspace",
@@ -807,9 +807,9 @@ describe("createHookConfigFileHooks", () => {
 			});
 		} finally {
 			if (originalLogPath === undefined) {
-				delete process.env.CLINE_HOOKS_LOG_PATH;
+				delete process.env.INDUSCODE_HOOKS_LOG_PATH;
 			} else {
-				process.env.CLINE_HOOKS_LOG_PATH = originalLogPath;
+				process.env.INDUSCODE_HOOKS_LOG_PATH = originalLogPath;
 			}
 			await rm(outputPath, { force: true });
 		}
@@ -850,7 +850,7 @@ describe("createHookConfigFileHooks", () => {
 		);
 		try {
 			await writeFile(
-				join(workspace, ".clinerules", "hooks", "UserPromptSubmit.js"),
+				join(workspace, ".induscoderules", "hooks", "UserPromptSubmit.js"),
 				`let data='';process.stdin.on('data',c=>data+=c);process.stdin.on('end',()=>{require('node:fs').appendFileSync(${JSON.stringify(outputPath)}, data.trim()+"\\n");});\n`,
 				"utf8",
 			);

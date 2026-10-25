@@ -17,12 +17,12 @@ const PROVIDER_API_KEY_URLS: Record<string, string> = {
 	cerebras: "https://cloud.cerebras.ai",
 	fireworks: "https://app.fireworks.ai/settings/users/api-keys",
 	together: "https://api.together.ai/settings/api-keys",
-	cline: process.env.NEXT_PUBLIC_INDUSCODE_LOGIN_URL || "http://localhost:3000/login",
+	induscode: process.env.NEXT_PUBLIC_INDUSCODE_LOGIN_URL || "http://localhost:3000/login",
 	wandb: "https://wandb.ai/settings",
 };
 
 /** Account dashboard and login URL for IndusCode. */
-export const CLINE_DASHBOARD_URL =
+export const INDUSCODE_DASHBOARD_URL =
 	process.env.NEXT_PUBLIC_INDUSCODE_LOGIN_URL || "http://localhost:3000/login";
 
 /**

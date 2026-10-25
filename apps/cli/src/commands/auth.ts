@@ -8,7 +8,7 @@ import {
 	type ProviderSettings,
 	type ProviderSettingsManager,
 	saveProviderOAuthCredentials,
-} from "@cline/core";
+} from "@induscode/core";
 import { Command } from "commander";
 import React from "react";
 import { disableOpenTuiGraphicsProbe } from "../tui/opentui-env";
@@ -430,7 +430,7 @@ export async function runAuthProviderCommand(
 ): Promise<number> {
 	if (!isOAuthProvider(providerId)) {
 		io.writeErr(
-			`provider "${providerId}" does not support OAuth login (supported: cline, openai-codex, oca)`,
+			`provider "${providerId}" does not support OAuth login (supported: induscode, openai-codex, oca)`,
 		);
 		return 1;
 	}

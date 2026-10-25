@@ -10,12 +10,12 @@ import {
 	resolveProductionHubOwnerContext,
 	resolveSharedHubOwnerContext,
 	stopLocalHubServerGracefully,
-} from "@cline/core";
+} from "@induscode/core";
 import {
 	formatUptime,
 	type PluginStatusRecord,
-	resolveClineBuildEnv,
-} from "@cline/shared";
+	resolveIndusCodeBuildEnv,
+} from "@induscode/shared";
 import { Command, InvalidArgumentError } from "commander";
 import { version as cliVersion } from "../../package.json";
 import { createDashboardCommand } from "./dashboard-command";
@@ -40,7 +40,7 @@ interface HubEnsureCommandOptions extends Partial<HubOptions> {
 	loginShellPath?: boolean;
 }
 
-const HUB_DISCOVERY_PATH_ENV = "CLINE_HUB_DISCOVERY_PATH";
+const HUB_DISCOVERY_PATH_ENV = "INDUSCODE_HUB_DISCOVERY_PATH";
 
 function addHubOptions(command: Command, defaultCwd?: string): Command {
 	return command
@@ -92,7 +92,7 @@ function formatHubUptimeFromStartedAt(
 }
 
 function resolveCliHubOwnerContext() {
-	return resolveClineBuildEnv() === "production"
+	return resolveIndusCodeBuildEnv() === "production"
 		? resolveProductionHubOwnerContext()
 		: resolveSharedHubOwnerContext();
 }
@@ -306,7 +306,7 @@ export function createHubCommand(
 					discovery.url,
 					discovery.authToken,
 					cmdOptions.reason ??
-						(draining ? "cline hub drain" : "cline hub drain --off"),
+						(draining ? "induscode hub drain" : "induscode hub drain --off"),
 					{ off: !draining },
 				);
 				if (!ok) {
@@ -342,7 +342,7 @@ export function createHubCommand(
 					const drained = await requestHubDrain(
 						discovery.url,
 						discovery.authToken,
-						"cline hub upgrade",
+						"induscode hub upgrade",
 					).catch(() => false);
 					// An aborted upgrade must hand the hub back: leaving it
 					// draining refuses all new mutating work until a restart.
@@ -353,7 +353,7 @@ export function createHubCommand(
 						await requestHubDrain(
 							discovery.url,
 							discovery.authToken,
-							"cline hub upgrade aborted",
+							"induscode hub upgrade aborted",
 							{ off: true },
 						).catch(() => false);
 					};

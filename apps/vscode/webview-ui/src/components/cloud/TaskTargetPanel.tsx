@@ -1,9 +1,9 @@
 import { formatRepoLabel, normalizeGitHubRemoteUrl } from "@shared/cloud/cloud-sessions"
-import { CloudTaskTargetChoice, RepositoryBranchesRequest } from "@shared/proto/cline/cloud"
-import { EmptyRequest } from "@shared/proto/cline/common"
+import { CloudTaskTargetChoice, RepositoryBranchesRequest } from "@shared/proto/induscode/cloud"
+import { EmptyRequest } from "@shared/proto/induscode/common"
 import { CloudIcon, GitBranchIcon, MonitorIcon } from "lucide-react"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { useClineAuth, useClineSignIn } from "@/context/ClineAuthContext"
+import { useIndusCodeAuth, useIndusCodeSignIn } from "@/context/IndusCodeAuthContext"
 import { useExtensionState } from "@/context/ExtensionStateContext"
 import { useGitHubConnection } from "@/hooks/useGitHubConnection"
 import { cn } from "@/lib/utils"
@@ -31,9 +31,9 @@ const GITHUB_ICON = (
 export function TaskTargetPanel() {
 	const { cloudTaskTarget, hostName } = useExtensionState()
 	const editor = editorName(hostName)
-	const { clineUser } = useClineAuth()
-	const { handleSignIn } = useClineSignIn()
-	const signedIn = !!clineUser?.uid
+	const { induscodeUser } = useIndusCodeAuth()
+	const { handleSignIn } = useIndusCodeSignIn()
+	const signedIn = !!induscodeUser?.uid
 	const isCloud = cloudTaskTarget?.target === "cloud"
 
 	const { connection, loading, refresh } = useGitHubConnection(isCloud && signedIn)
@@ -195,7 +195,7 @@ export function TaskTargetPanel() {
 								{!workspaceRepoAccessible ? (
 									<>
 										This workspace's repository ({formatRepoLabel(workspaceRepoUrl)}) isn't accessible to the
-										Cline GitHub App.{" "}
+										IndusCode GitHub App.{" "}
 										<button
 											className="cursor-pointer border-0 bg-transparent p-0 text-[11px] text-link hover:underline"
 											onClick={connectGitHub}
@@ -204,7 +204,7 @@ export function TaskTargetPanel() {
 										</button>
 									</>
 								) : (
-									`Uses a Cline model and Cline credits in an isolated sandbox. Tools are auto-approved so the task can keep going after you close ${editor}.`
+									`Uses a IndusCode model and IndusCode credits in an isolated sandbox. Tools are auto-approved so the task can keep going after you close ${editor}.`
 								)}
 							</p>
 						</div>

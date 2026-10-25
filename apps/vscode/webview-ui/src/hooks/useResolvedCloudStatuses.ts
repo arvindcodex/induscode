@@ -1,4 +1,4 @@
-import { CloudSessionStatusRequest } from "@shared/proto/cline/cloud"
+import { CloudSessionStatusRequest } from "@shared/proto/induscode/cloud"
 import { useEffect, useMemo, useState } from "react"
 import { CloudServiceClient } from "@/services/grpc-client"
 

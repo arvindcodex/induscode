@@ -15,17 +15,17 @@ describe("FailureClassifier", () => {
 			expect(failures.length).toBeGreaterThan(0)
 			expect(failures[0].name).toBe("gemini_signature")
 			expect(failures[0].category).toBe("provider_bug")
-			expect(failures[0].issue_url).toBe("https://github.com/cline/cline/issues/7974")
+			expect(failures[0].issue_url).toBe("https://github.com/induscode/induscode/issues/7974")
 		})
 
 		it("detects Claude tool format issue", () => {
-			const logs = `Cline tried to use write_to_file without value for required parameter 'content'`
+			const logs = `IndusCode tried to use write_to_file without value for required parameter 'content'`
 			const failures = classifier.classify(logs)
 
 			expect(failures.length).toBeGreaterThan(0)
 			expect(failures[0].name).toBe("claude_tool_format")
 			expect(failures[0].category).toBe("provider_bug")
-			expect(failures[0].issue_url).toBe("https://github.com/cline/cline/issues/7998")
+			expect(failures[0].issue_url).toBe("https://github.com/induscode/induscode/issues/7998")
 		})
 	})
 

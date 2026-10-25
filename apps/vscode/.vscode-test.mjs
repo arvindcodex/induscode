@@ -14,7 +14,7 @@ const extensionDevelopmentPath = path.resolve("./")
 const launchArgs = ["--disable-extensions"]
 if (process.platform === "darwin") {
 	const checkoutHash = createHash("sha256").update(extensionDevelopmentPath).digest("hex").slice(0, 8)
-	launchArgs.push(`--user-data-dir=${path.join(os.tmpdir(), `cline-vscode-test-${checkoutHash}`)}`)
+	launchArgs.push(`--user-data-dir=${path.join(os.tmpdir(), `induscode-vscode-test-${checkoutHash}`)}`)
 }
 
 export default defineConfig({

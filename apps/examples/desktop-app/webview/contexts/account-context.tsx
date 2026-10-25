@@ -1,6 +1,6 @@
 "use client";
 
-import type { ClineAccountOrganization, ClineAccountUser } from "@cline/core";
+import type { IndusCodeAccountOrganization, IndusCodeAccountUser } from "@induscode/core";
 import {
 	createContext,
 	useCallback,
@@ -9,23 +9,23 @@ import {
 	useMemo,
 	useState,
 } from "react";
-import { isClineAccountNotAuthenticatedResult } from "@/lib/cline-account-state";
+import { isIndusCodeAccountNotAuthenticatedResult } from "@/lib/induscode-account-state";
 import { desktopClient } from "@/lib/desktop-client";
 
-export const ACCOUNT_IDENTITY_STORAGE_KEY = "cline.code.account-identity.v1";
+export const ACCOUNT_IDENTITY_STORAGE_KEY = "induscode.code.account-identity.v1";
 
 const SIGNED_OUT_ERROR_MARKERS = [
-	"No Cline account auth token found",
+	"No IndusCode account auth token found",
 	"no longer valid",
 ];
 
 type AccountContextValue = {
-	user: ClineAccountUser | null;
+	user: IndusCodeAccountUser | null;
 	/** False until the first identity lookup has finished, so a `null` user
 	 * can be told apart from "still loading". */
 	accountReady: boolean;
-	organizations: ClineAccountOrganization[];
-	activeOrganization: ClineAccountOrganization | null;
+	organizations: IndusCodeAccountOrganization[];
+	activeOrganization: IndusCodeAccountOrganization | null;
 	refreshAccount: () => Promise<void>;
 };
 
@@ -39,12 +39,12 @@ const AccountContext = createContext<AccountContextValue>({
 
 export function parseCachedAccountUser(
 	raw: string | null,
-): ClineAccountUser | null {
+): IndusCodeAccountUser | null {
 	if (!raw) {
 		return null;
 	}
 	try {
-		const parsed = JSON.parse(raw) as { user?: ClineAccountUser | null };
+		const parsed = JSON.parse(raw) as { user?: IndusCodeAccountUser | null };
 		const user = parsed?.user;
 		if (!user || typeof user !== "object") {
 			return null;
@@ -61,7 +61,7 @@ export function parseCachedAccountUser(
 	}
 }
 
-function readCachedAccountUser(): ClineAccountUser | null {
+function readCachedAccountUser(): IndusCodeAccountUser | null {
 	if (typeof window === "undefined") {
 		return null;
 	}
@@ -74,7 +74,7 @@ function readCachedAccountUser(): ClineAccountUser | null {
 	}
 }
 
-function writeCachedAccountUser(user: ClineAccountUser | null): void {
+function writeCachedAccountUser(user: IndusCodeAccountUser | null): void {
 	if (typeof window === "undefined") {
 		return;
 	}
@@ -98,24 +98,45 @@ export function isSignedOutAccountError(error: unknown): boolean {
 }
 
 export function AccountProvider({ children }: { children: React.ReactNode }) {
-	const [user, setUser] = useState<ClineAccountUser | null>(null);
+	const [user, setUser] = useState<IndusCodeAccountUser | null>(null);
 	const [accountReady, setAccountReady] = useState(false);
 
 	const refreshAccount = useCallback(async () => {
 		try {
-			const me = await desktopClient.invoke<ClineAccountUser>("cline_account", {
-				action: "clineAccount",
+			const me = await desktopClient.invoke<IndusCodeAccountUser>("induscode_account", {
+				action: "induscodeAccount",
 				operation: "fetchMe",
 			});
 			// Signed out arrives as a typed result, not an error: an expected
 			// state that clears the cached identity without any error handling.
-			if (isClineAccountNotAuthenticatedResult(me)) {
+			if (isIndusCodeAccountNotAuthenticatedResult(me)) {
 				setUser(null);
 				writeCachedAccountUser(null);
 				return;
 			}
-			setUser(me ?? null);
-			writeCachedAccountUser(me ?? null);
+			setUser((prev) => {
+				const nextUser =
+					me &&
+					prev &&
+					me.id === prev.id &&
+					!me.photoUrl &&
+					prev.photoUrl
+						? { ...me, photoUrl: prev.photoUrl }
+						: me;
+				if (!nextUser && !prev) return null;
+				if (
+					prev &&
+					nextUser &&
+					prev.id === nextUser.id &&
+					prev.email === nextUser.email &&
+					prev.displayName === nextUser.displayName &&
+					prev.photoUrl === nextUser.photoUrl
+				) {
+					return prev;
+				}
+				writeCachedAccountUser(nextUser ?? null);
+				return nextUser ?? null;
+			});
 		} catch (error) {
 			if (isSignedOutAccountError(error)) {
 				setUser(null);
@@ -137,11 +158,27 @@ export function AccountProvider({ children }: { children: React.ReactNode }) {
 		setUser((current) => current ?? readCachedAccountUser());
 		void refreshAccount();
 
+		// Real-time synchronization: listen to account_changed broadcast from sidecar
+		const unsubscribeAccountChanged = desktopClient.subscribe(
+			"account_changed",
+			(payload: any) => {
+				if (payload?.authenticated === false || payload?.user === null) {
+					setUser(null);
+					writeCachedAccountUser(null);
+				} else {
+					void refreshAccount();
+				}
+			},
+		);
+
 		const handleFocus = () => {
 			void refreshAccount();
 		};
 		window.addEventListener("focus", handleFocus);
-		return () => window.removeEventListener("focus", handleFocus);
+		return () => {
+			window.removeEventListener("focus", handleFocus);
+			unsubscribeAccountChanged();
+		};
 	}, [refreshAccount]);
 
 	const value = useMemo<AccountContextValue>(() => {

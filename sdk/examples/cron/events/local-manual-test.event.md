@@ -13,7 +13,7 @@ maxParallel: 1
 mode: act
 enabled: true
 modelSelection:
-  providerId: cline
+  providerId: induscode
   modelId: anthropic/claude-opus-4.7
 timeoutSeconds: 300
 maxIterations: 5

@@ -27,8 +27,8 @@ it("remembers the execution target and keeps Cloud and Local models separate", (
 		lastModelByProvider: { openrouter: "local-model" },
 	};
 	const cloud = {
-		lastProvider: "cline",
-		lastModelByProvider: { cline: "cloud-model" },
+		lastProvider: "induscode",
+		lastModelByProvider: { induscode: "cloud-model" },
 	};
 	writeModelSelectionStorageToWindow(local);
 	writeExecutionTargetToWindow("cloud");

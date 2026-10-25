@@ -1,13 +1,13 @@
-# `@cline/ui`
+# `@induscode/ui`
 
-Shared visual foundations and reusable React presentation primitives for Cline
+Shared visual foundations and reusable React presentation primitives for IndusCode
 web products. The package lets teams adopt the same semantic theme and agent
 chat language without adopting another product's routes, state, or runtime.
 
 The package is configured for public npm releases on its own version and
 release cycle. Its API is still pre-stable, so consumers should pin an exact
 version and review compatibility notes when updating. Check availability with
-`npm view @cline/ui version`; an `E404` means the first release is still pending.
+`npm view @induscode/ui version`; an `E404` means the first release is still pending.
 
 See the [adoption primer](./ADOPTION.md) for complete setup instructions,
 component examples, boundaries, and release status.
@@ -17,29 +17,29 @@ component examples, boundaries, and release status.
 After the initial release is available:
 
 ```bash
-bun add --exact @cline/ui
+bun add --exact @induscode/ui
 ```
 
-Use `@cline/ui@next` only for deliberate previews. Monorepo consumers use
-`"@cline/ui": "workspace:*"` instead.
+Use `@induscode/ui@next` only for deliberate previews. Monorepo consumers use
+`"@induscode/ui": "workspace:*"` instead.
 
 ## Entry points
 
 | Import | Contents | Runtime requirement |
 | --- | --- | --- |
-| `@cline/ui` | Reusable React primitives exported from [`components/index.ts`](./components/index.ts) | React 18.3 or 19 and Tailwind v4 |
-| `@cline/ui/components.css` | Styles, namespaced Tailwind mappings, and source registration for the root React primitives | Tailwind v4 and theme tokens |
-| `@cline/ui/theme/palette.css` | Cline-owned light/dark solid and alpha color scales | CSS |
-| `@cline/ui/theme/tokens.css` | Light/dark custom properties only | CSS |
-| `@cline/ui/theme/scoped-tokens.css` | Light/dark custom properties scoped to `.cline-ui-theme` | CSS |
-| `@cline/ui/theme/theme.css` | Tailwind v4 semantic mapping and dark variant | Tailwind v4 |
-| `@cline/ui/components/markdown.css` | Optional framework-neutral Markdown and Streamdown treatment | Theme tokens |
-| `@cline/ui/theme/base.css` | Optional document, Markdown, scrollbar, selection, and cursor styles | Tailwind v4 |
-| `@cline/ui/theme/index.css` | Complete theme: tokens, Tailwind mapping, and base styles | Tailwind v4 |
-| `@cline/ui/components/agent-chat` | Conversation, message, reasoning, action, and tool-activity React primitives | React 18.3 or 19 |
-| `@cline/ui/components/agent-chat.css` | Framework-neutral styles for the agent-chat primitives | Theme tokens |
-| `@cline/ui/components/message-scroller` | Shadcn message scrolling, turn anchors, visibility hooks, and centered scroll controls | React 19 |
-| `@cline/ui/components/message-scroller.css` | Framework-neutral scroller styles (also included in `components.css`) | Theme tokens |
+| `@induscode/ui` | Reusable React primitives exported from [`components/index.ts`](./components/index.ts) | React 18.3 or 19 and Tailwind v4 |
+| `@induscode/ui/components.css` | Styles, namespaced Tailwind mappings, and source registration for the root React primitives | Tailwind v4 and theme tokens |
+| `@induscode/ui/theme/palette.css` | IndusCode-owned light/dark solid and alpha color scales | CSS |
+| `@induscode/ui/theme/tokens.css` | Light/dark custom properties only | CSS |
+| `@induscode/ui/theme/scoped-tokens.css` | Light/dark custom properties scoped to `.induscode-ui-theme` | CSS |
+| `@induscode/ui/theme/theme.css` | Tailwind v4 semantic mapping and dark variant | Tailwind v4 |
+| `@induscode/ui/components/markdown.css` | Optional framework-neutral Markdown and Streamdown treatment | Theme tokens |
+| `@induscode/ui/theme/base.css` | Optional document, Markdown, scrollbar, selection, and cursor styles | Tailwind v4 |
+| `@induscode/ui/theme/index.css` | Complete theme: tokens, Tailwind mapping, and base styles | Tailwind v4 |
+| `@induscode/ui/components/agent-chat` | Conversation, message, reasoning, action, and tool-activity React primitives | React 18.3 or 19 |
+| `@induscode/ui/components/agent-chat.css` | Framework-neutral styles for the agent-chat primitives | Theme tokens |
+| `@induscode/ui/components/message-scroller` | Shadcn message scrolling, turn anchors, visibility hooks, and centered scroll controls | React 19 |
+| `@induscode/ui/components/message-scroller.css` | Framework-neutral scroller styles (also included in `components.css`) | Theme tokens |
 
 `@shadcn/react` is pinned to 0.3.1 with a Bun dependency patch in
 `patches/@shadcn%2Freact@0.3.1.patch`. The patch consumes anchors from loaded
@@ -56,7 +56,7 @@ The dedicated entry point requires React 19; see the
 transcript outline examples.
 
 `SessionStatus` uses semantic tone colors by default. Set
-`--cline-ui-session-status-color` on the component to override its dot color
+`--induscode-ui-session-status-color` on the component to override its dot color
 for a host-specific status palette.
 
 `SearchCombobox` provides a searchable selector for repository and model lists.
@@ -78,7 +78,7 @@ are safe inside forms. `IconButton` requires an accessible `aria-label`, and
 both components support Radix-style composition through `asChild`.
 
 ```tsx
-import { Button, IconButton } from "@cline/ui";
+import { Button, IconButton } from "@induscode/ui";
 
 <Button size="sm" tone="accent" variant="fill">
 	Continue
@@ -101,7 +101,7 @@ implementation rationale](./ADOPTION.md#switch) for examples and design decision
 `AgentHeroHeading` renders the shared cycling “What would you like to …?”
 welcome heading and respects reduced-motion preferences.
 
-`AgentWelcomeHero` renders the interactive Cline bot and grid used on agent
+`AgentWelcomeHero` renders the interactive IndusCode bot and grid used on agent
 welcome surfaces. It supports bot-only and grid-only compositions and becomes
 static when reduced motion is requested.
 
@@ -139,42 +139,42 @@ For a Tailwind v4 app, import framework and consumer dependencies first:
 @import "@fontsource-variable/inter";
 @import "@fontsource-variable/geist-mono";
 @import "tailwindcss";
-@import "@cline/ui/theme/index.css";
+@import "@induscode/ui/theme/index.css";
 ```
 
 An app that only needs framework-neutral values can import:
 
 ```css
-@import "@cline/ui/theme/tokens.css";
+@import "@induscode/ui/theme/tokens.css";
 ```
 
 For an embedded surface, import scoped tokens and optional Markdown styles:
 
 ```css
-@import "@cline/ui/theme/scoped-tokens.css";
-@import "@cline/ui/components.css";
-@import "@cline/ui/components/markdown.css";
+@import "@induscode/ui/theme/scoped-tokens.css";
+@import "@induscode/ui/components.css";
+@import "@induscode/ui/components/markdown.css";
 ```
 
 ```tsx
-<section className="cline-ui-theme">
-	<div className="cline-markdown">...</div>
+<section className="induscode-ui-theme">
+	<div className="induscode-markdown">...</div>
 </section>
 ```
 
 Dark values activate when `.dark` is on the wrapper or an ancestor.
 
-Embedded hosts should not import `@cline/ui/theme/theme.css`; it intentionally
-maps generic Tailwind names such as `bg-background` for Cline-owned surfaces.
+Embedded hosts should not import `@induscode/ui/theme/theme.css`; it intentionally
+maps generic Tailwind names such as `bg-background` for IndusCode-owned surfaces.
 
 The theme follows the standard shadcn semantic contract (`--background`,
 `--foreground`, `--card`, `--primary`, `--border`, `--ring`, charts, and
 sidebar surfaces) and Tailwind theme names. This means shadcn components and
-normal Tailwind utilities inherit Cline defaults without custom adapters.
+normal Tailwind utilities inherit IndusCode defaults without custom adapters.
 
 Theme authors work through three layers:
 
-1. Cline-owned 12-step solid and alpha palettes: Slate as `--neutral-*`,
+1. IndusCode-owned 12-step solid and alpha palettes: Slate as `--neutral-*`,
    Violet as `--accent-*`, Ruby as `--error-*`, Green as `--success-*`, Amber
    as `--warning-*`, and Sky as `--info-*`.
 2. Readable visual roles such as `--surface-1`, `--text-2`, `--border-1`, and
@@ -188,7 +188,7 @@ register every raw palette step. Brand artwork may use the separate
 `--brand-*` colors.
 
 The palette values are derived from Radix Colors 3.0.0 under the included MIT
-license; `@cline/ui` does not depend on Radix Colors at runtime.
+license; `@induscode/ui` does not depend on Radix Colors at runtime.
 
 ## Agent-chat usage
 
@@ -205,8 +205,8 @@ In the application's global CSS, import the component styles after at least the
 theme tokens:
 
 ```css
-@import "@cline/ui/theme/tokens.css";
-@import "@cline/ui/components/agent-chat.css";
+@import "@induscode/ui/theme/tokens.css";
+@import "@induscode/ui/components/agent-chat.css";
 ```
 
 Then import the React components:
@@ -233,7 +233,7 @@ import {
 	WorkActivity,
 	WorkActivityContent,
 	WorkActivityTrigger,
-} from "@cline/ui/components/agent-chat";
+} from "@induscode/ui/components/agent-chat";
 ```
 
 `Conversation` owns sticky scrolling, `Message` owns role presentation,
@@ -244,11 +244,11 @@ rows behind a "Worked for 4m 12s and made 14 tool calls" summary, and the
 smaller action, empty-state, detail, and code primitives fill out common
 transcript states.
 
-For assistant Markdown, `@cline/ui/components/markdown` exports the shared
+For assistant Markdown, `@induscode/ui/components/markdown` exports the shared
 Streamdown configuration — `markdownCodeHighlighter` (lazy Shiki with GitHub
 light/dark themes), `agentMarkdownControls`, and the opt-in
 `createLazyMermaidPlugin` / `agentMarkdownControlsWithMermaid` pair — and
-`@cline/ui/components/markdown.css` carries the matching chat styling (quiet
+`@induscode/ui/components/markdown.css` carries the matching chat styling (quiet
 single-box code blocks with a hover copy control, chat-scale headings, table
 cards). The Mermaid plugin dynamically imports the renderer only after a
 `mermaid` fence is encountered and enforces strict security for model-authored
@@ -258,7 +258,7 @@ and (when enabling diagrams) `mermaid` installed as optional peer dependencies.
 Products keep their own `<Streamdown>` wrapper for link and image policy.
 
 Hosts that want a native-looking diagram block register
-`createMermaidRenderer()` from `@cline/ui/components/mermaid-block` through
+`createMermaidRenderer()` from `@induscode/ui/components/mermaid-block` through
 `<Streamdown plugins={{ renderers: [createMermaidRenderer()] }} />` instead of
 the `mermaid` diagram plugin (Streamdown consults `renderers` first, so the
 built-in block is skipped). The block shows the diagram's filename in its
@@ -274,7 +274,7 @@ PNG exports are opaque (filled with the surface color), rendered at 2x-3x
 (following the device pixel ratio, not Streamdown's fixed 5x), and capped at
 4096px on the longest edge, re-encoding smaller if needed, so they stay under
 the ~5 MiB image attachment limit. The pure naming, theming, and
-sizing logic lives in `@cline/ui/components/mermaid-diagram` (DOM-free).
+sizing logic lives in `@induscode/ui/components/mermaid-diagram` (DOM-free).
 
 Give
 each conversation a bounded height through an explicit height or a complete
@@ -287,7 +287,7 @@ a live anchor inside the SVG, and Streamdown injects that SVG with
 product supplies. The plugin therefore runs `neutralizeDiagramLinks` over
 rendered output: navigable `href` / `xlink:href` / `target` attributes are
 removed, and an http(s) destination is preserved on the attribute exported as
-`DIAGRAM_LINK_HREF_ATTRIBUTE` (`data-cline-diagram-href`). Diagram links are
+`DIAGRAM_LINK_HREF_ATTRIBUTE` (`data-induscode-diagram-href`). Diagram links are
 inert by default; a host that wants them clickable should read that attribute
 and route the destination through its own link policy. Treat them as untrusted:
 a diagram's visible label is authored independently of its destination, so
@@ -310,31 +310,31 @@ menus, data formatting, and session behavior. See the session-row section in
 Run the interactive component catalog from the repository root:
 
 ```bash
-bun -F @cline/ui storybook
+bun -F @induscode/ui storybook
 ```
 
 Then open `http://localhost:6006`. Build the static catalog with:
 
 ```bash
-bun -F @cline/ui build-storybook
+bun -F @induscode/ui build-storybook
 ```
 
 In the repository's agent sandbox, bind to a forwarded host and unused port:
 
 ```bash
-bun -F @cline/ui storybook -- --host 0.0.0.0 --port 3490 --exact-port
+bun -F @induscode/ui storybook -- --host 0.0.0.0 --port 3490 --exact-port
 ```
 
 The catalog includes the theme foundations and representative agent-chat
 states in light, dark, desktop, and narrow viewports.
 
-Storybook currently runs from a Cline monorepo checkout. It is not hosted or
+Storybook currently runs from a IndusCode monorepo checkout. It is not hosted or
 included in the npm package; deployment can be added once the catalog and
 ownership model settle.
 
 ## Layering and compatibility
 
-- Import the Cline theme after Tailwind so its default typography values win.
+- Import the IndusCode theme after Tailwind so its default typography values win.
 - Import `components/markdown.css` after either token entry point.
 - Import `agent-chat.css` after theme tokens.
 - Override `:root` or `.dark` after package imports for deliberate product
@@ -381,7 +381,7 @@ After merging the version change, dispatch:
 
 ```sh
 gh workflow run ui-publish.yml \
-  --repo cline/cline \
+  --repo induscode/induscode \
   --ref main \
   -f npm_tag=next \
   -f confirm_publish=publish
@@ -399,11 +399,11 @@ an external consumer and verify its build, styles, keyboard interaction, and
 disabled states:
 
 ```sh
-bun add --exact '@cline/ui@<prepared-version>'
+bun add --exact '@induscode/ui@<prepared-version>'
 ```
 
 Commit the consumer's manifest and lockfile. Monorepo consumers retain
-`workspace:*`; rebuild with `bun -F @cline/ui build` and restart the consuming
+`workspace:*`; rebuild with `bun -F @induscode/ui build` and restart the consuming
 app. If a preview regresses, pin the previous version and publish a corrected
 prerelease instead of replacing an existing version.
 

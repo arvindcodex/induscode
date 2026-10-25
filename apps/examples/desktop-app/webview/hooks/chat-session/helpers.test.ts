@@ -10,12 +10,12 @@ import {
 
 const CLOUD_CONFIG: ChatSessionConfig = {
 	executionTarget: "cloud",
-	provider: "cline",
+	provider: "induscode",
 	model: "anthropic/claude-sonnet-5",
 	apiKey: "",
 	workspaceRoot: "",
 	cwd: "",
-	repoUrl: "https://github.com/cline/cline",
+	repoUrl: "https://github.com/induscode/induscode",
 } as ChatSessionConfig;
 
 describe("resolveCredentialError (cloud)", () => {
@@ -26,9 +26,9 @@ describe("resolveCredentialError (cloud)", () => {
 	it("rejects invalid GitHub repository URLs", () => {
 		for (const repoUrl of [
 			"https://exa",
-			"git@github.com:cline/cline.git",
-			"https://gitlab.com/cline/cline",
-			"http://github.com/cline/cline",
+			"git@github.com:induscode/induscode.git",
+			"https://gitlab.com/induscode/induscode",
+			"http://github.com/induscode/induscode",
 		]) {
 			expect(resolveCredentialError({ ...CLOUD_CONFIG, repoUrl })).toMatch(
 				/valid HTTPS GitHub repository URL/,
@@ -45,13 +45,13 @@ describe("resolveCredentialError (cloud)", () => {
 		).toBeNull();
 	});
 
-	it("still requires the Cline provider for existing sessions", () => {
+	it("still requires the IndusCode provider for existing sessions", () => {
 		expect(
 			resolveCredentialError(
 				{ ...CLOUD_CONFIG, provider: "anthropic" },
 				{ hasActiveSession: true },
 			),
-		).toMatch(/Cline provider/);
+		).toMatch(/IndusCode provider/);
 	});
 });
 
@@ -108,7 +108,7 @@ describe("resolveCredentialError", () => {
 
 	it("allows a provider whose metadata declares the API key optional", () => {
 		// Local OpenAI-compatible endpoints (LM Studio, vLLM, ...) and Ollama
-		// have no key; the catalog carries the declaration from `@cline/llms`.
+		// have no key; the catalog carries the declaration from `@induscode/llms`.
 		expect(
 			resolveCredentialError(
 				makeConfig({
@@ -132,13 +132,13 @@ describe("resolveCredentialError", () => {
 	});
 
 	it.each([
-		"cline",
-		"cline-pass",
+		"induscode",
+		"induscode-pass",
 		"oca",
 		"openai-codex",
 	])("allows OAuth-managed provider %s without a visible API key", (provider) => {
 		// OAuth credentials live in the backend provider settings store
-		// (ClinePass shares the Cline account login), never in the webview
+		// (IndusCodePass shares the IndusCode account login), never in the webview
 		// config, so the pre-flight gate must not demand an API key.
 		expect(resolveCredentialError(makeConfig({ provider }))).toBeNull();
 	});
@@ -172,7 +172,7 @@ describe("resolveCredentialError", () => {
 
 	it("treats provider ids case-insensitively", () => {
 		expect(
-			resolveCredentialError(makeConfig({ provider: "Cline-Pass" })),
+			resolveCredentialError(makeConfig({ provider: "IndusCode-Pass" })),
 		).toBeNull();
 	});
 });
@@ -201,8 +201,8 @@ describe("resolveCredentialFailureHint", () => {
 		).toMatch(/`opencode` CLI/);
 	});
 
-	it("points Cline at configuring AI provider in Admin Setup or Settings → Providers", () => {
-		expect(resolveCredentialFailureHint("cline")).toBe(
+	it("points IndusCode at configuring AI provider in Admin Setup or Settings → Providers", () => {
+		expect(resolveCredentialFailureHint("induscode")).toBe(
 			"Please configure your AI API Key in Admin Setup (http://localhost:3000/admin) or in Settings → Providers.",
 		);
 	});
@@ -252,8 +252,8 @@ describe("resolveCredentialFailureAction", () => {
 		).toBeNull();
 	});
 
-	it("sends Cline to configure AI provider in Models", () => {
-		expect(resolveCredentialFailureAction("cline")).toEqual({
+	it("sends IndusCode to configure AI provider in Models", () => {
+		expect(resolveCredentialFailureAction("induscode")).toEqual({
 			label: "Configure AI Provider",
 			target: "models",
 		});

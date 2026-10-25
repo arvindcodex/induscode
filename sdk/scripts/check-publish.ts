@@ -133,9 +133,9 @@ async function main(): Promise<number> {
 		`\nFound ${published.length} published package(s): ${published.map((pkg) => pkg.name).join(", ")}\n`,
 	);
 
-	const testDir = await mkdtemp(join(tmpdir(), "cline-pkg-verify-"));
-	const packDir = await mkdtemp(join(tmpdir(), "cline-pkg-packs-"));
-	const bunCacheDir = await mkdtemp(join(tmpdir(), "cline-pkg-bun-cache-"));
+	const testDir = await mkdtemp(join(tmpdir(), "induscode-pkg-verify-"));
+	const packDir = await mkdtemp(join(tmpdir(), "induscode-pkg-packs-"));
+	const bunCacheDir = await mkdtemp(join(tmpdir(), "induscode-pkg-bun-cache-"));
 	const tarballs: { name: string; tarball: string }[] = [];
 	const packedManifests = new Map<string, PackedManifest>();
 
@@ -204,7 +204,7 @@ async function main(): Promise<number> {
 			tarballs.map((entry) => [entry.name, `file:${entry.tarball}`]),
 		);
 		const testPkg = {
-			name: "cline-pkg-verify",
+			name: "induscode-pkg-verify",
 			private: true,
 			type: "module",
 			dependencies: tarballDependencies,
@@ -274,7 +274,7 @@ async function main(): Promise<number> {
 
 		console.log("\n--- Verifying publish-only package invariants ---");
 		for (const pkg of published) {
-			if (pkg.name !== "@cline/core") {
+			if (pkg.name !== "@induscode/core") {
 				continue;
 			}
 
@@ -285,17 +285,17 @@ async function main(): Promise<number> {
 					`import { readFileSync } from "node:fs";`,
 					`import { join } from "node:path";`,
 					`try {`,
-					`  const root = await import("@cline/core");`,
-					`  if (typeof root.ClineCore?.create !== "function") {`,
-					`    console.error("  FAIL @cline/core: root export is missing ClineCore.create");`,
+					`  const root = await import("@induscode/core");`,
+					`  if (typeof root.IndusCodeCore?.create !== "function") {`,
+					`    console.error("  FAIL @induscode/core: root export is missing IndusCodeCore.create");`,
 					`    process.exit(1);`,
 					`  }`,
 					`} catch (error) {`,
 					`  const message = error instanceof Error ? error.message : String(error);`,
-					`  console.error("  FAIL @cline/core: published runtime shape is invalid:", message);`,
+					`  console.error("  FAIL @induscode/core: published runtime shape is invalid:", message);`,
 					`  process.exit(1);`,
 					`}`,
-					`console.log("  OK @cline/core publish shape");`,
+					`console.log("  OK @induscode/core publish shape");`,
 				].join("\n"),
 			);
 			try {

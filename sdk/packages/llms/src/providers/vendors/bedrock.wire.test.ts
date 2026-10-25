@@ -7,15 +7,15 @@
 //   1. OpenAI models reached through inference profiles (`us.openai.*`,
 //      `global.openai.*`) get `reasoning.effort`, the field Bedrock accepts,
 //      not the generic `reasoningConfig` that adapters before 5.0.65 emitted
-//      for any id they did not recognise (cline/cline#14451, vercel/ai#19403);
+//      for any id they did not recognise (induscode/induscode#14451, vercel/ai#19403);
 //   2. models the adapter cannot classify get no reasoning fields at all,
 //      instead of a `reasoningConfig` Bedrock rejects for models without
 //      reasoning support — adapters before 5.0.96 sent it for every
-//      non-Anthropic id (cline/cline#14095, vercel/ai#21487);
+//      non-Anthropic id (induscode/induscode#14095, vercel/ai#21487);
 //   3. the families the adapter does classify keep their native shapes from
 //      the id alone even when the catalog does not list the model, so a
 //      catalog that lags a model launch never switches thinking off.
-import type { GatewayStreamRequest, ModelReasoningOption } from "@cline/shared";
+import type { GatewayStreamRequest, ModelReasoningOption } from "@induscode/shared";
 import { describe, expect, it } from "vitest";
 import { createGateway } from "../gateway";
 

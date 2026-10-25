@@ -1,18 +1,18 @@
 import {
-	CLINE_CONNECTOR_CLI_LAUNCH_ENV,
+	INDUSCODE_CONNECTOR_CLI_LAUNCH_ENV,
 	readConnectorCliLaunchSpec,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { afterEach, describe, expect, it } from "vitest";
 import { __test__, configureConnectorCliLaunch } from "./connectors";
 
 describe("desktop connector lifecycle", () => {
-	const originalLaunchSpec = process.env[CLINE_CONNECTOR_CLI_LAUNCH_ENV];
+	const originalLaunchSpec = process.env[INDUSCODE_CONNECTOR_CLI_LAUNCH_ENV];
 
 	afterEach(() => {
 		if (originalLaunchSpec === undefined) {
-			delete process.env[CLINE_CONNECTOR_CLI_LAUNCH_ENV];
+			delete process.env[INDUSCODE_CONNECTOR_CLI_LAUNCH_ENV];
 		} else {
-			process.env[CLINE_CONNECTOR_CLI_LAUNCH_ENV] = originalLaunchSpec;
+			process.env[INDUSCODE_CONNECTOR_CLI_LAUNCH_ENV] = originalLaunchSpec;
 		}
 	});
 
@@ -32,11 +32,11 @@ describe("desktop connector lifecycle", () => {
 	it("runs connector commands through the bundled CLI when the shell provides one", () => {
 		expect(
 			__test__.buildCliConnectCommand("/repo", ["telegram"], {
-				desktopCliPath: "C:\\Program Files\\Cline\\cline-cli.exe",
-				execPath: "C:\\Program Files\\Cline\\cline-cli.exe",
+				desktopCliPath: "C:\\Program Files\\IndusCode\\induscode-cli.exe",
+				execPath: "C:\\Program Files\\IndusCode\\induscode-cli.exe",
 			}),
 		).toEqual({
-			launcher: "C:\\Program Files\\Cline\\cline-cli.exe",
+			launcher: "C:\\Program Files\\IndusCode\\induscode-cli.exe",
 			childArgs: ["connect", "telegram"],
 		});
 	});

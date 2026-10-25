@@ -1,7 +1,7 @@
 import { formatRepoLabel } from "@shared/cloud/cloud-sessions"
 import { HistoryItem } from "@shared/HistoryItem"
-import { StringRequest } from "@shared/proto/cline/common"
-import type { TaskItem } from "@shared/proto/cline/task"
+import { StringRequest } from "@shared/proto/induscode/common"
+import type { TaskItem } from "@shared/proto/induscode/task"
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react"
 import {
 	ArrowDownIcon,
@@ -47,7 +47,7 @@ const HistoryViewItem = ({
 		() => pendingFavoriteToggles[item.id] ?? item.isFavorited,
 		[item.id, item.isFavorited, pendingFavoriteToggles],
 	)
-	// Cloud sessions are owned by Cline Cloud; favorites are a local-history concept.
+	// Cloud sessions are owned by IndusCode Cloud; favorites are a local-history concept.
 	const isCloud = item.executionTarget === "cloud"
 
 	const handleShowTaskWithId = useCallback((id: string) => {

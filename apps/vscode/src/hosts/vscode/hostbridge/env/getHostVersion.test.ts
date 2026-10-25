@@ -3,7 +3,7 @@ import { strict as assert } from "assert"
 import * as sinon from "sinon"
 import * as vscode from "vscode"
 import { ExtensionRegistryInfo } from "@/registry"
-import { ClineClient } from "@/shared/cline"
+import { IndusCodeClient } from "@/shared/induscode"
 import { getHostVersion } from "./getHostVersion"
 
 describe("Hostbridge - Env - getHostVersion", () => {
@@ -24,8 +24,8 @@ describe("Hostbridge - Env - getHostVersion", () => {
 
 			assert.strictEqual(response.platform, vscode.env.appName)
 			assert.strictEqual(response.version, vscode.version)
-			assert.strictEqual(response.clineType, ClineClient.VSCode)
-			assert.strictEqual(response.clineVersion, ExtensionRegistryInfo.version)
+			assert.strictEqual(response.induscodeType, IndusCodeClient.VSCode)
+			assert.strictEqual(response.induscodeVersion, ExtensionRegistryInfo.version)
 			assert.strictEqual(response.remoteName, remoteName)
 
 			remoteNameStub.restore()

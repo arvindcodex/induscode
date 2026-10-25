@@ -12,9 +12,9 @@ import { join } from "node:path";
 import {
 	discoverPluginModulePaths,
 	resolvePluginConfigSearchPaths,
-	setClineDir,
+	setIndusCodeDir,
 	setHomeDir,
-} from "@cline/shared/storage";
+} from "@induscode/shared/storage";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
 	installPlugin,
@@ -31,8 +31,8 @@ describe("plugin install service", () => {
 	let home = "";
 	let workspace = "";
 	let originalHome: string | undefined;
-	let originalClineDir: string | undefined;
-	let originalClineDataDir: string | undefined;
+	let originalIndusCodeDir: string | undefined;
+	let originalIndusCodeDataDir: string | undefined;
 	let originalMcpSettingsPath: string | undefined;
 
 	beforeEach(() => {
@@ -40,19 +40,19 @@ describe("plugin install service", () => {
 		home = join(root, "home");
 		workspace = join(root, "workspace");
 		originalHome = process.env.HOME;
-		originalClineDir = process.env.CLINE_DIR;
-		originalClineDataDir = process.env.CLINE_DATA_DIR;
-		originalMcpSettingsPath = process.env.CLINE_MCP_SETTINGS_PATH;
+		originalIndusCodeDir = process.env.INDUSCODE_DIR;
+		originalIndusCodeDataDir = process.env.INDUSCODE_DATA_DIR;
+		originalMcpSettingsPath = process.env.INDUSCODE_MCP_SETTINGS_PATH;
 		process.env.HOME = home;
-		process.env.CLINE_DIR = join(home, ".cline");
-		process.env.CLINE_DATA_DIR = join(home, ".cline", "data");
-		process.env.CLINE_MCP_SETTINGS_PATH = join(
+		process.env.INDUSCODE_DIR = join(home, ".induscode");
+		process.env.INDUSCODE_DATA_DIR = join(home, ".induscode", "data");
+		process.env.INDUSCODE_MCP_SETTINGS_PATH = join(
 			home,
-			".cline",
-			"cline_mcp_settings.json",
+			".induscode",
+			"induscode_mcp_settings.json",
 		);
 		setHomeDir(home);
-		setClineDir(process.env.CLINE_DIR);
+		setIndusCodeDir(process.env.INDUSCODE_DIR);
 	});
 
 	afterEach(() => {
@@ -62,20 +62,20 @@ describe("plugin install service", () => {
 		} else {
 			process.env.HOME = originalHome;
 		}
-		if (originalClineDir === undefined) {
-			delete process.env.CLINE_DIR;
+		if (originalIndusCodeDir === undefined) {
+			delete process.env.INDUSCODE_DIR;
 		} else {
-			process.env.CLINE_DIR = originalClineDir;
+			process.env.INDUSCODE_DIR = originalIndusCodeDir;
 		}
-		if (originalClineDataDir === undefined) {
-			delete process.env.CLINE_DATA_DIR;
+		if (originalIndusCodeDataDir === undefined) {
+			delete process.env.INDUSCODE_DATA_DIR;
 		} else {
-			process.env.CLINE_DATA_DIR = originalClineDataDir;
+			process.env.INDUSCODE_DATA_DIR = originalIndusCodeDataDir;
 		}
 		if (originalMcpSettingsPath === undefined) {
-			delete process.env.CLINE_MCP_SETTINGS_PATH;
+			delete process.env.INDUSCODE_MCP_SETTINGS_PATH;
 		} else {
-			process.env.CLINE_MCP_SETTINGS_PATH = originalMcpSettingsPath;
+			process.env.INDUSCODE_MCP_SETTINGS_PATH = originalMcpSettingsPath;
 		}
 		rmSync(root, { recursive: true, force: true });
 	});
@@ -97,7 +97,7 @@ describe("plugin install service", () => {
 		}
 		runGitCommand(repo, ["init"]);
 		runGitCommand(repo, ["config", "user.email", "test@example.com"]);
-		runGitCommand(repo, ["config", "user.name", "Cline Test"]);
+		runGitCommand(repo, ["config", "user.name", "IndusCode Test"]);
 		runGitCommand(repo, ["add", "."]);
 		runGitCommand(repo, ["commit", "-m", "seed plugins"]);
 		return repo;
@@ -135,10 +135,10 @@ describe("plugin install service", () => {
 
 		const result = await installPlugin({ source });
 
-		expect(result.installPath).toContain(join(home, ".cline", "plugins"));
+		expect(result.installPath).toContain(join(home, ".induscode", "plugins"));
 		expect(result.entryPaths).toHaveLength(1);
 		expect(existsSync(result.entryPaths[0] ?? "")).toBe(true);
-		expect(discoverPluginModulePaths(join(home, ".cline", "plugins"))).toEqual(
+		expect(discoverPluginModulePaths(join(home, ".induscode", "plugins"))).toEqual(
 			result.entryPaths,
 		);
 	});
@@ -160,14 +160,14 @@ describe("plugin install service", () => {
 
 		expect(fetchMock).toHaveBeenCalledTimes(1);
 		expect(result.installPath).toContain(
-			join(workspace, ".cline", "plugins", "_installed", "remote"),
+			join(workspace, ".induscode", "plugins", "_installed", "remote"),
 		);
 		expect(result.entryPaths).toHaveLength(1);
 		expect(readFileSync(result.entryPaths[0] ?? "", "utf8")).toContain(
 			"remote-weather",
 		);
 		expect(
-			discoverPluginModulePaths(join(workspace, ".cline", "plugins")),
+			discoverPluginModulePaths(join(workspace, ".induscode", "plugins")),
 		).toEqual(result.entryPaths);
 	});
 
@@ -190,7 +190,7 @@ describe("plugin install service", () => {
 		});
 
 		expect(result.installPath).toContain(
-			join(workspace, ".cline", "plugins", "_installed", "official"),
+			join(workspace, ".induscode", "plugins", "_installed", "official"),
 		);
 		expect(result.entryPaths).toHaveLength(1);
 		expect(readFileSync(result.entryPaths[0] ?? "", "utf8")).toContain(
@@ -205,7 +205,7 @@ describe("plugin install service", () => {
 			existsSync(join(result.installPath, "package", "other-plugin")),
 		).toBe(false);
 		expect(resolvePluginConfigSearchPaths(workspace)[0]).toBe(
-			join(workspace, ".cline", "plugins"),
+			join(workspace, ".induscode", "plugins"),
 		);
 	});
 
@@ -240,7 +240,7 @@ export default {
 			}),
 		]);
 		const settings = JSON.parse(
-			readFileSync(process.env.CLINE_MCP_SETTINGS_PATH ?? "", "utf8"),
+			readFileSync(process.env.INDUSCODE_MCP_SETTINGS_PATH ?? "", "utf8"),
 		) as {
 			mcpServers?: Record<
 				string,

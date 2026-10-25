@@ -1,48 +1,48 @@
 import type {
-	ClineAccountActionRequest,
+	IndusCodeAccountActionRequest,
 	ProviderActionRequest,
-} from "@cline/shared";
+} from "@induscode/shared";
 import type {
-	ClineAccountBalance,
-	ClineAccountOrganization,
-	ClineAccountOrganizationBalance,
-	ClineAccountOrganizationUsageTransaction,
-	ClineAccountPaymentTransaction,
-	ClineAccountUsageTransaction,
-	ClineAccountUser,
+	IndusCodeAccountBalance,
+	IndusCodeAccountOrganization,
+	IndusCodeAccountOrganizationBalance,
+	IndusCodeAccountOrganizationUsageTransaction,
+	IndusCodeAccountPaymentTransaction,
+	IndusCodeAccountUsageTransaction,
+	IndusCodeAccountUser,
 	FeaturebaseTokenResponse,
 } from "./types";
 
-export interface ClineAccountOperations {
-	fetchMe(): Promise<ClineAccountUser>;
-	fetchBalance(userId?: string): Promise<ClineAccountBalance>;
+export interface IndusCodeAccountOperations {
+	fetchMe(): Promise<IndusCodeAccountUser>;
+	fetchBalance(userId?: string): Promise<IndusCodeAccountBalance>;
 	fetchUsageTransactions(
 		userId?: string,
-	): Promise<ClineAccountUsageTransaction[]>;
+	): Promise<IndusCodeAccountUsageTransaction[]>;
 	fetchPaymentTransactions(
 		userId?: string,
-	): Promise<ClineAccountPaymentTransaction[]>;
-	fetchUserOrganizations(): Promise<ClineAccountOrganization[]>;
+	): Promise<IndusCodeAccountPaymentTransaction[]>;
+	fetchUserOrganizations(): Promise<IndusCodeAccountOrganization[]>;
 	fetchOrganizationBalance(
 		organizationId: string,
-	): Promise<ClineAccountOrganizationBalance>;
+	): Promise<IndusCodeAccountOrganizationBalance>;
 	fetchOrganizationUsageTransactions(input: {
 		organizationId: string;
 		memberId?: string;
-	}): Promise<ClineAccountOrganizationUsageTransaction[]>;
+	}): Promise<IndusCodeAccountOrganizationUsageTransaction[]>;
 	switchAccount(organizationId?: string | null): Promise<void>;
 	fetchFeaturebaseToken?(): Promise<FeaturebaseTokenResponse | undefined>;
 }
 
-export function isClineAccountActionRequest(
+export function isIndusCodeAccountActionRequest(
 	request: ProviderActionRequest,
-): request is ClineAccountActionRequest {
-	return request.action === "clineAccount";
+): request is IndusCodeAccountActionRequest {
+	return request.action === "induscodeAccount";
 }
 
-export async function executeClineAccountAction(
-	request: ClineAccountActionRequest,
-	service: ClineAccountOperations,
+export async function executeIndusCodeAccountAction(
+	request: IndusCodeAccountActionRequest,
+	service: IndusCodeAccountOperations,
 ): Promise<unknown> {
 	switch (request.operation) {
 		case "fetchMe":
@@ -70,7 +70,7 @@ export async function executeClineAccountAction(
 		default: {
 			const exhaustive: never = request;
 			throw new Error(
-				`Unsupported Cline account operation: ${String(exhaustive)}`,
+				`Unsupported IndusCode account operation: ${String(exhaustive)}`,
 			);
 		}
 	}
@@ -82,23 +82,23 @@ export interface ProviderActionExecutor {
 	}>;
 }
 
-export class RpcClineAccountService implements ClineAccountOperations {
+export class RpcIndusCodeAccountService implements IndusCodeAccountOperations {
 	private readonly executor: ProviderActionExecutor;
 
 	constructor(executor: ProviderActionExecutor) {
 		this.executor = executor;
 	}
 
-	public async fetchMe(): Promise<ClineAccountUser> {
-		return this.request<ClineAccountUser>({
-			action: "clineAccount",
+	public async fetchMe(): Promise<IndusCodeAccountUser> {
+		return this.request<IndusCodeAccountUser>({
+			action: "induscodeAccount",
 			operation: "fetchMe",
 		});
 	}
 
-	public async fetchBalance(userId?: string): Promise<ClineAccountBalance> {
-		return this.request<ClineAccountBalance>({
-			action: "clineAccount",
+	public async fetchBalance(userId?: string): Promise<IndusCodeAccountBalance> {
+		return this.request<IndusCodeAccountBalance>({
+			action: "induscodeAccount",
 			operation: "fetchBalance",
 			...(userId?.trim() ? { userId: userId.trim() } : {}),
 		});
@@ -106,9 +106,9 @@ export class RpcClineAccountService implements ClineAccountOperations {
 
 	public async fetchUsageTransactions(
 		userId?: string,
-	): Promise<ClineAccountUsageTransaction[]> {
-		return this.request<ClineAccountUsageTransaction[]>({
-			action: "clineAccount",
+	): Promise<IndusCodeAccountUsageTransaction[]> {
+		return this.request<IndusCodeAccountUsageTransaction[]>({
+			action: "induscodeAccount",
 			operation: "fetchUsageTransactions",
 			...(userId?.trim() ? { userId: userId.trim() } : {}),
 		});
@@ -116,30 +116,30 @@ export class RpcClineAccountService implements ClineAccountOperations {
 
 	public async fetchPaymentTransactions(
 		userId?: string,
-	): Promise<ClineAccountPaymentTransaction[]> {
-		return this.request<ClineAccountPaymentTransaction[]>({
-			action: "clineAccount",
+	): Promise<IndusCodeAccountPaymentTransaction[]> {
+		return this.request<IndusCodeAccountPaymentTransaction[]>({
+			action: "induscodeAccount",
 			operation: "fetchPaymentTransactions",
 			...(userId?.trim() ? { userId: userId.trim() } : {}),
 		});
 	}
 
-	public async fetchUserOrganizations(): Promise<ClineAccountOrganization[]> {
-		return this.request<ClineAccountOrganization[]>({
-			action: "clineAccount",
+	public async fetchUserOrganizations(): Promise<IndusCodeAccountOrganization[]> {
+		return this.request<IndusCodeAccountOrganization[]>({
+			action: "induscodeAccount",
 			operation: "fetchUserOrganizations",
 		});
 	}
 
 	public async fetchOrganizationBalance(
 		organizationId: string,
-	): Promise<ClineAccountOrganizationBalance> {
+	): Promise<IndusCodeAccountOrganizationBalance> {
 		const orgId = organizationId.trim();
 		if (!orgId) {
 			throw new Error("organizationId is required");
 		}
-		return this.request<ClineAccountOrganizationBalance>({
-			action: "clineAccount",
+		return this.request<IndusCodeAccountOrganizationBalance>({
+			action: "induscodeAccount",
 			operation: "fetchOrganizationBalance",
 			organizationId: orgId,
 		});
@@ -148,13 +148,13 @@ export class RpcClineAccountService implements ClineAccountOperations {
 	public async fetchOrganizationUsageTransactions(input: {
 		organizationId: string;
 		memberId?: string;
-	}): Promise<ClineAccountOrganizationUsageTransaction[]> {
+	}): Promise<IndusCodeAccountOrganizationUsageTransaction[]> {
 		const orgId = input.organizationId.trim();
 		if (!orgId) {
 			throw new Error("organizationId is required");
 		}
-		return this.request<ClineAccountOrganizationUsageTransaction[]>({
-			action: "clineAccount",
+		return this.request<IndusCodeAccountOrganizationUsageTransaction[]>({
+			action: "induscodeAccount",
 			operation: "fetchOrganizationUsageTransactions",
 			organizationId: orgId,
 			...(input.memberId?.trim() ? { memberId: input.memberId.trim() } : {}),
@@ -163,7 +163,7 @@ export class RpcClineAccountService implements ClineAccountOperations {
 
 	public async switchAccount(organizationId?: string | null): Promise<void> {
 		await this.request<{ updated: boolean }>({
-			action: "clineAccount",
+			action: "induscodeAccount",
 			operation: "switchAccount",
 			organizationId: organizationId?.trim() || null,
 		});
@@ -173,12 +173,12 @@ export class RpcClineAccountService implements ClineAccountOperations {
 		FeaturebaseTokenResponse | undefined
 	> {
 		return this.request<FeaturebaseTokenResponse | undefined>({
-			action: "clineAccount",
+			action: "induscodeAccount",
 			operation: "fetchFeaturebaseToken",
 		});
 	}
 
-	private async request<T>(request: ClineAccountActionRequest): Promise<T> {
+	private async request<T>(request: IndusCodeAccountActionRequest): Promise<T> {
 		const response = await this.executor.runProviderAction(request);
 		return response.result as T;
 	}

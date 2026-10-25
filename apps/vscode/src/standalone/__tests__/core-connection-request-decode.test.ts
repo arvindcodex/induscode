@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test"
 import { serviceHandlers, serviceRequestDecoders } from "@generated/hosts/vscode/protobus-services"
-import { ModelsApiConfiguration, OpenRouterModelInfo, UpdateApiConfigurationRequest } from "@shared/proto/cline/models"
-import { PlanActMode, TogglePlanActModeRequest } from "@shared/proto/cline/state"
+import { ModelsApiConfiguration, OpenRouterModelInfo, UpdateApiConfigurationRequest } from "@shared/proto/induscode/models"
+import { PlanActMode, TogglePlanActModeRequest } from "@shared/proto/induscode/state"
 import { fromProtobufModelInfo } from "@shared/proto-conversions/models/typeConversion"
 import { decodeCoreConnectionRequestMessage } from "../core-connection-dispatcher"
 
@@ -28,7 +28,7 @@ describe("core connection request decoding", () => {
 		expect(getTiers(wireJson)).toBeUndefined()
 
 		const decoded = decodeCoreConnectionRequestMessage(
-			"cline.ModelsService",
+			"induscode.ModelsService",
 			"updateApiConfigurationProto",
 			wireJson,
 		) as UpdateApiConfigurationRequest
@@ -50,7 +50,7 @@ describe("core connection request decoding", () => {
 		expect(wireJson.mode).toBe("ACT")
 
 		const decoded = decodeCoreConnectionRequestMessage(
-			"cline.StateService",
+			"induscode.StateService",
 			"togglePlanActModeProto",
 			wireJson,
 		) as TogglePlanActModeRequest
@@ -64,7 +64,7 @@ describe("core connection request decoding", () => {
 		expect(wireJson.mode).toBeUndefined()
 
 		const decoded = decodeCoreConnectionRequestMessage(
-			"cline.StateService",
+			"induscode.StateService",
 			"togglePlanActModeProto",
 			wireJson,
 		) as TogglePlanActModeRequest
@@ -73,8 +73,8 @@ describe("core connection request decoding", () => {
 
 	it("passes unknown services and methods through untouched", () => {
 		const message = { anything: "goes" }
-		expect(decodeCoreConnectionRequestMessage("cline.NoSuchService", "noSuchMethod", message)).toBe(message)
-		expect(decodeCoreConnectionRequestMessage("cline.ModelsService", "noSuchMethod", message)).toBe(message)
+		expect(decodeCoreConnectionRequestMessage("induscode.NoSuchService", "noSuchMethod", message)).toBe(message)
+		expect(decodeCoreConnectionRequestMessage("induscode.ModelsService", "noSuchMethod", message)).toBe(message)
 	})
 
 	it("has a decoder for every registered protobus handler", () => {

@@ -1,6 +1,6 @@
-import { type GitHubConnection, GitHubConnectionRequest } from "@shared/proto/cline/cloud"
+import { type GitHubConnection, GitHubConnectionRequest } from "@shared/proto/induscode/cloud"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { useClineAuth } from "@/context/ClineAuthContext"
+import { useIndusCodeAuth } from "@/context/IndusCodeAuthContext"
 import { CloudServiceClient } from "@/services/grpc-client"
 
 const DISCONNECTED_POLL_MS = 6_000
@@ -13,11 +13,11 @@ const DISCONNECTED_POLL_MS = 6_000
  * focus so finishing the connect flow in the browser flips the UI on its own.
  */
 export function useGitHubConnection(enabled: boolean) {
-	const { clineUser, activeOrganization, accountSwitch } = useClineAuth()
-	const available = enabled && !!clineUser?.uid && !accountSwitch
+	const { induscodeUser, activeOrganization, accountSwitch } = useIndusCodeAuth()
+	const available = enabled && !!induscodeUser?.uid && !accountSwitch
 	const scope = useMemo(
-		() => ({ available, userId: clineUser?.uid, organizationId: activeOrganization?.organizationId }),
-		[available, clineUser?.uid, activeOrganization?.organizationId],
+		() => ({ available, userId: induscodeUser?.uid, organizationId: activeOrganization?.organizationId }),
+		[available, induscodeUser?.uid, activeOrganization?.organizationId],
 	)
 	const [snapshot, setSnapshot] = useState<{ scope: object; connection: GitHubConnection }>()
 	const connection = available && snapshot?.scope === scope ? snapshot.connection : undefined

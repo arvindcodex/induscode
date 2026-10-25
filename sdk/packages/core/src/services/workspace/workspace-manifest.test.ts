@@ -1,7 +1,7 @@
 import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, parse, resolve } from "node:path";
-import { emptyWorkspaceManifest, upsertWorkspaceInfo } from "@cline/shared";
+import { emptyWorkspaceManifest, upsertWorkspaceInfo } from "@induscode/shared";
 import simpleGit from "simple-git";
 import { afterEach, describe, expect, test, vi } from "vitest";
 import {
@@ -110,10 +110,10 @@ describe("readGitWorkspaceState", () => {
 		await git.addConfig("user.name", "Test");
 		await git.commit("initial", ["--allow-empty"]);
 		await git.addRemote("backup", "https://example.com/backup.git");
-		await git.addRemote("origin", "git@github.com:cline/cline.git");
+		await git.addRemote("origin", "git@github.com:induscode/induscode.git");
 
 		await expect(readGitWorkspaceState(dir)).resolves.toEqual({
-			url: "git@github.com:cline/cline.git",
+			url: "git@github.com:induscode/induscode.git",
 			branch: (await git.branch()).current,
 		});
 	});

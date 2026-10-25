@@ -11,7 +11,7 @@
 			"enabled": true,
 			"type": "s3_access_keys",
 			"s3AccessSettings": {
-				"bucket": "cline-tasks",
+				"bucket": "induscode-tasks",
 				"accessKeyId": "fake",
 				"secretAccessKey": "fake",
 				"region": "us-west-2"

@@ -1,6 +1,6 @@
 {
 	"name": "claude-dev",
-	"displayName": "Cline",
+	"displayName": "IndusCode",
 	"description": "Autonomous coding agent right in your IDE, capable of creating/editing files, running commands, using the browser, and more with your permission every step of the way.",
 	"version": "4.1.25",
 	"icon": "assets/icons/icon.png",
@@ -8,15 +8,15 @@
 		"vscode": "^1.101.0"
 	},
 	"author": {
-		"name": "Cline Bot Inc."
+		"name": "IndusCode Bot Inc."
 	},
 	"license": "Apache-2.0",
 	"publisher": "saoudrizwan",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/cline/cline"
+		"url": "https://github.com/induscode/induscode"
 	},
-	"homepage": "https://cline.bot",
+	"homepage": "https://induscode.bot",
 	"categories": [
 		"AI",
 		"Chat",
@@ -26,7 +26,7 @@
 		"Testing"
 	],
 	"keywords": [
-		"cline",
+		"induscode",
 		"claude",
 		"dev",
 		"mcp",
@@ -47,32 +47,32 @@
 	"main": "./dist/extension.js",
 	"contributes": {
 		"icons": {
-			"cline-icon": {
-				"description": "cline",
+			"induscode-icon": {
+				"description": "induscode",
 				"default": {
-					"fontPath": "assets/icons/cline-bot.woff",
+					"fontPath": "assets/icons/induscode-bot.woff",
 					"fontCharacter": "\\e900"
 				}
 			}
 		},
 		"walkthroughs": [
 			{
-				"id": "ClineWalkthrough",
-				"title": "Meet Cline, your new coding partner",
-				"description": "Cline codes like a developer because it thinks like one. Here are 5 ways to put it to work:",
+				"id": "IndusCodeWalkthrough",
+				"title": "Meet IndusCode, your new coding partner",
+				"description": "IndusCode codes like a developer because it thinks like one. Here are 5 ways to put it to work:",
 				"steps": [
 					{
 						"id": "welcome",
 						"title": "Start with a Goal, Not Just a Prompt",
-						"description": "Tell Cline what you want to achieve. It plans, asks, and then codes, like a true partner.",
+						"description": "Tell IndusCode what you want to achieve. It plans, asks, and then codes, like a true partner.",
 						"media": {
 							"markdown": "walkthrough/step1.md"
 						}
 					},
 					{
 						"id": "learn",
-						"title": "Let Cline Learn Your Codebase",
-						"description": "Point Cline to your project. It builds understanding to make smart, context-aware changes.",
+						"title": "Let IndusCode Learn Your Codebase",
+						"description": "Point IndusCode to your project. It builds understanding to make smart, context-aware changes.",
 						"media": {
 							"markdown": "walkthrough/step2.md"
 						}
@@ -80,7 +80,7 @@
 					{
 						"id": "advanced-features",
 						"title": "Always Use the Best AI Models",
-						"description": "Cline empowers you with State-of-the-Art AI, connecting to top models (Anthropic, Gemini, OpenAI & more).",
+						"description": "IndusCode empowers you with State-of-the-Art AI, connecting to top models (Anthropic, Gemini, OpenAI & more).",
 						"media": {
 							"markdown": "walkthrough/step3.md"
 						}
@@ -96,7 +96,7 @@
 					{
 						"id": "getting-started",
 						"title": "You're Always in Control",
-						"description": "Review Cline's plans and diffs. Approve changes before they happen. No surprises.",
+						"description": "Review IndusCode's plans and diffs. Approve changes before they happen. No surprises.",
 						"media": {
 							"markdown": "walkthrough/step5.md"
 						},
@@ -111,7 +111,7 @@
 			"activitybar": [
 				{
 					"id": "claude-dev-ActivityBar",
-					"title": "Cline",
+					"title": "IndusCode",
 					"icon": "assets/icons/icon.svg"
 				}
 			]
@@ -128,111 +128,111 @@
 		},
 		"commands": [
 			{
-				"command": "cline.plusButtonClicked",
+				"command": "induscode.plusButtonClicked",
 				"title": "New Task",
 				"icon": "$(add)"
 			},
 			{
-				"command": "cline.mcpButtonClicked",
+				"command": "induscode.mcpButtonClicked",
 				"title": "MCP Servers",
 				"icon": "$(server)"
 			},
 			{
-				"command": "cline.marketplaceButtonClicked",
+				"command": "induscode.marketplaceButtonClicked",
 				"title": "Customize",
 				"icon": "$(wrench)"
 			},
 			{
-				"command": "cline.historyButtonClicked",
+				"command": "induscode.historyButtonClicked",
 				"title": "History",
 				"icon": "$(history)"
 			},
 			{
-				"command": "cline.accountButtonClicked",
+				"command": "induscode.accountButtonClicked",
 				"title": "Account",
 				"icon": "$(account)"
 			},
 			{
-				"command": "cline.settingsButtonClicked",
+				"command": "induscode.settingsButtonClicked",
 				"title": "Settings",
 				"icon": "$(settings-gear)"
 			},
 			{
-				"command": "cline.dev.createTestTasks",
+				"command": "induscode.dev.createTestTasks",
 				"title": "Create Test Tasks",
-				"category": "Cline",
-				"when": "cline.isDevMode"
+				"category": "IndusCode",
+				"when": "induscode.isDevMode"
 			},
 			{
-				"command": "cline.dev.expireMcpOAuthTokens",
+				"command": "induscode.dev.expireMcpOAuthTokens",
 				"title": "Expire MCP OAuth Tokens (for testing)",
-				"category": "Cline",
-				"when": "cline.isDevMode"
+				"category": "IndusCode",
+				"when": "induscode.isDevMode"
 			},
 			{
-				"command": "cline.addToChat",
-				"title": "Add to Cline",
-				"category": "Cline"
+				"command": "induscode.addToChat",
+				"title": "Add to IndusCode",
+				"category": "IndusCode"
 			},
 			{
-				"command": "cline.addTerminalOutputToChat",
-				"title": "Add to Cline",
-				"category": "Cline"
+				"command": "induscode.addTerminalOutputToChat",
+				"title": "Add to IndusCode",
+				"category": "IndusCode"
 			},
 			{
-				"command": "cline.focusChatInput",
+				"command": "induscode.focusChatInput",
 				"title": "Jump to Chat Input",
-				"category": "Cline"
+				"category": "IndusCode"
 			},
 			{
-				"command": "cline.generateGitCommitMessage",
-				"title": "Generate Commit Message with Cline",
-				"category": "Cline",
-				"icon": "$(cline-icon)"
+				"command": "induscode.generateGitCommitMessage",
+				"title": "Generate Commit Message with IndusCode",
+				"category": "IndusCode",
+				"icon": "$(induscode-icon)"
 			},
 			{
-				"command": "cline.abortGitCommitMessage",
-				"title": "Generate Commit Message with Cline - Stop",
-				"category": "Cline",
+				"command": "induscode.abortGitCommitMessage",
+				"title": "Generate Commit Message with IndusCode - Stop",
+				"category": "IndusCode",
 				"icon": "$(debug-stop)"
 			},
 			{
-				"command": "cline.explainCode",
-				"title": "Explain with Cline",
-				"category": "Cline"
+				"command": "induscode.explainCode",
+				"title": "Explain with IndusCode",
+				"category": "IndusCode"
 			},
 			{
-				"command": "cline.improveCode",
-				"title": "Improve with Cline",
-				"category": "Cline"
+				"command": "induscode.improveCode",
+				"title": "Improve with IndusCode",
+				"category": "IndusCode"
 			},
 			{
-				"command": "cline.jupyterGenerateCell",
-				"title": "Generate Jupyter Cell with Cline",
-				"category": "Cline",
+				"command": "induscode.jupyterGenerateCell",
+				"title": "Generate Jupyter Cell with IndusCode",
+				"category": "IndusCode",
 				"icon": "$(sparkle)"
 			},
 			{
-				"command": "cline.jupyterExplainCell",
-				"title": "Explain Jupyter Cell with Cline",
-				"category": "Cline",
+				"command": "induscode.jupyterExplainCell",
+				"title": "Explain Jupyter Cell with IndusCode",
+				"category": "IndusCode",
 				"icon": "$(question)"
 			},
 			{
-				"command": "cline.jupyterImproveCell",
-				"title": "Improve Jupyter Cell with Cline",
-				"category": "Cline",
+				"command": "induscode.jupyterImproveCell",
+				"title": "Improve Jupyter Cell with IndusCode",
+				"category": "IndusCode",
 				"icon": "$(lightbulb)"
 			},
 			{
-				"command": "cline.openWalkthrough",
+				"command": "induscode.openWalkthrough",
 				"title": "Open Walkthrough",
-				"category": "Cline"
+				"category": "IndusCode"
 			}
 		],
 		"keybindings": [
 			{
-				"command": "cline.addToChat",
+				"command": "induscode.addToChat",
 				"key": "cmd+'",
 				"mac": "cmd+'",
 				"win": "ctrl+'",
@@ -240,11 +240,11 @@
 				"when": "editorHasSelection"
 			},
 			{
-				"command": "cline.generateGitCommitMessage",
+				"command": "induscode.generateGitCommitMessage",
 				"when": "config.git.enabled && scmProvider == git"
 			},
 			{
-				"command": "cline.focusChatInput",
+				"command": "induscode.focusChatInput",
 				"key": "cmd+'",
 				"mac": "cmd+'",
 				"win": "ctrl+'",
@@ -255,88 +255,88 @@
 		"menus": {
 			"view/title": [
 				{
-					"command": "cline.plusButtonClicked",
+					"command": "induscode.plusButtonClicked",
 					"group": "navigation@1",
 					"when": "view == claude-dev.SidebarProvider"
 				},
 				{
-					"command": "cline.marketplaceButtonClicked",
+					"command": "induscode.marketplaceButtonClicked",
 					"group": "navigation@2",
 					"when": "view == claude-dev.SidebarProvider"
 				},
 				{
-					"command": "cline.historyButtonClicked",
+					"command": "induscode.historyButtonClicked",
 					"group": "navigation@3",
 					"when": "view == claude-dev.SidebarProvider"
 				},
 				{
-					"command": "cline.accountButtonClicked",
+					"command": "induscode.accountButtonClicked",
 					"group": "navigation@5",
 					"when": "view == claude-dev.SidebarProvider"
 				},
 				{
-					"command": "cline.settingsButtonClicked",
+					"command": "induscode.settingsButtonClicked",
 					"group": "navigation@6",
 					"when": "view == claude-dev.SidebarProvider"
 				}
 			],
 			"editor/context": [
 				{
-					"command": "cline.addToChat",
+					"command": "induscode.addToChat",
 					"group": "navigation",
 					"when": "editorHasSelection"
 				}
 			],
 			"terminal/context": [
 				{
-					"command": "cline.addTerminalOutputToChat",
+					"command": "induscode.addTerminalOutputToChat",
 					"group": "navigation"
 				}
 			],
 			"scm/title": [
 				{
-					"command": "cline.generateGitCommitMessage",
+					"command": "induscode.generateGitCommitMessage",
 					"group": "navigation",
-					"when": "config.git.enabled && scmProvider == git && !cline.isGeneratingCommit"
+					"when": "config.git.enabled && scmProvider == git && !induscode.isGeneratingCommit"
 				},
 				{
-					"command": "cline.abortGitCommitMessage",
+					"command": "induscode.abortGitCommitMessage",
 					"group": "navigation",
-					"when": "config.git.enabled && scmProvider == git && cline.isGeneratingCommit"
+					"when": "config.git.enabled && scmProvider == git && induscode.isGeneratingCommit"
 				}
 			],
 			"notebook/toolbar": [
 				{
-					"command": "cline.jupyterGenerateCell",
+					"command": "induscode.jupyterGenerateCell",
 					"group": "navigation/add@1",
 					"when": "notebookType == 'jupyter-notebook'"
 				}
 			],
 			"notebook/cell/title": [
 				{
-					"command": "cline.jupyterExplainCell",
+					"command": "induscode.jupyterExplainCell",
 					"group": "inline@1",
 					"when": "notebookType == 'jupyter-notebook'"
 				},
 				{
-					"command": "cline.jupyterImproveCell",
+					"command": "induscode.jupyterImproveCell",
 					"group": "inline@2",
 					"when": "notebookType == 'jupyter-notebook'"
 				}
 			],
 			"commandPalette": [
 				{
-					"command": "cline.generateGitCommitMessage",
-					"when": "config.git.enabled && !cline.isGeneratingCommit"
+					"command": "induscode.generateGitCommitMessage",
+					"when": "config.git.enabled && !induscode.isGeneratingCommit"
 				},
 				{
-					"command": "cline.abortGitCommitMessage",
-					"when": "config.git.enabled && cline.isGeneratingCommit"
+					"command": "induscode.abortGitCommitMessage",
+					"when": "config.git.enabled && induscode.isGeneratingCommit"
 				}
 			]
 		},
 		"configuration": {
-			"title": "Cline",
+			"title": "IndusCode",
 			"properties": {}
 		}
 	},
@@ -407,7 +407,7 @@
 	"lint-staged": {
 		"src/shared/storage/state-keys.ts": [
 			"node scripts/generate-state-proto.mjs",
-			"git add apps/vscode/proto/cline/state.proto"
+			"git add apps/vscode/proto/induscode/state.proto"
 		],
 		"*": [
 			"biome check --write --staged --no-errors-on-unmatched --files-ignore-unknown=true --semicolons=as-needed"
@@ -463,10 +463,10 @@
 	"dependencies": {
 		"@anthropic-ai/sdk": "^0.37.0",
 		"@bufbuild/protobuf": "^2.2.5",
-		"@cline/agents": "workspace:*",
-		"@cline/core": "workspace:*",
-		"@cline/llms": "workspace:*",
-		"@cline/shared": "workspace:*",
+		"@induscode/agents": "workspace:*",
+		"@induscode/core": "workspace:*",
+		"@induscode/llms": "workspace:*",
+		"@induscode/shared": "workspace:*",
 		"@google/genai": "^1.30.0",
 		"@grpc/grpc-js": "^1.9.15",
 		"@grpc/proto-loader": "^0.7.13",

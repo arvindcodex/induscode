@@ -1,27 +1,27 @@
 ---
 title: "CLI Reference"
-description: "Complete command reference for Cline CLI including all commands, flags, and configuration options."
+description: "Complete command reference for IndusCode CLI including all commands, flags, and configuration options."
 ---
 
 ```bash
-cline --help           # Show all commands
-cline <command> --help # Show help for a specific command
+induscode --help           # Show all commands
+induscode <command> --help # Show help for a specific command
 ```
 
 ## Synopsis
 
 ```bash
-cline [options] [command] [prompt]
+induscode [options] [command] [prompt]
 ```
 
 ## Help Menu
 
-This is the output of `cline --help`. Run it to see the options in your version.
+This is the output of `induscode --help`. Run it to see the options in your version.
 
 ```text
-Usage: cline [options] [command] [prompt]
+Usage: induscode [options] [command] [prompt]
 
-Cline CLI - AI coding assistant in your terminal
+IndusCode CLI - AI coding assistant in your terminal
 
 Arguments:
   prompt                        Your prompt. Default to start in act mode with auto-approve enabled.
@@ -36,7 +36,7 @@ Options:
   --compaction <mode>           Context compaction mode: agentic|basic|off (default: agentic)
   -i, --tui                     Open the terminal user interface (TUI) for interactive sessions
   --id <session-id>             Resume an existing session by ID
-  -P, --provider <id>           Provider id (default: cline)
+  -P, --provider <id>           Provider id (default: induscode)
   -k, --key <api-key>           API key for this run, also saved as the provider's key
   -m, --model <model-id>        Model to use for the session with the selected provider
   -s, --system <system-prompt>  Override the default system prompt
@@ -44,10 +44,10 @@ Options:
   --retries <count>             Number of maximum consecutive mistakes (retries) before exiting (default: 3)
   -t, --timeout <seconds>       Optional timeout in seconds (default: 0 for no timeout)
   --acp                         Run in Agent Client Protocol (ACP) mode for editor integration
-  --config <path>               Configuration directory (default: ~/.cline)
-  --data-dir <path>             Use isolated local state at this directory path (default: ~/.cline/data)
-  --hooks-dir <path>            Directory path to additional hooks for runtime hook injection (default: ~/.cline/hooks)
-  --worktree                    Auto-create a detached git worktree under ~/.cline/worktrees/ and run the task there
+  --config <path>               Configuration directory (default: ~/.induscode)
+  --data-dir <path>             Use isolated local state at this directory path (default: ~/.induscode/data)
+  --hooks-dir <path>            Directory path to additional hooks for runtime hook injection (default: ~/.induscode/hooks)
+  --worktree                    Auto-create a detached git worktree under ~/.induscode/worktrees/ and run the task there
   --update                      Check for updates and install if available
   --kanban                      Run the kanban app
   -v, --verbose                 Show verbose output
@@ -56,8 +56,8 @@ Options:
 Commands:
   auth [options] [provider]     Authenticate a provider and configure what model is used
   config [options]              Show current configuration
-  plugin                        Manage Cline Plugins
-  skill [args...]               Manage Cline Skills via the open skills CLI (npx skills)
+  plugin                        Manage IndusCode Plugins
+  skill [args...]               Manage IndusCode Skills via the open skills CLI (npx skills)
   connect [options] [channel]   Connect to an external channel
   mcp                           Manage MCP servers
   doctor                        Diagnose and fix configuration issues
@@ -66,7 +66,7 @@ Commands:
   schedule                      Manage scheduled tasks
   hub                           Manage the local hub daemon
   update [options]              Check for updates and install if available
-  version                       Show Cline CLI version number
+  version                       Show IndusCode CLI version number
   kanban                        Run the kanban app
 ```
 
@@ -82,44 +82,44 @@ Commands:
 | `-m, --model <model-id>` | Model to use for the session with the selected provider |
 | `-v, --verbose` | Show verbose output |
 | `-c, --cwd <path>` | Working directory |
-| `--config <path>` | Configuration directory (default: `~/.cline`) |
-| `--data-dir <path>` | Use isolated local state at this directory path (default: `~/.cline/data`) |
-| `--thinking <level>` | Set reasoning effort: `none\|low\|medium\|high\|xhigh`. Bare `--thinking` uses `medium`. Without the flag, Cline uses the level you last chose with `/model`, or else the provider's default |
+| `--config <path>` | Configuration directory (default: `~/.induscode`) |
+| `--data-dir <path>` | Use isolated local state at this directory path (default: `~/.induscode/data`) |
+| `--thinking <level>` | Set reasoning effort: `none\|low\|medium\|high\|xhigh`. Bare `--thinking` uses `medium`. Without the flag, IndusCode uses the level you last chose with `/model`, or else the provider's default |
 | `--compaction <mode>` | Context compaction mode: `agentic`, `basic` or `off` (default: `agentic`) |
 | `--retries <count>` | Maximum consecutive mistakes (retries) before exiting (default: `3`) |
-| `--hooks-dir <path>` | Directory path to additional hooks for runtime hook injection (default: `~/.cline/hooks`) |
+| `--hooks-dir <path>` | Directory path to additional hooks for runtime hook injection (default: `~/.induscode/hooks`) |
 | `--acp` | Run in Agent Client Protocol (ACP) mode for [editor integration](/usage/acp) |
 | `-i, --tui` | Open the terminal user interface (TUI) for interactive sessions |
 | `--id <session-id>` | Resume an existing session by ID |
 | `-k, --key <api-key>` | API key for this run. The CLI also saves it as the provider's key |
-| `-P, --provider <id>` | Provider id (default: `cline`) |
+| `-P, --provider <id>` | Provider id (default: `induscode`) |
 | `-s, --system <system-prompt>` | Override the default system prompt |
 | `-z, --zen` | Start a session that runs in the background hub |
-| `--worktree` | Create a detached git worktree under `~/.cline/worktrees/` and run the task there |
+| `--worktree` | Create a detached git worktree under `~/.induscode/worktrees/` and run the task there |
 | `--update` | Check for updates and install if available |
 | `--kanban` | Run the Kanban app |
 | `-h, --help` | Display help for command |
 
 ## Commands
 
-### `cline` (default)
+### `induscode` (default)
 
 Start a task or enter interactive mode.
 
 ```bash
-cline
-cline "your prompt here"
-cline "Run tests and fix failures"
-echo "prompt" | cline
+induscode
+induscode "your prompt here"
+induscode "Run tests and fix failures"
+echo "prompt" | induscode
 ```
 
 ### `auth [options] [provider]`
 
-Configure authentication with an AI provider. Without options, `cline auth` opens an interactive setup. To set up without prompts, pass the provider, key and model:
+Configure authentication with an AI provider. Without options, `induscode auth` opens an interactive setup. To set up without prompts, pass the provider, key and model:
 
 ```bash
-cline auth
-cline auth -p anthropic -k "$ANTHROPIC_API_KEY" -m claude-sonnet-5-5
+induscode auth
+induscode auth -p anthropic -k "$ANTHROPIC_API_KEY" -m claude-sonnet-5-5
 ```
 
 | Option | Description |
@@ -132,12 +132,12 @@ cline auth -p anthropic -k "$ANTHROPIC_API_KEY" -m claude-sonnet-5-5
 
 ### `config [options] [target]`
 
-`cline config` opens the configuration view in your terminal. To print one part of the configuration instead, for example in a script, name a target: `workflows`, `rules`, `skills`, `agents`, `plugins`, `hooks`, `mcp` or `tools`.
+`induscode config` opens the configuration view in your terminal. To print one part of the configuration instead, for example in a script, name a target: `workflows`, `rules`, `skills`, `agents`, `plugins`, `hooks`, `mcp` or `tools`.
 
 ```bash
-cline config
-cline config mcp
-cline config tools --json
+induscode config
+induscode config mcp
+induscode config tools --json
 ```
 
 | Option | Description |
@@ -146,12 +146,12 @@ cline config tools --json
 
 ### `connect [options] [channel]`
 
-Connect Cline to a messaging channel: `telegram`, `slack`, `discord`, `gchat`, `whatsapp` or `linear`. Without a channel, `cline connect` opens a setup wizard. See [Connectors](/cli/connectors).
+Connect IndusCode to a messaging channel: `telegram`, `slack`, `discord`, `gchat`, `whatsapp` or `linear`. Without a channel, `induscode connect` opens a setup wizard. See [Connectors](/cli/connectors).
 
 ```bash
-cline connect
-cline connect telegram -k <BOT-TOKEN>
-cline connect telegram --help    # Options for one channel
+induscode connect
+induscode connect telegram -k <BOT-TOKEN>
+induscode connect telegram --help    # Options for one channel
 ```
 
 | Option | Description |
@@ -159,40 +159,40 @@ cline connect telegram --help    # Options for one channel
 | `--stop` | Stop every connector, or only the named channel's |
 | `--restart` | Restart the named channel's connector. Pass the same options you started it with |
 
-Put `--stop` and `--restart` before the channel, as in `cline connect --stop telegram`. Options after the channel go to the channel's connector.
+Put `--stop` and `--restart` before the channel, as in `induscode connect --stop telegram`. Options after the channel go to the channel's connector.
 
 ### `mcp`
 
-Manage MCP servers. `cline mcp` opens a menu in your terminal to list, add, edit, enable or disable, authorize and delete servers. See [MCP](/mcp/mcp-overview).
+Manage MCP servers. `induscode mcp` opens a menu in your terminal to list, add, edit, enable or disable, authorize and delete servers. See [MCP](/mcp/mcp-overview).
 
 ```bash
-cline mcp
-cline mcp add files --yes -- npx -y @modelcontextprotocol/server-filesystem .
-cline mcp add docs https://example.com/mcp --transport http --header "Authorization: Bearer TOKEN" --yes
-cline mcp remove docs
+induscode mcp
+induscode mcp add files --yes -- npx -y @modelcontextprotocol/server-filesystem .
+induscode mcp add docs https://example.com/mcp --transport http --header "Authorization: Bearer TOKEN" --yes
+induscode mcp remove docs
 ```
 
-`cline mcp add` (or `install`) saves a server: a command and its arguments after `--` for a local server, or a URL for a remote one. Without `--yes`, it opens the add wizard with those fields filled in. `cline mcp remove` (or `uninstall`) deletes a server by name.
+`induscode mcp add` (or `install`) saves a server: a command and its arguments after `--` for a local server, or a URL for a remote one. Without `--yes`, it opens the add wizard with those fields filled in. `induscode mcp remove` (or `uninstall`) deletes a server by name.
 
 ### `doctor`
 
 Diagnose and fix configuration issues.
 
 ```bash
-cline doctor
-cline doctor fix    # Kill all running Cline processes
-cline doctor log    # Open the CLI log file
+induscode doctor
+induscode doctor fix    # Kill all running IndusCode processes
+induscode doctor log    # Open the CLI log file
 ```
 
 ### `history|h [options]`
 
-List session history or manage saved sessions. `cline history` opens a session picker in your terminal. When its output goes to a script or a file, it prints the list instead.
+List session history or manage saved sessions. `induscode history` opens a session picker in your terminal. When its output goes to a script or a file, it prints the list instead.
 
 ```bash
-cline history
-cline history --json --limit 10
-cline history export <session-id> -o session.html
-cline history delete --session-id <session-id>
+induscode history
+induscode history --json --limit 10
+induscode history export <session-id> -o session.html
+induscode history delete --session-id <session-id>
 ```
 
 | Option or command | Description |
@@ -208,16 +208,16 @@ cline history delete --session-id <session-id>
 Handle a hook payload from stdin.
 
 ```bash
-cat payload.json | cline hook
+cat payload.json | induscode hook
 ```
 
 ### `plugin`
 
-Manage Cline plugins. Install plugins from file URLs, npm, git repositories, or local paths. See [Plugins](/customization/plugins) for full details and the plugin manifest format.
+Manage IndusCode plugins. Install plugins from file URLs, npm, git repositories, or local paths. See [Plugins](/customization/plugins) for full details and the plugin manifest format.
 
 ```bash
-cline plugin install <source>  # Install a plugin
-cline plugin i <source>        # Shorthand alias
+induscode plugin install <source>  # Install a plugin
+induscode plugin i <source>        # Shorthand alias
 ```
 
 | Option | Description |
@@ -226,12 +226,12 @@ cline plugin i <source>        # Shorthand alias
 | `--git` | Treat source as a git repository |
 | `--force` | Replace an existing install for the same source |
 | `--json` | Output result as JSON |
-| `--cwd <path>` | Install to `<path>/.cline/plugins` instead of the global directory |
+| `--cwd <path>` | Install to `<path>/.induscode/plugins` instead of the global directory |
 
-Try it with the [TypeScript Navigation Plugin](https://github.com/cline/typescript-lsp-plugin):
+Try it with the [TypeScript Navigation Plugin](https://github.com/induscode/typescript-lsp-plugin):
 
 ```bash
-cline plugin install https://github.com/cline/typescript-lsp-plugin.git
+induscode plugin install https://github.com/induscode/typescript-lsp-plugin.git
 ```
 
 ### `schedule`
@@ -239,41 +239,41 @@ cline plugin install https://github.com/cline/typescript-lsp-plugin.git
 Manage scheduled agents. See [Scheduling](/cli/scheduling).
 
 ```bash
-cline schedule
+induscode schedule
 ```
 
 ### `skill [args...]`
 
-Manage skills through the open [skills CLI](https://www.npmjs.com/package/skills) (`npx skills`). `add` and `remove` install into Cline unless you pass your own `--agent`. See [Skills](/customization/skills).
+Manage skills through the open [skills CLI](https://www.npmjs.com/package/skills) (`npx skills`). `add` and `remove` install into IndusCode unless you pass your own `--agent`. See [Skills](/customization/skills).
 
 ```bash
-cline skill add <owner/repo>
-cline skill list
-cline skill remove
+induscode skill add <owner/repo>
+induscode skill list
+induscode skill remove
 ```
 
 ### `hub`
 
-Manage the local hub daemon. The hub starts automatically when Cline needs it. Running `cline hub` without a subcommand prints help.
+Manage the local hub daemon. The hub starts automatically when IndusCode needs it. Running `induscode hub` without a subcommand prints help.
 
 ```bash
-cline hub status     # Show whether the hub is running
-cline hub ensure     # Start the hub if it isn't running and print its URL
-cline hub start      # Same as ensure
-cline hub stop       # Stop the hub and the sessions running in it
-cline hub drain      # Refuse new work while accepted runs finish (--off lifts it)
-cline hub upgrade    # Drain the hub and restart it; does not wait for --zen or scheduled tasks
-cline hub dashboard  # Open the hub dashboard in a browser
+induscode hub status     # Show whether the hub is running
+induscode hub ensure     # Start the hub if it isn't running and print its URL
+induscode hub start      # Same as ensure
+induscode hub stop       # Stop the hub and the sessions running in it
+induscode hub drain      # Refuse new work while accepted runs finish (--off lifts it)
+induscode hub upgrade    # Drain the hub and restart it; does not wait for --zen or scheduled tasks
+induscode hub dashboard  # Open the hub dashboard in a browser
 ```
 
 #### `hub dashboard [options]`
 
-Start the Cline Hub browser dashboard to view connected clients and sessions, send messages, and restart the hub. The command opens your default browser and stays running until you press Ctrl+C.
+Start the IndusCode Hub browser dashboard to view connected clients and sessions, send messages, and restart the hub. The command opens your default browser and stays running until you press Ctrl+C.
 
 ```bash
-cline hub dashboard
-cline hub dashboard --port 9090 --no-open
-cline hub dashboard --help
+induscode hub dashboard
+induscode hub dashboard --port 9090 --no-open
+induscode hub dashboard --help
 ```
 
 | Option | Description |
@@ -289,23 +289,23 @@ cline hub dashboard --help
 
 Anyone with access to the dashboard can drive sessions and restart the hub. For LAN or tunnel access, use a strong room secret and share the printed invite URL only with trusted people.
 
-The old `cline dashboard` invocation remains a hidden compatibility alias. Use `cline hub dashboard` in new scripts.
+The old `induscode dashboard` invocation remains a hidden compatibility alias. Use `induscode hub dashboard` in new scripts.
 
 ### `update [options]`
 
 Check for updates and install if available.
 
 ```bash
-cline update
+induscode update
 ```
 
 ### `version`
 
-Show Cline CLI version number.
+Show IndusCode CLI version number.
 
 ```bash
-cline version
-cline -V
+induscode version
+induscode -V
 ```
 
 ### `kanban`
@@ -313,30 +313,30 @@ cline -V
 Run the Kanban app. See [Kanban](/usage/kanban).
 
 ```bash
-cline kanban
+induscode kanban
 ```
 
 ## Environment Variables
 
 | Variable | Description |
 |----------|-------------|
-| `CLINE_DIR` | Custom configuration directory (replaces `~/.cline/`), like `--config` |
-| `CLINE_DATA_DIR` | Custom data directory (replaces `~/.cline/data/`) |
-| `CLINE_HUB_PORT` | Port of the local hub (default: `25463`) |
-| `CLINE_HUB_ADDRESS` | Hub address for `cline schedule` commands, like their `--address` option |
-| `CLINE_SESSION_BACKEND_MODE` | Force backend mode (`local`, `hub`, `remote`, `auto`) |
-| `CLINE_SANDBOX_DATA_DIR` | Sandbox session storage directory |
-| `CLINE_SANDBOX` | Enable sandbox mode |
-| `CLINE_HOOKS_DIR` | Additional hooks directory |
-| `CLINE_LOG_PATH` | CLI log file (default: `~/.cline/data/logs/cline.log`). `cline doctor log` opens it |
-| `CLINE_BUILD_ENV` | Set to `development` for debug features |
-| `CLINE_DEBUG_PORT_BASE` | Base port for Node.js inspector |
+| `INDUSCODE_DIR` | Custom configuration directory (replaces `~/.induscode/`), like `--config` |
+| `INDUSCODE_DATA_DIR` | Custom data directory (replaces `~/.induscode/data/`) |
+| `INDUSCODE_HUB_PORT` | Port of the local hub (default: `25463`) |
+| `INDUSCODE_HUB_ADDRESS` | Hub address for `induscode schedule` commands, like their `--address` option |
+| `INDUSCODE_SESSION_BACKEND_MODE` | Force backend mode (`local`, `hub`, `remote`, `auto`) |
+| `INDUSCODE_SANDBOX_DATA_DIR` | Sandbox session storage directory |
+| `INDUSCODE_SANDBOX` | Enable sandbox mode |
+| `INDUSCODE_HOOKS_DIR` | Additional hooks directory |
+| `INDUSCODE_LOG_PATH` | CLI log file (default: `~/.induscode/data/logs/induscode.log`). `induscode doctor log` opens it |
+| `INDUSCODE_BUILD_ENV` | Set to `development` for debug features |
+| `INDUSCODE_DEBUG_PORT_BASE` | Base port for Node.js inspector |
 
-The CLI has no allow or deny list for shell commands. To block commands, use a `PreToolUse` hook that cancels `run_commands` calls you don't allow. [.clineignore](/customization/clineignore#enforcing-clineignore-with-a-hook) shows a hook that blocks tool calls this way.
+The CLI has no allow or deny list for shell commands. To block commands, use a `PreToolUse` hook that cancels `run_commands` calls you don't allow. [.induscodeignore](/customization/induscodeignore#enforcing-induscodeignore-with-a-hook) shows a hook that blocks tool calls this way.
 
 ## JSON Output for Agent Runs
 
-When you give Cline a task with `--json`, the CLI prints one JSON object per line. Every line has a `type` and a `ts` (an ISO 8601 timestamp). Other commands print their own JSON shapes: for example, `cline history --json` prints one array of sessions, and `cline config <target> --json` prints that target's entries.
+When you give IndusCode a task with `--json`, the CLI prints one JSON object per line. Every line has a `type` and a `ts` (an ISO 8601 timestamp). Other commands print their own JSON shapes: for example, `induscode history --json` prints one array of sessions, and `induscode config <target> --json` prints that target's entries.
 
 ```json
 {"ts":"2026-10-07T04:49:43.041Z","type":"agent_event","event":{"type":"done","reason":"completed","text":"Hello!","iterations":1}}
@@ -355,33 +355,33 @@ Errors, including a `--timeout` that stops the run, are printed to stderr as `{"
 To print only the final answer:
 
 ```bash
-cline --json "summarize this changelog" | jq -r 'select(.type == "run_result") | .text'
+induscode --json "summarize this changelog" | jq -r 'select(.type == "run_result") | .text'
 ```
 
 ## Configuration Files
 
 ```
-~/.cline/
+~/.induscode/
   data/
     settings/
       providers.json             # API keys and provider config
       global-settings.json       # Global settings
-      cline_mcp_settings.json    # MCP server config (override with CLINE_MCP_SETTINGS_PATH)
+      induscode_mcp_settings.json    # MCP server config (override with INDUSCODE_MCP_SETTINGS_PATH)
     teams/                       # Team state
     sessions/                    # One folder of messages per session
     db/
       sessions.db                # Session index (SQLite)
     logs/
-      cline.log                  # CLI log (open with `cline doctor log`)
+      induscode.log                  # CLI log (open with `induscode doctor log`)
       hub-daemon.log             # Hub logs
   rules/                         # Global rules
   skills/                        # Global skills
   hooks/                         # Global hooks
   agents/                        # Global agent definitions
   plugins/                       # Global plugins
-    _installed/                  # Managed by `cline plugin install`
+    _installed/                  # Managed by `induscode plugin install`
 
-.cline/                          # Project root
+.induscode/                          # Project root
   rules/                         # Project rules
   skills/                        # Project skills
   hooks/                         # Lifecycle hooks
@@ -389,4 +389,4 @@ cline --json "summarize this changelog" | jq -r 'select(.type == "run_result") |
   plugins/                       # Project plugins
 ```
 
-[Config](/getting-started/config#configuration-directory-layout) lists every location Cline reads.
+[Config](/getting-started/config#configuration-directory-layout) lists every location IndusCode reads.

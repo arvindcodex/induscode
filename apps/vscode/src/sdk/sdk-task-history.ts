@@ -1,10 +1,10 @@
 import { existsSync } from "node:fs"
 import path from "node:path"
-import type { ClineCoreListHistoryOptions, SessionHistoryRecord } from "@cline/core"
-import type { MessageWithMetadata as SdkMessage } from "@cline/llms"
-import { formatDisplayUserInput, parseUserInputMode } from "@cline/shared"
-import { resolveSessionDataDir } from "@cline/shared/storage"
-import type { ClineMessage } from "@shared/ExtensionMessage"
+import type { IndusCodeCoreListHistoryOptions, SessionHistoryRecord } from "@induscode/core"
+import type { MessageWithMetadata as SdkMessage } from "@induscode/llms"
+import { formatDisplayUserInput, parseUserInputMode } from "@induscode/shared"
+import { resolveSessionDataDir } from "@induscode/shared/storage"
+import type { IndusCodeMessage } from "@shared/ExtensionMessage"
 import type { HistoryItem } from "@shared/HistoryItem"
 import getFolderSize from "get-folder-size"
 import type { McpHub } from "@/services/mcp/McpHub"
@@ -17,7 +17,7 @@ import {
 	mergeLegacyUiMessagesWithResumedSdkMessages,
 } from "./legacy-task-handling"
 import type { MessageIdMinter } from "./message-id-minter"
-import { sdkMessagesToClineMessages } from "./message-translator"
+import { sdkMessagesToIndusCodeMessages } from "./message-translator"
 import type { SdkSessionLifecycle } from "./sdk-session-lifecycle"
 import type { VscodeSessionHost } from "./vscode-session-host"
 
@@ -34,7 +34,7 @@ export interface SdkTaskHistoryOptions {
 	sessions: SdkSessionLifecycle
 	/**
 	 * VS Code's legacy global storage root. Pre-SDK VS Code tasks lived here under
-	 * state/taskHistory.json and tasks/<id>/ instead of ~/.cline/data.
+	 * state/taskHistory.json and tasks/<id>/ instead of ~/.induscode/data.
 	 */
 	legacyExtensionStorageDir?: string
 	/**
@@ -44,7 +44,7 @@ export interface SdkTaskHistoryOptions {
 	getMinter?: () => MessageIdMinter
 	telemetry?: TelemetryService
 	/**
-	 * Cline Cloud sessions live in the cloud control plane, not the local SDK
+	 * IndusCode Cloud sessions live in the cloud control plane, not the local SDK
 	 * store. When provided, they are merged into history listings and lookups
 	 * (identified by their `ses-…` ids) so History is the one place for every task.
 	 */
@@ -58,7 +58,7 @@ export interface CloudHistorySource {
 	delete: (id: string) => Promise<void>
 }
 
-type SdkTaskHistoryListOptions = ClineCoreListHistoryOptions & {
+type SdkTaskHistoryListOptions = IndusCodeCoreListHistoryOptions & {
 	offset?: number
 }
 
@@ -163,12 +163,12 @@ function parseUserMessageMode(content: SdkMessage["content"]): "plan" | "act" | 
 }
 
 /** Renders a persisted SDK transcript as chat rows, the same way History does for local tasks. */
-export function sdkMessagesToDisplayClineMessages(
+export function sdkMessagesToDisplayIndusCodeMessages(
 	messages: SdkMessage[],
 	minter: MessageIdMinter | undefined,
 	options: { finalTurnCompleted: boolean; cwd?: string },
-): ClineMessage[] {
-	return sdkMessagesToClineMessages(sanitizeSdkUserMessagesForDisplay(messages), minter, options)
+): IndusCodeMessage[] {
+	return sdkMessagesToIndusCodeMessages(sanitizeSdkUserMessagesForDisplay(messages), minter, options)
 }
 
 function sanitizeSdkUserMessagesForDisplay(messages: SdkMessage[]): SdkDisplayMessage[] {
@@ -439,7 +439,7 @@ export class SdkTaskHistory {
 			return result
 		}
 
-		const hostOptions: ClineCoreListHistoryOptions = { ...options }
+		const hostOptions: IndusCodeCoreListHistoryOptions = { ...options }
 		delete (hostOptions as { offset?: number }).offset
 
 		const sdkHistory = await this.withHistoryHost((host) =>
@@ -499,7 +499,7 @@ export class SdkTaskHistory {
 		return this.withHistoryHost((host) => host.get(taskId) as Promise<SessionHistoryRecord | undefined>)
 	}
 
-	async getClineMessages(taskId: string): Promise<ClineMessage[]> {
+	async getIndusCodeMessages(taskId: string): Promise<IndusCodeMessage[]> {
 		if (this.isCloudTask(taskId)) {
 			// Cloud transcripts are read through the sandbox connection (see SdkCloudSessionCoordinator).
 			return []
@@ -511,7 +511,7 @@ export class SdkTaskHistory {
 		}
 
 		const sdkMessages = await this.withHistoryHost((host) => host.readMessages(taskId) as Promise<SdkMessage[]>)
-		const clineMessages = sdkMessagesToClineMessages(
+		const induscodeMessages = sdkMessagesToIndusCodeMessages(
 			sanitizeSdkUserMessagesForDisplay(sdkMessages),
 			this.options.getMinter?.(),
 			{
@@ -531,9 +531,9 @@ export class SdkTaskHistory {
 			},
 		)
 		if (sdkRecord && legacyTask) {
-			return mergeLegacyUiMessagesWithResumedSdkMessages(readUiMessages(taskId, legacyTask.dataDir), clineMessages)
+			return mergeLegacyUiMessagesWithResumedSdkMessages(readUiMessages(taskId, legacyTask.dataDir), induscodeMessages)
 		}
-		return clineMessages
+		return induscodeMessages
 	}
 
 	/**

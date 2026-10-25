@@ -26,8 +26,8 @@ const BUILD_TIME_INLINED_ENV_VARS = [
 	"OTEL_LOGS_EXPORTER",
 	"OTEL_METRICS_EXPORTER",
 	"OTEL_TRACES_EXPORTER",
-	"CLINE_TRACE_SAMPLE_PERCENT",
-	"CLINE_TRACE_RECORD_CONTENT",
+	"INDUSCODE_TRACE_SAMPLE_PERCENT",
+	"INDUSCODE_TRACE_RECORD_CONTENT",
 	"OTEL_EXPORTER_OTLP_PROTOCOL",
 	"OTEL_EXPORTER_OTLP_ENDPOINT",
 	"OTEL_EXPORTER_OTLP_HEADERS",
@@ -108,11 +108,11 @@ export async function compileCliBinary(
 	const scratchRoot = process.platform === "win32" ? tmpdir() : "/tmp";
 	const tmpDir = join(
 		scratchRoot,
-		`cline-build-${input.bunTarget}-${process.pid}`,
+		`induscode-build-${input.bunTarget}-${process.pid}`,
 	);
 	const tmpOutfile = join(
 		tmpDir,
-		input.outfile.endsWith(".exe") ? "cline.exe" : "cline",
+		input.outfile.endsWith(".exe") ? "induscode.exe" : "induscode",
 	);
 	mkdirSync(tmpDir, { recursive: true });
 

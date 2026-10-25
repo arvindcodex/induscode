@@ -1,6 +1,7 @@
 const PROVIDER_ID_ALIASES: Record<string, string> = {
 	openai: "openai-native",
 	google: "gemini",
+	induscode: "induscode",
 };
 
 export function normalizeProviderId(providerId: string): string {

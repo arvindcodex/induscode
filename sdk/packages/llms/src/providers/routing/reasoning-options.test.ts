@@ -2,7 +2,7 @@ import type {
 	GatewayProviderContext,
 	GatewayStreamRequest,
 	ModelReasoningOption,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { describe, expect, it } from "vitest";
 import { normalizeReasoningRequest } from "./reasoning-options";
 
@@ -156,7 +156,7 @@ describe("normalizeReasoningRequest", () => {
 		).toBeUndefined();
 	});
 
-	it("ignores Cline Fable's advertised off control because backend reasoning is mandatory", () => {
+	it("ignores IndusCode Fable's advertised off control because backend reasoning is mandatory", () => {
 		const controls: ModelReasoningOption[] = [
 			{ type: "toggle" },
 			{ type: "effort", values: ["low", "medium", "high", "xhigh"] },
@@ -170,7 +170,7 @@ describe("normalizeReasoningRequest", () => {
 				makeRequest(
 					{ enabled: false },
 					{
-						providerId: "cline",
+						providerId: "induscode",
 						modelId: "anthropic/claude-fable-5",
 					},
 				),

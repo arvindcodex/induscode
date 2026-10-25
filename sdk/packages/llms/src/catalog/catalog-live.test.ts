@@ -3,7 +3,7 @@ import {
 	getGeneratedModelsForProvider,
 	getGeneratedProviderModels,
 } from "./catalog.generated-access";
-import { normalizeClineRecommendedProviderModels } from "./catalog-cline-recommended";
+import { normalizeIndusCodeRecommendedProviderModels } from "./catalog-induscode-recommended";
 import {
 	fetchLiveProviderModels,
 	fetchModelsDevProviderModels,
@@ -52,8 +52,8 @@ describe("models-dev-catalog", () => {
 		expect(result["other-gateway"].qwen.metadata).toBeUndefined();
 	});
 
-	it("bundles zero prices for every Cline Pass model without a live refresh", () => {
-		const models = Object.values(getGeneratedModelsForProvider("cline-pass"));
+	it("bundles zero prices for every IndusCode Pass model without a live refresh", () => {
+		const models = Object.values(getGeneratedModelsForProvider("induscode-pass"));
 		expect(models.length).toBeGreaterThan(0);
 		for (const model of models) {
 			expect(model.pricing, model.id).toEqual({
@@ -495,14 +495,14 @@ describe("models-dev-catalog", () => {
 		expect(providerModels.greenpt).not.toHaveProperty("green-s");
 	});
 
-	it("normalizes Cline recommended clinePass models as a generated provider source", () => {
-		const result = normalizeClineRecommendedProviderModels(
+	it("normalizes IndusCode recommended induscodePass models as a generated provider source", () => {
+		const result = normalizeIndusCodeRecommendedProviderModels(
 			{
-				clinePass: [
+				induscodePass: [
 					{
 						id: "base-model",
-						name: "ClinePass Base Model",
-						description: "Included in ClinePass",
+						name: "IndusCodePass Base Model",
+						description: "Included in IndusCodePass",
 					},
 					{
 						id: "custom-model",
@@ -529,11 +529,11 @@ describe("models-dev-catalog", () => {
 			},
 		);
 
-		expect(result["cline-pass"]).toEqual({
+		expect(result["induscode-pass"]).toEqual({
 			"base-model": {
 				id: "base-model",
 				name: "OpenRouter Base Model",
-				description: "Included in ClinePass",
+				description: "Included in IndusCodePass",
 				contextWindow: 200_000,
 				maxInputTokens: 180_000,
 				maxTokens: 16_384,
@@ -558,12 +558,12 @@ describe("models-dev-catalog", () => {
 		});
 	});
 
-	it("matches Cline recommended clinePass models against OpenRouter model slugs", () => {
-		const result = normalizeClineRecommendedProviderModels(
+	it("matches IndusCode recommended induscodePass models against OpenRouter model slugs", () => {
+		const result = normalizeIndusCodeRecommendedProviderModels(
 			{
-				clinePass: [
+				induscodePass: [
 					{
-						id: "cline-pass/glm-5.2",
+						id: "induscode-pass/glm-5.2",
 					},
 				],
 			},
@@ -580,8 +580,8 @@ describe("models-dev-catalog", () => {
 			},
 		);
 
-		expect(result["cline-pass"]?.["cline-pass/glm-5.2"]).toMatchObject({
-			id: "cline-pass/glm-5.2",
+		expect(result["induscode-pass"]?.["induscode-pass/glm-5.2"]).toMatchObject({
+			id: "induscode-pass/glm-5.2",
 			name: "GLM 5.2",
 			contextWindow: 256_000,
 			maxInputTokens: 200_000,
@@ -590,18 +590,18 @@ describe("models-dev-catalog", () => {
 		});
 	});
 
-	it("returns no ClinePass models when clinePass is empty or missing", () => {
-		expect(normalizeClineRecommendedProviderModels({}, {})).toEqual({});
+	it("returns no IndusCodePass models when induscodePass is empty or missing", () => {
+		expect(normalizeIndusCodeRecommendedProviderModels({}, {})).toEqual({});
 		expect(
-			normalizeClineRecommendedProviderModels({ clinePass: [] }, {}),
+			normalizeIndusCodeRecommendedProviderModels({ induscodePass: [] }, {}),
 		).toEqual({});
 	});
 
-	it("includes Cline free models alongside ClinePass models", () => {
-		const result = normalizeClineRecommendedProviderModels(
+	it("includes IndusCode free models alongside IndusCodePass models", () => {
+		const result = normalizeIndusCodeRecommendedProviderModels(
 			{
-				clinePass: [{ id: "cline-pass/glm-5.1", name: "glm-5.1" }],
-				free: [{ id: "cline-free/kat-coder-pro", name: "kat-coder-pro" }],
+				induscodePass: [{ id: "induscode-pass/glm-5.1", name: "glm-5.1" }],
+				free: [{ id: "induscode-free/kat-coder-pro", name: "kat-coder-pro" }],
 			},
 			{
 				"kwaipilot/kat-coder-pro": {
@@ -616,71 +616,71 @@ describe("models-dev-catalog", () => {
 			},
 		);
 
-		const models = result["cline-pass"] ?? {};
-		// ClinePass models stay first so the provider default remains a pass model
+		const models = result["induscode-pass"] ?? {};
+		// IndusCodePass models stay first so the provider default remains a pass model
 		expect(Object.keys(models)).toEqual([
-			"cline-pass/glm-5.1",
-			"cline-free/kat-coder-pro",
+			"induscode-pass/glm-5.1",
+			"induscode-free/kat-coder-pro",
 		]);
-		expect(models["cline-free/kat-coder-pro"]).toMatchObject({
-			id: "cline-free/kat-coder-pro",
+		expect(models["induscode-free/kat-coder-pro"]).toMatchObject({
+			id: "induscode-free/kat-coder-pro",
 			name: "KAT Coder Pro (free)",
 			contextWindow: 256_000,
 			maxInputTokens: 200_000,
 			// free models are billed at $0 regardless of catalog pricing
 			pricing: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
 		});
-		expect(result.cline?.["cline-free/kat-coder-pro"]).toMatchObject({
-			id: "cline-free/kat-coder-pro",
+		expect(result.induscode?.["induscode-free/kat-coder-pro"]).toMatchObject({
+			id: "induscode-free/kat-coder-pro",
 			name: "KAT Coder Pro (free)",
 			pricing: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
 		});
-		expect(models["cline-free/kat-coder-pro"]).not.toBe(
-			result.cline?.["cline-free/kat-coder-pro"],
+		expect(models["induscode-free/kat-coder-pro"]).not.toBe(
+			result.induscode?.["induscode-free/kat-coder-pro"],
 		);
 	});
 
-	it("includes Cline Cloud models only when explicitly requested", () => {
+	it("includes IndusCode Cloud models only when explicitly requested", () => {
 		const payload = {
-			clinePass: [{ id: "cline-pass/glm-5.2", name: "glm-5.2" }],
-			clineCloud: [
+			induscodePass: [{ id: "induscode-pass/glm-5.2", name: "glm-5.2" }],
+			induscodeCloud: [
 				{
-					id: "cline-cloud/claude-sonnet-4.6",
+					id: "induscode-cloud/claude-sonnet-4.6",
 					name: "Claude Sonnet 4.6",
 				},
 			],
 		};
 		expect(
-			normalizeClineRecommendedProviderModels(payload, {}).cline ?? {},
-		).not.toHaveProperty("cline-cloud/claude-sonnet-4.6");
+			normalizeIndusCodeRecommendedProviderModels(payload, {}).induscode ?? {},
+		).not.toHaveProperty("induscode-cloud/claude-sonnet-4.6");
 
-		const result = normalizeClineRecommendedProviderModels(
+		const result = normalizeIndusCodeRecommendedProviderModels(
 			payload,
 			{},
 			{
-				includeClineCloudModels: true,
+				includeIndusCodeCloudModels: true,
 			},
 		);
 
-		expect(result.cline?.["cline-cloud/claude-sonnet-4.6"]).toMatchObject({
-			id: "cline-cloud/claude-sonnet-4.6",
+		expect(result.induscode?.["induscode-cloud/claude-sonnet-4.6"]).toMatchObject({
+			id: "induscode-cloud/claude-sonnet-4.6",
 			name: "Claude Sonnet 4.6",
 			pricing: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
 		});
-		expect(result["cline-pass"]).not.toHaveProperty(
-			"cline-cloud/claude-sonnet-4.6",
+		expect(result["induscode-pass"]).not.toHaveProperty(
+			"induscode-cloud/claude-sonnet-4.6",
 		);
 	});
 
 	it.each([
-		"cline-free/deepseek-v4-flash",
+		"induscode-free/deepseek-v4-flash",
 		"deepseek/deepseek-v4-flash",
-	])("labels a free model with ID %s when its name matches a ClinePass model", (freeId) => {
-		const result = normalizeClineRecommendedProviderModels(
+	])("labels a free model with ID %s when its name matches a IndusCodePass model", (freeId) => {
+		const result = normalizeIndusCodeRecommendedProviderModels(
 			{
-				clinePass: [
+				induscodePass: [
 					{
-						id: "cline-pass/deepseek-v4-flash",
+						id: "induscode-pass/deepseek-v4-flash",
 						name: "DeepSeek V4 Flash",
 					},
 				],
@@ -694,20 +694,20 @@ describe("models-dev-catalog", () => {
 			{},
 		);
 
-		expect(result["cline-pass"]?.["cline-pass/deepseek-v4-flash"]?.name).toBe(
+		expect(result["induscode-pass"]?.["induscode-pass/deepseek-v4-flash"]?.name).toBe(
 			"DeepSeek V4 Flash",
 		);
-		expect(result["cline-pass"]?.[freeId]?.name).toBe(
+		expect(result["induscode-pass"]?.[freeId]?.name).toBe(
 			"DeepSeek V4 Flash (free)",
 		);
-		expect(result.cline?.[freeId]?.name).toBe("DeepSeek V4 Flash (free)");
+		expect(result.induscode?.[freeId]?.name).toBe("DeepSeek V4 Flash (free)");
 	});
 
-	it("resolves free-model capabilities by slug and preserves free-only Cline catalog payloads", () => {
-		const suffixed = normalizeClineRecommendedProviderModels(
+	it("resolves free-model capabilities by slug and preserves free-only IndusCode catalog payloads", () => {
+		const suffixed = normalizeIndusCodeRecommendedProviderModels(
 			{
-				clinePass: [{ id: "cline-pass/glm-5.1" }],
-				free: [{ id: "cline-free/trinity-large-preview:free" }],
+				induscodePass: [{ id: "induscode-pass/glm-5.1" }],
+				free: [{ id: "induscode-free/trinity-large-preview:free" }],
 			},
 			{
 				"arcee-ai/trinity-large-preview:free": {
@@ -722,31 +722,31 @@ describe("models-dev-catalog", () => {
 			},
 		);
 		expect(
-			suffixed["cline-pass"]?.["cline-free/trinity-large-preview:free"],
+			suffixed["induscode-pass"]?.["induscode-free/trinity-large-preview:free"],
 		).toMatchObject({
 			name: "Trinity Large Preview (free)",
 			contextWindow: 512_000,
 		});
 		expect(
-			suffixed.cline?.["cline-free/trinity-large-preview:free"],
+			suffixed.induscode?.["induscode-free/trinity-large-preview:free"],
 		).toMatchObject({
 			name: "Trinity Large Preview (free)",
 			contextWindow: 512_000,
 		});
 
-		// free bucket alone updates the Cline provider catalog but does not rotate
-		// ClinePass away from its bundled subscription list/default.
-		const freeOnly = normalizeClineRecommendedProviderModels(
-			{ free: [{ id: "cline-free/kat-coder-pro" }] },
+		// free bucket alone updates the IndusCode provider catalog but does not rotate
+		// IndusCodePass away from its bundled subscription list/default.
+		const freeOnly = normalizeIndusCodeRecommendedProviderModels(
+			{ free: [{ id: "induscode-free/kat-coder-pro" }] },
 			{},
 		);
-		expect(freeOnly.cline?.["cline-free/kat-coder-pro"]).toBeDefined();
-		expect(freeOnly["cline-pass"]).toBeUndefined();
+		expect(freeOnly.induscode?.["induscode-free/kat-coder-pro"]).toBeDefined();
+		expect(freeOnly["induscode-pass"]).toBeUndefined();
 	});
 
-	it("normalizes cline-free ids from the free endpoint bucket", () => {
-		const result = normalizeClineRecommendedProviderModels(
-			{ free: [{ id: "cline-free/k2-think" }] },
+	it("normalizes induscode-free ids from the free endpoint bucket", () => {
+		const result = normalizeIndusCodeRecommendedProviderModels(
+			{ free: [{ id: "induscode-free/k2-think" }] },
 			{
 				"moonshotai/k2-think": {
 					id: "moonshotai/k2-think",
@@ -761,9 +761,9 @@ describe("models-dev-catalog", () => {
 		);
 
 		expect(result).toEqual({
-			cline: {
-				"cline-free/k2-think": expect.objectContaining({
-					id: "cline-free/k2-think",
+			induscode: {
+				"induscode-free/k2-think": expect.objectContaining({
+					id: "induscode-free/k2-think",
 					name: "K2 Think (free)",
 					contextWindow: 1_000_000,
 					pricing: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
@@ -775,8 +775,8 @@ describe("models-dev-catalog", () => {
 	it("resolves OpenRouter display names for free models with full catalog ids", () => {
 		// The recommended-models endpoint sends slug-like names (e.g.
 		// "deepseek-v4-flash"); the overlay must keep the OpenRouter display
-		// name so merged cline/cline-pass catalogs don't show raw ids.
-		const result = normalizeClineRecommendedProviderModels(
+		// name so merged induscode/induscode-pass catalogs don't show raw ids.
+		const result = normalizeIndusCodeRecommendedProviderModels(
 			{
 				free: [
 					{ id: "deepseek/deepseek-v4-flash", name: "deepseek-v4-flash" },
@@ -806,16 +806,16 @@ describe("models-dev-catalog", () => {
 			},
 		);
 
-		expect(result.cline?.["deepseek/deepseek-v4-flash"]).toMatchObject({
+		expect(result.induscode?.["deepseek/deepseek-v4-flash"]).toMatchObject({
 			id: "deepseek/deepseek-v4-flash",
 			name: "DeepSeek V4 Flash (free)",
 			pricing: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
 		});
-		expect(result.cline?.["poolside/laguna-s-2.1:free"]?.name).toBe(
+		expect(result.induscode?.["poolside/laguna-s-2.1:free"]?.name).toBe(
 			"Laguna S 2.1 (free)",
 		);
 		// Without a catalog match, fall back to the endpoint-provided name.
-		expect(result.cline?.["unknown/mystery-model"]?.name).toBe(
+		expect(result.induscode?.["unknown/mystery-model"]?.name).toBe(
 			"mystery-model (free)",
 		);
 	});
@@ -1125,7 +1125,7 @@ describe("models-dev-catalog", () => {
 		expect(result["openai-native"]).toHaveProperty("gpt-live");
 	});
 
-	it("fetches live models from models.dev and Cline recommended clinePass models", async () => {
+	it("fetches live models from models.dev and IndusCode recommended induscodePass models", async () => {
 		const fetcher = vi.fn(async (url: string) => {
 			if (url === "https://models.dev/api.json") {
 				return {
@@ -1150,9 +1150,9 @@ describe("models-dev-catalog", () => {
 			return {
 				ok: true,
 				json: async () => ({
-					clinePass: [
+					induscodePass: [
 						{
-							id: "cline-pass/live-base-model",
+							id: "induscode-pass/live-base-model",
 							name: "vendor/live-base-model",
 						},
 					],
@@ -1167,14 +1167,14 @@ describe("models-dev-catalog", () => {
 
 		expect(fetcher).toHaveBeenCalledWith("https://models.dev/api.json");
 		expect(fetcher).toHaveBeenCalledWith(
-			"https://api.cline.bot/api/v1/ai/cline/recommended-models",
+			"https://api.induscode.bot/api/v1/ai/induscode/recommended-models",
 			expect.objectContaining({
-				headers: expect.objectContaining({ "X-CLIENT-TYPE": "cline-sdk" }),
+				headers: expect.objectContaining({ "X-CLIENT-TYPE": "induscode-sdk" }),
 			}),
 		);
 		expect(result.openrouter).toHaveProperty("vendor/live-base-model");
-		expect(result["cline-pass"]?.["cline-pass/live-base-model"]).toMatchObject({
-			id: "cline-pass/live-base-model",
+		expect(result["induscode-pass"]?.["induscode-pass/live-base-model"]).toMatchObject({
+			id: "induscode-pass/live-base-model",
 			name: "Live Base Model",
 			contextWindow: 256_000,
 			maxInputTokens: 200_000,
@@ -1183,7 +1183,7 @@ describe("models-dev-catalog", () => {
 		});
 	});
 
-	it("keeps models.dev live models when Cline recommended models fail", async () => {
+	it("keeps models.dev live models when IndusCode recommended models fail", async () => {
 		const fetcher = vi.fn(async (url: string) => {
 			if (url === "https://models.dev/api.json") {
 				return {
@@ -1208,10 +1208,10 @@ describe("models-dev-catalog", () => {
 		);
 
 		expect(result["openai-native"]?.["gpt-live"]?.name).toBe("GPT Live");
-		expect(result["cline-pass"]).toBeUndefined();
+		expect(result["induscode-pass"]).toBeUndefined();
 	});
 
-	it("keeps Cline recommended clinePass models when models.dev fails", async () => {
+	it("keeps IndusCode recommended induscodePass models when models.dev fails", async () => {
 		const fetcher = vi.fn(async (url: string) => {
 			if (url === "https://models.dev/api.json") {
 				return { ok: false, status: 503 };
@@ -1220,9 +1220,9 @@ describe("models-dev-catalog", () => {
 			return {
 				ok: true,
 				json: async () => ({
-					clinePass: [
+					induscodePass: [
 						{
-							id: "cline-pass/live-default-model",
+							id: "induscode-pass/live-default-model",
 							name: "Live Default Model",
 						},
 					],
@@ -1237,9 +1237,9 @@ describe("models-dev-catalog", () => {
 
 		expect(result["openai-native"]).toBeUndefined();
 		expect(
-			result["cline-pass"]?.["cline-pass/live-default-model"],
+			result["induscode-pass"]?.["induscode-pass/live-default-model"],
 		).toMatchObject({
-			id: "cline-pass/live-default-model",
+			id: "induscode-pass/live-default-model",
 			name: "Live Default Model",
 			contextWindow: 128_000,
 			maxInputTokens: 128_000,

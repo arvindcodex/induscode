@@ -29,7 +29,7 @@
 //
 // This pattern is documented in the OpenAI Chat Completions spec
 // (consecutive `user` messages are concatenated by the model) and is a
-// direct port of the proven wire pattern used by classic Cline's
+// direct port of the proven wire pattern used by classic IndusCode's
 // `convertToOpenAiMessages` (see `src/core/api/transform/openai-format.ts`
 // in origin/main).
 //
@@ -61,7 +61,7 @@ import {
 	type MediaBudgetState,
 	reserveImageMediaBytes,
 	validateAndReserveImageMedia,
-} from "@cline/shared";
+} from "@induscode/shared";
 
 const IMAGE_PLACEHOLDER = "(see following user message for image)";
 

@@ -1,6 +1,6 @@
 export { sanitizeTeamName } from "./sanitize-team-name";
 
-import type { AgentResult } from "@cline/shared";
+import type { AgentResult } from "@induscode/shared";
 import {
 	type AgentTool,
 	createTool,
@@ -72,7 +72,7 @@ import {
 	type TeamTeammateSpec,
 	validateWithZod,
 	zodToJsonSchema,
-} from "@cline/shared";
+} from "@induscode/shared";
 import {
 	buildDelegatedAgentConfig,
 	type DelegatedAgentConfigProvider,

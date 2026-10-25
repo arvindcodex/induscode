@@ -1,5 +1,5 @@
-import type * as LlmsProviders from "@cline/llms";
-import type { AgentFinishReason } from "@cline/shared";
+import type * as LlmsProviders from "@induscode/llms";
+import type { AgentFinishReason } from "@induscode/shared";
 import type { SessionAccumulatedUsage } from "../runtime/host/runtime-host";
 import type { BuiltRuntime } from "../runtime/orchestration/session-runtime";
 import type { SessionRuntime } from "../runtime/orchestration/session-runtime-orchestrator";
@@ -45,7 +45,7 @@ export type ActiveSession = {
 	 * completion tool (`submit_and_exit`) for this session. Used to:
 	 *
 	 * 1. Emit `task.completed` exactly once at the moment the assistant
-	 *    declares completion (parity with original Cline's
+	 *    declares completion (parity with original IndusCode's
 	 *    `attempt_completion`).
 	 * 2. Suppress the fallback `task.completed` emission from
 	 *    `emitTaskCompletedOnTeardown(...)` so the same logical completion

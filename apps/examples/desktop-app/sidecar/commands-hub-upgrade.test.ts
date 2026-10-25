@@ -3,9 +3,9 @@ import type { SidecarContext, SidecarWebSocketClient } from "./types";
 
 const upgradeManagedHubMock = vi.hoisted(() => vi.fn());
 
-vi.mock("@cline/core", async () => {
+vi.mock("@induscode/core", async () => {
 	const actual =
-		await vi.importActual<typeof import("@cline/core")>("@cline/core");
+		await vi.importActual<typeof import("@induscode/core")>("@induscode/core");
 	return {
 		...actual,
 		upgradeManagedHub: upgradeManagedHubMock,
@@ -69,7 +69,7 @@ describe("hub_upgrade command", () => {
 		expect(upgradeManagedHubMock).toHaveBeenCalledWith({
 			workspaceRoot: "/workspace",
 			force: true,
-			reason: "Cline Desktop hub update",
+			reason: "IndusCode Desktop hub update",
 		});
 		expect(result).toEqual({
 			outcome: "replaced",

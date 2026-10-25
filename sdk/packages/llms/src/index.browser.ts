@@ -1,9 +1,9 @@
-/** @deprecated Import from `@cline/shared`; kept for compatibility. */
+/** @deprecated Import from `@induscode/shared`; kept for compatibility. */
 export {
-	CLINE_DEFAULT_MODEL_ID,
+	INDUSCODE_DEFAULT_MODEL_ID,
 	type ProviderLocalCli,
 	resolveProviderLocalCli,
-} from "@cline/shared";
+} from "@induscode/shared";
 export type {
 	GetModelsForProviderOptions,
 	ModelCollection,
@@ -18,7 +18,7 @@ export {
 	CODEX_EFFECTIVE_CONTEXT_WINDOW_PERCENT,
 	filterImageOutputModels,
 	filterOpenAICodexModels,
-	GENERATED_CLINE_RECOMMENDED_MODELS,
+	GENERATED_INDUSCODE_RECOMMENDED_MODELS,
 	getAllProviders,
 	getGeneratedModelsForProvider,
 	getModelOverridesForProvider,
@@ -42,7 +42,7 @@ export {
 	resolveProviderUsageCostDisplay,
 	shouldShowProviderUsageCost,
 } from "./providers/billing";
-export { buildClineClientHeaders } from "./providers/cline-client-headers";
+export { buildIndusCodeClientHeaders } from "./providers/induscode-client-headers";
 export { toGatewayModelCapabilities } from "./providers/model-capabilities";
 export {
 	BUILTIN_MODEL_OPERATION_CAPABILITIES,
@@ -68,22 +68,22 @@ export type {
 	ProviderId,
 } from "./providers.browser";
 export {
-	ClineFreeModelLimitError,
-	ClineNotSubscribedError,
-	ClineOrgIndividualInferenceSubscriptionError,
-	ClinePassLimitError,
-	extractClineFreeModelLimitResetTime,
-	getClineNotSubscribedMessage,
-	getClineOrgIndividualInferenceSubscriptionMessage,
-	getClinePassSubscriptionUrl,
-	isClineFreeModelLimitError,
-	isClineFreeModelLimitMessage,
-	isClineModelNotFoundMessage,
-	isClineNotSubscribedError,
-	isClineNotSubscribedMessage,
-	isClineOrgIndividualInferenceSubscriptionError,
-	isClineOrgIndividualInferenceSubscriptionMessage,
-	isClinePassLimitError,
-	isClinePassLimitMessage,
+	IndusCodeFreeModelLimitError,
+	IndusCodeNotSubscribedError,
+	IndusCodeOrgIndividualInferenceSubscriptionError,
+	IndusCodePassLimitError,
+	extractIndusCodeFreeModelLimitResetTime,
+	getIndusCodeNotSubscribedMessage,
+	getIndusCodeOrgIndividualInferenceSubscriptionMessage,
+	getIndusCodePassSubscriptionUrl,
+	isIndusCodeFreeModelLimitError,
+	isIndusCodeFreeModelLimitMessage,
+	isIndusCodeModelNotFoundMessage,
+	isIndusCodeNotSubscribedError,
+	isIndusCodeNotSubscribedMessage,
+	isIndusCodeOrgIndividualInferenceSubscriptionError,
+	isIndusCodeOrgIndividualInferenceSubscriptionMessage,
+	isIndusCodePassLimitError,
+	isIndusCodePassLimitMessage,
 	normalizeProviderId,
 } from "./providers.browser";

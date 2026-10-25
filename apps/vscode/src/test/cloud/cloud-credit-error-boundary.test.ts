@@ -1,9 +1,9 @@
-import { type CoreSessionEvent, SessionSource } from "@cline/core"
+import { type CoreSessionEvent, SessionSource } from "@induscode/core"
 import { afterEach, describe, expect, it } from "vitest"
 import { CloudSessionHost } from "@/sdk/cloud-session-host"
 import { MessageTranslatorState, translateSessionEvent } from "@/sdk/message-translator"
 import { CloudSessionsService } from "@/services/cloud/CloudSessionsService"
-import type { ClineMessage } from "@/shared/ExtensionMessage"
+import type { IndusCodeMessage } from "@/shared/ExtensionMessage"
 import { type LocalCloudEnvironment, startLocalCloudEnvironment } from "./local-cloud-environment"
 
 describe("cloud insufficient-credit failures through the real Hub", () => {
@@ -25,7 +25,7 @@ describe("cloud insufficient-credit failures through the real Hub", () => {
 			getAuthToken: async () => environment?.accessToken,
 			getActiveOrganizationId: () => undefined,
 		})
-		const record = await service.createSession({ modelId: "fixture-model", repoUrl: "https://github.com/cline/fixture" })
+		const record = await service.createSession({ modelId: "fixture-model", repoUrl: "https://github.com/induscode/fixture" })
 		const owned = await environment.activateSession(record.id)
 		const taskId = record.metadata.taskId
 		if (!taskId) throw new Error("Local cloud session did not return a task id")
@@ -44,10 +44,10 @@ describe("cloud insufficient-credit failures through the real Hub", () => {
 			interactive: true,
 			prompt: undefined,
 			config: {
-				providerId: "cline",
+				providerId: "induscode",
 				modelId: "fixture-model",
 				apiKey: "fixture-key",
-				systemPrompt: "normal Cline guidance",
+				systemPrompt: "normal IndusCode guidance",
 				enableTools: false,
 				enableSpawnAgent: false,
 				enableAgentTeams: false,
@@ -59,7 +59,7 @@ describe("cloud insufficient-credit failures through the real Hub", () => {
 		expect(host.status).toBe("failed")
 
 		const state = new MessageTranslatorState()
-		const messages: ClineMessage[] = []
+		const messages: IndusCodeMessage[] = []
 		let turnComplete = false
 		for (const event of events) {
 			const result = translateSessionEvent(event, state)
@@ -73,7 +73,7 @@ describe("cloud insufficient-credit failures through the real Hub", () => {
 		expect(failed).toHaveLength(1)
 		expect(JSON.parse(failed[0].text ?? "{}")).toMatchObject({
 			code: "insufficient_credits",
-			providerId: "cline",
+			providerId: "induscode",
 			details: { message: "Not enough credits available" },
 		})
 	})

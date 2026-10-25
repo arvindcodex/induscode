@@ -4,15 +4,15 @@ import { useGitHubConnection } from "./useGitHubConnection"
 
 const mocks = vi.hoisted(() => ({
 	activeOrganization: undefined as { organizationId: string } | undefined,
-	clineUser: { uid: "user-a" },
+	induscodeUser: { uid: "user-a" },
 	accountSwitch: null as object | null,
 	getGitHubConnection: vi.fn(),
 }))
 
-vi.mock("@/context/ClineAuthContext", () => ({
-	useClineAuth: () => ({
+vi.mock("@/context/IndusCodeAuthContext", () => ({
+	useIndusCodeAuth: () => ({
 		activeOrganization: mocks.activeOrganization,
-		clineUser: mocks.clineUser,
+		induscodeUser: mocks.induscodeUser,
 		accountSwitch: mocks.accountSwitch,
 	}),
 }))
@@ -36,7 +36,7 @@ describe("useGitHubConnection", () => {
 	beforeEach(() => {
 		vi.clearAllMocks()
 		mocks.activeOrganization = { organizationId: "org-a" }
-		mocks.clineUser = { uid: "user-a" }
+		mocks.induscodeUser = { uid: "user-a" }
 		mocks.accountSwitch = null
 	})
 
@@ -85,7 +85,7 @@ describe("useGitHubConnection", () => {
 		mocks.getGitHubConnection.mockResolvedValueOnce(connected).mockResolvedValueOnce(disconnected)
 		const { result, rerender } = renderHook(() => useGitHubConnection(true))
 		await waitFor(() => expect(result.current.connection).toEqual(connected))
-		mocks.clineUser = { uid: "user-b" }
+		mocks.induscodeUser = { uid: "user-b" }
 		rerender()
 		expect(result.current.connection).toBeUndefined()
 		await waitFor(() => expect(result.current.connection).toEqual(disconnected))

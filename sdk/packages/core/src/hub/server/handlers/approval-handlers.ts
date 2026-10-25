@@ -3,8 +3,8 @@ import type {
 	HubEventEnvelope,
 	HubReplyEnvelope,
 	ToolApprovalRequest,
-} from "@cline/shared";
-import { createSessionId } from "@cline/shared";
+} from "@induscode/shared";
+import { createSessionId } from "@induscode/shared";
 import { errorReply, type HubTransportContext, okReply } from "./context";
 
 export async function requestToolApproval(

@@ -41,7 +41,7 @@ jobs:
   validate:
     name: Validate release tag
     if: |
-      github.repository == 'cline/cline' &&
+      github.repository == 'induscode/induscode' &&
       github.ref == 'refs/heads/main' &&
       github.event.inputs.confirm_publish == 'publish' &&
       !endsWith(github.actor, '[bot]')
@@ -125,7 +125,7 @@ jobs:
             echo "ref=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
             echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
             echo "channel=nightly" >> "$GITHUB_OUTPUT"
-            echo "product=Cline Nightly" >> "$GITHUB_OUTPUT"
+            echo "product=IndusCode Nightly" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
@@ -137,7 +137,7 @@ jobs:
               fi
               ANCESTOR_REF=main
               FEED=desktop-latest
-              PRODUCT="Cline"
+              PRODUCT="IndusCode"
               ;;
             beta)
               if ! printf "%s\n" "$TAG" | grep -Eq '^desktop-v[0-9]+\.[0-9]+\.[0-9]+-beta\.[0-9]+$'; then
@@ -146,7 +146,7 @@ jobs:
               fi
               ANCESTOR_REF=desktop-experimental
               FEED=desktop-beta
-              PRODUCT="Cline Beta"
+              PRODUCT="IndusCode Beta"
               ;;
             *)
               echo "unknown channel: ${CHANNEL}"
@@ -313,7 +313,7 @@ jobs:
           OTEL_LOGS_EXPORTER: otlp
           OTEL_METRICS_EXPORTER: otlp
           OTEL_TRACES_EXPORTER: otlp
-          CLINE_TRACE_RECORD_CONTENT: "true"
+          INDUSCODE_TRACE_RECORD_CONTENT: "true"
           OTEL_EXPORTER_OTLP_PROTOCOL: ${{ secrets.OTEL_EXPORTER_OTLP_PROTOCOL }}
           OTEL_EXPORTER_OTLP_ENDPOINT: ${{ secrets.OTEL_EXPORTER_OTLP_ENDPOINT }}
           OTEL_EXPORTER_OTLP_HEADERS: ${{ secrets.OTEL_EXPORTER_OTLP_HEADERS }}
@@ -337,7 +337,7 @@ jobs:
         run: bunx tauri build --target universal-apple-darwin $CONFIG_ARGS
         env:
           CONFIG_ARGS: ${{ needs.validate.outputs.channel == 'nightly' && '--config src-tauri/tauri.release.conf.json --config src-tauri/tauri.nightly.conf.json' || needs.validate.outputs.channel == 'beta' && '--config src-tauri/tauri.release.conf.json --config src-tauri/tauri.beta.conf.json' || '--config src-tauri/tauri.release.conf.json' }}
-          # Telemetry config for the desktop backend and bundled Cline CLI.
+          # Telemetry config for the desktop backend and bundled IndusCode CLI.
           # Tauri's beforeBuildCommand (`bun run build` -> build:runtime)
           # builds both during this step and inlines these values via
           # `--define` (scripts/telemetry-define-args.ts); a packaged app
@@ -349,7 +349,7 @@ jobs:
           OTEL_LOGS_EXPORTER: otlp
           OTEL_METRICS_EXPORTER: otlp
           OTEL_TRACES_EXPORTER: otlp
-          CLINE_TRACE_RECORD_CONTENT: "true"
+          INDUSCODE_TRACE_RECORD_CONTENT: "true"
           OTEL_EXPORTER_OTLP_PROTOCOL: ${{ secrets.OTEL_EXPORTER_OTLP_PROTOCOL }}
           OTEL_EXPORTER_OTLP_ENDPOINT: ${{ secrets.OTEL_EXPORTER_OTLP_ENDPOINT }}
           OTEL_EXPORTER_OTLP_HEADERS: ${{ secrets.OTEL_EXPORTER_OTLP_HEADERS }}
@@ -372,7 +372,7 @@ jobs:
           # bare DMG. macOS runners have a GUI session, so opt out of the skip.
           TAURI_BUNDLER_DMG_IGNORE_CI: "true"
 
-      # Tauri lipos the main binary itself but the bundled Cline CLI is merged
+      # Tauri lipos the main binary itself but the bundled IndusCode CLI is merged
       # by our own build-desktop-runtime.ts, so assert every Mach-O in the
       # bundle really carries both slices before anything is published. A
       # single-arch CLI would otherwise ship fine and only crash on the other
@@ -467,9 +467,9 @@ jobs:
         run: |
           for COMPONENT in cli backend; do
             if [ "$COMPONENT" = cli ]; then
-              SELFCHECK=$(./src-tauri/bin/cline-cli-universal-apple-darwin --telemetry-selfcheck)
+              SELFCHECK=$(./src-tauri/bin/induscode-cli-universal-apple-darwin --telemetry-selfcheck)
             else
-              SELFCHECK=$(BUN_BE_BUN=1 ./src-tauri/bin/cline-cli-universal-apple-darwin run --no-env-file src-tauri/bin/desktop-backend/index.js --telemetry-selfcheck)
+              SELFCHECK=$(BUN_BE_BUN=1 ./src-tauri/bin/induscode-cli-universal-apple-darwin run --no-env-file src-tauri/bin/desktop-backend/index.js --telemetry-selfcheck)
             fi
             echo "$SELFCHECK"
             if ! printf '%s' "$SELFCHECK" | grep -q '"enabled":true'; then
@@ -488,30 +488,30 @@ jobs:
             fi
             if ! printf '%s' "$SELFCHECK" | grep -q '"traces_exporter":"otlp"'; then
               echo "Packaged $COMPONENT has no OTLP traces exporter inlined, so"
-              echo "cline-provider spans would never reach the collector (and"
+              echo "induscode-provider spans would never reach the collector (and"
               echo "Langfuse). Check OTEL_TRACES_EXPORTER on the build step."
               exit 1
             fi
           done
 
-      # Boot the Cline CLI and desktop backend that will actually ship — built
+      # Boot the IndusCode CLI and desktop backend that will actually ship — built
       # with the production --target, --minify and telemetry defines, on the
       # OS they will run on — against an isolated Hub started by
-      # `cline hub ensure`, and require the backend's ready line plus a
+      # `induscode hub ensure`, and require the backend's ready line plus a
       # healthy /health. Desktop 0.0.31 shipped a backend whose Hub daemon loaded a
-      # second copy of @cline/core with a different build id, so the app
+      # second copy of @induscode/core with a different build id, so the app
       # retired its own Hub on every launch and never got past "backend
       # unavailable". PR CI runs this same test on ubuntu against a plain
       # build from source, which catches that resolution class but not a
       # break specific to the shipped flags or platform; this is the
-      # release-time half. The test isolates CLINE_DIR and the Hub discovery
+      # release-time half. The test isolates INDUSCODE_DIR and the Hub discovery
       # path, so it cannot reach anything else on the runner. Telemetry is
       # inlined into the backend, so expect one activation event per publish.
       - name: Smoke-test the packaged desktop runtime against an isolated Hub
         working-directory: apps/examples/desktop-app
         env:
-          CLINE_TEST_DESKTOP_CLI_BIN: src-tauri/bin/cline-cli-universal-apple-darwin
-          CLINE_TEST_DESKTOP_BACKEND_BUNDLE: src-tauri/bin/desktop-backend/index.js
+          INDUSCODE_TEST_DESKTOP_CLI_BIN: src-tauri/bin/induscode-cli-universal-apple-darwin
+          INDUSCODE_TEST_DESKTOP_BACKEND_BUNDLE: src-tauri/bin/desktop-backend/index.js
         run: bun test scripts/desktop-startup.test.ts
 
       - name: Collect artifacts
@@ -524,7 +524,7 @@ jobs:
           OUT="dist/publish"
           mkdir -p "$OUT"
 
-          # "Cline" -> Cline, "Cline Beta" -> Cline-Beta
+          # "IndusCode" -> IndusCode, "IndusCode Beta" -> IndusCode-Beta
           PREFIX="${PRODUCT// /-}"
 
           DMG=$(find "$BUNDLE_DIR/dmg" -name '*.dmg' -print -quit)
@@ -558,8 +558,8 @@ jobs:
     # Same gate rationale as the macOS build job above. This job additionally
     # needs id-token: write for Azure OIDC: Windows binaries are
     # Authenticode-signed with Azure Trusted Signing, authenticated through the
-    # PublishDesktop-environment federated credential on the cline-cli-signing
-    # Entra app (subject repo:cline/cline:environment:PublishDesktop).
+    # PublishDesktop-environment federated credential on the induscode-cli-signing
+    # Entra app (subject repo:induscode/induscode:environment:PublishDesktop).
     if: github.ref == 'refs/heads/main'
     environment: PublishDesktop
     runs-on: windows-latest
@@ -692,7 +692,7 @@ jobs:
           OTEL_LOGS_EXPORTER: otlp
           OTEL_METRICS_EXPORTER: otlp
           OTEL_TRACES_EXPORTER: otlp
-          CLINE_TRACE_RECORD_CONTENT: "true"
+          INDUSCODE_TRACE_RECORD_CONTENT: "true"
           OTEL_EXPORTER_OTLP_PROTOCOL: ${{ secrets.OTEL_EXPORTER_OTLP_PROTOCOL }}
           OTEL_EXPORTER_OTLP_ENDPOINT: ${{ secrets.OTEL_EXPORTER_OTLP_ENDPOINT }}
           OTEL_EXPORTER_OTLP_HEADERS: ${{ secrets.OTEL_EXPORTER_OTLP_HEADERS }}
@@ -718,7 +718,7 @@ jobs:
       - name: Prime Azure Trusted Signing token
         run: az account get-access-token --resource https://codesigning.azure.net --query expiresOn --output tsv
 
-      # Tauri invokes signCommand once per staged binary (main exe, Cline CLI,
+      # Tauri invokes signCommand once per staged binary (main exe, IndusCode CLI,
       # NSIS uninstaller, and the installer itself). The overlay is generated
       # here rather than committed because signCommand needs an absolute path
       # to the signing script on this runner.
@@ -756,7 +756,7 @@ jobs:
           OTEL_LOGS_EXPORTER: otlp
           OTEL_METRICS_EXPORTER: otlp
           OTEL_TRACES_EXPORTER: otlp
-          CLINE_TRACE_RECORD_CONTENT: "true"
+          INDUSCODE_TRACE_RECORD_CONTENT: "true"
           OTEL_EXPORTER_OTLP_PROTOCOL: ${{ secrets.OTEL_EXPORTER_OTLP_PROTOCOL }}
           OTEL_EXPORTER_OTLP_ENDPOINT: ${{ secrets.OTEL_EXPORTER_OTLP_ENDPOINT }}
           OTEL_EXPORTER_OTLP_HEADERS: ${{ secrets.OTEL_EXPORTER_OTLP_HEADERS }}
@@ -824,9 +824,9 @@ jobs:
         run: |
           for COMPONENT in cli backend; do
             if [ "$COMPONENT" = cli ]; then
-              SELFCHECK=$(./src-tauri/bin/cline-cli-x86_64-pc-windows-msvc.exe --telemetry-selfcheck)
+              SELFCHECK=$(./src-tauri/bin/induscode-cli-x86_64-pc-windows-msvc.exe --telemetry-selfcheck)
             else
-              SELFCHECK=$(BUN_BE_BUN=1 ./src-tauri/bin/cline-cli-x86_64-pc-windows-msvc.exe run --no-env-file src-tauri/bin/desktop-backend/index.js --telemetry-selfcheck)
+              SELFCHECK=$(BUN_BE_BUN=1 ./src-tauri/bin/induscode-cli-x86_64-pc-windows-msvc.exe run --no-env-file src-tauri/bin/desktop-backend/index.js --telemetry-selfcheck)
             fi
             echo "$SELFCHECK"
             if ! printf '%s' "$SELFCHECK" | grep -q '"enabled":true'; then
@@ -844,7 +844,7 @@ jobs:
             fi
             if ! printf '%s' "$SELFCHECK" | grep -q '"traces_exporter":"otlp"'; then
               echo "Packaged $COMPONENT has no OTLP traces exporter inlined, so"
-              echo "cline-provider spans would never reach the collector (and"
+              echo "induscode-provider spans would never reach the collector (and"
               echo "Langfuse). Check OTEL_TRACES_EXPORTER on the build step."
               exit 1
             fi
@@ -855,8 +855,8 @@ jobs:
         shell: bash
         working-directory: apps/examples/desktop-app
         env:
-          CLINE_TEST_DESKTOP_CLI_BIN: src-tauri/bin/cline-cli-x86_64-pc-windows-msvc.exe
-          CLINE_TEST_DESKTOP_BACKEND_BUNDLE: src-tauri/bin/desktop-backend/index.js
+          INDUSCODE_TEST_DESKTOP_CLI_BIN: src-tauri/bin/induscode-cli-x86_64-pc-windows-msvc.exe
+          INDUSCODE_TEST_DESKTOP_BACKEND_BUNDLE: src-tauri/bin/desktop-backend/index.js
         run: bun test scripts/desktop-startup.test.ts
 
       - name: Collect artifacts
@@ -870,7 +870,7 @@ jobs:
           OUT="dist/publish"
           mkdir -p "$OUT"
 
-          # "Cline" -> Cline, "Cline Beta" -> Cline-Beta
+          # "IndusCode" -> IndusCode, "IndusCode Beta" -> IndusCode-Beta
           PREFIX="${PRODUCT// /-}"
 
           SETUP=$(find "$BUNDLE_DIR/nsis" -name '*-setup.exe' -print -quit)
@@ -896,11 +896,11 @@ jobs:
         shell: pwsh
         working-directory: apps/examples/desktop-app
         run: |
-          # The Tauri bundler signs the bundled Cline CLI in place, so check it
+          # The Tauri bundler signs the bundled IndusCode CLI in place, so check it
           # here too; a WDAC-locked machine blocks the app at runtime if the
           # CLI it spawns is unsigned, even when the installer itself is fine.
-          $files = @(Get-ChildItem dist/publish/*.exe) + @(Get-Item src-tauri/bin/cline-cli-x86_64-pc-windows-msvc.exe)
-          if ($files.Count -lt 2) { throw "expected at least the installer and the Cline CLI to verify" }
+          $files = @(Get-ChildItem dist/publish/*.exe) + @(Get-Item src-tauri/bin/induscode-cli-x86_64-pc-windows-msvc.exe)
+          if ($files.Count -lt 2) { throw "expected at least the installer and the IndusCode CLI to verify" }
           foreach ($file in $files) {
             $sig = Get-AuthenticodeSignature $file.FullName
             if ($sig.Status -ne "Valid") {
@@ -1029,7 +1029,7 @@ jobs:
           OTEL_LOGS_EXPORTER: otlp
           OTEL_METRICS_EXPORTER: otlp
           OTEL_TRACES_EXPORTER: otlp
-          CLINE_TRACE_RECORD_CONTENT: "true"
+          INDUSCODE_TRACE_RECORD_CONTENT: "true"
           OTEL_EXPORTER_OTLP_PROTOCOL: ${{ secrets.OTEL_EXPORTER_OTLP_PROTOCOL }}
           OTEL_EXPORTER_OTLP_ENDPOINT: ${{ secrets.OTEL_EXPORTER_OTLP_ENDPOINT }}
           OTEL_EXPORTER_OTLP_HEADERS: ${{ secrets.OTEL_EXPORTER_OTLP_HEADERS }}
@@ -1037,7 +1037,7 @@ jobs:
       - name: Build desktop bundles
         working-directory: apps/examples/desktop-app
         # deb and rpm only. The AppImage target is excluded because linuxdeploy
-        # cannot process the Bun-compiled Cline CLI (ldd fails on it and patchelf
+        # cannot process the Bun-compiled IndusCode CLI (ldd fails on it and patchelf
         # corrupts it), which aborts the bundle step. $CONFIG_ARGS is
         # deliberately unquoted: it must word-split into separate flags.
         run: bunx tauri build --bundles deb,rpm $CONFIG_ARGS
@@ -1050,7 +1050,7 @@ jobs:
           OTEL_LOGS_EXPORTER: otlp
           OTEL_METRICS_EXPORTER: otlp
           OTEL_TRACES_EXPORTER: otlp
-          CLINE_TRACE_RECORD_CONTENT: "true"
+          INDUSCODE_TRACE_RECORD_CONTENT: "true"
           OTEL_EXPORTER_OTLP_PROTOCOL: ${{ secrets.OTEL_EXPORTER_OTLP_PROTOCOL }}
           OTEL_EXPORTER_OTLP_ENDPOINT: ${{ secrets.OTEL_EXPORTER_OTLP_ENDPOINT }}
           OTEL_EXPORTER_OTLP_HEADERS: ${{ secrets.OTEL_EXPORTER_OTLP_HEADERS }}
@@ -1084,7 +1084,7 @@ jobs:
               ;;
           esac
 
-          BIN="src-tauri/target/release/cline-app"
+          BIN="src-tauri/target/release/induscode-app"
           if grep -aE "$FORBID" "$BIN" >/dev/null; then
             echo "$BIN embeds the other channel's feed URL (${FORBID})"
             exit 1
@@ -1105,9 +1105,9 @@ jobs:
         run: |
           for COMPONENT in cli backend; do
             if [ "$COMPONENT" = cli ]; then
-              SELFCHECK=$(./src-tauri/bin/cline-cli-${TARGET} --telemetry-selfcheck)
+              SELFCHECK=$(./src-tauri/bin/induscode-cli-${TARGET} --telemetry-selfcheck)
             else
-              SELFCHECK=$(BUN_BE_BUN=1 ./src-tauri/bin/cline-cli-${TARGET} run --no-env-file src-tauri/bin/desktop-backend/index.js --telemetry-selfcheck)
+              SELFCHECK=$(BUN_BE_BUN=1 ./src-tauri/bin/induscode-cli-${TARGET} run --no-env-file src-tauri/bin/desktop-backend/index.js --telemetry-selfcheck)
             fi
             echo "$SELFCHECK"
             if ! printf '%s' "$SELFCHECK" | grep -q '"enabled":true'; then
@@ -1125,7 +1125,7 @@ jobs:
             fi
             if ! printf '%s' "$SELFCHECK" | grep -q '"traces_exporter":"otlp"'; then
               echo "Packaged $COMPONENT has no OTLP traces exporter inlined, so"
-              echo "cline-provider spans would never reach the collector (and"
+              echo "induscode-provider spans would never reach the collector (and"
               echo "Langfuse). Check OTEL_TRACES_EXPORTER on the build step."
               exit 1
             fi
@@ -1135,29 +1135,29 @@ jobs:
       - name: Smoke-test the packaged desktop runtime against an isolated Hub
         working-directory: apps/examples/desktop-app
         env:
-          CLINE_TEST_DESKTOP_CLI_BIN: src-tauri/bin/cline-cli-${{ matrix.target }}
-          CLINE_TEST_DESKTOP_BACKEND_BUNDLE: src-tauri/bin/desktop-backend/index.js
+          INDUSCODE_TEST_DESKTOP_CLI_BIN: src-tauri/bin/induscode-cli-${{ matrix.target }}
+          INDUSCODE_TEST_DESKTOP_BACKEND_BUNDLE: src-tauri/bin/desktop-backend/index.js
         run: bun test scripts/desktop-startup.test.ts
 
-      # Run the Linux Cline CLI this job bundles for SSH remotes (same arch as
+      # Run the Linux IndusCode CLI this job bundles for SSH remotes (same arch as
       # the runner) through the exact `hub ensure` / `hub stop` the desktop
       # sends over SSH. Desktop 0.0.38 through 0.0.44 shipped remote binaries
       # that printed --help fine but crashed on every ensure, because UPX
       # packing broke the Bun 1.4 runtime's lazy reads of its own payload
       # (#14815, #14781); nothing exercised that path before release. Isolated
-      # CLINE_DIR and discovery record, as in the runtime test above. Only the
+      # INDUSCODE_DIR and discovery record, as in the runtime test above. Only the
       # exit status is checked; the ensure output carries the Hub auth token.
       - name: Smoke-test the bundled SSH remote CLI
         working-directory: apps/examples/desktop-app
         env:
-          REMOTE_CLI: src-tauri/bin/remote-helpers/cline-${{ matrix.target }}
+          REMOTE_CLI: src-tauri/bin/remote-helpers/induscode-${{ matrix.target }}
         run: |
-          export CLINE_DIR="$(mktemp -d)"
-          export CLINE_DATA_DIR="$CLINE_DIR/data"
-          export CLINE_NO_AUTO_UPDATE=1
-          DISCOVERY="$CLINE_DIR/remote-hub.json"
+          export INDUSCODE_DIR="$(mktemp -d)"
+          export INDUSCODE_DATA_DIR="$INDUSCODE_DIR/data"
+          export INDUSCODE_NO_AUTO_UPDATE=1
+          DISCOVERY="$INDUSCODE_DIR/remote-hub.json"
           trap 'timeout 30 "$REMOTE_CLI" hub stop --discovery-path "$DISCOVERY" >/dev/null 2>&1 || true' EXIT
-          if ! timeout 60 "$REMOTE_CLI" hub ensure --json --allow-port-fallback --no-connectors --cwd "$CLINE_DIR" --host 127.0.0.1 --port 0 --pathname /hub --discovery-path "$DISCOVERY" >/dev/null; then
+          if ! timeout 60 "$REMOTE_CLI" hub ensure --json --allow-port-fallback --no-connectors --cwd "$INDUSCODE_DIR" --host 127.0.0.1 --port 0 --pathname /hub --discovery-path "$DISCOVERY" >/dev/null; then
             echo "Bundled remote CLI failed hub ensure; SSH remotes would not"
             echo "start from this build. Check scripts/build-desktop-runtime.ts."
             exit 1
@@ -1177,7 +1177,7 @@ jobs:
           OUT="dist/publish"
           mkdir -p "$OUT"
 
-          # "Cline" -> Cline, "Cline Beta" -> Cline-Beta
+          # "IndusCode" -> IndusCode, "IndusCode Beta" -> IndusCode-Beta
           PREFIX="${PRODUCT// /-}"
 
           # The packages are the updater artifacts; the .sig is the minisign
@@ -1357,14 +1357,14 @@ jobs:
           if ! gh release view "$FEED" >/dev/null 2>&1; then
             if [ "$CHANNEL" != "stable" ]; then
               gh release create "$FEED" \
-                --title "Cline desktop ${CHANNEL} (auto-update feed)" \
+                --title "IndusCode desktop ${CHANNEL} (auto-update feed)" \
                 --notes "Rolling release backing the ${CHANNEL} desktop app auto-updater. Only ${CHANNEL} installs poll this feed. Do not delete." \
                 --latest=false \
                 --prerelease \
                 --target "$(git rev-parse HEAD)"
             else
               gh release create "$FEED" \
-                --title "Cline desktop (auto-update feed)" \
+                --title "IndusCode desktop (auto-update feed)" \
                 --notes "Rolling release backing the desktop app auto-updater. The latest.json asset points at the newest desktop-vX.Y.Z release. Do not delete." \
                 --latest=false \
                 --target "$(git rev-parse HEAD)"
@@ -1378,7 +1378,7 @@ jobs:
           TAG: ${{ needs.validate.outputs.tag }}
           FEED: ${{ needs.validate.outputs.feed }}
         run: |
-          echo "Published Cline desktop v${VERSION}"
+          echo "Published IndusCode desktop v${VERSION}"
           echo "Release: https://github.com/${GITHUB_REPOSITORY}/releases/tag/${TAG}"
           echo "Auto-update feed refreshed: https://github.com/${GITHUB_REPOSITORY}/releases/download/${FEED}/latest.json"
 
@@ -1389,12 +1389,12 @@ jobs:
           token: ${{ secrets.SLACK_RELEASE_BOT_TOKEN }}
           payload: |
             channel: "C0APVKGGZFC"
-            text: "Cline desktop v${{ needs.validate.outputs.version }}${{ needs.validate.outputs.channel == 'beta' && ' (beta)' || '' }}"
+            text: "IndusCode desktop v${{ needs.validate.outputs.version }}${{ needs.validate.outputs.channel == 'beta' && ' (beta)' || '' }}"
             blocks:
               - type: "section"
                 text:
                   type: "mrkdwn"
-                  text: "Cline desktop v${{ needs.validate.outputs.version }}${{ needs.validate.outputs.channel == 'beta' && ' (beta)' || '' }}"
+                  text: "IndusCode desktop v${{ needs.validate.outputs.version }}${{ needs.validate.outputs.channel == 'beta' && ' (beta)' || '' }}"
               - type: "section"
                 text:
                   type: "mrkdwn"
@@ -1427,7 +1427,7 @@ jobs:
           # Nightlies have no changelog, so the announcement lists the commits
           # since the nearest desktop tag - the previous nightly or the last
           # release, whichever is closer - scoped to what ships in the app
-          # (the app bundles sdk/packages and the Cline CLI). Runs before this build is
+          # (the app bundles sdk/packages and the IndusCode CLI). Runs before this build is
           # tagged below so it never compares against itself.
           STAMP=${VERSION#*-nightly.}
           TAG="desktop-nightly-${STAMP%%.*}"
@@ -1485,12 +1485,12 @@ jobs:
           errors: true
           payload: |
             channel: "C0APVKGGZFC"
-            text: "Cline desktop nightly ${{ needs.validate.outputs.version }}"
+            text: "IndusCode desktop nightly ${{ needs.validate.outputs.version }}"
             blocks:
               - type: "section"
                 text:
                   type: "mrkdwn"
-                  text: "*Cline desktop nightly* `${{ needs.validate.outputs.version }}`"
+                  text: "*IndusCode desktop nightly* `${{ needs.validate.outputs.version }}`"
               - type: "section"
                 text:
                   type: "mrkdwn"
@@ -1498,4 +1498,4 @@ jobs:
               - type: "context"
                 elements:
                   - type: "mrkdwn"
-                    text: "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Download installers> (Actions artifacts, 30-day retention) — installs side by side as Cline Nightly and never auto-updates | tagged `${{ steps.changes.outputs.tag }}`"
+                    text: "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Download installers> (Actions artifacts, 30-day retention) — installs side by side as IndusCode Nightly and never auto-updates | tagged `${{ steps.changes.outputs.tag }}`"

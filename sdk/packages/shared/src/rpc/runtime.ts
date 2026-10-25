@@ -159,7 +159,7 @@ export interface EnterpriseStatusRequest {
 
 export type EnterpriseStatusResponse = EnterpriseSyncResponse;
 
-/** Which tier of the Cline recommended-models feed featured a model. */
+/** Which tier of the IndusCode recommended-models feed featured a model. */
 export type ProviderModelFeaturedTier = "recommended" | "free" | "subscribed";
 
 export interface ProviderModelFeatured {
@@ -175,8 +175,8 @@ export interface ProviderModel {
 	name: string;
 	description?: string;
 	/**
-	 * Present when the Cline recommended-models feed features this model
-	 * (cline / cline-pass providers only), so pickers can lead with the
+	 * Present when the IndusCode recommended-models feed features this model
+	 * (induscode / induscode-pass providers only), so pickers can lead with the
 	 * feed's tiers without fetching and joining the feed themselves.
 	 */
 	featured?: ProviderModelFeatured;
@@ -229,7 +229,7 @@ export interface ProviderListItem {
 	enabled: boolean;
 	/**
 	 * True when the persisted settings hold real credentials or a usable
-	 * keyless endpoint (see @cline/core's isProviderSettingsUsable), unlike
+	 * keyless endpoint (see @induscode/core's isProviderSettingsUsable), unlike
 	 * `enabled` which is set by any persisted entry.
 	 */
 	configured?: boolean;
@@ -428,54 +428,54 @@ export type ProviderSettingsActionRequest =
 	| SaveProviderSettingsActionRequest
 	| AddProviderActionRequest;
 
-export type ClineAccountActionRequest =
+export type IndusCodeAccountActionRequest =
 	| {
-			action: "clineAccount";
+			action: "induscodeAccount";
 			operation: "fetchMe";
 	  }
 	| {
-			action: "clineAccount";
+			action: "induscodeAccount";
 			operation: "fetchBalance";
 			userId?: string;
 	  }
 	| {
-			action: "clineAccount";
+			action: "induscodeAccount";
 			operation: "fetchUsageTransactions";
 			userId?: string;
 	  }
 	| {
-			action: "clineAccount";
+			action: "induscodeAccount";
 			operation: "fetchPaymentTransactions";
 			userId?: string;
 	  }
 	| {
-			action: "clineAccount";
+			action: "induscodeAccount";
 			operation: "fetchUserOrganizations";
 	  }
 	| {
-			action: "clineAccount";
+			action: "induscodeAccount";
 			operation: "fetchOrganizationBalance";
 			organizationId: string;
 	  }
 	| {
-			action: "clineAccount";
+			action: "induscodeAccount";
 			operation: "fetchOrganizationUsageTransactions";
 			organizationId: string;
 			memberId?: string;
 	  }
 	| {
-			action: "clineAccount";
+			action: "induscodeAccount";
 			operation: "switchAccount";
 			organizationId?: string | null;
 	  }
 	| {
-			action: "clineAccount";
+			action: "induscodeAccount";
 			operation: "fetchFeaturebaseToken";
 	  };
 
 export type ProviderActionRequest =
 	| ProviderSettingsActionRequest
-	| ClineAccountActionRequest;
+	| IndusCodeAccountActionRequest;
 
 export interface ProviderOAuthLoginResponse {
 	provider: string;

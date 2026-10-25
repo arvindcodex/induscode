@@ -1,4 +1,4 @@
-import type { AgentExtension, AgentTool } from "@cline/shared";
+import type { AgentExtension, AgentTool } from "@induscode/shared";
 import { loadRulesForSystemPromptFromRecords } from "../../runtime/safety/rules";
 import { createSkillsTool, type SkillsExecutorWithMetadata } from "../tools";
 import {
@@ -205,7 +205,7 @@ export function combineUserInstructionConfigServices(
 		createSkillsExecutor: (allowedSkillNames) =>
 			createCombinedSkillsExecutor(services, allowedSkillNames),
 		createExtension: (options): AgentExtension => ({
-			name: "cline-combined-user-instructions",
+			name: "induscode-combined-user-instructions",
 			manifest: {
 				capabilities: [
 					options.includeRules ? "rules" : undefined,
@@ -220,7 +220,7 @@ export function combineUserInstructionConfigServices(
 			setup(api) {
 				if (options.includeRules) {
 					api.registerRule({
-						id: "cline-combined-user-instructions:rules",
+						id: "induscode-combined-user-instructions:rules",
 						source: "combined-user-instructions",
 						content: () =>
 							loadRulesForSystemPromptFromRecords(

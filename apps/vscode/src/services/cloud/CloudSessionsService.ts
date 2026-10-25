@@ -6,8 +6,8 @@ import {
 	CloudSessionApi,
 	CloudSessionError as CoreCloudSessionError,
 	type CloudSessionRecord as CoreCloudSessionRecord,
-} from "@cline/core/cloud"
-import { ClineEnv } from "@/config"
+} from "@induscode/core/cloud"
+import { IndusCodeEnv } from "@/config"
 import { fetch } from "@/shared/net"
 import { Logger } from "@/shared/services/Logger"
 
@@ -62,7 +62,7 @@ export interface CloudSessionsServiceOptions {
 	getAuthToken: () => Promise<string | null | undefined>
 	getActiveOrganizationId: () => string | null | undefined
 	fetch?: typeof fetch
-	/** Explicit endpoints for hermetic hosts and tests. Production uses ClineEnv. */
+	/** Explicit endpoints for hermetic hosts and tests. Production uses IndusCodeEnv. */
 	apiBaseUrl?: string
 	appBaseUrl?: string
 }
@@ -75,11 +75,11 @@ export class CloudSessionsService {
 	}
 
 	get apiBaseUrl(): string {
-		return trimTrailingSlash(this.options.apiBaseUrl ?? ClineEnv.config().apiBaseUrl)
+		return trimTrailingSlash(this.options.apiBaseUrl ?? IndusCodeEnv.config().apiBaseUrl)
 	}
 
 	get appBaseUrl(): string {
-		return trimTrailingSlash(this.options.appBaseUrl ?? ClineEnv.config().appBaseUrl)
+		return trimTrailingSlash(this.options.appBaseUrl ?? IndusCodeEnv.config().appBaseUrl)
 	}
 
 	dashboardUrl(sessionId: string): string {
@@ -102,7 +102,7 @@ export class CloudSessionsService {
 	private async requireToken(): Promise<string> {
 		const token = (await this.options.getAuthToken())?.trim()
 		if (!token) {
-			throw new CloudSessionError("authentication_required", "Sign in to Cline to use cloud sessions.")
+			throw new CloudSessionError("authentication_required", "Sign in to IndusCode to use cloud sessions.")
 		}
 		return token
 	}

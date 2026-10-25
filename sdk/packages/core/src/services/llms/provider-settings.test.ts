@@ -2,9 +2,9 @@ import { describe, expect, it } from "vitest";
 import { safeParseSettings, toProviderConfig } from "./provider-settings";
 
 describe("provider settings", () => {
-	it("formats Cline OAuth access tokens for runtime API keys", () => {
+	it("formats IndusCode OAuth access tokens for runtime API keys", () => {
 		const config = toProviderConfig({
-			provider: "cline",
+			provider: "induscode",
 			model: "anthropic/claude-sonnet-4.6",
 			auth: {
 				accessToken: "oauth-access-token",

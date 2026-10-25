@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
-// Post-install script for Cline CLI.
+// Post-install script for IndusCode CLI.
 //
 // Creates a hard link (or copy fallback) from the platform-specific binary
-// to bin/.cline for fast startup on subsequent runs.
+// to bin/.induscode for fast startup on subsequent runs.
 //
 // This script must use only Node.js APIs (no Bun) since it runs via
 // "node script/postinstall.mjs" in the npm lifecycle.
@@ -28,11 +28,11 @@ const require = createRequire(import.meta.url);
 // its build fingerprint rebuild the record from a port probe, and the next
 // fresh launch retires stale hubs regardless of the record.
 function shieldRunningHubDiscovery() {
-	const explicitPath = process.env.CLINE_HUB_DISCOVERY_PATH?.trim();
+	const explicitPath = process.env.INDUSCODE_HUB_DISCOVERY_PATH?.trim();
 	const dataDir =
-		process.env.CLINE_DATA_DIR?.trim() ||
+		process.env.INDUSCODE_DATA_DIR?.trim() ||
 		path.join(
-			process.env.CLINE_DIR?.trim() || path.join(os.homedir(), ".cline"),
+			process.env.INDUSCODE_DIR?.trim() || path.join(os.homedir(), ".induscode"),
 			"data",
 		);
 	const recordPath =
@@ -60,8 +60,8 @@ function main() {
 	};
 	const platform = platformMap[os.platform()] || os.platform();
 	const arch = os.arch();
-	const packageName = `@cline/cli-${platform}-${arch}`;
-	const binaryName = "cline";
+	const packageName = `@induscode/cli-${platform}-${arch}`;
+	const binaryName = "induscode";
 
 	let binaryPath;
 	try {
@@ -84,7 +84,7 @@ function main() {
 		path.basename(__dirname) === "script"
 			? path.join(__dirname, "..", "bin")
 			: path.join(__dirname, "bin");
-	const target = path.join(binDir, ".cline");
+	const target = path.join(binDir, ".induscode");
 
 	// Ensure bin directory exists
 	if (!fs.existsSync(binDir)) {
@@ -105,7 +105,7 @@ function main() {
 	}
 
 	fs.chmodSync(target, 0o755);
-	console.log(`Cached cline binary at ${target}`);
+	console.log(`Cached induscode binary at ${target}`);
 }
 
 try {

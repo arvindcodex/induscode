@@ -9,7 +9,7 @@ export default defineConfig({
 	},
 	test: {
 		environment: "node",
-		// First test in a file pays the @cline/core → llms module-graph import
+		// First test in a file pays the @induscode/core → llms module-graph import
 		// cost, which sits near the 5s default under CI contention.
 		testTimeout: 20_000,
 	},

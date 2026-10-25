@@ -1,5 +1,5 @@
-import type { CoreSessionEvent } from "@cline/core"
-import type { ClineMessage } from "@shared/ExtensionMessage"
+import type { CoreSessionEvent } from "@induscode/core"
+import type { IndusCodeMessage } from "@shared/ExtensionMessage"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { MessageTranslatorState } from "./message-translator"
 import { PROVIDER_FAILURE_ERROR_TYPE, PROVIDER_FAILURE_PHASE } from "./provider-failure-telemetry"
@@ -20,7 +20,7 @@ describe("SdkSessionEventCoordinator", () => {
 	})
 
 	it("translates and emits session messages, then posts state", async () => {
-		const message: ClineMessage = { ts: 1, type: "say", say: "text", text: "hello" }
+		const message: IndusCodeMessage = { ts: 1, type: "say", say: "text", text: "hello" }
 		const { coordinator, options, event } = makeCoordinator({
 			translation: {
 				messages: [message],
@@ -127,7 +127,7 @@ describe("SdkSessionEventCoordinator", () => {
 	})
 
 	it("marks a submitted queued prompt as a new streaming turn", async () => {
-		const message: ClineMessage = { ts: 1, type: "say", say: "user_feedback", text: "queued prompt" }
+		const message: IndusCodeMessage = { ts: 1, type: "say", say: "user_feedback", text: "queued prompt" }
 		const { coordinator, options } = makeCoordinator({
 			translation: {
 				messages: [message],
@@ -247,9 +247,9 @@ describe("SdkSessionEventCoordinator", () => {
 		})
 	})
 
-	it("zeros usage and api request message cost for free Cline models", async () => {
+	it("zeros usage and api request message cost for free IndusCode models", async () => {
 		const { coordinator, options, event } = makeCoordinator({
-			isClineFreeModel: vi.fn().mockResolvedValue(true),
+			isIndusCodeFreeModel: vi.fn().mockResolvedValue(true),
 			task: { taskId: "task-1" },
 			translation: {
 				messages: [
@@ -287,7 +287,7 @@ describe("SdkSessionEventCoordinator", () => {
 	})
 
 	it("leaves mistake-limit recovery to the SDK callback instead of mutating tool-error events", async () => {
-		const message: ClineMessage = { ts: 1, type: "say", say: "tool", text: "{}", partial: false }
+		const message: IndusCodeMessage = { ts: 1, type: "say", say: "tool", text: "{}", partial: false }
 		const { coordinator, options, event } = makeCoordinator({
 			translation: {
 				messages: [message],
@@ -421,7 +421,7 @@ function makeCoordinator(input: Partial<MakeCoordinatorInput> = {}) {
 		captureProviderApiError: vi.fn(),
 		beginProviderFailureTelemetryTurn: vi.fn(),
 		translateSessionEvent: vi.fn(() => input.translation ?? { messages: [], sessionEnded: false, turnComplete: false }),
-		isClineFreeModel: input.isClineFreeModel,
+		isIndusCodeFreeModel: input.isIndusCodeFreeModel,
 	} as unknown as SdkSessionEventCoordinatorOptions & {
 		sessions: SdkSessionEventCoordinatorOptions["sessions"] & {
 			getActiveSession: ReturnType<typeof vi.fn>
@@ -457,9 +457,9 @@ interface MakeCoordinatorInput {
 	activeSession: ReturnType<typeof makeActiveSession>
 	task: { taskId: string }
 	turnPhase: "streaming" | "resumable"
-	isClineFreeModel: () => Promise<boolean>
+	isIndusCodeFreeModel: () => Promise<boolean>
 	translation: {
-		messages: ClineMessage[]
+		messages: IndusCodeMessage[]
 		sessionEnded: boolean
 		turnComplete: boolean
 		toolError?: boolean

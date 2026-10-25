@@ -1,6 +1,6 @@
 import { resolve } from "node:path";
 import { isDeepStrictEqual } from "node:util";
-import * as LlmsModels from "@cline/llms";
+import * as LlmsModels from "@induscode/llms";
 import type {
 	AddProviderActionRequest,
 	ITelemetryService,
@@ -11,13 +11,13 @@ import type {
 	ProviderModel,
 	SaveProviderSettingsActionRequest,
 	VoiceInputSelection,
-} from "@cline/shared";
+} from "@induscode/shared";
 import {
 	isTranscriptionModel,
 	MODEL_TOOL_NAMES,
 	resolveProviderApiKeyOptional,
 	resolveProviderLocalCli,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { createOAuthClientCallbacks } from "../../auth/client";
 import {
 	getProviderAuthHandler,
@@ -26,10 +26,11 @@ import {
 	saveProviderOAuthCredentials,
 } from "../../auth/provider-auth-registry";
 import {
-	applyClineFeaturedModels,
-	getCachedClineRecommendedModels,
-	peekClineRecommendedModels,
-} from "../../services/llms/cline-recommended-models";
+	applyIndusCodeFeaturedModels,
+	getCachedIndusCodeRecommendedModels,
+	peekIndusCodeRecommendedModels,
+} from "../../services/llms/induscode-recommended-models";
+import { modelHealthManager } from "../../services/llms/model-health";
 import {
 	getLiveModelsCatalog,
 	isPrivateModelCatalogProvider,
@@ -62,11 +63,11 @@ import { isProviderSettingsUsable } from "./provider-readiness";
 
 export { ensureCustomProvidersLoaded } from "./local-provider-registry";
 
-const CLINE_PROVIDER_ID = "cline";
-const CLINE_PASS_PROVIDER_ID = "cline-pass";
+const INDUSCODE_PROVIDER_ID = "induscode";
+const INDUSCODE_PASS_PROVIDER_ID = "induscode-pass";
 
 export interface ListLocalProvidersOptions {
-	isClinePassEnabled?: boolean;
+	isIndusCodePassEnabled?: boolean;
 }
 
 export interface UpdateLocalProviderRequest {
@@ -182,7 +183,7 @@ async function resolveProviderModelMap(
 		LlmsModels.getModelsForProvider(providerId),
 		LlmsModels.getModelOverridesForProvider(providerId),
 	]);
-	if (providerId === "openai-native" || providerId === "induscode") {
+	if (providerId === "induscode") {
 		return registeredModels;
 	}
 	// All shared-catalog providers refresh when their model list is loaded.
@@ -192,13 +193,13 @@ async function resolveProviderModelMap(
 	const provider = await LlmsModels.getProvider(providerId);
 	const shouldLoadLiveCatalog =
 		!isPrivateModelCatalogProvider(providerId) && !provider?.modelsSourceUrl;
-	const isClinePass = providerId === CLINE_PASS_PROVIDER_ID;
+	const isIndusCodePass = providerId === INDUSCODE_PASS_PROVIDER_ID;
 
 	const resolved = await resolveProviderConfig(
 		providerId,
 		{
 			loadLatestOnInit: shouldLoadLiveCatalog || options.loadLatest,
-			includeClineCloudModels: options.loadLatest,
+			includeIndusCodeCloudModels: options.loadLatest,
 			loadPrivateOnAuth: true,
 			// Endpoint-owned catalogs (LiteLLM, Baseten, Ollama, custom
 			// `modelsSourceUrl` providers, ...) have no bundled fallback, so a
@@ -214,7 +215,7 @@ async function resolveProviderModelMap(
 	if (providerId === "litellm" && resolved?.knownModels) {
 		return resolved.knownModels;
 	}
-	if (isClinePass && resolved?.knownModels) {
+	if (isIndusCodePass && resolved?.knownModels) {
 		return resolved.knownModels;
 	}
 
@@ -966,7 +967,7 @@ export async function listLocalProviders(
 	// feed, else the bundled fallback). This keeps even the very first picker
 	// paint after a cold boot sectioned; the per-provider model-list path
 	// (getLocalProviderModels) then refreshes with live feed data.
-	const featuredData = peekClineRecommendedModels();
+	const featuredData = peekIndusCodeRecommendedModels();
 
 	const providerEntries = await Promise.all(
 		ids.map(
@@ -975,15 +976,15 @@ export async function listLocalProviders(
 					LlmsModels.getProvider(id),
 					LlmsModels.getModelsForProvider(id),
 				]);
-				const modelList = applyClineFeaturedModels(
+				const modelList = applyIndusCodeFeaturedModels(
 					id,
 					toSortedProviderModels(registeredModels),
 					featuredData,
 				);
 				const directSettings = state.providers[id]?.settings;
 				// Providers that store their credentials under another provider
-				// (ClinePass signs in as "cline") are enabled whenever that
-				// provider is: one Cline sign-in configures both, so both must
+				// (IndusCodePass signs in as "induscode") are enabled whenever that
+				// provider is: one IndusCode sign-in configures both, so both must
 				// show wherever `enabled` gates a picker.
 				const storageProviderId = getProviderAuthHandler(id)?.storageProviderId;
 				const sharedSettings =
@@ -992,7 +993,7 @@ export async function listLocalProviders(
 						: undefined;
 				const persistedSettings = manager.getProviderSettings(id);
 				const name =
-					id === "cline" || id === "openai-native" || id === "induscode"
+					id === "induscode"
 						? "IndusCode"
 						: (info?.name ?? titleCaseFromId(id));
 				const capabilities = resolveProviderCapabilities(
@@ -1069,9 +1070,9 @@ export async function listLocalProviders(
 		);
 	});
 	let providers = providerEntries.map((entry) => entry.provider);
-	if (options.isClinePassEnabled !== true) {
+	if (options.isIndusCodePassEnabled !== true) {
 		providers = providers.filter(
-			(provider) => provider.id !== CLINE_PASS_PROVIDER_ID,
+			(provider) => provider.id !== INDUSCODE_PASS_PROVIDER_ID,
 		);
 	}
 
@@ -1098,23 +1099,27 @@ export async function getLocalProviderModels(
 	const id = providerId.trim();
 	const modelMap = await resolveProviderModelMap(id, config, options);
 	let models = toSortedProviderModels(modelMap);
-	if (id === CLINE_PROVIDER_ID || id === CLINE_PASS_PROVIDER_ID) {
+	if (id === INDUSCODE_PROVIDER_ID || id === INDUSCODE_PASS_PROVIDER_ID) {
 		// Stamp the recommended-feed tiers onto the list so every client's
 		// picker gets Recommended/Free/Subscribed data without fetching and
 		// joining the feed itself. A miss only means models without tier
 		// decoration.
-		models = applyClineFeaturedModels(
+		models = applyIndusCodeFeaturedModels(
 			id,
 			models,
-			await getCachedClineRecommendedModels(
+			await getCachedIndusCodeRecommendedModels(
 				options?.loadLatest
 					? {
 							catalogLoader: () =>
-								getLiveModelsCatalog({ includeClineCloudModels: true }),
+								getLiveModelsCatalog({ includeIndusCodeCloudModels: true }),
 						}
 					: undefined,
 			),
 		);
+	}
+	const exhaustedIds = new Set(modelHealthManager.getExhaustedModelIds());
+	if (exhaustedIds.size > 0) {
+		models = models.filter((m) => !exhaustedIds.has(m.id));
 	}
 	return { providerId: id, models };
 }
@@ -1558,7 +1563,7 @@ export async function loginAndSaveLocalProviderOAuthCredentials(
 	});
 }
 
-export function resolveLocalClineAuthToken(
+export function resolveLocalIndusCodeAuthToken(
 	settings: ProviderSettings | undefined,
 ): string | undefined {
 	const token = settings?.auth?.accessToken?.trim() || settings?.apiKey?.trim();

@@ -1,6 +1,6 @@
 "use client";
 
-import { GitHubIcon } from "@cline/ui";
+import { GitHubIcon } from "@induscode/ui";
 import {
 	CalendarDays,
 	Check,
@@ -765,7 +765,7 @@ function ConnectorsUnavailable({
 		setSigningIn(true);
 		setError(null);
 		try {
-			await runProviderOAuthLogin("cline");
+			await runProviderOAuthLogin("induscode");
 			invalidateProviderCatalogCache();
 			await Promise.all([refreshAccount(), onRefresh()]);
 		} catch (err) {

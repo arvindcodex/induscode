@@ -1,31 +1,31 @@
 /**
- * @cline/core
+ * @induscode/core
  *
  * Core contracts, shared state utilities, and Node runtime services.
  */
 
-export * as Llms from "@cline/llms";
+export * as Llms from "@induscode/llms";
 export {
-	buildClineClientHeaders,
-	ClineFreeModelLimitError,
-	ClineNotSubscribedError,
-	ClineOrgIndividualInferenceSubscriptionError,
-	ClinePassLimitError,
-	extractClineFreeModelLimitResetTime,
-	extractClinePassLimitMessage,
-	getClineNotSubscribedMessage,
-	getClineOrgIndividualInferenceSubscriptionMessage,
-	getClinePassSubscriptionUrl,
-	isClineFreeModelLimitError,
-	isClineFreeModelLimitMessage,
-	isClineModelNotFoundMessage,
-	isClineNotSubscribedError,
-	isClineNotSubscribedMessage,
-	isClineOrgIndividualInferenceSubscriptionError,
-	isClineOrgIndividualInferenceSubscriptionMessage,
-	isClinePassLimitError,
-	isClinePassLimitMessage,
-} from "@cline/llms";
+	buildIndusCodeClientHeaders,
+	IndusCodeFreeModelLimitError,
+	IndusCodeNotSubscribedError,
+	IndusCodeOrgIndividualInferenceSubscriptionError,
+	IndusCodePassLimitError,
+	extractIndusCodeFreeModelLimitResetTime,
+	extractIndusCodePassLimitMessage,
+	getIndusCodeNotSubscribedMessage,
+	getIndusCodeOrgIndividualInferenceSubscriptionMessage,
+	getIndusCodePassSubscriptionUrl,
+	isIndusCodeFreeModelLimitError,
+	isIndusCodeFreeModelLimitMessage,
+	isIndusCodeModelNotFoundMessage,
+	isIndusCodeNotSubscribedError,
+	isIndusCodeNotSubscribedMessage,
+	isIndusCodeOrgIndividualInferenceSubscriptionError,
+	isIndusCodeOrgIndividualInferenceSubscriptionMessage,
+	isIndusCodePassLimitError,
+	isIndusCodePassLimitMessage,
+} from "@induscode/llms";
 // Shared contracts and path helpers re-exported for app consumers.
 export type {
 	AddProviderActionRequest,
@@ -51,7 +51,7 @@ export type {
 	ChatStartSessionArtifacts,
 	ChatStartSessionRequest,
 	ChatTurnResult,
-	ClineAccountActionRequest,
+	IndusCodeAccountActionRequest,
 	ConnectorHookEvent,
 	ContentBlock,
 	FeatureFlagPayload,
@@ -97,14 +97,14 @@ export type {
 	WorkspaceInfoSchema,
 	WorkspaceManifest,
 	WorkspaceManifestSchema,
-} from "@cline/shared";
+} from "@induscode/shared";
 export {
-	buildClineSystemPrompt as getClineDefaultSystemPrompt,
+	buildIndusCodeSystemPrompt as getIndusCodeDefaultSystemPrompt,
 	buildSdkErrorProperties,
 	ContributionRegistry,
 	captureSdkError,
-	createClineTelemetryServiceConfig,
-	createClineTelemetryServiceMetadata,
+	createIndusCodeTelemetryServiceConfig,
+	createIndusCodeTelemetryServiceMetadata,
 	createContributionRegistry,
 	createTool,
 	emptyWorkspaceManifest,
@@ -119,29 +119,29 @@ export {
 	registerDisposable,
 	SDK_ERROR_TELEMETRY_EVENT,
 	stripUtf8Bom,
-} from "@cline/shared";
-export * from "@cline/shared/storage";
+} from "@induscode/shared";
+export * from "@induscode/shared/storage";
 export {
-	type ClineAccountBalance,
-	type ClineAccountOperations,
-	type ClineAccountOrganization,
-	type ClineAccountOrganizationBalance,
-	type ClineAccountOrganizationUsageTransaction,
-	type ClineAccountPaymentTransaction,
-	ClineAccountService,
-	type ClineAccountServiceOptions,
-	type ClineAccountTelemetryIdentity,
-	type ClineAccountUsageTransaction,
-	type ClineAccountUser,
-	type ClineOrganization,
-	type ClineSubscriptionPlan,
-	executeClineAccountAction,
+	type IndusCodeAccountBalance,
+	type IndusCodeAccountOperations,
+	type IndusCodeAccountOrganization,
+	type IndusCodeAccountOrganizationBalance,
+	type IndusCodeAccountOrganizationUsageTransaction,
+	type IndusCodeAccountPaymentTransaction,
+	IndusCodeAccountService,
+	type IndusCodeAccountServiceOptions,
+	type IndusCodeAccountTelemetryIdentity,
+	type IndusCodeAccountUsageTransaction,
+	type IndusCodeAccountUser,
+	type IndusCodeOrganization,
+	type IndusCodeSubscriptionPlan,
+	executeIndusCodeAccountAction,
 	type FeaturebaseTokenResponse,
-	isClineAccountActionRequest,
+	isIndusCodeAccountActionRequest,
 	type ProviderActionExecutor,
-	persistClineAccountTelemetryIdentity,
-	RpcClineAccountService,
-	resolveClineAccountTelemetryIdentity,
+	persistIndusCodeAccountTelemetryIdentity,
+	RpcIndusCodeAccountService,
+	resolveIndusCodeAccountTelemetryIdentity,
 	type UserCurrentPlan,
 	type UserRemoteConfigOrganization,
 	type UserRemoteConfigResponse,
@@ -151,12 +151,12 @@ export {
 	type OAuthClientCallbacksOptions,
 } from "./auth/client";
 export {
-	completeClineDeviceAuth,
-	getValidClineCredentials,
-	loginClineOAuth,
-	refreshClineToken,
-	startClineDeviceAuth,
-} from "./auth/cline";
+	completeIndusCodeDeviceAuth,
+	getValidIndusCodeCredentials,
+	loginIndusCodeOAuth,
+	refreshIndusCodeToken,
+	startIndusCodeDeviceAuth,
+} from "./auth/induscode";
 export {
 	getValidOpenAICodexCredentials,
 	loginOpenAICodex,
@@ -203,24 +203,24 @@ export type {
 	OcaOAuthProviderOptions,
 	OcaTokenResolution,
 } from "./auth/types";
-export { ClineCore } from "./ClineCore";
-export { toClineCoreStartInput } from "./cline-core/start-input";
+export { IndusCodeCore } from "./IndusCodeCore";
+export { toIndusCodeCoreStartInput } from "./induscode-core/start-input";
 export type {
-	ClineAutomationEventIngressResult,
-	ClineAutomationEventLog,
-	ClineAutomationEventSuppression,
-	ClineAutomationListEventsOptions,
-	ClineAutomationListRunsOptions,
-	ClineAutomationListSpecsOptions,
-	ClineAutomationRun,
-	ClineAutomationRunStatus,
-	ClineAutomationSpec,
-	ClineCoreAutomationApi,
-	ClineCoreAutomationOptions,
-	ClineCoreListHistoryOptions,
-	ClineCoreOptions,
-	ClineCoreSettingsApi,
-	ClineCoreStartInput,
+	IndusCodeAutomationEventIngressResult,
+	IndusCodeAutomationEventLog,
+	IndusCodeAutomationEventSuppression,
+	IndusCodeAutomationListEventsOptions,
+	IndusCodeAutomationListRunsOptions,
+	IndusCodeAutomationListSpecsOptions,
+	IndusCodeAutomationRun,
+	IndusCodeAutomationRunStatus,
+	IndusCodeAutomationSpec,
+	IndusCodeCoreAutomationApi,
+	IndusCodeCoreAutomationOptions,
+	IndusCodeCoreListHistoryOptions,
+	IndusCodeCoreOptions,
+	IndusCodeCoreSettingsApi,
+	IndusCodeCoreStartInput,
 	CompareCheckpointInput,
 	CompareCheckpointResult,
 	HubOptions,
@@ -228,7 +228,7 @@ export type {
 	RestoreInput,
 	RestoreOptions,
 	RestoreResult,
-} from "./cline-core/types";
+} from "./induscode-core/types";
 export type {
 	AgentPluginPackageDiagnostic,
 	AgentPluginPackageDiagnosticScope,
@@ -255,7 +255,7 @@ export type {
 export {
 	AGENT_PLUGINS_V1_MANIFEST_SCHEMA,
 	AGENT_PLUGINS_V1_MCP_SCHEMA,
-	CLINE_PLUGIN_BOOTSTRAP_PATH_ENV,
+	INDUSCODE_PLUGIN_BOOTSTRAP_PATH_ENV,
 	discoverPluginModulePaths,
 	formatSessionPluginIssue,
 	getPluginDisplayName,
@@ -729,7 +729,7 @@ export {
 	markLocalProviderEnabled,
 	normalizeOAuthProvider,
 	refreshProviderModelsFromSource,
-	resolveLocalClineAuthToken,
+	resolveLocalIndusCodeAuthToken,
 	saveLocalProviderOAuthCredentials,
 	saveLocalProviderSettings,
 	saveVoiceInputSettings,
@@ -961,7 +961,7 @@ export { CORE_BUILD_VERSION } from "./version";
 export async function loadOpenTelemetryAdapter() {
 	return import("./services/telemetry/index.js");
 }
-export { Agent, createAgentRuntime } from "@cline/agents";
+export { Agent, createAgentRuntime } from "@induscode/agents";
 export type { ConnectorsRequest } from "./extensions/composio/composio-meta-tools";
 export { resolveComposioConnectionStatePath } from "./extensions/composio/composio-tools-extension";
 export {
@@ -1024,18 +1024,18 @@ export {
 } from "./extensions/tools";
 export * from "./remote/remote-environments";
 export { ensureLoginShellPath } from "./remote/shell-path";
-export { isClineAccountFeatureEnabled } from "./services/feature-flags/cline-account-feature-flags";
+export { isIndusCodeAccountFeatureEnabled } from "./services/feature-flags/induscode-account-feature-flags";
 export {
-	applyClineFeaturedModels,
-	type ClineRecommendedModel,
-	type ClineRecommendedModelsData,
-	FALLBACK_CLINE_RECOMMENDED_MODELS,
-	type FetchClineRecommendedModelsOptions,
-	fetchClineRecommendedModels,
-	getCachedClineRecommendedModels,
-	peekClineRecommendedModels,
-	resetClineRecommendedModelsCacheForTests,
-} from "./services/llms/cline-recommended-models";
+	applyIndusCodeFeaturedModels,
+	type IndusCodeRecommendedModel,
+	type IndusCodeRecommendedModelsData,
+	FALLBACK_INDUSCODE_RECOMMENDED_MODELS,
+	type FetchIndusCodeRecommendedModelsOptions,
+	fetchIndusCodeRecommendedModels,
+	getCachedIndusCodeRecommendedModels,
+	peekIndusCodeRecommendedModels,
+	resetIndusCodeRecommendedModelsCacheForTests,
+} from "./services/llms/induscode-recommended-models";
 export {
 	clearLiveModelsCatalogCache,
 	clearPrivateModelsCatalogCache,
@@ -1124,7 +1124,7 @@ export type { RuntimeEnvironment } from "./types";
 export type { SessionStatus } from "./types/common";
 export { SESSION_STATUSES, SessionSource } from "./types/common";
 export type {
-	ClineCoreStartConfig,
+	IndusCodeCoreStartConfig,
 	CoreAgentMode,
 	CoreCheckpointConfig,
 	CoreCheckpointContext,
@@ -1166,3 +1166,22 @@ export type {
 	SessionRef,
 } from "./types/sessions";
 export type { ArtifactStore, SessionStore, TeamStore } from "./types/storage";
+export {
+	defaultQuotaService,
+	QuotaExceededError,
+	QuotaService,
+	type QuotaBucketType,
+	type QuotaRecord,
+	type QuotaStatus,
+	type UserTier,
+} from "./services/quota";
+export {
+	modelHealthManager,
+	ModelHealthManager,
+	type ModelHealthEntry,
+	DEFAULT_EXHAUSTION_COOLDOWN_MS,
+	FREE_MODEL_FALLBACK_CHAIN,
+	isExhaustionOrRateLimitError,
+	sanitizeProviderError,
+} from "./services/llms/model-health";
+

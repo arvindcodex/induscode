@@ -10,7 +10,7 @@ plugin code. A plugin or external tool can correlate records by stamping
 
 ## Why This Exists
 
-Plugin hooks can observe Cline's conversation state, but they run before Core's
+Plugin hooks can observe IndusCode's conversation state, but they run before Core's
 final provider-message preparation. That final pass can repair missing tool
 results, truncate tool outputs, rewrite stale file content, apply prompt-cache
 provider options, and format messages for the provider.
@@ -30,7 +30,7 @@ AI SDK prompt passed to streamText(...)
         |
         v
 Provider client fetch(...)
-  captureStage = wire_request, only when CLINE_CAPTURE_WIRE=true
+  captureStage = wire_request, only when INDUSCODE_CAPTURE_WIRE=true
         |
         v
 Provider receives request
@@ -38,21 +38,21 @@ Provider receives request
 
 If token growth appears only in `wire_request`, the issue is provider
 serialization. If it appears in `ai_sdk_prompt` but not `pre_build_for_api`, the
-issue is in Cline's final provider formatting/build step. If it is already in
+issue is in IndusCode's final provider formatting/build step. If it is already in
 `pre_build_for_api`, the issue is upstream of the final build step.
 
 ## Environment Variables
 
 | Variable | Values | Default | Purpose |
 | --- | --- | --- | --- |
-| `CLINE_CAPTURE_PROVIDER_REQUEST` | `off`, `summary`, `full` | `off` | Enables provider request capture. |
-| `CLINE_CAPTURE_WIRE` | `true`, `false` | `false` | Wraps provider `fetch` to capture literal request bodies. |
-| `CLINE_CAPTURE_DIR` | filesystem path | unset | Explicit output directory for capture files. |
-| `CLINE_CAPTURE_CLEANUP` | `on`, `off` | `on` | Prunes old capture files. Set `off` to keep local files. |
-| `CLINE_CAPTURE_MAX_PREVIEW_BYTES` | positive integer | `65536` | Full-mode payload preview byte cap. |
-| `CLINE_DATA_DIR` | filesystem path | unset | Fallback base directory. Captures write to `CLINE_DATA_DIR/provider-request-captures`. |
+| `INDUSCODE_CAPTURE_PROVIDER_REQUEST` | `off`, `summary`, `full` | `off` | Enables provider request capture. |
+| `INDUSCODE_CAPTURE_WIRE` | `true`, `false` | `false` | Wraps provider `fetch` to capture literal request bodies. |
+| `INDUSCODE_CAPTURE_DIR` | filesystem path | unset | Explicit output directory for capture files. |
+| `INDUSCODE_CAPTURE_CLEANUP` | `on`, `off` | `on` | Prunes old capture files. Set `off` to keep local files. |
+| `INDUSCODE_CAPTURE_MAX_PREVIEW_BYTES` | positive integer | `65536` | Full-mode payload preview byte cap. |
+| `INDUSCODE_DATA_DIR` | filesystem path | unset | Fallback base directory. Captures write to `INDUSCODE_DATA_DIR/provider-request-captures`. |
 
-If neither `CLINE_CAPTURE_DIR` nor `CLINE_DATA_DIR` is set, capture no-ops. This
+If neither `INDUSCODE_CAPTURE_DIR` nor `INDUSCODE_DATA_DIR` is set, capture no-ops. This
 prevents prompt content from being written into a repository working tree by
 accident.
 
@@ -61,13 +61,13 @@ accident.
 Capture writes one JSON file per captured stage:
 
 ```text
-${CLINE_CAPTURE_DIR}/<captureId>.<captureStage>.<attempt>.provider-request.json
+${INDUSCODE_CAPTURE_DIR}/<captureId>.<captureStage>.<attempt>.provider-request.json
 ```
 
-or, when only `CLINE_DATA_DIR` is set:
+or, when only `INDUSCODE_DATA_DIR` is set:
 
 ```text
-${CLINE_DATA_DIR}/provider-request-captures/<captureId>.<captureStage>.<attempt>.provider-request.json
+${INDUSCODE_DATA_DIR}/provider-request-captures/<captureId>.<captureStage>.<attempt>.provider-request.json
 ```
 
 Files are written atomically through a temporary file and same-directory rename,
@@ -76,9 +76,9 @@ so consumers should ignore `*.tmp`. `captureId` comes from
 a stable ID from request correlation metadata. `attempt` increments when the same
 stage is captured more than once for a request, such as provider retries.
 
-When `CLINE_CAPTURE_CLEANUP` is on, the SDK opportunistically prunes capture
+When `INDUSCODE_CAPTURE_CLEANUP` is on, the SDK opportunistically prunes capture
 files older than 24 hours. Consumers may also delete files after processing them.
-Set `CLINE_CAPTURE_CLEANUP=off` when you need to keep local capture files for
+Set `INDUSCODE_CAPTURE_CLEANUP=off` when you need to keep local capture files for
 manual inspection.
 
 Each record includes:
@@ -89,7 +89,7 @@ Each record includes:
 - `mode`: `summary` or `full`
 - `correlation`: copied from `GatewayStreamRequest.metadata`, plus provider and model IDs
 - `summary`: byte counts, estimated tokens, hashes, role counts, largest messages, reasoning/tool-result counts
-- `payload`: only in `full` mode, truncated to `CLINE_CAPTURE_MAX_PREVIEW_BYTES`
+- `payload`: only in `full` mode, truncated to `INDUSCODE_CAPTURE_MAX_PREVIEW_BYTES`
 
 Wire capture intentionally records URL, method, and body only. It does not record
 headers, so authorization values are not written to capture files.
@@ -97,24 +97,24 @@ headers, so authorization values are not written to capture files.
 ## Example
 
 ```bash
-export CLINE_DATA_DIR="$(mktemp -d)"
-export CLINE_CAPTURE_PROVIDER_REQUEST=summary
-export CLINE_CAPTURE_WIRE=true
+export INDUSCODE_DATA_DIR="$(mktemp -d)"
+export INDUSCODE_CAPTURE_PROVIDER_REQUEST=summary
+export INDUSCODE_CAPTURE_WIRE=true
 
-cline --provider openrouter --model openai/gpt-4o-mini "Say hello"
+induscode --provider openrouter --model openai/gpt-4o-mini "Say hello"
 
-ls "$CLINE_DATA_DIR/provider-request-captures"
+ls "$INDUSCODE_DATA_DIR/provider-request-captures"
 ```
 
 For an internal investigation where full request bodies are expected:
 
 ```bash
-export CLINE_DATA_DIR="$(mktemp -d)"
-export CLINE_CAPTURE_PROVIDER_REQUEST=full
-export CLINE_CAPTURE_WIRE=true
-export CLINE_CAPTURE_MAX_PREVIEW_BYTES=1000000
+export INDUSCODE_DATA_DIR="$(mktemp -d)"
+export INDUSCODE_CAPTURE_PROVIDER_REQUEST=full
+export INDUSCODE_CAPTURE_WIRE=true
+export INDUSCODE_CAPTURE_MAX_PREVIEW_BYTES=1000000
 # Optional: keep files after consumers process them.
-# export CLINE_CAPTURE_CLEANUP=off
+# export INDUSCODE_CAPTURE_CLEANUP=off
 ```
 
 ## Correlation

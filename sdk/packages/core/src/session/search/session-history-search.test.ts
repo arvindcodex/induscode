@@ -4,7 +4,7 @@ import { join } from "node:path";
 import {
 	SESSION_SEARCH_PREVIEW_MAX_LENGTH,
 	SESSION_SEARCH_TITLE_MAX_LENGTH,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { SessionRecord } from "../../types/sessions";
 import { SessionHistorySearchService } from "./session-history-search";
@@ -44,7 +44,7 @@ function session(overrides: Partial<SessionRecord> = {}): SessionRecord {
 
 describe("SessionHistorySearchService", () => {
 	it("indexes session turns and returns ranked snippets", async () => {
-		const dir = await mkdtemp(join(tmpdir(), "cline-session-search-"));
+		const dir = await mkdtemp(join(tmpdir(), "induscode-session-search-"));
 		tempDirs.push(dir);
 		const sessions = [session()];
 		const messages = [
@@ -77,7 +77,7 @@ describe("SessionHistorySearchService", () => {
 	});
 
 	it("weights titles above paths and returns one hit per session", async () => {
-		const dir = await mkdtemp(join(tmpdir(), "cline-session-search-"));
+		const dir = await mkdtemp(join(tmpdir(), "induscode-session-search-"));
 		tempDirs.push(dir);
 		const sessions = [
 			session({
@@ -119,7 +119,7 @@ describe("SessionHistorySearchService", () => {
 	});
 
 	it("degrades to unavailable when the disposable index cannot initialize", async () => {
-		const dir = await mkdtemp(join(tmpdir(), "cline-session-search-"));
+		const dir = await mkdtemp(join(tmpdir(), "induscode-session-search-"));
 		tempDirs.push(dir);
 		const dbPath = join(dir, "search.db");
 		await writeFile(dbPath, "not a sqlite database");
@@ -144,7 +144,7 @@ describe("SessionHistorySearchService", () => {
 	});
 
 	it("reconciles changed and deleted sessions", async () => {
-		const dir = await mkdtemp(join(tmpdir(), "cline-session-search-"));
+		const dir = await mkdtemp(join(tmpdir(), "induscode-session-search-"));
 		tempDirs.push(dir);
 		const sessions = [session()];
 		let content = "first searchable phrase";
@@ -171,7 +171,7 @@ describe("SessionHistorySearchService", () => {
 	});
 
 	it("evicts a deleted session without scanning canonical history", async () => {
-		const dir = await mkdtemp(join(tmpdir(), "cline-session-search-"));
+		const dir = await mkdtemp(join(tmpdir(), "induscode-session-search-"));
 		tempDirs.push(dir);
 		const listSessions = vi.fn(async () => [session()]);
 		const service = new SessionHistorySearchService(
@@ -197,7 +197,7 @@ describe("SessionHistorySearchService", () => {
 	});
 
 	it("hides a failed eviction until reconciliation repairs the index", async () => {
-		const dir = await mkdtemp(join(tmpdir(), "cline-session-search-"));
+		const dir = await mkdtemp(join(tmpdir(), "induscode-session-search-"));
 		tempDirs.push(dir);
 		const sessions = [session()];
 		const service = new SessionHistorySearchService(
@@ -248,7 +248,7 @@ describe("SessionHistorySearchService", () => {
 	});
 
 	it("keeps a failed eviction suppressed when deletion races a new index row", async () => {
-		const dir = await mkdtemp(join(tmpdir(), "cline-session-search-"));
+		const dir = await mkdtemp(join(tmpdir(), "induscode-session-search-"));
 		tempDirs.push(dir);
 		const sessions = [session()];
 		const service = new SessionHistorySearchService(
@@ -302,7 +302,7 @@ describe("SessionHistorySearchService", () => {
 	});
 
 	it("does not let an in-flight reconciliation restore a deleted session", async () => {
-		const dir = await mkdtemp(join(tmpdir(), "cline-session-search-"));
+		const dir = await mkdtemp(join(tmpdir(), "induscode-session-search-"));
 		tempDirs.push(dir);
 		const sessions = [session()];
 		let blockMessageRead = false;
@@ -345,7 +345,7 @@ describe("SessionHistorySearchService", () => {
 	});
 
 	it("searches session titles when no message artifact is available", async () => {
-		const dir = await mkdtemp(join(tmpdir(), "cline-session-search-"));
+		const dir = await mkdtemp(join(tmpdir(), "induscode-session-search-"));
 		tempDirs.push(dir);
 		const service = new SessionHistorySearchService(
 			{
@@ -371,7 +371,7 @@ describe("SessionHistorySearchService", () => {
 	});
 
 	it("bounds oversized titles and unwraps user prompt snippets", async () => {
-		const dir = await mkdtemp(join(tmpdir(), "cline-session-search-"));
+		const dir = await mkdtemp(join(tmpdir(), "induscode-session-search-"));
 		tempDirs.push(dir);
 		const oversized = "generate an image ".repeat(3_000);
 		const wrapped = `<user_input mode="act">${oversized}</user_input>`;

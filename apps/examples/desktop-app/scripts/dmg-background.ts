@@ -155,7 +155,7 @@ const main = async (): Promise<void> => {
 	// Generate and validate in scratch space so the configured build artifact is
 	// replaced only after tiffutil has produced a complete, verified TIFF.
 	const scratchRoot = await mkdtemp(
-		path.join(tmpdir(), "cline-dmg-background-"),
+		path.join(tmpdir(), "induscode-dmg-background-"),
 	);
 	const generatedTiff = path.join(scratchRoot, "background.tiff");
 	try {

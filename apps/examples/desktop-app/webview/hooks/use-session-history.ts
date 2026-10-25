@@ -1,6 +1,6 @@
 "use client";
 
-import { isChatWorkspacePath } from "@cline/shared/browser";
+import { isChatWorkspacePath } from "@induscode/shared/browser";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { normalizeTitle } from "@/components/utils";
 import { toast } from "@/hooks/use-toast";
@@ -363,13 +363,14 @@ export function formatCostUsd(value?: number): string | null {
 	if (typeof value !== "number" || !Number.isFinite(value) || value <= 0) {
 		return null;
 	}
-	if (value < 0.01) {
-		return `$${value.toFixed(4)}`;
+	const inr = value * 86;
+	if (inr < 0.01) {
+		return `₹${inr.toFixed(4)}`;
 	}
-	if (value < 1) {
-		return `$${value.toFixed(3)}`;
+	if (inr < 1) {
+		return `₹${inr.toFixed(3)}`;
 	}
-	return `$${value.toFixed(2)}`;
+	return `₹${inr.toFixed(2)}`;
 }
 
 function summarizeUsageFromMessages(messages: SessionMessage[]): {
@@ -1229,11 +1230,11 @@ export function useSessionHistory({
 		};
 
 		window.addEventListener(
-			"cline:session-title-updated",
+			"induscode:session-title-updated",
 			handleTitleUpdated as EventListener,
 		);
 		window.addEventListener(
-			"cline:session-deleted",
+			"induscode:session-deleted",
 			handleSessionDeleted as EventListener,
 		);
 		const unsubscribeTransportDelete = desktopClient.subscribe(
@@ -1250,7 +1251,7 @@ export function useSessionHistory({
 					return;
 				}
 				handleSessionDeleted(
-					new CustomEvent("cline:session-deleted", {
+					new CustomEvent("induscode:session-deleted", {
 						detail: { sessionId, environmentId: eventEnvironmentId(payload) },
 					}),
 				);
@@ -1397,11 +1398,11 @@ export function useSessionHistory({
 		);
 		return () => {
 			window.removeEventListener(
-				"cline:session-title-updated",
+				"induscode:session-title-updated",
 				handleTitleUpdated as EventListener,
 			);
 			window.removeEventListener(
-				"cline:session-deleted",
+				"induscode:session-deleted",
 				handleSessionDeleted as EventListener,
 			);
 			unsubscribeTransportDelete();
@@ -1560,7 +1561,7 @@ export function useSessionHistory({
 					sourceSession.environmentId,
 				);
 				window.dispatchEvent(
-					new CustomEvent("cline:session-title-updated", {
+					new CustomEvent("induscode:session-title-updated", {
 						detail: {
 							sessionId: sourceSession.sessionId,
 							environmentId: sourceSession.environmentId,
@@ -1739,7 +1740,7 @@ export function useSessionHistory({
 				}
 				onDeleteSession?.(sourceSession.sessionId, sourceSession.environmentId);
 				window.dispatchEvent(
-					new CustomEvent("cline:session-deleted", {
+					new CustomEvent("induscode:session-deleted", {
 						detail: {
 							sessionId: sourceSession.sessionId,
 							environmentId: sourceSession.environmentId,

@@ -3,12 +3,12 @@ import { createHash } from "node:crypto";
 import { mkdir, readdir, rm, stat, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { promisify } from "node:util";
-import type { AgentHooks, BasicLogger, ITelemetryService } from "@cline/shared";
-import { resolveClineDataDir } from "@cline/shared/storage";
+import type { AgentHooks, BasicLogger, ITelemetryService } from "@induscode/shared";
+import { resolveIndusCodeDataDir } from "@induscode/shared/storage";
 import { countUserRunMessages } from "../session/user-run-messages";
 
 const execFile = promisify(execFileCallback);
-const CHECKPOINT_STASH_MESSAGE_PREFIX = "cline checkpoint session=";
+const CHECKPOINT_STASH_MESSAGE_PREFIX = "induscode checkpoint session=";
 const LS_FILES_MAX_BUFFER = 1024 * 1024 * 64;
 /**
  * Scratch dirs whose mtime is older than this are reaped opportunistically.
@@ -23,7 +23,7 @@ export function isCheckpointStashMessage(message: string): boolean {
 }
 
 function checkpointScratchBaseDir(): string {
-	return join(resolveClineDataDir(), "checkpoint-scratch");
+	return join(resolveIndusCodeDataDir(), "checkpoint-scratch");
 }
 
 /**
@@ -33,7 +33,7 @@ function checkpointScratchBaseDir(): string {
  * changed since the previous checkpoint — without it, every turn re-hashes
  * every untracked byte in the workspace.
  *
- * Lives under the user's Cline data dir (never the world-shared OS tmpdir:
+ * Lives under the user's IndusCode data dir (never the world-shared OS tmpdir:
  * the index and pathspec files enumerate workspace paths) and is keyed by a
  * hash of cwd + session id: hashing avoids sanitization collisions between
  * distinct ids, and folding in cwd keeps a session restored against a
@@ -332,7 +332,7 @@ async function createUntrackedParentCommit(
 		"commit-tree",
 		tree,
 		"-m",
-		"untracked files on cline checkpoint",
+		"untracked files on induscode checkpoint",
 	]);
 	return commit || undefined;
 }
@@ -404,7 +404,7 @@ async function createWorktreeStashCommit(
 			"-p",
 			head,
 			"-m",
-			"index on cline checkpoint",
+			"index on induscode checkpoint",
 		])
 	).stdout;
 	if (!indexParent) {
@@ -429,7 +429,7 @@ async function createWorktreeStashCommit(
 }
 
 /**
- * Deletes all private git refs under refs/cline/checkpoints/{sessionId}/ that
+ * Deletes all private git refs under refs/induscode/checkpoints/{sessionId}/ that
  * were created by the checkpoint system to keep stash objects reachable.
  * Errors are swallowed - if the cwd is not a git repo or the refs don't exist,
  * the delete is a no-op.
@@ -446,7 +446,7 @@ export async function deleteCheckpointRefs(
 		recursive: true,
 		force: true,
 	}).catch(() => undefined);
-	const prefix = `refs/cline/checkpoints/${sessionId}/`;
+	const prefix = `refs/induscode/checkpoints/${sessionId}/`;
 	try {
 		const { stdout } = await runGit(cwd, [
 			"for-each-ref",
@@ -472,7 +472,7 @@ export async function retainCheckpointRefs(
 		checkpoints.map((entry) =>
 			runGit(cwd, [
 				"update-ref",
-				`refs/cline/checkpoints/${sessionId}/${entry.runCount}`,
+				`refs/induscode/checkpoints/${sessionId}/${entry.runCount}`,
 				entry.ref,
 			]),
 		),
@@ -627,7 +627,7 @@ export function createCheckpointHooks(
 		// ref path keeps the object reachable (GC-safe) without surfacing
 		// it to the user.  The raw SHA already works with `git stash apply`
 		// on the restore path, so no restore-side changes are needed.
-		const privateRef = `refs/cline/checkpoints/${options.sessionId}/${runCount}`;
+		const privateRef = `refs/induscode/checkpoints/${options.sessionId}/${runCount}`;
 		try {
 			await runGit(options.cwd, ["update-ref", privateRef, ref]);
 		} catch (error) {

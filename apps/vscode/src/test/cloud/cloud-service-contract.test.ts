@@ -1,11 +1,11 @@
-import { CloudCreationUnconfirmedError } from "@cline/core/cloud"
+import { CloudCreationUnconfirmedError } from "@induscode/core/cloud"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import { CloudSessionError, CloudSessionsService, type CloudSessionsServiceOptions } from "@/services/cloud/CloudSessionsService"
 import { type LocalCloudEnvironment, startLocalCloudEnvironment } from "./local-cloud-environment"
 
 describe("local cloud service boundary", () => {
 	let environment: LocalCloudEnvironment | undefined
-	const createInput = { modelId: "fixture-model", repoUrl: "https://github.com/cline/fixture", branch: "main" }
+	const createInput = { modelId: "fixture-model", repoUrl: "https://github.com/induscode/fixture", branch: "main" }
 	const controlledService = (
 		fetchImpl: (url: string | URL | Request, init?: RequestInit) => Promise<Response>,
 		options: Partial<CloudSessionsServiceOptions> = {},
@@ -38,7 +38,7 @@ describe("local cloud service boundary", () => {
 					const body = JSON.parse(String(init.body))
 					expect(body).toMatchObject({ ...createInput, organizationId: "original-org" })
 					recoveryTitle = body.title
-					expect(recoveryTitle).toMatch(/^__cline_create_request__:/)
+					expect(recoveryTitle).toMatch(/^__induscode_create_request__:/)
 					throw lostResponse
 				}
 				if (path.endsWith("/status")) {
@@ -75,7 +75,7 @@ describe("local cloud service boundary", () => {
 			await expect(result).resolves.toMatchObject({
 				id: "ses-fixture",
 				title: undefined,
-				metadata: { createRequestTitle: expect.stringMatching(/^__cline_create_request__:/) },
+				metadata: { createRequestTitle: expect.stringMatching(/^__induscode_create_request__:/) },
 			})
 			expect(calls).toEqual(["post", "list", "provisioning", "status", "list"])
 		} else {
@@ -231,19 +231,19 @@ describe("local cloud service boundary", () => {
 		const github = await service.getGitHubConnection()
 		expect(github).toMatchObject({
 			connected: true,
-			repositories: [{ id: 1, fullName: "cline/fixture", defaultBranch: "main" }],
+			repositories: [{ id: 1, fullName: "induscode/fixture", defaultBranch: "main" }],
 		})
 		expect(await service.listBranches(1)).toEqual(["main", "fixture"])
 
 		const created = await service.createSession({
 			modelId: "fixture-model",
-			repoUrl: "https://github.com/cline/fixture",
+			repoUrl: "https://github.com/induscode/fixture",
 			branch: "fixture",
 		})
 		expect(created).toMatchObject({
 			status: "ready",
 			sandboxType: "resumable",
-			repoContext: { repoUrl: "https://github.com/cline/fixture", branch: "fixture" },
+			repoContext: { repoUrl: "https://github.com/induscode/fixture", branch: "fixture" },
 			metadata: { modelId: "fixture-model", taskId: expect.stringMatching(/^tsk-/) },
 		})
 		expect(service.sessionSocketUrl(created.id)).toBe(
@@ -270,7 +270,7 @@ describe("local cloud service boundary", () => {
 		const cancel = new AbortController()
 		let provisioningId: string | undefined
 		const creating = service.createSession(
-			{ modelId: "fixture-model", repoUrl: "https://github.com/cline/fixture" },
+			{ modelId: "fixture-model", repoUrl: "https://github.com/induscode/fixture" },
 			(id) => {
 				provisioningId = id
 				cancel.abort(new Error("cancelled by test"))
@@ -296,7 +296,7 @@ describe("local cloud service boundary", () => {
 		})
 		environment.loseNextCreateResponse()
 
-		const created = await service.createSession({ modelId: "fixture-model", repoUrl: "https://github.com/cline/fixture" })
+		const created = await service.createSession({ modelId: "fixture-model", repoUrl: "https://github.com/induscode/fixture" })
 
 		expect([...environment.sessions.keys()]).toEqual([created.id])
 		// The request marker used for recovery never reaches History as a title.
@@ -314,7 +314,7 @@ describe("local cloud service boundary", () => {
 		const phases: string[] = []
 
 		await service.createSession(
-			{ modelId: "fixture-model", repoUrl: "https://github.com/cline/fixture" },
+			{ modelId: "fixture-model", repoUrl: "https://github.com/induscode/fixture" },
 			undefined,
 			undefined,
 			(phase) => {
@@ -350,7 +350,7 @@ describe("local cloud service boundary", () => {
 		})
 		const created = await service.createSession({
 			modelId: "fixture-model",
-			repoUrl: "https://github.com/cline/fixture",
+			repoUrl: "https://github.com/induscode/fixture",
 		})
 
 		const [first, second] = await Promise.all([

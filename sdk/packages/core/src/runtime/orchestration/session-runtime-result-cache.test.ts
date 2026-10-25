@@ -1,10 +1,10 @@
-import { createAgentRuntime } from "@cline/agents";
+import { createAgentRuntime } from "@induscode/agents";
 import type {
 	AgentConfig,
 	AgentMessage,
 	AgentModel,
 	AgentToolResultPart,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { describe, expect, it } from "vitest";
 import { createDefaultTools } from "../../extensions/tools/definitions";
 import { createFileReadExecutor } from "../../extensions/tools/executors/file-read";
@@ -49,7 +49,7 @@ describe("runtime memory result recovery", () => {
 					);
 					expect(projected).toContain("truncated");
 					uri =
-						projected.match(/cline:\/\/cache\/[^ ]+\.result\.txt/)?.[0] ?? "";
+						projected.match(/induscode:\/\/cache\/[^ ]+\.result\.txt/)?.[0] ?? "";
 					expect(uri).not.toBe("");
 				} else if (call === 2) {
 					const recovered = findResult(request.messages, "read_files")
@@ -136,7 +136,7 @@ describe("runtime memory result recovery", () => {
 						output
 							.map((entry) => entry.text ?? "")
 							.join("\n")
-							.match(/cline:\/\/cache\/[^ ]+\.result\.txt/)?.[0] ?? "";
+							.match(/induscode:\/\/cache\/[^ ]+\.result\.txt/)?.[0] ?? "";
 					expect(uri).not.toBe("");
 					expect(JSON.stringify(output)).not.toContain("row_2000:");
 					toolName = "read_files";

@@ -1,11 +1,11 @@
 import { DEFAULT_MCP_TIMEOUT_SECONDS, McpServer } from "@shared/mcp"
-import { StringRequest } from "@shared/proto/cline/common"
+import { StringRequest } from "@shared/proto/induscode/common"
 import {
 	McpServers,
 	ToggleMcpServerRequest,
 	ToggleToolAutoApproveRequest,
 	UpdateMcpTimeoutRequest,
-} from "@shared/proto/cline/mcp"
+} from "@shared/proto/induscode/mcp"
 import { convertProtoMcpServersToMcpServers } from "@shared/proto-conversions/mcp/mcp-server-conversion"
 import {
 	VSCodeCheckbox,
@@ -395,7 +395,7 @@ const ServerRow = ({
 							</VSCodeDropdown>
 							<p className="mt-1 mb-0 text-xs text-description">
 								Applies to every request this server handles, in VS Code and the CLI. For other values, set
-								"timeout" (seconds) in cline_mcp_settings.json.
+								"timeout" (seconds) in induscode_mcp_settings.json.
 							</p>
 						</div>
 						<Button

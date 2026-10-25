@@ -9,7 +9,7 @@ import {
 } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { AgentToolContext } from "@cline/shared";
+import type { AgentToolContext } from "@induscode/shared";
 import { describe, expect, it } from "vitest";
 import { createShellExecutor } from "./bash";
 
@@ -67,7 +67,7 @@ for (const outer of shells) {
 					"'",
 					'"',
 				])("requires & before a %s-quoted path to execute its script", async (quote) => {
-					const cwd = await mkdtemp(join(tmpdir(), "cline quoted executable "));
+					const cwd = await mkdtemp(join(tmpdir(), "induscode quoted executable "));
 					const marker = join(cwd, "marker.txt");
 					try {
 						const command = `${quote}${inner.path}${quote} -NoProfile -Command '[IO.File]::WriteAllText("marker.txt", "executed")'`;
@@ -112,7 +112,7 @@ for (const outer of shells) {
 				});
 
 				it("executes the reporter's bare-name pipeline in its cwd and environment", async () => {
-					const cwd = await mkdtemp(join(tmpdir(), "cline shell 中文 "));
+					const cwd = await mkdtemp(join(tmpdir(), "induscode shell 中文 "));
 					try {
 						await mkdir(join(cwd, "child"));
 						await writeFile(join(cwd, "child", "MyEditForm.cs"), "synthetic");
@@ -123,10 +123,10 @@ for (const outer of shells) {
 						);
 						const withEnv = createShellExecutor({
 							shell: outer.name,
-							env: { CLINE_SHELL_TEST: "inherited value" },
+							env: { INDUSCODE_SHELL_TEST: "inherited value" },
 						});
 						const output = await withEnv(
-							`${inner.name} -NoProfile -Command "Get-ChildItem . -Recurse -File | Where-Object { $_.Name -match 'MyEditForm|EditContext|Validator' } | ForEach-Object { $_.FullName }; Write-Output $env:CLINE_SHELL_TEST"`,
+							`${inner.name} -NoProfile -Command "Get-ChildItem . -Recurse -File | Where-Object { $_.Name -match 'MyEditForm|EditContext|Validator' } | ForEach-Object { $_.FullName }; Write-Output $env:INDUSCODE_SHELL_TEST"`,
 							cwd,
 							ctx,
 						);

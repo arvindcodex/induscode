@@ -172,7 +172,7 @@ describe("AgentComposer", () => {
 		expect(field?.classList.contains("items-end")).toBe(true);
 		expect(textarea?.classList.contains("self-start")).toBe(true);
 		expect(actions?.classList.contains("self-end")).toBe(false);
-		expect(stop.classList.contains("rounded-cline-ui-md")).toBe(true);
+		expect(stop.classList.contains("rounded-induscode-ui-md")).toBe(true);
 		expect(send.classList.contains("rounded-full")).toBe(true);
 	});
 });

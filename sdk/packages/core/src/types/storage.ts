@@ -1,4 +1,4 @@
-import type { TeamRuntimeState, TeamTeammateSpec } from "@cline/shared";
+import type { TeamRuntimeState, TeamTeammateSpec } from "@induscode/shared";
 import type {
 	TeamEvent,
 	TeamRuntimeStateDelta,

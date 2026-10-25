@@ -1,6 +1,6 @@
 import { COMMAND_OUTPUT_STRING, COMMAND_REQ_APP_STRING } from "@shared/combineCommandSequences"
-import { ClineMessage } from "@shared/ExtensionMessage"
-import { StringRequest } from "@shared/proto/cline/common"
+import { IndusCodeMessage } from "@shared/ExtensionMessage"
+import { StringRequest } from "@shared/proto/induscode/common"
 import { memo, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -128,7 +128,7 @@ export const CommandOutputRow = memo(
 		setIsOutputFullyExpanded,
 		onOutputChange,
 	}: {
-		message: ClineMessage
+		message: IndusCodeMessage
 		isCommandExecuting?: boolean
 		isCommandPending?: boolean
 		isCommandCompleted?: boolean

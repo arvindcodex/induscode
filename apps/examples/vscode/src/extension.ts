@@ -3,7 +3,7 @@ import { basename, join } from "node:path";
 import {
 	type BasicLogger,
 	buildWorkspaceMetadata,
-	ClineCore,
+	IndusCodeCore,
 	captureExtensionActivated,
 	createConfiguredTelemetryService,
 	createLocalHubScheduleRuntimeHandlers,
@@ -21,17 +21,17 @@ import {
 	rememberRecoverableLocalHubUrl,
 	resolveSharedHubOwnerContext,
 	type ToolPolicy,
-} from "@cline/core";
+} from "@induscode/core";
 import {
 	type AgentTool,
-	buildClineSystemPrompt,
-	createClineTelemetryServiceConfig,
-	createClineTelemetryServiceMetadata,
+	buildIndusCodeSystemPrompt,
+	createIndusCodeTelemetryServiceConfig,
+	createIndusCodeTelemetryServiceMetadata,
 	formatDisplayUserInput,
 	isGeneratedMedia,
 	type MessageWithMetadata,
 	validateImageMedia,
-} from "@cline/shared";
+} from "@induscode/shared";
 import * as vscode from "vscode";
 import { displayName, version } from "../package.json";
 import { createVsCodeRuntimeCapabilities } from "./runtime-capabilities";
@@ -66,15 +66,15 @@ let extensionTelemetryHandle:
 	| undefined;
 
 export function activate(context: vscode.ExtensionContext): void {
-	const outputChannel = vscode.window.createOutputChannel("Cline");
+	const outputChannel = vscode.window.createOutputChannel("IndusCode");
 	extensionTelemetryHandle = createVscodeTelemetry({
 		extensionVersion: version,
-		clineType: displayName,
+		induscodeType: displayName,
 		platform: vscode.env.appName,
 		platformVersion: vscode.version,
 	});
 	captureExtensionActivated(extensionTelemetryHandle.telemetry);
-	const sidebarProvider = new ClineChatViewProvider(
+	const sidebarProvider = new IndusCodeChatViewProvider(
 		context.extensionUri,
 		outputChannel,
 		extensionTelemetryHandle.telemetry,
@@ -82,14 +82,14 @@ export function activate(context: vscode.ExtensionContext): void {
 	context.subscriptions.push(
 		outputChannel,
 		vscode.window.registerWebviewViewProvider(
-			"clineVscode.chatView",
+			"induscodeVscode.chatView",
 			sidebarProvider,
 			{ webviewOptions: { retainContextWhenHidden: true } },
 		),
-		vscode.commands.registerCommand("clineVscode.openChat", () => {
+		vscode.commands.registerCommand("induscodeVscode.openChat", () => {
 			const panel = vscode.window.createWebviewPanel(
-				"clineChat",
-				"Cline Chat",
+				"induscodeChat",
+				"IndusCode Chat",
 				vscode.ViewColumn.One,
 				{
 					enableScripts: true,
@@ -118,7 +118,7 @@ export function deactivate(): Promise<void> {
 	return handle.flush().finally(() => handle.dispose());
 }
 
-class ClineChatViewProvider implements vscode.WebviewViewProvider {
+class IndusCodeChatViewProvider implements vscode.WebviewViewProvider {
 	constructor(
 		private readonly extensionUri: vscode.Uri,
 		private readonly outputChannel: vscode.OutputChannel,
@@ -162,7 +162,7 @@ type StartConfig = {
 	apiKey: string;
 	autoApproveTools?: boolean;
 	logger: BasicLogger;
-	extensionContext?: import("@cline/shared").ExtensionContext;
+	extensionContext?: import("@induscode/shared").ExtensionContext;
 	extraTools?: AgentTool[];
 };
 
@@ -323,7 +323,7 @@ function createVsCodeTerminalTool(defaultCwd: string): AgentTool {
 				throw new Error("command is required.");
 			}
 			const terminal = vscode.window.createTerminal({
-				name: "Cline",
+				name: "IndusCode",
 				cwd: cwd || defaultCwd,
 			});
 			terminal.show(true);
@@ -640,7 +640,7 @@ class CoreChatWebviewController implements vscode.Disposable {
 	private readonly disposables: vscode.Disposable[] = [];
 	private readonly providerSettingsManager = new ProviderSettingsManager();
 	private readonly telemetry: ITelemetryService;
-	private host: ClineCore | undefined;
+	private host: IndusCodeCore | undefined;
 	private hubClient: NodeHubClient | undefined;
 	private stopHostSubscription: (() => void) | undefined;
 	private stopSessionRefreshInterval: (() => void) | undefined;
@@ -672,10 +672,10 @@ class CoreChatWebviewController implements vscode.Disposable {
 			this.telemetry = sharedTelemetry;
 		} else {
 			const { telemetry } = createConfiguredTelemetryService(
-				createClineTelemetryServiceConfig({
-					metadata: createClineTelemetryServiceMetadata({
+				createIndusCodeTelemetryServiceConfig({
+					metadata: createIndusCodeTelemetryServiceMetadata({
 						extension_version: version,
-						cline_type: displayName,
+						induscode_type: displayName,
 						platform: vscode.env.appName,
 						platform_version: vscode.version,
 						os_type: os.platform(),
@@ -742,7 +742,7 @@ class CoreChatWebviewController implements vscode.Disposable {
 		try {
 			await this.ensureHub();
 			await this.getSessionHost();
-			await this.post({ type: "status", text: "Cline is Ready" });
+			await this.post({ type: "status", text: "IndusCode is Ready" });
 			const defaults = this.resolveWorkspaceDefaults();
 			await this.post({ type: "defaults", defaults });
 			await this.loadProviders(defaults.provider);
@@ -1138,7 +1138,7 @@ class CoreChatWebviewController implements vscode.Disposable {
 
 	private buildExtensionContext(workspaceRoot: string, cwd: string) {
 		return {
-			client: { name: "cline-vscode", version },
+			client: { name: "induscode-vscode", version },
 			workspace: {
 				rootPath: workspaceRoot,
 				cwd,
@@ -1152,7 +1152,7 @@ class CoreChatWebviewController implements vscode.Disposable {
 	}
 
 	private async buildStartConfigFromSession(
-		session: NonNullable<Awaited<ReturnType<ClineCore["get"]>>>,
+		session: NonNullable<Awaited<ReturnType<IndusCodeCore["get"]>>>,
 	): Promise<StartConfig> {
 		const mode: "act" | "plan" =
 			session.metadata?.mode === "plan" ? "plan" : "act";
@@ -1203,7 +1203,7 @@ class CoreChatWebviewController implements vscode.Disposable {
 	): Promise<StartConfig> {
 		const defaults = this.resolveWorkspaceDefaults();
 		const providerId = Llms.normalizeProviderId(
-			config?.provider?.trim() || "cline",
+			config?.provider?.trim() || "induscode",
 		);
 		const modelId = config?.model?.trim() || "openai/gpt-5.5";
 		const mode: "act" | "plan" = config?.mode === "plan" ? "plan" : "act";
@@ -1300,7 +1300,7 @@ class CoreChatWebviewController implements vscode.Disposable {
 		mode: "act" | "plan" | "yolo" = "act",
 	): Promise<string> {
 		const metadata = await buildWorkspaceMetadata(cwd);
-		return buildClineSystemPrompt({
+		return buildIndusCodeSystemPrompt({
 			overridePrompt: explicitSystemPrompt,
 			ide: "VS Code",
 			mode,
@@ -1412,11 +1412,11 @@ class CoreChatWebviewController implements vscode.Disposable {
 		this.stopSessionSubscription = undefined;
 	}
 
-	private async getSessionHost(): Promise<ClineCore> {
+	private async getSessionHost(): Promise<IndusCodeCore> {
 		if (!this.host) {
 			await this.ensureHub();
 			const defaults = this.resolveWorkspaceDefaults();
-			this.host = await ClineCore.create({
+			this.host = await IndusCodeCore.create({
 				backendMode: "hub",
 				capabilities: this.createRuntimeCapabilities(),
 				hub: {

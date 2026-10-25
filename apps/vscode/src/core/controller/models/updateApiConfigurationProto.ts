@@ -1,5 +1,5 @@
-import { Empty } from "@shared/proto/cline/common"
-import type { UpdateApiConfigurationRequest } from "@shared/proto/cline/models"
+import { Empty } from "@shared/proto/induscode/common"
+import type { UpdateApiConfigurationRequest } from "@shared/proto/induscode/models"
 import { convertProtoToApiProvider } from "@shared/proto-conversions/models/api-configuration-conversion"
 import {
 	fromProtobufLiteLLMModelInfo,
@@ -10,7 +10,7 @@ import {
 import { OpenaiReasoningEffort } from "@shared/storage/types"
 import { Logger } from "@/shared/services/Logger"
 import type { Controller } from "../index"
-import { clearOrganizationForClinePassProviderSelection } from "./handleClinePassProviderSelection"
+import { clearOrganizationForIndusCodePassProviderSelection } from "./handleIndusCodePassProviderSelection"
 import { normalizeProviderSwitchModel } from "./providerSwitchNormalization"
 import { createTaskApiModelShim, resolveActiveModelIdFromApiConfiguration } from "./taskApiModel"
 
@@ -49,11 +49,11 @@ export async function updateApiConfigurationProto(
 			planModeOpenRouterModelInfo: protoApiConfiguration.planModeOpenRouterModelInfo
 				? fromProtobufModelInfo(protoApiConfiguration.planModeOpenRouterModelInfo)
 				: undefined,
-			planModeClineModelInfo: protoApiConfiguration.planModeClineModelInfo
-				? fromProtobufModelInfo(protoApiConfiguration.planModeClineModelInfo)
+			planModeIndusCodeModelInfo: protoApiConfiguration.planModeIndusCodeModelInfo
+				? fromProtobufModelInfo(protoApiConfiguration.planModeIndusCodeModelInfo)
 				: undefined,
-			planModeClinePassModelInfo: protoApiConfiguration.planModeClinePassModelInfo
-				? fromProtobufModelInfo(protoApiConfiguration.planModeClinePassModelInfo)
+			planModeIndusCodePassModelInfo: protoApiConfiguration.planModeIndusCodePassModelInfo
+				? fromProtobufModelInfo(protoApiConfiguration.planModeIndusCodePassModelInfo)
 				: undefined,
 			planModeOpenAiModelInfo: protoApiConfiguration.planModeOpenAiModelInfo
 				? fromProtobufOpenAiCompatibleModelInfo(protoApiConfiguration.planModeOpenAiModelInfo)
@@ -90,11 +90,11 @@ export async function updateApiConfigurationProto(
 			actModeOpenRouterModelInfo: protoApiConfiguration.actModeOpenRouterModelInfo
 				? fromProtobufModelInfo(protoApiConfiguration.actModeOpenRouterModelInfo)
 				: undefined,
-			actModeClineModelInfo: protoApiConfiguration.actModeClineModelInfo
-				? fromProtobufModelInfo(protoApiConfiguration.actModeClineModelInfo)
+			actModeIndusCodeModelInfo: protoApiConfiguration.actModeIndusCodeModelInfo
+				? fromProtobufModelInfo(protoApiConfiguration.actModeIndusCodeModelInfo)
 				: undefined,
-			actModeClinePassModelInfo: protoApiConfiguration.actModeClinePassModelInfo
-				? fromProtobufModelInfo(protoApiConfiguration.actModeClinePassModelInfo)
+			actModeIndusCodePassModelInfo: protoApiConfiguration.actModeIndusCodePassModelInfo
+				? fromProtobufModelInfo(protoApiConfiguration.actModeIndusCodePassModelInfo)
 				: undefined,
 			actModeOpenAiModelInfo: protoApiConfiguration.actModeOpenAiModelInfo
 				? fromProtobufOpenAiCompatibleModelInfo(protoApiConfiguration.actModeOpenAiModelInfo)
@@ -141,7 +141,7 @@ export async function updateApiConfigurationProto(
 
 		// Update the API configuration in storage
 		controller.stateManager.setApiConfiguration(normalizedApiConfiguration)
-		clearOrganizationForClinePassProviderSelection(controller, normalizedApiConfiguration)
+		clearOrganizationForIndusCodePassProviderSelection(controller, normalizedApiConfiguration)
 
 		// Update the task's API handler if there's an active task
 		if (controller.task) {

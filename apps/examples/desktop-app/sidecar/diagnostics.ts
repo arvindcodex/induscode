@@ -9,7 +9,7 @@ import {
 } from "node:fs";
 import { arch, homedir, platform, release } from "node:os";
 import { join } from "node:path";
-import { readGlobalSettings, resolveClineDataDir } from "@cline/core";
+import { readGlobalSettings, resolveIndusCodeDataDir } from "@induscode/core";
 import packageJson from "../package.json";
 import { readSessionManifest } from "./paths";
 
@@ -75,7 +75,7 @@ export function buildDiagnosticsReport(
 	sessionIds: string[],
 	now = new Date(),
 ): { text: string; sessionIds: string[] } {
-	const dataDir = resolveClineDataDir();
+	const dataDir = resolveIndusCodeDataDir();
 	const report = {
 		generatedAt: now.toISOString(),
 		app: { name: packageJson.name, version: packageJson.version },
@@ -91,7 +91,7 @@ export function buildDiagnosticsReport(
 	let text = `${JSON.stringify(report, null, 2)}\n`;
 
 	const logs = [
-		process.env.CLINE_LOG_PATH?.trim() || join(dataDir, "logs", "code.log"),
+		process.env.INDUSCODE_LOG_PATH?.trim() || join(dataDir, "logs", "code.log"),
 		join(dataDir, "logs", "hub-daemon.log"),
 	];
 	for (const path of logs) {
@@ -129,7 +129,7 @@ export function resolveDiagnosticsOutputDir(): string {
 	const downloads = join(homedir(), "Downloads");
 	return existsSync(downloads)
 		? downloads
-		: join(resolveClineDataDir(), "diagnostics");
+		: join(resolveIndusCodeDataDir(), "diagnostics");
 }
 
 export function writeDiagnosticsReport(
@@ -143,7 +143,7 @@ export function writeDiagnosticsReport(
 	if (!existsSync(outputDir)) mkdirSync(outputDir, { recursive: true });
 	const path = join(
 		outputDir,
-		`cline-diagnostics-${packageJson.version}-${formatStamp(now)}.txt`,
+		`induscode-diagnostics-${packageJson.version}-${formatStamp(now)}.txt`,
 	);
 	writeFileSync(path, report.text);
 	return { path, sessionIds: report.sessionIds };

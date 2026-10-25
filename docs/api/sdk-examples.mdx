@@ -1,18 +1,18 @@
 ---
 title: "Code Examples"
 sidebarTitle: "Code Examples"
-description: "Use the Cline API from Python, Node.js, curl, the Cline CLI, and the VS Code extension."
+description: "Use the IndusCode API from Python, Node.js, curl, the IndusCode CLI, and the VS Code extension."
 ---
 
-The Cline API is OpenAI-compatible, so any library or tool that works with OpenAI also works with the Cline API. Just change the base URL and API key.
+The IndusCode API is OpenAI-compatible, so any library or tool that works with OpenAI also works with the IndusCode API. Just change the base URL and API key.
 
 ## curl
 
 ### Non-Streaming
 
 ```bash
-curl -X POST https://api.cline.bot/api/v1/chat/completions \
-  -H "Authorization: Bearer $CLINE_API_KEY" \
+curl -X POST https://api.induscode.bot/api/v1/chat/completions \
+  -H "Authorization: Bearer $INDUSCODE_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
     "model": "anthropic/claude-sonnet-4-6",
@@ -24,8 +24,8 @@ curl -X POST https://api.cline.bot/api/v1/chat/completions \
 ### Streaming
 
 ```bash
-curl -X POST https://api.cline.bot/api/v1/chat/completions \
-  -H "Authorization: Bearer $CLINE_API_KEY" \
+curl -X POST https://api.induscode.bot/api/v1/chat/completions \
+  -H "Authorization: Bearer $INDUSCODE_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
     "model": "anthropic/claude-sonnet-4-6",
@@ -38,13 +38,13 @@ curl -X POST https://api.cline.bot/api/v1/chat/completions \
 
 ### OpenAI SDK
 
-The [OpenAI Python SDK](https://github.com/openai/openai-python) works with the Cline API by setting `base_url`:
+The [OpenAI Python SDK](https://github.com/openai/openai-python) works with the IndusCode API by setting `base_url`:
 
 ```python
 from openai import OpenAI
 
 client = OpenAI(
-    base_url="https://api.cline.bot/api/v1",
+    base_url="https://api.induscode.bot/api/v1",
     api_key="YOUR_API_KEY",
 )
 
@@ -62,7 +62,7 @@ print(response.choices[0].message.content)
 from openai import OpenAI
 
 client = OpenAI(
-    base_url="https://api.cline.bot/api/v1",
+    base_url="https://api.induscode.bot/api/v1",
     api_key="YOUR_API_KEY",
 )
 
@@ -86,7 +86,7 @@ from openai import OpenAI
 import json
 
 client = OpenAI(
-    base_url="https://api.cline.bot/api/v1",
+    base_url="https://api.induscode.bot/api/v1",
     api_key="YOUR_API_KEY",
 )
 
@@ -129,7 +129,7 @@ If you prefer not to use the OpenAI SDK:
 import requests
 
 response = requests.post(
-    "https://api.cline.bot/api/v1/chat/completions",
+    "https://api.induscode.bot/api/v1/chat/completions",
     headers={
         "Authorization": "Bearer YOUR_API_KEY",
         "Content-Type": "application/json",
@@ -149,13 +149,13 @@ print(data["choices"][0]["message"]["content"])
 
 ### OpenAI SDK
 
-The [OpenAI Node.js SDK](https://github.com/openai/openai-node) works with the Cline API by setting `baseURL`:
+The [OpenAI Node.js SDK](https://github.com/openai/openai-node) works with the IndusCode API by setting `baseURL`:
 
 ```typescript
 import OpenAI from "openai"
 
 const client = new OpenAI({
-  baseURL: "https://api.cline.bot/api/v1",
+  baseURL: "https://api.induscode.bot/api/v1",
   apiKey: "YOUR_API_KEY",
 })
 
@@ -173,7 +173,7 @@ console.log(response.choices[0].message.content)
 import OpenAI from "openai"
 
 const client = new OpenAI({
-  baseURL: "https://api.cline.bot/api/v1",
+  baseURL: "https://api.induscode.bot/api/v1",
   apiKey: "YOUR_API_KEY",
 })
 
@@ -195,7 +195,7 @@ console.log()
 ### Using fetch
 
 ```typescript
-const response = await fetch("https://api.cline.bot/api/v1/chat/completions", {
+const response = await fetch("https://api.induscode.bot/api/v1/chat/completions", {
   method: "POST",
   headers: {
     Authorization: "Bearer YOUR_API_KEY",
@@ -212,50 +212,50 @@ const data = await response.json()
 console.log(data.choices[0].message.content)
 ```
 
-## Cline CLI
+## IndusCode CLI
 
-The [Cline CLI](/cli/cli-reference) is the fastest way to use the Cline API from your terminal. It handles authentication, streaming, and tool execution for you.
+The [IndusCode CLI](/cli/cli-reference) is the fastest way to use the IndusCode API from your terminal. It handles authentication, streaming, and tool execution for you.
 
 ### Setup
 
 ```bash
 # Install
-npm install -g @anthropic-ai/cline
+npm install -g @anthropic-ai/induscode
 
-# Authenticate with a Cline API key
-cline auth -p cline -k "YOUR_API_KEY" -m anthropic/claude-sonnet-4-6
+# Authenticate with a IndusCode API key
+induscode auth -p induscode -k "YOUR_API_KEY" -m anthropic/claude-sonnet-4-6
 ```
 
 ### Run Tasks
 
 ```bash
 # Simple prompt
-cline "Explain what a REST API is."
+induscode "Explain what a REST API is."
 
 # Pipe input
-cat README.md | cline "Summarize this document."
+cat README.md | induscode "Summarize this document."
 
 # Use a specific model
-cline -m google/gemini-2.5-pro "Analyze this codebase."
+induscode -m google/gemini-2.5-pro "Analyze this codebase."
 
 # YOLO mode for automation
-cline -y "Run tests and fix failures."
+induscode -y "Run tests and fix failures."
 ```
 
 See the [CLI Reference](/cli/cli-reference) for all commands and options.
 
 ## VS Code / JetBrains
 
-The Cline extension handles the API integration for you:
+The IndusCode extension handles the API integration for you:
 
-1. Open the Cline panel in your editor
-2. Select **Cline** as the provider in the model picker
-3. Sign in with your Cline account
-4. Start chatting or give Cline a task
+1. Open the IndusCode panel in your editor
+2. Select **IndusCode** as the provider in the model picker
+3. Sign in with your IndusCode account
+4. Start chatting or give IndusCode a task
 
 Your API key is managed automatically. No manual configuration needed.
 
-For setup instructions, see [Installing Cline](/getting-started/installing-cline) and [Authorizing with Cline](/getting-started/authorizing-with-cline).
+For setup instructions, see [Installing IndusCode](/getting-started/installing-induscode) and [Authorizing with IndusCode](/getting-started/authorizing-with-induscode).
 
 ## Related
 
@@ -270,6 +270,6 @@ For setup instructions, see [Installing Cline](/getting-started/installing-cline
     Browse available models.
   </Card>
   <Card title="CLI Reference" icon="terminal" href="/cli/cli-reference">
-    Complete Cline CLI command reference.
+    Complete IndusCode CLI command reference.
   </Card>
 </CardGroup>

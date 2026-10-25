@@ -12,7 +12,7 @@ const REMOTE_SESSION: CloudSessionRecord = {
 	id: "ses-outer",
 	status: "ready",
 	sandboxUrl: "https://pod.example/hub",
-	repoContext: { repoUrl: "https://github.com/cline/test" },
+	repoContext: { repoUrl: "https://github.com/induscode/test" },
 	metadata: { modelId: "anthropic/claude-sonnet-5" },
 	createdAt: "2026-08-05T10:00:00.000Z",
 	updatedAt: "2026-08-05T10:01:00.000Z",
@@ -65,7 +65,7 @@ describe("CloudSessionManager lifecycle", () => {
 		await expect(
 			manager.create({
 				modelId: "model",
-				repoUrl: "https://github.com/cline/test",
+				repoUrl: "https://github.com/induscode/test",
 			}),
 		).rejects.toThrow(message);
 		expect(create).toHaveBeenCalledOnce();
@@ -85,13 +85,13 @@ describe("CloudSessionManager lifecycle", () => {
 			sessionId: "ses-outer",
 			origin: "cloud",
 			executionTarget: "cloud",
-			repoUrl: "https://github.com/cline/test",
+			repoUrl: "https://github.com/induscode/test",
 			workspaceRoot: "/workspace",
 			lastActivityAt: "2026-08-05T10:02:00.000Z",
 			branch: "feature/cloud",
 			metadata: {
 				git: {
-					url: "https://github.com/cline/test",
+					url: "https://github.com/induscode/test",
 					branch: "feature/cloud",
 				},
 			},
@@ -137,7 +137,7 @@ describe("CloudSessionManager lifecycle", () => {
 			origin: "cloud",
 			status: "running",
 			prompt: "Fix reconnect behavior\nwith a regression test",
-			repoUrl: "https://github.com/cline/test",
+			repoUrl: "https://github.com/induscode/test",
 			metadata: {
 				title: "Fix reconnect behavior",
 				origin: "cloud",
@@ -165,7 +165,7 @@ describe("CloudSessionManager lifecycle", () => {
 		});
 		await manager.create({
 			modelId: "anthropic/claude-sonnet-5",
-			repoUrl: "https://github.com/cline/test",
+			repoUrl: "https://github.com/induscode/test",
 		});
 		expect((await manager.listForDiscovery())[0].status).toBe("ready");
 
@@ -232,7 +232,7 @@ describe("CloudSessionManager lifecycle", () => {
 		const input = {
 			requestId: "client-start-1",
 			modelId: "anthropic/claude-sonnet-5",
-			repoUrl: "https://github.com/cline/test",
+			repoUrl: "https://github.com/induscode/test",
 		};
 
 		const first = manager.create(input);
@@ -272,7 +272,7 @@ describe("CloudSessionManager lifecycle", () => {
 		});
 		const input = {
 			modelId: "anthropic/claude-sonnet-5",
-			repoUrl: "https://github.com/cline/test",
+			repoUrl: "https://github.com/induscode/test",
 		};
 
 		const [first, second] = await Promise.all([
@@ -314,7 +314,7 @@ describe("CloudSessionManager lifecycle", () => {
 			mode === "in-flight" ? manager.listForDiscovery() : undefined;
 		await manager.create({
 			modelId: "model",
-			repoUrl: "https://github.com/cline/test",
+			repoUrl: "https://github.com/induscode/test",
 			initialPrompt: "Fix this",
 		});
 		if (inFlight) refresh.resolve([]);
@@ -371,7 +371,7 @@ describe("CloudSessionManager lifecycle", () => {
 		});
 		await manager.create({
 			modelId: "model",
-			repoUrl: "https://github.com/cline/test",
+			repoUrl: "https://github.com/induscode/test",
 		});
 		const removed =
 			result === "session_not_found" || result === "session_expired";
@@ -450,21 +450,21 @@ describe("CloudSessionManager lifecycle", () => {
 			} as unknown as CloudSessionApi,
 			apiBaseUrl: "https://api.example",
 			getAuthToken: async () => "workos:fresh",
-			getActiveOrganizationId: async () => "org-cline-bot",
+			getActiveOrganizationId: async () => "org-induscode-bot",
 		});
 		const scoped = await manager.list();
-		expect(listCalls).toEqual(["org-cline-bot"]);
+		expect(listCalls).toEqual(["org-induscode-bot"]);
 		expect(scoped.map((session) => session.id)).toEqual(["ses-org"]);
 		await manager.listRepositories();
 		await manager.listBranches(42);
-		expect(repositoryScopes).toEqual(["org-cline-bot"]);
-		expect(branchScopes).toEqual(["org-cline-bot"]);
+		expect(repositoryScopes).toEqual(["org-induscode-bot"]);
+		expect(branchScopes).toEqual(["org-induscode-bot"]);
 
 		await manager.create({
 			modelId: "anthropic/claude-sonnet-5",
-			repoUrl: "https://github.com/cline/test",
+			repoUrl: "https://github.com/induscode/test",
 		});
-		expect(createInput).toMatchObject({ organizationId: "org-cline-bot" });
+		expect(createInput).toMatchObject({ organizationId: "org-induscode-bot" });
 	});
 
 	it("refreshes the active organization before creating a session", async () => {
@@ -498,7 +498,7 @@ describe("CloudSessionManager lifecycle", () => {
 		serverScope = "org-b";
 		await manager.create({
 			modelId: "anthropic/claude-sonnet-5",
-			repoUrl: "https://github.com/cline/test",
+			repoUrl: "https://github.com/induscode/test",
 		});
 
 		expect(lookupOptions).toEqual([undefined, { fresh: true }]);
@@ -529,7 +529,7 @@ describe("CloudSessionManager lifecycle", () => {
 		await expect(
 			manager.create({
 				modelId: "anthropic/claude-sonnet-5",
-				repoUrl: "https://github.com/cline/test",
+				repoUrl: "https://github.com/induscode/test",
 			}),
 		).rejects.toThrow("account endpoint down");
 		expect(createInput?.organizationId).toBeUndefined();

@@ -2,7 +2,7 @@ import {
 	createPluginCommandService,
 	type PluginCommandResult,
 	type PluginCommandService,
-} from "@cline/core";
+} from "@induscode/core";
 import type { SidecarContext } from "./types";
 
 // One service per workspace; it keeps the plugin sandboxes alive between

@@ -1,4 +1,4 @@
-import type { AgentToolContext, HubEventEnvelope } from "@cline/shared";
+import type { AgentToolContext, HubEventEnvelope } from "@induscode/shared";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { version as corePackageVersion } from "../../../package.json";
 import { createSessionCompactionState } from "../../session/models/session-compaction";
@@ -43,7 +43,7 @@ vi.mock("../client", () => ({
 
 function createConfig() {
 	return {
-		providerId: "cline",
+		providerId: "induscode",
 		modelId: "anthropic/claude-haiku-4.5",
 		cwd: "/tmp/project",
 		workspaceRoot: "/tmp/project",
@@ -109,7 +109,7 @@ describe("HubRuntimeHost", () => {
 			localRuntime: {
 				extensionContext: {
 					client: {
-						name: "cline-cli",
+						name: "induscode-cli",
 						version: "3.0.38",
 						platform: "cli",
 						platformVersion: "3.0.38",
@@ -135,7 +135,7 @@ describe("HubRuntimeHost", () => {
 			workspaceRoot: "/tmp/project",
 			cwd: "/tmp/project",
 			sessionConfig: expect.objectContaining({
-				providerId: "cline",
+				providerId: "induscode",
 				modelId: "anthropic/claude-haiku-4.5",
 				cwd: "/tmp/project",
 				workspaceRoot: "/tmp/project",
@@ -147,11 +147,11 @@ describe("HubRuntimeHost", () => {
 				enableSpawnAgent: true,
 				enableAgentTeams: true,
 				headers: expect.objectContaining({
-					"HTTP-Referer": "https://cline.bot",
-					"X-Title": "Cline",
-					"User-Agent": "Cline/3.0.38",
+					"HTTP-Referer": "https://induscode.bot",
+					"X-Title": "IndusCode",
+					"User-Agent": "IndusCode/3.0.38",
 					"X-IS-MULTIROOT": "false",
-					"X-CLIENT-TYPE": "cline-cli",
+					"X-CLIENT-TYPE": "induscode-cli",
 					"X-CLIENT-VERSION": "3.0.38",
 					"X-PLATFORM": "cli",
 					"X-PLATFORM-VERSION": "3.0.38",
@@ -170,7 +170,7 @@ describe("HubRuntimeHost", () => {
 			}),
 			runtimeOptions: {
 				clientContext: {
-					name: "cline-cli",
+					name: "induscode-cli",
 					version: "3.0.38",
 					platform: "cli",
 					platformVersion: "3.0.38",
@@ -242,7 +242,7 @@ describe("HubRuntimeHost", () => {
 
 	it("uses the hub-resolved workspace in the manifest for a pathless start", async () => {
 		subscribeMock.mockReturnValue(() => {});
-		const resolvedWorkspace = "/home/host/.cline/data/workspaces/chat";
+		const resolvedWorkspace = "/home/host/.induscode/data/workspaces/chat";
 		commandMock.mockResolvedValue({
 			payload: {
 				session: {
@@ -412,7 +412,7 @@ describe("HubRuntimeHost", () => {
 			finishReason: "completed",
 			model: {
 				id: "anthropic/claude-haiku-4.5",
-				provider: "cline",
+				provider: "induscode",
 				info: {},
 			},
 			startedAt: new Date("2026-04-21T00:00:00.000Z"),
@@ -467,7 +467,7 @@ describe("HubRuntimeHost", () => {
 			interactive: true,
 			workspace: { cwd: "/tmp/project", root: "/tmp/project" },
 			model: {
-				providerId: "cline",
+				providerId: "induscode",
 				modelId: "anthropic/claude-haiku-4.5",
 			},
 			capabilities: {
@@ -507,7 +507,7 @@ describe("HubRuntimeHost", () => {
 		expect(started.sessionId).toBe("sess-snapshot");
 		expect(started.manifest).toMatchObject({
 			session_id: "sess-snapshot",
-			provider: "cline",
+			provider: "induscode",
 			model: "anthropic/claude-haiku-4.5",
 			interactive: true,
 			prompt: "Hey",
@@ -563,7 +563,7 @@ describe("HubRuntimeHost", () => {
 		commandMock.mockResolvedValueOnce({ ok: true, payload: { snapshot } });
 		await expect(host.getSession("sess-snapshot")).resolves.toMatchObject({
 			sessionId: "sess-snapshot",
-			provider: "cline",
+			provider: "induscode",
 			model: "anthropic/claude-haiku-4.5",
 			agentId: "agent-1",
 			conversationId: "conversation-1",

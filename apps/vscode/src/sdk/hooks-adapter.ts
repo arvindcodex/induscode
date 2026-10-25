@@ -1,4 +1,4 @@
-// Bridges Cline's file-based hook scripts into the SDK's runtime hooks.
+// Bridges IndusCode's file-based hook scripts into the SDK's runtime hooks.
 //
 // Runtime hooks use typed in-process lifecycle callbacks:
 //   TaskStart        -> beforeRun
@@ -18,14 +18,14 @@ import type {
 	AgentRunLifecycleContext,
 	AgentRunStartResult,
 	AgentStopControl,
-} from "@cline/shared"
-import type { ClineMessage } from "@shared/ExtensionMessage"
+} from "@induscode/shared"
+import type { IndusCodeMessage } from "@shared/ExtensionMessage"
 import { Logger } from "@shared/services/Logger"
 import { HookFactory } from "@/core/hooks/hook-factory"
 import { getHooksEnabledSafe } from "@/core/hooks/hooks-utils"
 import type { StateManager } from "@/core/storage/StateManager"
 
-export type HookMessageEmitter = (message: ClineMessage) => void
+export type HookMessageEmitter = (message: IndusCodeMessage) => void
 
 function toStringRecord(input: unknown): Record<string, string> {
 	if (input == null || typeof input !== "object" || Array.isArray(input)) {
@@ -103,7 +103,7 @@ function buildHookStatusMessage(opts: {
 	status: "running" | "completed" | "failed" | "cancelled"
 	toolName?: string
 	ts?: number
-}): ClineMessage {
+}): IndusCodeMessage {
 	return {
 		ts: opts.ts ?? Date.now(),
 		type: "say",

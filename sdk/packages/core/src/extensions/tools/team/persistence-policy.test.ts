@@ -1,4 +1,4 @@
-import { TeamMessageType } from "@cline/shared";
+import { TeamMessageType } from "@induscode/shared";
 import { describe, expect, it } from "vitest";
 import type { TeamEvent } from "./multi-agent";
 import {

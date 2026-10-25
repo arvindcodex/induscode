@@ -1,10 +1,10 @@
 {
 	"version": 1,
-	"lastUsedProvider": "cline",
+	"lastUsedProvider": "induscode",
 	"providers": {
-		"cline": {
+		"induscode": {
 			"settings": {
-				"provider": "cline",
+				"provider": "induscode",
 				"auth": {
 					"accessToken": "workos:eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOiJ0ZXN0SWQiLCJleHRlcm5hbF9pZCI6InRlc3RJZCIsImVtYWlsIjoidGVzdEBjbGluZS5ib3QiLCJuYW1lIjoiVGVzdCBVc2VyIiwiZXhwIjoxODk5NTc4OTI0LCJpYXQiOjE3NzMzNDQzODQsInNpZCI6InRlc3Qtc2Vzc2lvbi1pZCJ9.",
 					"refreshToken": "testRefreshToken",

@@ -1,6 +1,6 @@
-import { listLocalProviders, type ModelCatalogConfig, resolveProviderConfig } from "@cline/core"
-import { type ProviderConfig, resolveProviderUsageCostDisplay } from "@cline/llms"
-import { type ProviderListItem } from "@cline/shared"
+import { listLocalProviders, type ModelCatalogConfig, resolveProviderConfig } from "@induscode/core"
+import { type ProviderConfig, resolveProviderUsageCostDisplay } from "@induscode/llms"
+import { type ProviderListItem } from "@induscode/shared"
 import { getProviderSettingsManager } from "../provider-migration"
 import type {
 	CatalogError,
@@ -191,7 +191,7 @@ function toProviderListing(provider: ProviderListItem): ProviderListing {
 async function listSdkProviderListings(): Promise<ReadonlyArray<ProviderListing>> {
 	const manager = getProviderSettingsManager()
 	const { providers } = await listLocalProviders(manager, {
-		isClinePassEnabled: true,
+		isIndusCodePassEnabled: true,
 	})
 	return providers.map(toProviderListing)
 }

@@ -1,19 +1,19 @@
-# `@cline/ui` adoption primer
+# `@induscode/ui` adoption primer
 
-This guide is for Cline engineering teams that want a web application to share
-the Cline visual language and agent-chat presentation without copying desktop
+This guide is for IndusCode engineering teams that want a web application to share
+the IndusCode visual language and agent-chat presentation without copying desktop
 styles or adopting desktop product structure.
 
 ## The short version
 
-`@cline/ui` has two opt-in layers:
+`@induscode/ui` has two opt-in layers:
 
 1. A shared CSS theme built around standard shadcn/Tailwind semantic names.
 2. Reusable React presentation primitives for common agent-chat interfaces.
 
 The theme provides:
 
-- Cline-owned Slate, Violet, Ruby, Green, Amber, and Sky solid/alpha palettes
+- IndusCode-owned Slate, Violet, Ruby, Green, Amber, and Sky solid/alpha palettes
 - Light and dark semantic colors
 - Standard shadcn token names
 - Typography families, sizes, weights, line heights, and letter spacing
@@ -43,22 +43,22 @@ Each application continues to own:
 - Font-file loading and framework integration
 - Product-specific animation and deliberate visual overrides
 
-This boundary gives Cline products a shared visual and interaction language
-without turning `@cline/ui` into a second agent runtime.
+This boundary gives IndusCode products a shared visual and interaction language
+without turning `@induscode/ui` into a second agent runtime.
 
 The boundary is about runtime coupling, not about keeping the package small.
 When more than one product needs the same presentation behavior, the goal is
 to extract it here as a shared module rather than let each app grow its own
-copy — that is the direction `@cline/ui` is headed, and more shared modules
+copy — that is the direction `@induscode/ui` is headed, and more shared modules
 are expected over time. Two exist today:
 
-- `@cline/ui/components/agent-chat/tool-summary` — pure, framework-free
+- `@induscode/ui/components/agent-chat/tool-summary` — pure, framework-free
   functions (`buildToolSummary`, `buildGroupedToolLabel`, and the underlying
   parsers) that turn a raw `{ toolName, input, result }` payload into the
   labels, per-item details, diff counts, and before/after texts every surface
   should show. `unknown` in, data out — no React, no icons, no dependency on
-  `@cline/core` or transport events.
-- `@cline/ui/components/agent-chat/tool-diff` — `ToolFileDiff`, a thin
+  `@induscode/core` or transport events.
+- `@induscode/ui/components/agent-chat/tool-diff` — `ToolFileDiff`, a thin
   wrapper over [`@pierre/diffs`](https://github.com/pierrecomputer/pierre)
   (optional peer dependency) that renders a tool-summary file item as a
   syntax-highlighted, theme-aware diff with consistent defaults.
@@ -77,18 +77,18 @@ change collector, workspace paths, and conversation focus restoration.
 presentation. Hosts provide normalized data, refresh/navigation callbacks,
 and their accessible checks popover through `renderChecks`. Fetching, polling,
 authentication, and telemetry stay in the host. Import these components from
-`@cline/ui` and their styles through the existing `@cline/ui/components.css`.
+`@induscode/ui` and their styles through the existing `@induscode/ui/components.css`.
 
 `AgentCommandOutput` shares the desktop terminal frame and follow-output scrolling.
 Pass ANSI-rendered or normalized output as children; transport and output limits
 stay in the host. `AgentImageLightboxContent` shares the expanded image, backdrop
 close action, and close control; hosts retain their dialog, focus, keyboard, and
-image navigation. Import both from `@cline/ui` with `@cline/ui/components.css`.
+image navigation. Import both from `@induscode/ui` with `@induscode/ui/components.css`.
 
 ## Current status
 
-`@cline/ui` is configured for public npm publication with its own version and
-manual release workflow. Check availability with `npm view @cline/ui version`;
+`@induscode/ui` is configured for public npm publication with its own version and
+manual release workflow. Check availability with `npm view @induscode/ui version`;
 an `E404` means the first release is still pending. The API is pre-stable, so
 production consumers should pin exact versions and review compatibility notes
 when updating.
@@ -102,26 +102,26 @@ pass once their runtime and Markdown adapters are mapped explicitly.
 
 | Goal | Import | Tailwind required | React required |
 | --- | --- | --- | --- |
-| Use only light/dark CSS variables | `@cline/ui/theme/tokens.css` | No | No |
-| Render shared root React primitives without host resets | `scoped-tokens.css`, `components.css`, and `@cline/ui` | Tailwind v4 | React 18.3 or 19 |
+| Use only light/dark CSS variables | `@induscode/ui/theme/tokens.css` | No | No |
+| Render shared root React primitives without host resets | `scoped-tokens.css`, `components.css`, and `@induscode/ui` | Tailwind v4 | React 18.3 or 19 |
 | Use tokens through Tailwind utilities | `tokens.css` then `theme.css` | Tailwind v4 | No |
-| Use the complete theme and shared base behavior | `@cline/ui/theme/index.css` | Tailwind v4 | No |
-| Compose shared agent-chat presentation | `@cline/ui/components/agent-chat` plus its CSS | No, if tokens are mapped in plain CSS | React 18.3 or 19 |
+| Use the complete theme and shared base behavior | `@induscode/ui/theme/index.css` | Tailwind v4 | No |
+| Compose shared agent-chat presentation | `@induscode/ui/components/agent-chat` plus its CSS | No, if tokens are mapped in plain CSS | React 18.3 or 19 |
 
 The package exports `base.css` separately for consumers that want its global,
 Markdown, scrollbar, selection, cursor, and native `color-scheme` behavior.
 
-There is no `@cline/ui/theme` shorthand. Use the explicit paths documented here
+There is no `@induscode/ui/theme` shorthand. Use the explicit paths documented here
 so dependencies remain visible.
 
-## Install inside the Cline monorepo
+## Install inside the IndusCode monorepo
 
 Add the workspace dependency:
 
 ```json
 {
   "dependencies": {
-    "@cline/ui": "workspace:*"
+    "@induscode/ui": "workspace:*"
   }
 }
 ```
@@ -135,7 +135,7 @@ After the initial release is available, install the latest production UI
 release. The `--exact` flag records the resolved version instead of a range:
 
 ```bash
-bun add --exact @cline/ui
+bun add --exact @induscode/ui
 ```
 
 The package is ESM. Its React entry point targets browser applications. Install
@@ -145,7 +145,7 @@ only the prerequisites for the layer being adopted:
 # Required for React components
 bun add react@^19 react-dom@^19
 
-# Required for the documented Tailwind-backed theme and Cline fonts
+# Required for the documented Tailwind-backed theme and IndusCode fonts
 bun add @fontsource-variable/inter @fontsource-variable/geist-mono
 bun add --dev tailwindcss
 ```
@@ -158,13 +158,13 @@ resolved version. Use the package manager's update command when the team
 intentionally wants to move to a newer release:
 
 ```bash
-bun update @cline/ui
+bun update @induscode/ui
 ```
 
 For deliberate previews, UI releases can publish an unstable `next` npm tag:
 
 ```bash
-bun add --exact @cline/ui@next
+bun add --exact @induscode/ui@next
 ```
 
 Do not use `next` for production applications. UI versions move independently
@@ -178,7 +178,7 @@ Import fonts and Tailwind before the complete theme:
 @import "@fontsource-variable/inter";
 @import "@fontsource-variable/geist-mono";
 @import "tailwindcss";
-@import "@cline/ui/theme/index.css";
+@import "@induscode/ui/theme/index.css";
 ```
 
 This supplies:
@@ -202,34 +202,34 @@ owns document, Markdown, scrollbar, or cursor behavior:
 @import "@fontsource-variable/inter";
 @import "@fontsource-variable/geist-mono";
 @import "tailwindcss";
-@import "@cline/ui/theme/tokens.css";
-@import "@cline/ui/theme/theme.css";
+@import "@induscode/ui/theme/tokens.css";
+@import "@induscode/ui/theme/theme.css";
 ```
 
 For an existing Tailwind v4 surface that must preserve its host shell, keep
-Tailwind setup host-owned and add the scoped Cline imports:
+Tailwind setup host-owned and add the scoped IndusCode imports:
 
 ```css
-@import "@cline/ui/theme/scoped-tokens.css";
-@import "@cline/ui/components.css";
+@import "@induscode/ui/theme/scoped-tokens.css";
+@import "@induscode/ui/components.css";
 ```
 
-Render shared components inside `.cline-ui-theme`. Dark values activate when
+Render shared components inside `.induscode-ui-theme`. Dark values activate when
 `.dark` is on that wrapper or an ancestor. `components.css` registers only
 package-namespaced Tailwind mappings, so generic host utilities such as
 `bg-background`, `text-foreground`, and `rounded-lg` retain their host-defined
 meaning outside the wrapper.
 
 Do not import `theme.css` for this scoped setup. That entry point deliberately
-registers the complete, generic Cline utility vocabulary and is intended only
-for applications that want Cline to own those utility names globally.
+registers the complete, generic IndusCode utility vocabulary and is intended only
+for applications that want IndusCode to own those utility names globally.
 
 The root primitives use package-owned semantic color, typography, radius, and
 dark-variant names. Structural utilities still use Tailwind's standard spacing,
 shadow, and breakpoint scales; hosts that customize those scales may change
 component metrics while their own utility names and token values remain intact.
 
-If the application later opts into Cline's global utility vocabulary and base
+If the application later opts into IndusCode's global utility vocabulary and base
 behavior, switch to the complete theme setup in Option 1.
 
 ## Option 3: framework-neutral tokens
@@ -237,7 +237,7 @@ behavior, switch to the complete theme setup in Option 1.
 Applications without Tailwind can import only the variables:
 
 ```css
-@import "@cline/ui/theme/tokens.css";
+@import "@induscode/ui/theme/tokens.css";
 ```
 
 Token-only consumers must provide:
@@ -262,11 +262,11 @@ For native controls that should follow the selected theme:
 
 ## Switch
 
-Import `Switch` from `@cline/ui` after setting up the theme and
-`@cline/ui/components.css`.
+Import `Switch` from `@induscode/ui` after setting up the theme and
+`@induscode/ui/components.css`.
 
 ```tsx
-import { Switch } from "@cline/ui";
+import { Switch } from "@induscode/ui";
 
 <div className="flex items-center gap-2">
   <Switch id="notifications" name="notifications" defaultChecked />
@@ -323,8 +323,8 @@ checkbox behavior.
 With the complete Tailwind theme, import the component styles afterward:
 
 ```css
-@import "@cline/ui/theme/index.css";
-@import "@cline/ui/components/agent-chat.css";
+@import "@induscode/ui/theme/index.css";
+@import "@induscode/ui/components/agent-chat.css";
 ```
 
 Without Tailwind, import the framework-neutral tokens and component styles,
@@ -332,8 +332,8 @@ then apply the shared font family at an app or chat root (tokens define font
 values but do not apply document typography):
 
 ```css
-@import "@cline/ui/theme/tokens.css";
-@import "@cline/ui/components/agent-chat.css";
+@import "@induscode/ui/theme/tokens.css";
+@import "@induscode/ui/components/agent-chat.css";
 
 .agent-chat-root {
   font-family: var(--font-sans);
@@ -360,7 +360,7 @@ import {
   ToolActivity,
   ToolActivityContent,
   ToolActivityTrigger,
-} from "@cline/ui/components/agent-chat";
+} from "@induscode/ui/components/agent-chat";
 
 type ProductMessage = {
   id: string;
@@ -451,15 +451,15 @@ standardizes the surrounding presentation without silently changing those
 security and product decisions.
 
 Map runtime roles and tool states at the consumer boundary. Do not make the UI
-package depend on `@cline/core`, the Vercel AI SDK, desktop schemas, or transport
+package depend on `@induscode/core`, the Vercel AI SDK, desktop schemas, or transport
 events.
 
 ## Explore components in Storybook
 
-From the Cline repository root:
+From the IndusCode repository root:
 
 ```bash
-bun -F @cline/ui storybook
+bun -F @induscode/ui storybook
 ```
 
 Open `http://localhost:6006`. The toolbar switches light/dark mode and offers
@@ -475,19 +475,19 @@ representative chat and mobile viewports. Stories cover:
 In the repository's agent sandbox, bind to a forwarded host and unused port:
 
 ```bash
-bun -F @cline/ui storybook -- --host 0.0.0.0 --port 3490 --exact-port
+bun -F @induscode/ui storybook -- --host 0.0.0.0 --port 3490 --exact-port
 ```
 
 Build the production Storybook bundle with:
 
 ```bash
-bun -F @cline/ui build-storybook
+bun -F @induscode/ui build-storybook
 ```
 
 Storybook is the isolated component reference. Real application builds remain
 the integration test for runtime adapters and product CSS.
 
-The catalog currently runs from a Cline monorepo checkout. Story sources and
+The catalog currently runs from a IndusCode monorepo checkout. Story sources and
 configuration are not included in the npm package, and the catalog is not
 hosted yet.
 
@@ -526,18 +526,18 @@ work across light, dark, and future theme layers.
 
 ## Radius utilities
 
-Use `rounded-cline-ui-lg` and other `rounded-cline-ui-*` theme sizes in
-shared components. They use Cline's radius tokens without taking over the
+Use `rounded-induscode-ui-lg` and other `rounded-induscode-ui-*` theme sizes in
+shared components. They use IndusCode's radius tokens without taking over the
 host application's `rounded-lg` utility. Desktop's equivalent utilities
 resolve to the same radius values. Keep structural shapes such as
-`rounded-full` unchanged; there is no `rounded-cline-ui-full` token.
+`rounded-full` unchanged; there is no `rounded-induscode-ui-full` token.
 
 ## Product overrides
 
 Import the package first, then override standard semantic values:
 
 ```css
-@import "@cline/ui/theme/index.css";
+@import "@induscode/ui/theme/index.css";
 
 :root {
   --primary: /* product-specific value */;
@@ -554,7 +554,7 @@ package upgrades.
 
 ## Consumer-owned behavior
 
-Keep the following outside `@cline/ui`:
+Keep the following outside `@induscode/ui`:
 
 - Next, Tauri, VS Code, and runtime-specific behavior
 - `#__next`, viewport locking, and shell layout
@@ -598,7 +598,7 @@ Until the package has a stable version, contract changes should:
 - Build every active consumer
 - Include light/dark visual evidence when values change
 - Avoid renaming standard shadcn/Tailwind variables
-- Keep Cline-owned palette values in `palette.css` and author UI through visual
+- Keep IndusCode-owned palette values in `palette.css` and author UI through visual
   or status roles
 - Keep `tokens.css` framework-neutral
 - Keep component props independent of product runtime schemas
@@ -615,7 +615,7 @@ validate and stabilize the public contract.
 
 Recommended sequence:
 
-1. Adopt the theme and chat primitives in a second production-shaped Cline app.
+1. Adopt the theme and chat primitives in a second production-shaped IndusCode app.
 2. Record where that app needs adapters or deliberate variations.
 3. Assign design and engineering owners.
 4. Define browser, React, Tailwind, compatibility, and deprecation policies.
@@ -638,7 +638,7 @@ current product contracts should be compared before standardizing them.
 - [Optional base styles](./theme/base.css)
 - [Complete theme](./theme/index.css)
 - [Package manifest](./package.json)
-- [Desktop theme integration test (monorepo)](https://github.com/cline/cline/blob/main/apps/examples/desktop-app/webview/styles/theme-integration.test.ts)
+- [Desktop theme integration test (monorepo)](https://github.com/induscode/induscode/blob/main/apps/examples/desktop-app/webview/styles/theme-integration.test.ts)
 
 ## Conversation layout and header
 
@@ -660,7 +660,7 @@ editing, menus, native title-bar behavior, and all event handlers.
 settings primitives preserve the desktop composer's welcome/conversation
 presentation. They render the original native elements without extra wrappers;
 refs and native event/ARIA props forward to those elements. Import
-`@cline/ui/components.css` and the shared tokens as described above.
+`@induscode/ui/components.css` and the shared tokens as described above.
 
 Compose the host's PR bar before `AgentComposerBody`. Inside the body, render
 `AgentPromptQueue`, the host's suggestion positioning wrapper and
@@ -681,8 +681,8 @@ presentation API, not a runtime composer or a form with implicit submission.
 ## Session rows
 
 `AgentSessionRow`, `AgentSessionRowEditor`, and `AgentSessionOverview` are
-exported from `@cline/ui`. Import `components.css` with the shared theme (or
-scoped tokens inside `.cline-ui-theme`) as for the other root components.
+exported from `@induscode/ui`. Import `components.css` with the shared theme (or
+scoped tokens inside `.induscode-ui-theme`) as for the other root components.
 
 The row owns the desktop row geometry, selected/hover appearance, timestamp
 placement, and pending/provisioning/running/unread dot precedence. Pass
@@ -734,7 +734,7 @@ tokens as usual. When the context limit or token usage is unavailable, it render
 nothing and does not invoke the child callback.
 
 ```tsx
-import { AgentContextUsage } from "@cline/ui";
+import { AgentContextUsage } from "@induscode/ui";
 
 <AgentContextUsage
   usage={{ tokensIn: 1200, tokensOut: 300, cacheReadTokens: 400, contextWindow: 200000 }}
@@ -762,11 +762,11 @@ host responsibilities.
 
 ## Message scroller
 
-Use `@cline/ui/components/message-scroller` with React 19 for transcripts that
+Use `@induscode/ui/components/message-scroller` with React 19 for transcripts that
 anchor new user turns and preserve the reader's position during streaming.
-The behavior comes from `@shadcn/react`; the shared wrapper adds Cline styles.
-Import `@cline/ui/components.css`, or import
-`@cline/ui/components/message-scroller.css` with theme tokens for a plain CSS
+The behavior comes from `@shadcn/react`; the shared wrapper adds IndusCode styles.
+Import `@induscode/ui/components.css`, or import
+`@induscode/ui/components/message-scroller.css` with theme tokens for a plain CSS
 host. Place the scroller in a parent with a constrained height.
 
 ```tsx
@@ -779,7 +779,7 @@ import {
   MessageScrollerViewport,
   useMessageScroller,
   useMessageScrollerVisibility,
-} from "@cline/ui/components/message-scroller";
+} from "@induscode/ui/components/message-scroller";
 
 function Transcript({ messages }) {
   return (

@@ -1,6 +1,6 @@
 import { TooltipContent, TooltipTrigger } from "@radix-ui/react-tooltip"
 import { azureOpenAiDefaultApiVersion, type OpenAiCompatibleModelInfo, openAiModelInfoSafeDefaults } from "@shared/api"
-import { OpenAiModelsRequest } from "@shared/proto/cline/models"
+import { OpenAiModelsRequest } from "@shared/proto/induscode/models"
 import { fromProtobufModelInfo } from "@shared/proto-conversions/models/typeConversion"
 import type { Mode } from "@shared/storage/types"
 import { VSCodeButton, VSCodeCheckbox, VSCodeDropdown, VSCodeOption } from "@vscode/webview-ui-toolkit/react"
@@ -628,7 +628,7 @@ export const OpenAICompatibleProvider = ({
 					color: "var(--vscode-descriptionForeground)",
 				}}>
 				<span style={{ color: "var(--vscode-errorForeground)" }}>
-					(<span style={{ fontWeight: 500 }}>Note:</span> Cline uses complex prompts, so behavior can vary across
+					(<span style={{ fontWeight: 500 }}>Note:</span> IndusCode uses complex prompts, so behavior can vary across
 					models. Less capable models may not work as expected.)
 				</span>
 			</p>

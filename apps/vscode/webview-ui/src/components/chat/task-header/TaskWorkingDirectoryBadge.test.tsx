@@ -22,7 +22,7 @@ describe("isTaskCwdOutsideWorkspace", () => {
 	})
 
 	it("is true when the cwd is outside every workspace root", () => {
-		expect(isTaskCwdOutsideWorkspace("/tmp/cline-hello", roots("/home/user/project"), "linux")).toBe(true)
+		expect(isTaskCwdOutsideWorkspace("/tmp/induscode-hello", roots("/home/user/project"), "linux")).toBe(true)
 	})
 
 	it("does not treat a sibling path sharing a prefix as inside", () => {
@@ -32,8 +32,8 @@ describe("isTaskCwdOutsideWorkspace", () => {
 	it("is false when the cwd is unknown or roots are missing", () => {
 		expect(isTaskCwdOutsideWorkspace(undefined, roots("/home/user/project"), "linux")).toBe(false)
 		expect(isTaskCwdOutsideWorkspace("", roots("/home/user/project"), "linux")).toBe(false)
-		expect(isTaskCwdOutsideWorkspace("/tmp/cline-hello", [], "linux")).toBe(false)
-		expect(isTaskCwdOutsideWorkspace("/tmp/cline-hello", undefined, "linux")).toBe(false)
+		expect(isTaskCwdOutsideWorkspace("/tmp/induscode-hello", [], "linux")).toBe(false)
+		expect(isTaskCwdOutsideWorkspace("/tmp/induscode-hello", undefined, "linux")).toBe(false)
 	})
 
 	it("ignores trailing separators", () => {
@@ -89,12 +89,12 @@ describe("TaskWorkingDirectoryBadge", () => {
 		render(
 			<TaskWorkingDirectoryBadge
 				platform="linux"
-				taskCwd="/tmp/cline-hello"
+				taskCwd="/tmp/induscode-hello"
 				workspaceRoots={roots("/home/user/project")}
 			/>,
 		)
-		expect(screen.getByText("cline-hello")).toBeDefined()
-		expect(screen.getByText(/working directory is \/tmp\/cline-hello/)).toBeDefined()
+		expect(screen.getByText("induscode-hello")).toBeDefined()
+		expect(screen.getByText(/working directory is \/tmp\/induscode-hello/)).toBeDefined()
 	})
 
 	it("renders nothing when the cwd is inside the workspace", () => {
@@ -110,7 +110,7 @@ describe("TaskWorkingDirectoryBadge", () => {
 
 	it("renders nothing when workspace roots are not yet known", () => {
 		const { container } = render(
-			<TaskWorkingDirectoryBadge platform="linux" taskCwd="/tmp/cline-hello" workspaceRoots={[]} />,
+			<TaskWorkingDirectoryBadge platform="linux" taskCwd="/tmp/induscode-hello" workspaceRoots={[]} />,
 		)
 		expect(container.innerHTML).toBe("")
 	})

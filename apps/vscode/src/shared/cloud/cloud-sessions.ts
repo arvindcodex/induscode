@@ -3,7 +3,7 @@ export type CloudExecutionTarget = "local" | "cloud"
 export const CLOUD_CREATION_UNCONFIRMED_ERROR_CODE = "cloud_creation_unconfirmed"
 
 /**
- * Lifecycle of a Cline Cloud session as shown in the extension.
+ * Lifecycle of a IndusCode Cloud session as shown in the extension.
  * - provisioning: the sandbox is being created
  * - running: the agent is working (known from a live hub connection)
  * - idle: the sandbox is up but the agent is not running a turn
@@ -98,12 +98,12 @@ export const ACTIVE_CLOUD_STATUSES: ReadonlySet<CloudSessionStatus> = new Set(["
 
 export const CLOUD_PROVISIONING_ID_PREFIX = "cloud-provisioning-"
 
-/** Whether an id names a control-plane record that other Cline surfaces can open. */
+/** Whether an id names a control-plane record that other IndusCode surfaces can open. */
 export function isPersistedCloudSessionId(id: string | undefined): boolean {
 	return typeof id === "string" && id.trim().startsWith("ses-")
 }
 
-/** Outer Cline Cloud session ids (`ses-…`), plus the placeholder id used while a sandbox is provisioning. */
+/** Outer IndusCode Cloud session ids (`ses-…`), plus the placeholder id used while a sandbox is provisioning. */
 export function isCloudSessionId(id: string | undefined): boolean {
 	if (typeof id !== "string") {
 		return false

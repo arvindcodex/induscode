@@ -15,7 +15,7 @@ export enum LogoutReason {
 	/**
 	 * Refresh token rejected as invalid/expired — a real involuntary logout.
 	 * For the SDK auth service this value is emitted by the SDK credential
-	 * resolver (getValidClineCredentials), the single owner of that event.
+	 * resolver (getValidIndusCodeCredentials), the single owner of that event.
 	 */
 	TOKEN_INVALID = "token_invalid",
 	/** Restoring the stored session on activation threw an unexpected error */

@@ -243,7 +243,7 @@ jobs:
               working-directory: next-src
               run: bun install --frozen-lockfile
 
-            # @cline/* are local workspace symlinks to source packages; apps/vscode's
+            # @induscode/* are local workspace symlinks to source packages; apps/vscode's
             # `package` script does NOT build them, so without this the esbuild step
             # fails on a fresh checkout. (The nightly workflow already does this.)
             - name: Build SDK packages
@@ -273,19 +273,19 @@ jobs:
             - name: Build next bundle
               working-directory: next-src/apps/vscode
               env:
-                  CLINE_ENVIRONMENT: production
+                  INDUSCODE_ENVIRONMENT: production
                   TELEMETRY_SERVICE_API_KEY: ${{ secrets.TELEMETRY_SERVICE_API_KEY }}
                   ERROR_SERVICE_API_KEY: ${{ secrets.ERROR_SERVICE_API_KEY }}
                   # Inlined by esbuild: attributes every telemetry event with
                   # extension_variant and unlocks the bundle's authoritative
                   # extension.rollout.bundle_activated capture. Rollout builds only.
-                  CLINE_ROLLOUT_VARIANT: next
+                  INDUSCODE_ROLLOUT_VARIANT: next
                   # Match the stable publish workflow's OpenTelemetry production defaults.
                   OTEL_TELEMETRY_ENABLED: ${{ secrets.OTEL_TELEMETRY_ENABLED }}
                   OTEL_LOGS_EXPORTER: otlp
                   OTEL_METRICS_EXPORTER: otlp
                   OTEL_TRACES_EXPORTER: otlp
-                  CLINE_TRACE_RECORD_CONTENT: "true"
+                  INDUSCODE_TRACE_RECORD_CONTENT: "true"
                   OTEL_EXPORTER_OTLP_PROTOCOL: ${{ secrets.OTEL_EXPORTER_OTLP_PROTOCOL }}
                   OTEL_EXPORTER_OTLP_ENDPOINT: ${{ secrets.OTEL_EXPORTER_OTLP_ENDPOINT }}
                   OTEL_EXPORTER_OTLP_HEADERS: ${{ secrets.OTEL_EXPORTER_OTLP_HEADERS }}
@@ -304,10 +304,10 @@ jobs:
             - name: Build legacy bundle
               working-directory: legacy-src/apps/vscode
               env:
-                  CLINE_ENVIRONMENT: production
+                  INDUSCODE_ENVIRONMENT: production
                   TELEMETRY_SERVICE_API_KEY: ${{ secrets.TELEMETRY_SERVICE_API_KEY }}
                   ERROR_SERVICE_API_KEY: ${{ secrets.ERROR_SERVICE_API_KEY }}
-                  CLINE_ROLLOUT_VARIANT: legacy
+                  INDUSCODE_ROLLOUT_VARIANT: legacy
                   # Match the stable publish workflow's OpenTelemetry production defaults.
                   OTEL_TELEMETRY_ENABLED: ${{ secrets.OTEL_TELEMETRY_ENABLED }}
                   OTEL_LOGS_EXPORTER: otlp
@@ -567,12 +567,12 @@ jobs:
                   token: ${{ secrets.SLACK_RELEASE_BOT_TOKEN }}
                   payload: |
                     channel: "C0APVKGGZFC"
-                    text: "Cline v${{ github.event.inputs.version }}"
+                    text: "IndusCode v${{ github.event.inputs.version }}"
                     blocks:
                       - type: "section"
                         text:
                           type: "mrkdwn"
-                          text: "*Cline v${{ github.event.inputs.version }}*"
+                          text: "*IndusCode v${{ github.event.inputs.version }}*"
                       - type: "section"
                         text:
                           type: "mrkdwn"

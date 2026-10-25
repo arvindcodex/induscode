@@ -221,9 +221,9 @@ describe("search / web summaries", () => {
 		expect(
 			buildToolSummary({
 				toolName: "fetch_web_content",
-				input: { requests: [{ url: "https://cline.bot" }] },
+				input: { requests: [{ url: "https://induscode.bot" }] },
 			}).label,
-		).toBe("Fetched https://cline.bot");
+		).toBe("Fetched https://induscode.bot");
 		expect(
 			buildToolSummary({
 				toolName: "web_fetch",

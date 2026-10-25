@@ -63,7 +63,7 @@ export function validateApiConfiguration(currentMode: Mode, apiConfiguration?: A
 					return "You must provide a valid API key or choose a different provider."
 				}
 				break
-			case "cline":
+			case "induscode":
 				break
 			case "openai-codex":
 				// Authentication is handled via OAuth, not API key

@@ -1,6 +1,6 @@
 # Hook Test Fixtures
 
-This directory contains pre-written hook scripts for testing the Cline hooks system.
+This directory contains pre-written hook scripts for testing the IndusCode hooks system.
 
 ## Directory Structure
 

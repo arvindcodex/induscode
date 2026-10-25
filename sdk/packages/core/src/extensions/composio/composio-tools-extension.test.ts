@@ -1,8 +1,8 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
-import { AgentRuntime } from "@cline/agents";
-import type { AgentModel, AgentTool, ITelemetryService } from "@cline/shared";
+import { AgentRuntime } from "@induscode/agents";
+import type { AgentModel, AgentTool, ITelemetryService } from "@induscode/shared";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { RuntimeEventAdapter } from "../../runtime/orchestration/runtime-event-adapter";
 import {
@@ -13,7 +13,7 @@ import { CORE_TELEMETRY_EVENTS } from "../../services/telemetry/core-events";
 import type { CoreSessionConfig } from "../../types/config";
 
 // These tests supply a scripted model; no provider gateway is involved.
-vi.mock("@cline/llms", () => ({
+vi.mock("@induscode/llms", () => ({
 	createGateway: vi.fn(() => {
 		throw new Error("Unexpected provider gateway in scripted-model test");
 	}),
@@ -22,19 +22,19 @@ vi.mock("@cline/llms", () => ({
 }));
 
 /**
- * Connector tools execute through the Cline API connectors proxy, so the
- * extension resolves a Cline account token. Mock the token resolution so
+ * Connector tools execute through the IndusCode API connectors proxy, so the
+ * extension resolves a IndusCode account token. Mock the token resolution so
  * tests can drive the signed-in / signed-out cases without a real account.
  */
 const beta = vi.hoisted(() => ({ enabled: true }));
-vi.mock("../../services/feature-flags/cline-account-feature-flags", () => ({
-	isClineAccountFeatureEnabled: async () => beta.enabled,
+vi.mock("../../services/feature-flags/induscode-account-feature-flags", () => ({
+	isIndusCodeAccountFeatureEnabled: async () => beta.enabled,
 }));
 
 const auth = vi.hoisted(() => ({
-	token: "cline_token_123" as string | undefined,
+	token: "induscode_token_123" as string | undefined,
 	accountId: "account-a" as string | undefined,
-	baseUrl: "https://api.cline.bot",
+	baseUrl: "https://api.induscode.bot",
 	forbidLocal: false,
 }));
 
@@ -47,7 +47,7 @@ vi.mock("../../runtime/orchestration/runtime-oauth-token-manager", () => ({
 	},
 }));
 vi.mock("../../services/providers/local-provider-service", () => ({
-	resolveLocalClineAuthToken: () => auth.token,
+	resolveLocalIndusCodeAuthToken: () => auth.token,
 }));
 vi.mock("../../services/storage/provider-settings-manager", () => ({
 	ProviderSettingsManager: class {
@@ -84,7 +84,7 @@ type RegisteredTool = {
 	execute: (input: unknown, context?: unknown) => Promise<unknown>;
 };
 
-const originalDataDir = process.env.CLINE_DATA_DIR;
+const originalDataDir = process.env.INDUSCODE_DATA_DIR;
 let tempDataDir: string;
 
 function writeState(state: unknown): void {
@@ -116,10 +116,10 @@ async function setupTools(
 beforeEach(() => {
 	beta.enabled = true;
 	tempDataDir = mkdtempSync(join(tmpdir(), "composio-ext-test-"));
-	process.env.CLINE_DATA_DIR = tempDataDir;
-	auth.token = "cline_token_123";
+	process.env.INDUSCODE_DATA_DIR = tempDataDir;
+	auth.token = "induscode_token_123";
 	auth.accountId = "account-a";
-	auth.baseUrl = "https://api.cline.bot";
+	auth.baseUrl = "https://api.induscode.bot";
 	auth.forbidLocal = false;
 	meta.session = {
 		sessionId: "trs_1",
@@ -134,9 +134,9 @@ beforeEach(() => {
 
 afterEach(() => {
 	if (originalDataDir === undefined) {
-		delete process.env.CLINE_DATA_DIR;
+		delete process.env.INDUSCODE_DATA_DIR;
 	} else {
-		process.env.CLINE_DATA_DIR = originalDataDir;
+		process.env.INDUSCODE_DATA_DIR = originalDataDir;
 	}
 	vi.unstubAllGlobals();
 	rmSync(tempDataDir, { recursive: true, force: true });
@@ -397,14 +397,14 @@ describe("createComposioToolsExtension", () => {
 		expect(fetchMock).toHaveBeenCalledTimes(5);
 		const origin = hostTransport
 			? "https://host.example"
-			: "https://api.cline.bot";
+			: "https://api.induscode.bot";
 		expect(fetchMock.mock.calls[0][0]).toBe(
 			`${origin}/api/v1/connectors/meta-tools/sessions`,
 		);
 		for (const [, init] of fetchMock.mock.calls) {
 			expect(init?.method).toBe("POST");
 			expect(new Headers(init?.headers).get("authorization")).toBe(
-				hostTransport ? null : "Bearer cline_token_123",
+				hostTransport ? null : "Bearer induscode_token_123",
 			);
 		}
 		for (const [index, step] of steps.entries()) {
@@ -440,10 +440,10 @@ describe("createComposioToolsExtension", () => {
 			RequestInit,
 		];
 		expect(url).toBe(
-			"https://api.cline.bot/api/v1/connectors/meta-tools/COMPOSIO_MANAGE_CONNECTIONS/execute",
+			"https://api.induscode.bot/api/v1/connectors/meta-tools/COMPOSIO_MANAGE_CONNECTIONS/execute",
 		);
 		expect(new Headers(init.headers).get("authorization")).toBe(
-			"Bearer cline_token_123",
+			"Bearer induscode_token_123",
 		);
 		expect(JSON.parse(init.body as string)).toEqual({
 			sessionId: "trs_1",
@@ -498,7 +498,7 @@ describe("createComposioToolsExtension", () => {
 			sessionId: "session-connect",
 			config: {
 				telemetry,
-				providerId: "cline",
+				providerId: "induscode",
 				modelId: "test-model",
 			} as CoreSessionConfig,
 			liveSession: undefined,
@@ -529,7 +529,7 @@ describe("createComposioToolsExtension", () => {
 						ulid: "session-connect",
 						tool: toolName,
 						success: true,
-						provider: "cline",
+						provider: "induscode",
 						modelId: "test-model",
 						agentId: runtime.snapshot().agentId,
 					}),

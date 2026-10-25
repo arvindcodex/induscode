@@ -3,13 +3,13 @@ import tailwindcss from "@tailwindcss/postcss";
 import postcss from "postcss";
 import { describe, expect, it } from "vitest";
 
-describe("@cline/ui theme integration", () => {
+describe("@induscode/ui theme integration", () => {
 	it("compiles the shared theme and standard Tailwind utilities", async () => {
 		const from = fileURLToPath(new URL("./theme-fixture.css", import.meta.url));
 		const result = await postcss([tailwindcss()]).process(
 			[
 				'@import "tailwindcss";',
-				'@import "@cline/ui/theme/index.css";',
+				'@import "@induscode/ui/theme/index.css";',
 				'@source inline("bg-background bg-primary-emphasis font-sans text-xs");',
 			].join("\n"),
 			{ from },
@@ -30,6 +30,6 @@ describe("@cline/ui theme integration", () => {
 		expect(result.css).toContain(
 			"letter-spacing: var(--tw-tracking, var(--text-xs--letter-spacing))",
 		);
-		expect(result.css).not.toContain("--cline-");
+		expect(result.css).not.toContain("--induscode-");
 	});
 });

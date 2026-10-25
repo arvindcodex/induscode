@@ -1,4 +1,4 @@
-import type { GatewayResolvedProviderConfig } from "@cline/shared";
+import type { GatewayResolvedProviderConfig } from "@induscode/shared";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createBedrockProviderModule, resolveBedrockModelId } from "./bedrock";
 
@@ -410,7 +410,7 @@ describe("resolveBedrockModelId", () => {
 	});
 
 	it("prefixes bare OpenAI GPT-5.x/GPT-6 ids, which have no on-demand throughput", () => {
-		// cline/cline#14468: the catalog lists these under their bare ids, but
+		// induscode/induscode#14468: the catalog lists these under their bare ids, but
 		// Bedrock only serves them through inference profiles.
 		const hasCatalogModel = (id: string) =>
 			[

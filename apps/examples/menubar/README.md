@@ -1,6 +1,6 @@
 ### Preview
 
-![Cline Hub Monitor preview](./assets/hub-monitor-preview.jpg)
+![IndusCode Hub Monitor preview](./assets/hub-monitor-preview.jpg)
 
 ### Architecture Overview
 
@@ -9,7 +9,7 @@ Any Client (CLI, VS Code, agents)
     │
     │  ws://  ui.notify / ui.show_window commands
     ▼
-Hub WebSocket Server (@cline/core/hub/server.ts)
+Hub WebSocket Server (@induscode/core/hub/server.ts)
     │
     │  broadcasts ui.notify / ui.show_window events to ALL subscribers
     ▼
@@ -30,7 +30,7 @@ Rust Tauri App (apps/examples/menubar/src-tauri/src/main.rs)
     │     ─────────────────
     │     5 notifications
     │     ─────────────────
-    │     Quit Cline Hub
+    │     Quit IndusCode Hub
     │
     └── Logs notifications to stderr (with severity)
 ```
@@ -45,5 +45,5 @@ From `apps/examples/menubar/`:
 
 When the menubar starts the shared hub, it also supplies the CLI command used
 to restore persisted connectors. Development builds use
-`apps/cli/src/index.ts` when it is present; packaged builds use `cline` from
-`PATH`, or the executable specified by `CLINE_CLI_PATH`.
+`apps/cli/src/index.ts` when it is present; packaged builds use `induscode` from
+`PATH`, or the executable specified by `INDUSCODE_CLI_PATH`.

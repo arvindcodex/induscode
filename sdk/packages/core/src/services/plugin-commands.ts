@@ -5,7 +5,7 @@ import {
 	type BasicLogger,
 	createContributionRegistry,
 	type Message,
-} from "@cline/shared";
+} from "@induscode/shared";
 import {
 	resolveAgentPluginPaths,
 	resolveAndLoadAgentPlugins,

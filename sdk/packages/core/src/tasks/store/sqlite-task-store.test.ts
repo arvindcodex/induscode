@@ -1,7 +1,7 @@
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
-import type { AgendaTaskActor, AgendaTaskCreateInput } from "@cline/shared";
+import type { AgendaTaskActor, AgendaTaskCreateInput } from "@induscode/shared";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
 	AgendaTaskRevisionConflictError,
@@ -22,7 +22,7 @@ describe("SqliteAgendaTaskStore", () => {
 	let store: SqliteAgendaTaskStore;
 
 	beforeEach(() => {
-		directory = mkdtempSync(join(tmpdir(), "cline-task-store-"));
+		directory = mkdtempSync(join(tmpdir(), "induscode-task-store-"));
 		store = new SqliteAgendaTaskStore({
 			dbPath: join(directory, "tasks.db"),
 		});
@@ -49,7 +49,7 @@ describe("SqliteAgendaTaskStore", () => {
 			availableAt: "2035-01-01T00:00:00.000Z",
 			expiresAt: "2035-01-10T00:00:00.000Z",
 			createdBy: AGENT,
-			specPath: join(WORKSPACE_ROOT, ".cline", "tasks", `${taskId}.task.md`),
+			specPath: join(WORKSPACE_ROOT, ".induscode", "tasks", `${taskId}.task.md`),
 		};
 	}
 
@@ -132,7 +132,7 @@ describe("SqliteAgendaTaskStore", () => {
 			workspaceRoot: OTHER_WORKSPACE_ROOT,
 			specPath: join(
 				OTHER_WORKSPACE_ROOT,
-				".cline",
+				".induscode",
 				"tasks",
 				"other-workspace.task.md",
 			),
@@ -182,7 +182,7 @@ describe("SqliteAgendaTaskStore", () => {
 			workspaceRoot: join(canonicalOther, "nested", ".."),
 			specPath: join(
 				canonicalOther,
-				".cline",
+				".induscode",
 				"tasks",
 				"workspace-archived.task.md",
 			),
@@ -192,7 +192,7 @@ describe("SqliteAgendaTaskStore", () => {
 			workspaceRoot: canonicalOther,
 			specPath: join(
 				canonicalOther,
-				".cline",
+				".induscode",
 				"tasks",
 				"workspace-duplicate.task.md",
 			),

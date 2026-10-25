@@ -5,7 +5,7 @@ import type {
 	HubEventEnvelope,
 	PluginStatusRecord,
 	SessionPluginIssue,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
 	PluginRegistry,
@@ -40,7 +40,7 @@ describe("Hub plugin status", () => {
 					startedAt: new Date(0).toISOString(),
 					updatedAt: new Date(0).toISOString(),
 					interactive: true,
-					provider: "cline",
+					provider: "induscode",
 					model: "test-model",
 					cwd: root,
 					workspaceRoot: root,
@@ -60,7 +60,7 @@ describe("Hub plugin status", () => {
 	}
 
 	beforeEach(async () => {
-		root = await mkdtemp(join(tmpdir(), "cline-hub-plugins-"));
+		root = await mkdtemp(join(tmpdir(), "induscode-hub-plugins-"));
 		registry = new PluginRegistry();
 		resetProcessPluginRegistryForTests(registry);
 	});
@@ -173,7 +173,7 @@ describe("Hub plugin status", () => {
 					cwd: root,
 					sessionConfig: {
 						sessionId: "session-plugins",
-						providerId: "cline",
+						providerId: "induscode",
 						modelId: "test-model",
 						systemPrompt: "system",
 					},

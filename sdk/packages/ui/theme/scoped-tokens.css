@@ -3,7 +3,7 @@
  * theme/tokens.css. Edit those sources, then run `bun run generate:theme`.
  */
 
-.cline-ui-theme {
+.induscode-ui-theme {
 	/* Neutral */
 	--neutral-1: #fcfcfd;
 	--neutral-2: #f9f9fb;
@@ -173,8 +173,8 @@
 	--info-a12: #002540e2;
 }
 
-.dark .cline-ui-theme,
-.cline-ui-theme.dark {
+.dark .induscode-ui-theme,
+.induscode-ui-theme.dark {
 	/* Neutral */
 	--neutral-1: #121216;
 	--neutral-2: #18191b;
@@ -344,7 +344,7 @@
 	--info-a12: #c2f3ff;
 }
 
-.cline-ui-theme {
+.induscode-ui-theme {
 	/* Brand extensions for artwork; components should prefer semantic tokens. */
 	--brand-violet: oklch(0.55 0.22 293);
 	/* Filled brand surface (user chat bubbles): deep enough in both themes to
@@ -401,8 +401,8 @@
 	--text-6xl--letter-spacing: -0.025em;
 }
 
-.dark .cline-ui-theme,
-.cline-ui-theme.dark {
+.dark .induscode-ui-theme,
+.induscode-ui-theme.dark {
 	--brand-violet: oklch(0.7 0.17 293);
 	--brand-violet-surface: oklch(0.48 0.18 293);
 	--brand-violet-surface-foreground: oklch(0.97 0.01 293);
@@ -417,9 +417,9 @@
 	--font-weight-bold: 600;
 }
 
-.cline-ui-theme,
-.dark .cline-ui-theme,
-.cline-ui-theme.dark {
+.induscode-ui-theme,
+.dark .induscode-ui-theme,
+.induscode-ui-theme.dark {
 	/* Readable visual roles. */
 	--surface-1: var(--neutral-1);
 	--surface-2: var(--neutral-2);

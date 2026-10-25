@@ -61,7 +61,7 @@ describe("OpenTelemetryAdapter", () => {
 				distinct_id: "user-123",
 				organization_id: "org-1",
 				extension_version: "1.2.3",
-				cline_type: "cli",
+				induscode_type: "cli",
 				platform: "terminal",
 			}),
 		});
@@ -123,11 +123,11 @@ describe("OpenTelemetryAdapter", () => {
 			} as unknown as MeterProvider,
 		});
 
-		adapter.recordCounter("cline.turns.total", 2, { ulid: "01HXYZ" });
-		adapter.recordHistogram("cline.api.duration.seconds", 1.5, {
+		adapter.recordCounter("induscode.turns.total", 2, { ulid: "01HXYZ" });
+		adapter.recordHistogram("induscode.api.duration.seconds", 1.5, {
 			ulid: "01HXYZ",
 		});
-		adapter.recordGauge("cline.workspace.active_roots", 3, { workspace: "a" });
+		adapter.recordGauge("induscode.workspace.active_roots", 3, { workspace: "a" });
 
 		expect(counterAdd).toHaveBeenCalledWith(
 			2,
@@ -155,7 +155,7 @@ describe("OpenTelemetryAdapter", () => {
 			}),
 		);
 
-		adapter.recordGauge("cline.workspace.active_roots", null, {
+		adapter.recordGauge("induscode.workspace.active_roots", null, {
 			workspace: "a",
 		});
 		const observeAfterRetire = vi.fn();
@@ -172,7 +172,7 @@ describe("OpenTelemetryAdapter", () => {
 function makeMetadata() {
 	return {
 		extension_version: "1.2.3",
-		cline_type: "cli",
+		induscode_type: "cli",
 		platform: "terminal",
 		platform_version: "1.0.0",
 		os_type: "darwin",

@@ -14,13 +14,13 @@ vi.mock("@/lib/desktop-client", () => ({
 	openExternalUrl,
 }));
 const data: PullRequestStatus = {
-	repository: "cline/cline",
+	repository: "induscode/induscode",
 	branch: "feature",
-	createUrl: "https://github.com/cline/cline/compare/main...feature?expand=1",
+	createUrl: "https://github.com/induscode/induscode/compare/main...feature?expand=1",
 	pullRequest: {
 		number: 42,
 		title: "Feature",
-		url: "https://github.com/cline/cline/pull/42",
+		url: "https://github.com/induscode/induscode/pull/42",
 		state: "OPEN",
 		isDraft: false,
 		mergeable: "CONFLICTING",
@@ -31,7 +31,7 @@ const data: PullRequestStatus = {
 			{
 				name: "Tests",
 				state: "failure",
-				url: "https://github.com/cline/cline/actions/runs/1",
+				url: "https://github.com/induscode/induscode/actions/runs/1",
 			},
 		],
 	},
@@ -99,17 +99,17 @@ it.each<{
 	{
 		status: { mergeable: "UNKNOWN", mergeStateStatus: "UNKNOWN" },
 		label: "Merge status pending",
-		color: "text-cline-ui-muted-foreground",
+		color: "text-induscode-ui-muted-foreground",
 	},
 	{
 		status: { mergeable: "UNKNOWN" },
 		label: "Merge status pending",
-		color: "text-cline-ui-muted-foreground",
+		color: "text-induscode-ui-muted-foreground",
 	},
 	{
 		status: { mergeStateStatus: "UNKNOWN" },
 		label: "No conflicts",
-		color: "text-cline-ui-muted-foreground",
+		color: "text-induscode-ui-muted-foreground",
 	},
 	{
 		status: { mergeStateStatus: "DIRTY" },
@@ -124,7 +124,7 @@ it.each<{
 	{
 		status: { isDraft: true, mergeable: "CONFLICTING" },
 		label: "Draft",
-		color: "text-cline-ui-muted-foreground",
+		color: "text-induscode-ui-muted-foreground",
 	},
 	{
 		status: { state: "MERGED", mergeable: "CONFLICTING" },

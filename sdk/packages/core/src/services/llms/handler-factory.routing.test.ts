@@ -1,4 +1,4 @@
-import type { AgentModelEvent, ModelInfo } from "@cline/shared";
+import type { AgentModelEvent, ModelInfo } from "@induscode/shared";
 import { describe, expect, it, vi } from "vitest";
 import { createAgentModelFromConfig } from "./handler-factory";
 import { toProviderConfig } from "./provider-settings";

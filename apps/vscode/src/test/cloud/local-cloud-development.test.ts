@@ -4,10 +4,10 @@ import * as os from "node:os"
 import path from "node:path"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import WebSocket from "ws"
-import { ClineEndpoint, ClineEnv, Environment } from "@/config"
+import { IndusCodeEndpoint, IndusCodeEnv, Environment } from "@/config"
 import { startLocalCloudDevelopment } from "@/dev/local-cloud-development"
 import { CloudSessionsService, isCloudSessionExpired } from "@/services/cloud/CloudSessionsService"
-import type { UserResponse } from "@/shared/ClineAccount"
+import type { UserResponse } from "@/shared/IndusCodeAccount"
 import { startLocalCloudEnvironment } from "./local-cloud-environment"
 
 vi.mock("node:fs/promises", async (original) => {
@@ -54,27 +54,27 @@ describe("local cloud development ownership", () => {
 	it("generates app and GitHub links through the real extension environment and service", async () => {
 		const development = await startLocalCloudDevelopment({ port: 0 })
 		try {
-			vi.stubEnv("HOME", development.clineDir)
-			vi.stubEnv("USERPROFILE", development.clineDir)
+			vi.stubEnv("HOME", development.induscodeDir)
+			vi.stubEnv("USERPROFILE", development.induscodeDir)
 			for (const [key, value] of Object.entries(development.launchEnv)) vi.stubEnv(key, value)
-			await ClineEndpoint.initialize(development.clineDir)
+			await IndusCodeEndpoint.initialize(development.induscodeDir)
 			const service = new CloudSessionsService({
 				getAuthToken: async () => development.environment.accessToken,
 				getActiveOrganizationId: () => undefined,
 			})
-			expect(ClineEnv.config().apiBaseUrl).toBe(development.environment.apiBaseUrl)
-			expect(ClineEnv.config().mcpBaseUrl).toBe(`${development.environment.apiBaseUrl}/v1/mcp`)
+			expect(IndusCodeEnv.config().apiBaseUrl).toBe(development.environment.apiBaseUrl)
+			expect(IndusCodeEnv.config().mcpBaseUrl).toBe(`${development.environment.apiBaseUrl}/v1/mcp`)
 			for (const url of [service.dashboardUrl("ses-local"), service.githubConnectUrl()]) {
 				expect(new URL(url).origin).toBe(development.environment.apiBaseUrl)
 				expect((await fetch(url)).status).toBe(200)
 			}
-			vi.stubEnv("CLINE_LOCAL_CLOUD_URL", "https://example.com")
-			expect(() => ClineEnv.config()).toThrow("loopback")
-			ClineEnv.setEnvironment(Environment.production)
-			expect(ClineEnv.config().appBaseUrl).toBe("https://app.cline.bot")
+			vi.stubEnv("INDUSCODE_LOCAL_CLOUD_URL", "https://example.com")
+			expect(() => IndusCodeEnv.config()).toThrow("loopback")
+			IndusCodeEnv.setEnvironment(Environment.production)
+			expect(IndusCodeEnv.config().appBaseUrl).toBe("https://app.induscode.bot")
 		} finally {
 			await Promise.all([development.dispose(), development.dispose()])
-			await expect(fs.access(development.clineDir)).rejects.toThrow()
+			await expect(fs.access(development.induscodeDir)).rejects.toThrow()
 		}
 	})
 
@@ -82,10 +82,10 @@ describe("local cloud development ownership", () => {
 		const development = await startLocalCloudDevelopment({ port: 0 })
 		try {
 			const globalState = JSON.parse(
-				await fs.readFile(path.join(development.clineDir, "data", "globalState.json"), "utf8"),
+				await fs.readFile(path.join(development.induscodeDir, "data", "globalState.json"), "utf8"),
 			) as Record<string, unknown>
 			const providers = JSON.parse(
-				await fs.readFile(path.join(development.clineDir, "data", "settings", "providers.json"), "utf8"),
+				await fs.readFile(path.join(development.induscodeDir, "data", "settings", "providers.json"), "utf8"),
 			) as {
 				lastUsedProvider?: string
 				providers: Record<
@@ -98,10 +98,10 @@ describe("local cloud development ownership", () => {
 			}
 
 			expect(globalState.welcomeViewCompleted).toBe(true)
-			expect(providers.lastUsedProvider).toBe("cline")
-			expect(providers.providers.cline).toMatchObject({
+			expect(providers.lastUsedProvider).toBe("induscode")
+			expect(providers.providers.induscode).toMatchObject({
 				settings: {
-					provider: "cline",
+					provider: "induscode",
 					auth: {
 						accessToken: `workos:${development.environment.accessToken}`,
 						accountId: "local-cloud-user",
@@ -155,7 +155,7 @@ describe("local cloud development ownership", () => {
 				},
 			])
 			const personal = await service.getGitHubConnection()
-			expect(personal.repositories).toMatchObject([{ id: 1, fullName: "cline/fixture" }])
+			expect(personal.repositories).toMatchObject([{ id: 1, fullName: "induscode/fixture" }])
 			expect(await service.listBranches(1)).toEqual(["main", "fixture"])
 			const personalSession = await service.createSession({
 				modelId: "fixture-model",
@@ -168,7 +168,7 @@ describe("local cloud development ownership", () => {
 			expect(organization).toMatchObject({
 				connected: true,
 				connectUrl: `${environment.apiBaseUrl}/dashboard/organization/integrations`,
-				repositories: [{ id: 2, fullName: "cline/organization-fixture" }],
+				repositories: [{ id: 2, fullName: "induscode/organization-fixture" }],
 			})
 			expect(await service.listBranches(2)).toEqual(["main", "organization-fixture"])
 			// A repository outside the account scope has no branches to offer, rather than an error.
@@ -262,7 +262,7 @@ describe("local cloud development ownership", () => {
 	})
 
 	it("serves seeded expired sessions as archived-or-missing history and refuses their sandbox connection", async () => {
-		vi.stubEnv("CLINE_LOCAL_CLOUD_SEED_EXPIRED", "1")
+		vi.stubEnv("INDUSCODE_LOCAL_CLOUD_SEED_EXPIRED", "1")
 		const development = await startLocalCloudDevelopment({ port: 0 })
 		const { environment } = development
 		const service = new CloudSessionsService({
@@ -276,7 +276,7 @@ describe("local cloud development ownership", () => {
 			for (const record of sessions) {
 				expect(record.status).toBe("active")
 				expect(isCloudSessionExpired(record)).toBe(true)
-				expect(record.repoContext).toEqual({ repoUrl: "https://github.com/cline/fixture", branch: "main" })
+				expect(record.repoContext).toEqual({ repoUrl: "https://github.com/induscode/fixture", branch: "main" })
 				expect(Date.parse(record.createdAt)).toBeLessThan(Date.parse(record.expiredAt ?? ""))
 				expect(await service.getStatus(record.id)).toEqual({ status: "expired" })
 				const upgrade = await new Promise<{ status: number; body: string }>((resolve, reject) => {
@@ -313,7 +313,7 @@ describe("local cloud development ownership", () => {
 			})
 			expect(missing.status).toBe(404)
 			expect(await missing.json()).toEqual({ error: "no history captured for this session" })
-			const live = await service.createSession({ modelId: "fixture-model", repoUrl: "https://github.com/cline/fixture" })
+			const live = await service.createSession({ modelId: "fixture-model", repoUrl: "https://github.com/induscode/fixture" })
 			expect(await service.getHistory(live.id)).toEqual([])
 		} finally {
 			await development.dispose()
@@ -321,10 +321,10 @@ describe("local cloud development ownership", () => {
 	})
 
 	it("scripts the hosted insufficient-credits reply for every model request", async () => {
-		vi.stubEnv("CLINE_LOCAL_CLOUD_INSUFFICIENT_CREDITS", "1")
+		vi.stubEnv("INDUSCODE_LOCAL_CLOUD_INSUFFICIENT_CREDITS", "1")
 		const development = await startLocalCloudDevelopment({ port: 0 })
 		try {
-			const response = await development.environment.modelFetch("https://api.cline.bot/api/v1/chat/completions", {
+			const response = await development.environment.modelFetch("https://api.induscode.bot/api/v1/chat/completions", {
 				method: "POST",
 				body: "{}",
 			})
@@ -362,7 +362,7 @@ describe("local cloud development ownership", () => {
 			getAuthToken: async () => development.environment.accessToken,
 			getActiveOrganizationId: () => undefined,
 		})
-		const record = await service.createSession({ modelId: "fixture-model", repoUrl: "https://github.com/cline/fixture" })
+		const record = await service.createSession({ modelId: "fixture-model", repoUrl: "https://github.com/induscode/fixture" })
 		const sandbox = await development.environment.activateSession(record.id)
 		if (!sandbox.hub) throw new Error("Expected a real Hub")
 		const close = sandbox.hub.close.bind(sandbox.hub)
@@ -371,7 +371,7 @@ describe("local cloud development ownership", () => {
 			throw new Error("cleanup failure")
 		})
 		await expect(development.dispose()).rejects.toThrow("Local cloud sandbox cleanup failed")
-		await expect(fs.access(development.clineDir)).rejects.toThrow()
+		await expect(fs.access(development.induscodeDir)).rejects.toThrow()
 		await expect(fetch(`${development.environment.apiBaseUrl}/health`)).rejects.toThrow()
 		await expect(development.dispose()).rejects.toThrow("Local cloud sandbox cleanup failed")
 	})

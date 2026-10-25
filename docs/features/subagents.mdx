@@ -5,18 +5,18 @@ description: "Run parallel research agents to explore your codebase without fill
 ---
 
 <Warning>
-  Subagents are available in the Cline CLI and Cline Desktop. The VS Code and JetBrains extensions don't use them.
+  Subagents are available in the IndusCode CLI and IndusCode Desktop. The VS Code and JetBrains extensions don't use them.
 </Warning>
 
-Subagents let Cline hand a focused task to another agent. Each subagent gets its own prompt and context window, does the work, and returns a report to the main agent. This keeps the main agent's context clean, and several subagents can run at the same time.
+Subagents let IndusCode hand a focused task to another agent. Each subagent gets its own prompt and context window, does the work, and returns a report to the main agent. This keeps the main agent's context clean, and several subagents can run at the same time.
 
 ## How It Works
 
-When Cline uses the `spawn_agent` tool, it starts a subagent. Each one:
+When IndusCode uses the `spawn_agent` tool, it starts a subagent. Each one:
 
 - Gets its own instructions and task from the main agent
 - Runs with a separate context window
-- Has Cline's built-in tools for the current mode. In Act mode it can read and edit files and run commands. In Plan mode it has no tools for editing files, and Cline refuses shell commands that usually change files, such as `rm` and `git commit`. Other commands still run, and some of them, such as `python -c`, can write files. A subagent can start subagents of its own. It doesn't get MCP tools.
+- Has IndusCode's built-in tools for the current mode. In Act mode it can read and edit files and run commands. In Plan mode it has no tools for editing files, and IndusCode refuses shell commands that usually change files, such as `rm` and `git commit`. Other commands still run, and some of them, such as `python -c`, can write files. A subagent can start subagents of its own. It doesn't get MCP tools.
 - Returns its final reply to the main agent
 
 The main agent waits for its subagents, then continues. Their token use and cost are added to the session's total.
@@ -29,14 +29,14 @@ Approving the `spawn_agent` call approves everything the subagent then does: its
 
 Subagents are on in Act and Plan modes. To turn them off, turn off the `spawn_agent` tool:
 
-- **CLI:** run `cline`, type `/settings`, and turn off `spawn_agent` on the **Tools** tab.
+- **CLI:** run `induscode`, type `/settings`, and turn off `spawn_agent` on the **Tools** tab.
 - **Desktop:** open **Customize**, select **Tools**, and turn off `spawn_agent`.
 
 The setting applies to new sessions in both products.
 
 ## Using Subagents
 
-Cline decides when a task is worth splitting. You can also ask for subagents in your prompt.
+IndusCode decides when a task is worth splitting. You can also ask for subagents in your prompt.
 
 Example prompts:
 
@@ -55,4 +55,4 @@ Subagents work best when you need broad context from multiple areas of a codebas
 - **Pre-edit research**: Before making changes, use subagents to gather context from related files so the main agent can make informed edits without burning through its context window.
 - **Large codebases**: When reading many files sequentially would consume too much of the main agent's context, subagents let you explore broadly without that tradeoff.
 
-For small, focused tasks where you already know which files to look at, subagents add unnecessary overhead. Just ask Cline directly.
+For small, focused tasks where you already know which files to look at, subagents add unnecessary overhead. Just ask IndusCode directly.

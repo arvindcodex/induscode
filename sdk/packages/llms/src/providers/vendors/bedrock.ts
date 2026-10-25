@@ -1,6 +1,6 @@
 import { createAmazonBedrock } from "@ai-sdk/amazon-bedrock";
 import { fromNodeProviderChain } from "@aws-sdk/credential-providers";
-import type { GatewayResolvedProviderConfig } from "@cline/shared";
+import type { GatewayResolvedProviderConfig } from "@induscode/shared";
 import { getGeneratedModelsForProvider } from "../../catalog/catalog.generated-access";
 import type { ProviderFactoryResult } from "./types";
 
@@ -64,7 +64,7 @@ const BEDROCK_INFERENCE_PROFILE_REQUIRED_PATTERNS: readonly RegExp[] = [
 	/^amazon\.nova-(?:2|micro|lite|pro|premier)/,
 	// OpenAI GPT-5.x / GPT-6 (Sol, Luna, Astra, Terra) launched profile-only;
 	// gpt-oss has on-demand throughput and keeps its bare id
-	// (cline/cline#14468).
+	// (induscode/induscode#14468).
 	/^openai\.gpt-(?!oss-)/,
 	/^deepseek\./,
 	/^meta\.llama3-[23]-/,

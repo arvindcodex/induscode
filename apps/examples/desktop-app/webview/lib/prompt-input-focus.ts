@@ -5,7 +5,7 @@
  * that the mounted prompt input listens for.
  */
 
-const FOCUS_PROMPT_INPUT_EVENT = "cline:focus-prompt-input";
+const FOCUS_PROMPT_INPUT_EVENT = "induscode:focus-prompt-input";
 
 export function requestPromptInputFocus(): void {
 	if (typeof window === "undefined") {

@@ -17,7 +17,7 @@ function executableName(command: string): string {
 
 /**
  * Recognizes the exact no-option `npx mcp-remote <url>` proxy shape emitted by
- * older marketplace entries. Cline has a native Streamable HTTP transport, so
+ * older marketplace entries. IndusCode has a native Streamable HTTP transport, so
  * spawning the proxy would duplicate OAuth handling and let the child process
  * open a browser as a side effect of merely enabling the server.
  */

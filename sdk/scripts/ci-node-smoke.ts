@@ -73,10 +73,10 @@ async function packWorkspace(
 }
 
 async function main(): Promise<void> {
-	const packDir = await mkdtemp(join(tmpdir(), "cline-node-smoke-packs-"));
-	const smokeDir = await mkdtemp(join(tmpdir(), "cline-node-smoke-"));
-	const sessionsDir = await mkdtemp(join(tmpdir(), "cline-node-sessions-"));
-	const npmCacheDir = await mkdtemp(join(tmpdir(), "cline-node-npm-cache-"));
+	const packDir = await mkdtemp(join(tmpdir(), "induscode-node-smoke-packs-"));
+	const smokeDir = await mkdtemp(join(tmpdir(), "induscode-node-smoke-"));
+	const sessionsDir = await mkdtemp(join(tmpdir(), "induscode-node-sessions-"));
+	const npmCacheDir = await mkdtemp(join(tmpdir(), "induscode-node-npm-cache-"));
 	const npmEnv = { npm_config_cache: npmCacheDir };
 
 	try {
@@ -99,14 +99,14 @@ async function main(): Promise<void> {
 			join(smokeDir, "package.json"),
 			`${JSON.stringify(
 				{
-					name: "cline-node-smoke",
+					name: "induscode-node-smoke",
 					private: true,
 					type: "module",
 					dependencies: {
-						"@cline/core": `file:${tarballs.core}`,
-						"@cline/agents": `file:${tarballs.agents}`,
-						"@cline/llms": `file:${tarballs.llms}`,
-						"@cline/shared": `file:${tarballs.shared}`,
+						"@induscode/core": `file:${tarballs.core}`,
+						"@induscode/agents": `file:${tarballs.agents}`,
+						"@induscode/llms": `file:${tarballs.llms}`,
+						"@induscode/shared": `file:${tarballs.shared}`,
 					},
 					...(rootPackageJson.overrides
 						? { overrides: rootPackageJson.overrides }
@@ -128,8 +128,8 @@ async function main(): Promise<void> {
 		const smokeSource =
 			nodeMajor >= 24
 				? `
-					const { SqliteSessionStore } = await import("@cline/core");
-					const store = new SqliteSessionStore({ sessionsDir: process.env.CLINE_DATA_DIR });
+					const { SqliteSessionStore } = await import("@induscode/core");
+					const store = new SqliteSessionStore({ sessionsDir: process.env.INDUSCODE_DATA_DIR });
 					try {
 						store.init();
 						console.log("SQLite smoke test passed");
@@ -138,7 +138,7 @@ async function main(): Promise<void> {
 					}
 				`
 				: `
-					const { resolveSessionBackend } = await import("@cline/core");
+					const { resolveSessionBackend } = await import("@induscode/core");
 					await resolveSessionBackend({ backendMode: "local" });
 					console.log("Node compatibility smoke test passed");
 				`;
@@ -150,7 +150,7 @@ async function main(): Promise<void> {
 			cwd: smokeDir,
 			env: {
 				...npmEnv,
-				CLINE_DATA_DIR: sessionsDir,
+				INDUSCODE_DATA_DIR: sessionsDir,
 			},
 			timeoutMs: 2 * 60_000,
 		});

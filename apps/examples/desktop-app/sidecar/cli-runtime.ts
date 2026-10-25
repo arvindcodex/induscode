@@ -1,12 +1,12 @@
 import { execFile } from "node:child_process";
-import { setHubDaemonLauncher } from "@cline/core";
-import { withHubLauncherIdentity } from "@cline/shared";
+import { setHubDaemonLauncher } from "@induscode/core";
+import { withHubLauncherIdentity } from "@induscode/shared";
 import { DESKTOP_CLIENT_CONTEXT } from "./client-context";
 
-/** Absolute path of the Cline CLI binary the desktop shell bundles and launched us with. */
-export const DESKTOP_CLI_PATH_ENV = "CLINE_DESKTOP_CLI_PATH";
+/** Absolute path of the IndusCode CLI binary the desktop shell bundles and launched us with. */
+export const DESKTOP_CLI_PATH_ENV = "INDUSCODE_DESKTOP_CLI_PATH";
 /** Workspace root the shell resolved; the backend starts in its own resource directory. */
-export const DESKTOP_WORKSPACE_ROOT_ENV = "CLINE_DESKTOP_WORKSPACE_ROOT";
+export const DESKTOP_WORKSPACE_ROOT_ENV = "INDUSCODE_DESKTOP_WORKSPACE_ROOT";
 /** Makes a compiled Bun executable run a script instead of its embedded entrypoint. */
 export const BUN_BE_BUN_ENV = "BUN_BE_BUN";
 
@@ -17,7 +17,7 @@ export function resolveDesktopCliPath(
 }
 
 /**
- * The packaged backend is a script running on the bundled Cline CLI's embedded
+ * The packaged backend is a script running on the bundled IndusCode CLI's embedded
  * runtime. Adopt that host before anything spawns: every child (the Hub
  * daemon, connectors, agent tools) must see the CLI binary as the CLI, not as
  * a script runner, and Hubs this process starts must be CLI-managed Hubs.
@@ -99,7 +99,7 @@ export async function ensureHubWithDesktopCli(
 			// The CLI spawns the daemon, so stamp the desktop as its launcher
 			// here or the hub's telemetry would say the CLI started it.
 			env: withHubLauncherIdentity(
-				{ ...(options.env ?? process.env), CLINE_NO_AUTO_UPDATE: "1" },
+				{ ...(options.env ?? process.env), INDUSCODE_NO_AUTO_UPDATE: "1" },
 				{
 					client: DESKTOP_CLIENT_CONTEXT.name,
 					version: DESKTOP_CLIENT_CONTEXT.version,
@@ -116,7 +116,7 @@ export async function ensureHubWithDesktopCli(
 		.at(-1);
 	const parsed = line ? (JSON.parse(line) as { url?: unknown }) : undefined;
 	if (typeof parsed?.url !== "string" || !parsed.url) {
-		throw new Error("cline hub ensure did not report a Hub URL");
+		throw new Error("induscode hub ensure did not report a Hub URL");
 	}
 	return { url: parsed.url };
 }

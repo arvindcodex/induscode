@@ -4,9 +4,9 @@ import process from "node:process";
 import {
 	type ConnectorCliLaunchSpec,
 	setConnectorCliLaunchSpec,
-} from "@cline/shared";
+} from "@induscode/shared";
 
-const CLINE_CLI_PATH_ENV = "CLINE_CLI_PATH";
+const INDUSCODE_CLI_PATH_ENV = "INDUSCODE_CLI_PATH";
 
 type MenubarConnectorCliLaunchOptions = {
 	env?: NodeJS.ProcessEnv;
@@ -19,7 +19,7 @@ export function resolveMenubarConnectorCliLaunchSpec(
 	options: MenubarConnectorCliLaunchOptions = {},
 ): ConnectorCliLaunchSpec {
 	const env = options.env ?? process.env;
-	const explicitCliPath = env[CLINE_CLI_PATH_ENV]?.trim();
+	const explicitCliPath = env[INDUSCODE_CLI_PATH_ENV]?.trim();
 	if (explicitCliPath) {
 		return {
 			launcher: explicitCliPath,
@@ -48,7 +48,7 @@ export function resolveMenubarConnectorCliLaunchSpec(
 	}
 
 	return {
-		launcher: "cline",
+		launcher: "induscode",
 		connectArgsPrefix: ["connect"],
 		cwd: workspaceRoot,
 	};

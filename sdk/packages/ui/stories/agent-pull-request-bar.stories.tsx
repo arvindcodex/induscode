@@ -6,15 +6,15 @@ import {
 } from "../components/agent-pull-request-bar";
 
 const readyPullRequest: AgentPullRequestData = {
-	repository: "cline/cline",
+	repository: "induscode/induscode",
 	branch: "refactor/shared-agent-review-ui",
 	branchUrl:
-		"https://github.com/cline/cline/tree/refactor/shared-agent-review-ui",
+		"https://github.com/induscode/induscode/tree/refactor/shared-agent-review-ui",
 	published: true,
 	pullRequest: {
 		number: 14408,
 		title: "Share desktop Changes and PR presentation",
-		url: "https://github.com/cline/cline/pull/14408",
+		url: "https://github.com/induscode/induscode/pull/14408",
 		state: "OPEN",
 		isDraft: false,
 		mergeable: "MERGEABLE",
@@ -46,7 +46,7 @@ type Story = StoryObj<typeof AgentPullRequestBar>;
 function frame(story: ReactElement, narrow = false) {
 	return (
 		<div
-			className={`max-w-full border border-cline-ui-border ${narrow ? "w-[390px]" : ""}`}
+			className={`max-w-full border border-induscode-ui-border ${narrow ? "w-[390px]" : ""}`}
 		>
 			{story}
 		</div>
@@ -87,14 +87,14 @@ export const FailedChecksOpen: Story = {
 		renderChecks: (trigger, content) => (
 			<div className="relative">
 				{trigger}
-				<div className="absolute right-0 top-full z-10 mt-1 w-72 rounded-md border border-cline-ui-border bg-cline-ui-card shadow-lg">
+				<div className="absolute right-0 top-full z-10 mt-1 w-72 rounded-md border border-induscode-ui-border bg-induscode-ui-card shadow-lg">
 					{content}
 				</div>
 			</div>
 		),
 	},
 	render: (args) => (
-		<div className="min-h-56 border border-cline-ui-border">
+		<div className="min-h-56 border border-induscode-ui-border">
 			<AgentPullRequestBar {...args} />
 		</div>
 	),

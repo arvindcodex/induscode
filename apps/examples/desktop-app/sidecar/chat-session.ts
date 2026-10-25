@@ -1,11 +1,12 @@
 import { existsSync, readFileSync } from "node:fs";
+import { homedir } from "node:os";
 import { basename, join, resolve } from "node:path";
 import { isDeepStrictEqual } from "node:util";
 import {
 	buildConnectionUpdate,
 	buildWorkspaceMetadata,
-	type ClineCore,
-	type ClineCoreStartConfig,
+	type IndusCodeCore,
+	type IndusCodeCoreStartConfig,
 	createContextCompactionPrepareTurn,
 	createSessionCompactionState,
 	createUserInstructionConfigService,
@@ -27,18 +28,57 @@ import {
 	splitCoreSessionConfig,
 	toProviderConfig,
 	trimMessagesBeforeUserRun,
-} from "@cline/core";
+} from "@induscode/core";
 import {
 	getGeneratedModelsForRuntimeProvider,
 	type MessageWithMetadata,
-} from "@cline/llms";
+} from "@induscode/llms";
 import {
-	buildClineSystemPrompt,
+	buildIndusCodeSystemPrompt,
 	type ConsecutiveMistakeLimitContext,
 	type ConsecutiveMistakeLimitDecision,
 	formatUserCommandBlock,
 	type SessionPluginIssue,
-} from "@cline/shared";
+} from "@induscode/shared";
+import { resolveIndusCodeDir } from "@induscode/shared/storage";
+
+export function isSidecarAuthenticated(): boolean {
+	if (process.env.NODE_ENV === "test" || process.env.VITEST) {
+		return true;
+	}
+	const candidateDirs = [
+		resolveIndusCodeDir(),
+		join(homedir(), ".induscode"),
+		join(homedir(), ".induscode"),
+	];
+	for (const dir of candidateDirs) {
+		try {
+			const authFile = join(dir, "data", "settings", "auth.json");
+			if (existsSync(authFile)) {
+				const authData = JSON.parse(readFileSync(authFile, "utf-8"));
+				if (authData?.authenticated === false || !authData?.user) {
+					return false;
+				}
+				if (authData?.authenticated === true && authData?.user?.email) {
+					return true;
+				}
+			}
+		} catch {}
+	}
+	try {
+		const manager = new ProviderSettingsManager();
+		const induscodeSettings = manager.getProviderSettings("induscode");
+		if (induscodeSettings?.auth?.accessToken || induscodeSettings?.apiKey) {
+			return true;
+		}
+		const indusSettings = manager.getProviderSettings("induscode");
+		if (indusSettings?.auth?.accessToken || indusSettings?.apiKey) {
+			return true;
+		}
+	} catch {}
+
+	return false;
+}
 import {
 	deleteMaterializedAttachments,
 	discardAllTrackedAttachments,
@@ -75,7 +115,7 @@ import type {
 } from "./types";
 
 type SessionConnectionUpdate = Parameters<
-	ClineCore["updateSessionConnection"]
+	IndusCodeCore["updateSessionConnection"]
 >[1];
 
 type WorkspaceMetadataLoader = (cwd: string) => Promise<string>;
@@ -148,7 +188,7 @@ const COMPACT_WHILE_RUNNING_MESSAGE =
  */
 async function compactSession(
 	ctx: SidecarContext,
-	manager: ClineCore,
+	manager: IndusCodeCore,
 	sessionId: string,
 	config: JsonRecord,
 ): Promise<string> {
@@ -186,7 +226,7 @@ async function compactSession(
 		{ mode: "manual" },
 	);
 	const result = await compact?.({
-		agentId: "cline-desktop",
+		agentId: "induscode-desktop",
 		conversationId: sessionId,
 		parentAgentId: null,
 		iteration: 0,
@@ -525,7 +565,7 @@ const MISTAKE_LIMIT_DETAIL_MAX_CHARS = 600;
  * how to proceed. Without a decision callback the default is "stop", which
  * reaches the webview as a plain aborted turn: indistinguishable from the
  * user pressing Stop, with no explanation. A model stuck re-issuing the same
- * failing tool call therefore looked like Cline randomly gave up mid-task.
+ * failing tool call therefore looked like IndusCode randomly gave up mid-task.
  * Route the decision through the existing ask-question channel instead so
  * the user sees what went wrong and can choose.
  *
@@ -554,9 +594,9 @@ export function createDesktopMistakeLimitPrompt(
 				? `${detail.slice(0, MISTAKE_LIMIT_DETAIL_MAX_CHARS)}…`
 				: detail;
 		const question = [
-			"Cline detected repeated mistakes or tool calls and needs your guidance.",
+			"IndusCode detected repeated mistakes or tool calls and needs your guidance.",
 			truncatedDetail ? `Latest: ${truncatedDetail}` : "",
-			"How should Cline continue?",
+			"How should IndusCode continue?",
 		]
 			.filter((line) => line.length > 0)
 			.join("\n");
@@ -748,7 +788,7 @@ export function buildSessionConnectionUpdate(
 ): SessionConnectionUpdate {
 	// Coerce the untrusted webview JSON (snake_case aliases, blank strings)
 	// into typed fields; the thinking/reasoning transition rules live in the
-	// shared @cline/core builder.
+	// shared @induscode/core builder.
 	const providerId = String(config.provider ?? config.providerId ?? "").trim();
 	const modelId = String(config.model ?? config.modelId ?? "").trim();
 	const rawApiKey =
@@ -867,7 +907,7 @@ async function resolveSystemPrompt(config: JsonRecord): Promise<string> {
 		typeof config.rules === "string" && config.rules.trim().length > 0
 			? config.rules
 			: undefined;
-	const prompt = buildClineSystemPrompt({
+	const prompt = buildIndusCodeSystemPrompt({
 		ide: "IndusCode IDE",
 		workspaceRoot: cwd,
 		workspaceName: basename(cwd),
@@ -887,9 +927,9 @@ async function resolveSystemPrompt(config: JsonRecord): Promise<string> {
 	});
 
 	return prompt
-		.replace(/\bYou are Cline\b/g, "You are IndusCode")
-		.replace(/\bI'm Cline\b/g, "I'm IndusCode")
-		.replace(/\bCline\b/g, "IndusCode");
+		.replace(/\bYou are IndusCode\b/g, "You are IndusCode")
+		.replace(/\bI'm IndusCode\b/g, "I'm IndusCode")
+		.replace(/\bIndusCode\b/g, "IndusCode");
 }
 
 function resolveToolPolicies(
@@ -958,6 +998,104 @@ function readExplicitSystemPrompt(config: JsonRecord): string {
 	return typeof value === "string" ? value : "";
 }
 
+let cachedDbProviders: Record<
+	string,
+	{ id: string; apiKey: string; baseUrl?: string; defaultModel?: string }
+> | null = null;
+let lastDbFetchTime = 0;
+
+async function getAdminAiProviders(): Promise<
+	Record<string, { id: string; apiKey: string; baseUrl?: string; defaultModel?: string; providerType?: string }>
+> {
+	const now = Date.now();
+	if (cachedDbProviders && now - lastDbFetchTime < 5 * 60 * 1000) {
+		return cachedDbProviders;
+	}
+	try {
+		const res = await fetch(
+			"https://fmibgmxamgzvkxkvllpn.supabase.co/rest/v1/admin_ai_providers?select=id,api_key,base_url,default_model,provider_type&is_active=eq.true",
+			{
+				headers: {
+					apikey:
+						"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZtaWJnbXhhbWd6dmt4a3ZsbHBuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIyOTU2MTMsImV4cCI6MjEwNzg3MTYxM30.hYgBmolWEQG561FB2byuP5awuTvqwLLQosHr5JYereE",
+					Authorization:
+						"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZtaWJnbXhhbWd6dmt4a3ZsbHBuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIyOTU2MTMsImV4cCI6MjEwNzg3MTYxM30.hYgBmolWEQG561FB2byuP5awuTvqwLLQosHr5JYereE",
+				},
+			},
+		);
+		if (res.ok) {
+			const data = (await res.json()) as any[];
+			const map: Record<
+				string,
+				{ id: string; apiKey: string; baseUrl?: string; defaultModel?: string; providerType?: string }
+			> = {};
+			for (const item of data) {
+				if (item?.id && item?.api_key) {
+					map[item.id] = {
+						id: item.id,
+						apiKey: item.api_key,
+						baseUrl: item.base_url || undefined,
+						defaultModel: item.default_model || undefined,
+						providerType: item.provider_type || "openai-compatible",
+					};
+				}
+			}
+			cachedDbProviders = map;
+			lastDbFetchTime = now;
+			return map;
+		}
+	} catch (e) {
+		console.warn("Could not fetch admin_ai_providers from Supabase:", e);
+	}
+	return cachedDbProviders || {};
+}
+
+function inferProviderFromModelId(modelId: string): { providerId: string; providerType: string } | null {
+	const lower = modelId.toLowerCase();
+	if (lower.startsWith("@cf/") || lower.startsWith("cloudflare/")) {
+		return { providerId: "cloudflare", providerType: "openai-compatible" };
+	}
+	if (
+		lower.startsWith("command-") ||
+		lower.startsWith("c4ai-") ||
+		lower.startsWith("cohere/")
+	) {
+		return { providerId: "cohere", providerType: "cohere" };
+	}
+	if (
+		lower.startsWith("groq/") ||
+		lower.startsWith("openai/gpt-oss-") ||
+		lower.startsWith("qwen/qwen3.8-") ||
+		lower.startsWith("allam-") ||
+		lower.startsWith("canopylabs/") ||
+		lower.includes("prompt-guard")
+	) {
+		return { providerId: "groq", providerType: "groq" };
+	}
+	if (
+		lower.startsWith("nvidia/") ||
+		lower.startsWith("deepseek-ai/") ||
+		lower.startsWith("mistralai/codestral-") ||
+		lower.startsWith("bigcode/") ||
+		lower.startsWith("google/codegemma-") ||
+		lower.startsWith("ai21labs/") ||
+		lower.startsWith("z-ai/")
+	) {
+		return { providerId: "nvidia", providerType: "openai-compatible" };
+	}
+	if (
+		lower.startsWith("gemini-") ||
+		lower.startsWith("free/") ||
+		lower.startsWith("google/gemini")
+	) {
+		return { providerId: "openai-native", providerType: "openai-compatible" };
+	}
+	if (lower.includes(":free") || lower.startsWith("openrouter/")) {
+		return { providerId: "openrouter", providerType: "openrouter" };
+	}
+	return null;
+}
+
 /**
  * A remote Hub intentionally has its own HOME and provider settings. Send the
  * selected desktop provider configuration over the authenticated SSH tunnel so
@@ -973,35 +1111,30 @@ async function withRemoteProviderCredentials(
 
 	const manager = new ProviderSettingsManager();
 	const stored = manager.read();
+	let modelId = String(
+		config.model ?? config.modelId ?? "",
+	).trim();
 
-	// If provider is cline or induscode, automatically route to the active configured AI provider (e.g. openrouter, anthropic, openai)
-	if (providerId === "cline" || providerId === "induscode" || !providerId) {
-		const lastUsed = stored.lastUsedProvider;
-		if (
-			lastUsed &&
-			lastUsed !== "cline" &&
-			lastUsed !== "induscode" &&
-			stored.providers[lastUsed]?.settings?.apiKey
-		) {
-			providerId = lastUsed;
-		} else {
-			const activeProviderId = Object.keys(stored.providers).find((id) => {
-				if (id === "cline" || id === "induscode" || id === "cline-pass") return false;
-				const p = stored.providers[id];
-				const key = p?.settings?.apiKey || (p as any)?.apiKey;
-				return typeof key === "string" && key.trim().length > 0;
-			});
-			if (activeProviderId) {
-				providerId = activeProviderId;
-			}
-		}
+	// Check if the selected model corresponds to a specific backend AI provider
+	const inferred = inferProviderFromModelId(modelId);
+
+	let settings = manager.getProviderSettings(providerId);
+
+	// Normalize modelId if prefixed with provider namespace
+	if (providerId === "groq" && modelId.startsWith("groq/")) {
+		modelId = modelId.slice(5);
+	} else if (providerId === "openrouter" && modelId.startsWith("openrouter/")) {
+		modelId = modelId.slice(11);
+	} else if (providerId === "nvidia" && modelId.startsWith("nvidia/")) {
+		modelId = modelId.slice(7);
+	} else if (providerId === "cohere" && modelId.startsWith("cohere/")) {
+		modelId = modelId.slice(7);
 	}
 
-	const settings = manager.getProviderSettings(providerId);
-	if (!settings) return config;
-	const modelId = String(
-		config.model ?? config.modelId ?? settings.model ?? "",
-	).trim();
+	if (!modelId && settings?.model) {
+		modelId = settings.model;
+	}
+
 	const explicitProviderConfig =
 		config.providerConfig && typeof config.providerConfig === "object"
 			? (config.providerConfig as JsonRecord)
@@ -1028,30 +1161,83 @@ async function withRemoteProviderCredentials(
 	const refreshedSettings = manager.getProviderSettings(providerId) ?? settings;
 	const storedConfig = {
 		...toProviderConfig(
-			{ ...refreshedSettings, ...(modelId ? { model: modelId } : {}) },
+			{ provider: providerId, ...refreshedSettings, ...(modelId ? { model: modelId } : {}) },
 			{ includeKnownModels: false },
 		),
 	};
-	const apiKey =
+	let apiKey =
 		explicitApiKey ||
 		oauth?.apiKey ||
 		resolveProviderApiKeyFromSettings(manager, providerId) ||
 		String(storedConfig.apiKey ?? "").trim();
 
-	if ((providerId === "cline" || providerId === "induscode") && !apiKey) {
-		throw new Error(
-			"No AI API Key is configured yet. Please open Admin Setup (http://localhost:3000/admin) or Settings → Providers to enter your API key (e.g. OpenRouter, OpenAI, Anthropic, Gemini).",
-		);
+	// Detect fake IndusCode placeholder tokens (written by sync-to-app when no real token exists)
+	// or expired Supabase JWTs — do NOT use them as AI provider API keys.
+	const isFakeOrExpiredToken = (key: unknown): boolean => {
+		if (typeof key !== "string" || !key) return false;
+		// Fake tokens created by sync-to-app when no real access token was available
+		if (key.startsWith("indus_")) return true;
+		// Supabase JWTs expire in 1 hour — detect expired ones by decoding the payload
+		if (key.startsWith("eyJ")) {
+			try {
+				const parts = key.split(".");
+				if (parts.length === 3) {
+					const payload = JSON.parse(Buffer.from(parts[1], "base64").toString("utf8"));
+					if (payload?.exp && payload.exp < Math.floor(Date.now() / 1000)) {
+						return true; // JWT has expired
+					}
+				}
+			} catch {}
+		}
+		return false;
+	};
+
+	const isIndusOrIndusCode = providerId === "induscode" || providerId === "induscode" || !providerId;
+
+	// For induscode/induscode provider, skip fake/expired tokens
+	if (isIndusOrIndusCode && isFakeOrExpiredToken(apiKey)) {
+		apiKey = "";
 	}
 
-	const providerConfig = {
+	let baseUrl = config.baseUrl || storedConfig.baseUrl || (settings as any)?.baseUrl;
+
+	// If using IndusCode backend (induscode/induscode) or no valid user API key is configured,
+	// resolve real AI credentials and real SDK provider type from Supabase admin_ai_providers
+	if (!apiKey || isIndusOrIndusCode) {
+		const dbProviders = await getAdminAiProviders();
+		const provInfo =
+			(inferred ? dbProviders[inferred.providerId] : null) ||
+			dbProviders["openai-native"] ||
+			dbProviders["gemini-apinex"] ||
+			dbProviders["openrouter"] ||
+			dbProviders["groq"];
+
+		if (provInfo?.apiKey) {
+			apiKey = provInfo.apiKey;
+			baseUrl = provInfo.baseUrl || baseUrl || "https://api.apinex.bond/v1";
+			// Map to a valid builtin SDK provider ("openai-compatible", "openrouter", "groq", etc.)
+			providerId = provInfo.providerType || inferred?.providerType || "openai-compatible";
+			if (!modelId) {
+				modelId = provInfo.defaultModel || "free/deepseek-v4.1-flash";
+			}
+		}
+	}
+
+	const providerConfig: JsonRecord = {
 		...storedConfig,
 		...explicitProviderConfig,
 		providerId,
+		baseUrl,
 		...(modelId ? { modelId, model: modelId } : {}),
 		...(apiKey ? { apiKey, accessToken: apiKey } : {}),
 	};
 	delete providerConfig.refreshToken;
+	if (isFakeOrExpiredToken(providerConfig.accessToken)) {
+		providerConfig.accessToken = apiKey;
+	}
+	if (isFakeOrExpiredToken(providerConfig.apiKey)) {
+		providerConfig.apiKey = apiKey;
+	}
 
 	return {
 		...config,
@@ -1059,8 +1245,8 @@ async function withRemoteProviderCredentials(
 		providerId,
 		...(modelId ? { model: modelId, modelId } : {}),
 		...(apiKey ? { apiKey } : {}),
-		baseUrl: config.baseUrl || storedConfig.baseUrl || (settings as any).baseUrl,
-		headers: config.headers || storedConfig.headers || (settings as any).headers,
+		baseUrl: baseUrl || config.baseUrl || storedConfig.baseUrl,
+		headers: config.headers || storedConfig.headers || (settings as any)?.headers,
 		providerConfig,
 	};
 }
@@ -1069,7 +1255,7 @@ function getSessionManager(
 	ctx: SidecarContext,
 	sessionId?: string,
 	config?: JsonRecord,
-): ClineCore {
+): IndusCodeCore {
 	return getSessionRuntimeBinding(ctx, sessionId, readEnvironmentId(config))
 		.sessionManager;
 }
@@ -1082,6 +1268,11 @@ async function handleStart(
 	ctx: SidecarContext,
 	request: ChatSessionCommandRequest,
 ): Promise<unknown> {
+	if (!isSidecarAuthenticated()) {
+		throw new Error(
+			"401 Unauthorized: Please sign in to your IndusCode account to use the assistant.",
+		);
+	}
 	if (!request.config) throw new Error("config is required");
 	const binding = getSessionRuntimeBinding(
 		ctx,
@@ -1137,7 +1328,7 @@ async function handleStart(
 		modelId: String(coreConfig.modelId ?? ""),
 	});
 	const startResult = await manager.start({
-		...splitCoreSessionConfig(coreConfig as unknown as ClineCoreStartConfig),
+		...splitCoreSessionConfig(coreConfig as unknown as IndusCodeCoreStartConfig),
 		source: SessionSource.DESKTOP,
 		interactive: true,
 		...(initialMessages ? { initialMessages } : {}),
@@ -1290,7 +1481,7 @@ async function handleAttach(
 }
 
 async function startRebuiltSession(
-	manager: ClineCore,
+	manager: IndusCodeCore,
 	ctx: SidecarContext,
 	sessionId: string,
 	config: JsonRecord,
@@ -1311,7 +1502,7 @@ async function startRebuiltSession(
 				},
 				ctx.telemetryUser,
 				createDesktopMistakeRecovery(ctx, () => sessionId),
-			) as unknown as ClineCoreStartConfig,
+			) as unknown as IndusCodeCoreStartConfig,
 		),
 		source: SessionSource.DESKTOP,
 		interactive: true,
@@ -1416,7 +1607,7 @@ async function rebuildSessionForProviderChange(
 const HUB_RECONNECT_WINDOW_MS = 60_000;
 const HUB_RECONNECT_MAX_DELAY_MS = 5_000;
 const HUB_INTERRUPTED_TEXT =
-	"Interrupted: Cline Hub restarted. Send your message again to continue.";
+	"Interrupted: IndusCode Hub restarted. Send your message again to continue.";
 
 // Reconnect loops in flight, so stop/abort/reset can end them before they
 // rebuild a session the user has since walked away from.
@@ -1493,7 +1684,7 @@ type HubReconnectOutcome = "rebuilt" | "survived" | "failed";
  */
 async function reconnectSessionAfterHubLoss(
 	ctx: SidecarContext,
-	manager: ClineCore,
+	manager: IndusCodeCore,
 	sessionId: string,
 	session: LiveSession | undefined,
 ): Promise<HubReconnectOutcome> {
@@ -1511,7 +1702,7 @@ async function reconnectSessionAfterHubLoss(
 		ctx,
 		sessionId,
 		"started",
-		"Cline Hub connection lost; reconnecting",
+		"IndusCode Hub connection lost; reconnecting",
 	);
 	const completion = Promise.resolve(existing?.completion)
 		.catch(() => undefined)
@@ -1539,8 +1730,8 @@ async function reconnectSessionAfterHubLoss(
 					sessionId,
 					"finished",
 					result === "failed"
-						? "Cline Hub reconnect gave up"
-						: "Cline Hub reconnected",
+						? "IndusCode Hub reconnect gave up"
+						: "IndusCode Hub reconnected",
 				);
 			return result;
 		},
@@ -1573,7 +1764,7 @@ function waitForHubRecovery(
 
 async function recoverSessionAfterHubLoss(
 	ctx: SidecarContext,
-	manager: ClineCore,
+	manager: IndusCodeCore,
 	sessionId: string,
 	session: LiveSession,
 	signal: AbortSignal,
@@ -1652,6 +1843,11 @@ async function handleSend(
 	ctx: SidecarContext,
 	request: ChatSessionCommandRequest,
 ): Promise<unknown> {
+	if (!isSidecarAuthenticated()) {
+		throw new Error(
+			"401 Unauthorized: Please sign in to your IndusCode account to use the assistant.",
+		);
+	}
 	const sessionId = request.sessionId?.trim();
 	if (!sessionId) throw new Error("sessionId is required");
 	const prompt = request.prompt?.trim() ?? "";
@@ -1829,7 +2025,7 @@ async function handleSend(
 			request.attachments?.userFiles,
 		);
 		if (session?.attachedViaHub) {
-			// Once ClineCore sends a turn it owns the session: the attach-time
+			// Once IndusCodeCore sends a turn it owns the session: the attach-time
 			// connection refresh above has happened and the observer projection is
 			// muted by its subscription, so the session is no longer attach-only.
 			session.attachedViaHub = false;
@@ -1896,7 +2092,7 @@ async function handleSend(
 			promptLength: prompt.length,
 			delivery,
 		});
-		let result: Awaited<ReturnType<ClineCore["send"]>>;
+		let result: Awaited<ReturnType<IndusCodeCore["send"]>>;
 		try {
 			result = await manager.send({
 				sessionId,
@@ -2198,7 +2394,7 @@ async function handleForkUnlocked(
 				},
 				ctx.telemetryUser,
 				createDesktopMistakeRecovery(ctx, () => newSessionId),
-			) as unknown as ClineCoreStartConfig,
+			) as unknown as IndusCodeCoreStartConfig,
 		),
 		source: SessionSource.DESKTOP,
 		interactive: true,
@@ -2361,7 +2557,7 @@ async function handleRestoreCheckpoint(
 						},
 						ctx.telemetryUser,
 						createDesktopMistakeRecovery(ctx, () => restoredSessionId),
-					) as unknown as ClineCoreStartConfig,
+					) as unknown as IndusCodeCoreStartConfig,
 				),
 				source: SessionSource.DESKTOP,
 				interactive: true,
@@ -2548,6 +2744,13 @@ export async function handleChatSessionCommand(
 	ctx: SidecarContext,
 	request: ChatSessionCommandRequest,
 ): Promise<unknown> {
+	if (["start", "send", "fork", "steer_prompt"].includes(request.action)) {
+		if (!isSidecarAuthenticated()) {
+			throw new Error(
+				"401 Unauthorized: Please sign in to your IndusCode account to use the assistant.",
+			);
+		}
+	}
 	const executionTarget = String(request.config?.executionTarget ?? "").trim();
 	const sessionId = request.sessionId?.trim();
 	const existingCloudSession =

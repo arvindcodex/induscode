@@ -1,16 +1,16 @@
 // Replaces classic src/core/api buildApiHandler (see origin/main).
 //
-// Builds an SDK ApiHandler (from `@cline/llms`) directly from the extension's
+// Builds an SDK ApiHandler (from `@induscode/llms`) directly from the extension's
 // legacy ApiConfiguration. This is the single inference path: the main task
-// loop runs through ClineCore (see cline-session-factory.ts), and standalone
+// loop runs through IndusCodeCore (see induscode-session-factory.ts), and standalone
 // utility callers (commit message generation) use the handler
 // returned here. Both share the same provider/model/key/baseUrl resolution so
 // there is no second source of truth.
 
-import { CORE_BUILD_VERSION, SessionSource } from "@cline/core"
-import { type ApiHandler, createHandler, type ProviderConfig, resolveProviderRequestHeaders } from "@cline/llms"
+import { CORE_BUILD_VERSION, SessionSource } from "@induscode/core"
+import { type ApiHandler, createHandler, type ProviderConfig, resolveProviderRequestHeaders } from "@induscode/llms"
 import type { ApiConfiguration } from "@shared/api"
-import { ClineClient } from "@shared/cline"
+import { IndusCodeClient } from "@shared/induscode"
 import { Logger } from "@shared/services/Logger"
 import type { Mode } from "@shared/storage/types"
 import { reasoningEffortFromThinkingBudget } from "@shared/utils/reasoning-support"
@@ -20,12 +20,12 @@ import {
 	type HostClientContext,
 	resolveApiKey,
 	resolveBaseUrl,
-	resolveClineRequestClientContext,
+	resolveIndusCodeRequestClientContext,
 	resolveModelId,
 	resolveOllamaProviderConfig,
 	resolveProviderFetch,
 	resolveVertexProviderConfig,
-} from "./cline-session-factory"
+} from "./induscode-session-factory"
 import { toSdkProviderId } from "./model-catalog/sdk-provider-id"
 import { getProviderSettingsManager } from "./provider-migration"
 
@@ -33,11 +33,11 @@ import { getProviderSettingsManager } from "./provider-migration"
  * Resolve the request headers for a standalone handler.
  *
  * Delegates to the same `resolveProviderRequestHeaders` policy the session path
- * uses (see `local-runtime-bootstrap.ts` in `@cline/core`), so the Cline surface
+ * uses (see `local-runtime-bootstrap.ts` in `@induscode/core`), so the IndusCode surface
  * identity headers — `X-CLIENT-TYPE`, `X-CLIENT-VERSION`, `X-PLATFORM`,
  * `User-Agent`, … — are identical whether a request comes from a task or from a
- * one-shot utility caller. Without them the Cline gateway rejects requests for
- * models restricted to Cline product surfaces (free models) with HTTP 403.
+ * one-shot utility caller. Without them the IndusCode gateway rejects requests for
+ * models restricted to IndusCode product surfaces (free models) with HTTP 403.
  *
  * No `sessionId` is passed: a standalone handler is not a task, so `X-Task-ID`
  * is omitted rather than sent empty (the pre-SDK extension sent an empty value
@@ -52,7 +52,7 @@ function resolveRequestHeaders(
 		source: SessionSource.VSCODE,
 		defaultSource: SessionSource.VSCODE,
 		client: {
-			name: client?.name ?? ClineClient.VSCode,
+			name: client?.name ?? IndusCodeClient.VSCode,
 			version: client?.version ?? ExtensionRegistryInfo.version,
 			platform: client?.platform,
 			platformVersion: client?.platformVersion,
@@ -90,7 +90,7 @@ export interface BuildApiHandlerOptions {
 	 */
 	disableReasoning?: boolean
 	/**
-	 * Host client identity used to build the Cline surface headers. Resolving it
+	 * Host client identity used to build the IndusCode surface headers. Resolving it
 	 * needs an async hostbridge round-trip, so callers that can await should use
 	 * `buildApiHandlerWithHostContext`; when omitted we fall back to the
 	 * extension's own identity.
@@ -118,7 +118,7 @@ export function buildSdkProviderConfig(
 	mode: Mode,
 	options?: BuildApiHandlerOptions,
 ): ProviderConfig {
-	const providerId = (mode === "plan" ? configuration.planModeApiProvider : configuration.actModeApiProvider) ?? "cline"
+	const providerId = (mode === "plan" ? configuration.planModeApiProvider : configuration.actModeApiProvider) ?? "induscode"
 
 	const apiKey = resolveApiKey(providerId, configuration)
 	const modelId = resolveModelId(providerId, mode, configuration)
@@ -139,7 +139,7 @@ export function buildSdkProviderConfig(
 		baseUrl,
 		...(headers ? { headers } : {}),
 		...(vertexProviderConfig ?? {}),
-		// Proxy-aware fetch (see .clinerules/network.md); local model servers get
+		// Proxy-aware fetch (see .induscoderules/network.md); local model servers get
 		// the variant without undici's idle timeouts.
 		fetch: resolveProviderFetch(sdkProviderId, baseUrl),
 		// Bedrock needs its region + structured AWS auth options forwarded to the
@@ -197,7 +197,7 @@ export function buildApiHandler(configuration: ApiConfiguration, mode: Mode, opt
  * Build an SDK-backed `ApiHandler` with the host's client identity resolved.
  *
  * Prefer this over `buildApiHandler` wherever the caller can await: resolving
- * the host identity takes a hostbridge round-trip, and without it the Cline
+ * the host identity takes a hostbridge round-trip, and without it the IndusCode
  * surface headers fall back to the extension's own identity.
  */
 export async function buildApiHandlerWithHostContext(
@@ -205,6 +205,6 @@ export async function buildApiHandlerWithHostContext(
 	mode: Mode,
 	options?: BuildApiHandlerOptions,
 ): Promise<ApiHandler> {
-	const client = options?.client ?? (await resolveClineRequestClientContext())
+	const client = options?.client ?? (await resolveIndusCodeRequestClientContext())
 	return buildApiHandler(configuration, mode, { ...options, client })
 }

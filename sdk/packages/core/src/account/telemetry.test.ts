@@ -1,13 +1,13 @@
 import { describe, expect, it, vi } from "vitest";
 import {
-	persistClineAccountTelemetryIdentity,
-	resolveClineAccountTelemetryIdentity,
+	persistIndusCodeAccountTelemetryIdentity,
+	resolveIndusCodeAccountTelemetryIdentity,
 } from "./telemetry";
-import type { ClineAccountUser } from "./types";
+import type { IndusCodeAccountUser } from "./types";
 
 function createUser(
-	overrides: Partial<ClineAccountUser> = {},
-): ClineAccountUser {
+	overrides: Partial<IndusCodeAccountUser> = {},
+): IndusCodeAccountUser {
 	return {
 		id: "user-1",
 		email: "user@example.com",
@@ -20,9 +20,9 @@ function createUser(
 	};
 }
 
-describe("Cline account telemetry identity", () => {
+describe("IndusCode account telemetry identity", () => {
 	it("resolves the active organization", () => {
-		const identity = resolveClineAccountTelemetryIdentity(
+		const identity = resolveIndusCodeAccountTelemetryIdentity(
 			createUser({
 				organizations: [
 					{
@@ -39,7 +39,7 @@ describe("Cline account telemetry identity", () => {
 		expect(identity).toEqual({
 			id: "user-1",
 			email: "user@example.com",
-			provider: "cline",
+			provider: "induscode",
 			organizationId: "org-1",
 			organizationName: "Acme",
 			memberId: "member-1",
@@ -50,12 +50,12 @@ describe("Cline account telemetry identity", () => {
 		const saveProviderSettings = vi.fn();
 		const manager = {
 			getProviderSettings: vi.fn(() => ({
-				provider: "cline" as const,
+				provider: "induscode" as const,
 				auth: { accountId: "user-1", accessToken: "secret" },
 			})),
 			saveProviderSettings,
 		};
-		const identity = resolveClineAccountTelemetryIdentity(
+		const identity = resolveIndusCodeAccountTelemetryIdentity(
 			createUser({
 				organizations: [
 					{
@@ -69,10 +69,10 @@ describe("Cline account telemetry identity", () => {
 			}),
 		);
 
-		expect(persistClineAccountTelemetryIdentity(manager, identity)).toBe(true);
+		expect(persistIndusCodeAccountTelemetryIdentity(manager, identity)).toBe(true);
 		expect(saveProviderSettings).toHaveBeenCalledWith(
 			{
-				provider: "cline",
+				provider: "induscode",
 				auth: {
 					accountId: "user-1",
 					accessToken: "secret",
@@ -89,15 +89,15 @@ describe("Cline account telemetry identity", () => {
 		const saveProviderSettings = vi.fn();
 		const manager = {
 			getProviderSettings: vi.fn(() => ({
-				provider: "cline" as const,
+				provider: "induscode" as const,
 				auth: { accountId: "old-user", accessToken: "secret" },
 			})),
 			saveProviderSettings,
 		};
 
-		persistClineAccountTelemetryIdentity(manager, {
+		persistIndusCodeAccountTelemetryIdentity(manager, {
 			id: "new-user",
-			provider: "cline",
+			provider: "induscode",
 		});
 
 		expect(saveProviderSettings).toHaveBeenCalledWith(

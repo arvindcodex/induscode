@@ -37,12 +37,12 @@ defaults:
 
 jobs:
   publish-main:
-    name: Publish cline
+    name: Publish induscode
     permissions:
       contents: write
       id-token: write
     if: |
-      github.repository == 'cline/cline' &&
+      github.repository == 'induscode/induscode' &&
       github.ref == 'refs/heads/main' &&
       github.event_name == 'workflow_dispatch' &&
       github.event.inputs.publish_target == 'main' &&
@@ -155,7 +155,7 @@ jobs:
           OTEL_LOGS_EXPORTER: otlp
           OTEL_METRICS_EXPORTER: otlp
           OTEL_TRACES_EXPORTER: otlp
-          CLINE_TRACE_RECORD_CONTENT: "true"
+          INDUSCODE_TRACE_RECORD_CONTENT: "true"
           OTEL_EXPORTER_OTLP_PROTOCOL: ${{ secrets.OTEL_EXPORTER_OTLP_PROTOCOL }}
           OTEL_EXPORTER_OTLP_ENDPOINT: ${{ secrets.OTEL_EXPORTER_OTLP_ENDPOINT }}
           OTEL_EXPORTER_OTLP_HEADERS: ${{ secrets.OTEL_EXPORTER_OTLP_HEADERS }}
@@ -165,16 +165,16 @@ jobs:
           VERSION: ${{ steps.version.outputs.version }}
         run: |
           EXPECTED=(
-            "@cline/cli-darwin-arm64"
-            "@cline/cli-darwin-x64"
-            "@cline/cli-linux-arm64"
-            "@cline/cli-linux-x64"
-            "@cline/cli-windows-arm64"
-            "@cline/cli-windows-x64"
+            "@induscode/cli-darwin-arm64"
+            "@induscode/cli-darwin-x64"
+            "@induscode/cli-linux-arm64"
+            "@induscode/cli-linux-x64"
+            "@induscode/cli-windows-arm64"
+            "@induscode/cli-windows-x64"
           )
 
           for package_name in "${EXPECTED[@]}"; do
-            dir="apps/cli/dist/${package_name#@cline/}"
+            dir="apps/cli/dist/${package_name#@induscode/}"
             if [ ! -f "$dir/package.json" ]; then
               echo "Missing package manifest: $dir/package.json"
               exit 1
@@ -202,8 +202,8 @@ jobs:
           account: ${{ secrets.AZURE_TRUSTED_SIGNING_ACCOUNT_NAME }}
           certificate-profile: ${{ secrets.AZURE_TRUSTED_SIGNING_CERTIFICATE_PROFILE_CLI }}
           files: |
-            apps/cli/dist/cli-windows-x64/bin/cline.exe
-            apps/cli/dist/cli-windows-arm64/bin/cline.exe
+            apps/cli/dist/cli-windows-x64/bin/induscode.exe
+            apps/cli/dist/cli-windows-arm64/bin/induscode.exe
 
       - name: Publish to NPM with latest tag
         env:
@@ -233,7 +233,7 @@ jobs:
           # Slack section blocks reject text longer than 3000 characters, and the
           # Slack action logs that rejection WITHOUT failing the step - so an
           # over-long changelog silently drops the release announcement while the
-          # run stays green (cline@3.0.50 hit this). Post a trimmed copy to Slack
+          # run stays green (induscode@3.0.50 hit this). Post a trimmed copy to Slack
           # and link out to the full notes. The GitHub release body stays whole.
           SLACK_CONTENT=$(CONTENT="$CONTENT" RELEASE_URL="$RELEASE_URL" python3 -c '
           import os
@@ -272,8 +272,8 @@ jobs:
         env:
           VERSION: ${{ steps.version.outputs.version }}
         run: |
-          echo "Published cline@${VERSION} to npm with dist-tag 'latest'"
-          echo "Install with: npm install -g cline"
+          echo "Published induscode@${VERSION} to npm with dist-tag 'latest'"
+          echo "Install with: npm install -g induscode"
 
       - name: Post release to Slack
         uses: slackapi/slack-github-action@v3.0.1
@@ -282,12 +282,12 @@ jobs:
           token: ${{ secrets.SLACK_RELEASE_BOT_TOKEN }}
           payload: |
             channel: "C0APVKGGZFC"
-            text: "Cline CLI v${{ steps.version.outputs.version }}"
+            text: "IndusCode CLI v${{ steps.version.outputs.version }}"
             blocks:
               - type: "section"
                 text:
                   type: "mrkdwn"
-                  text: "Cline CLI v${{ steps.version.outputs.version }}"
+                  text: "IndusCode CLI v${{ steps.version.outputs.version }}"
               - type: "section"
                 text:
                   type: "mrkdwn"
@@ -295,15 +295,15 @@ jobs:
               - type: "context"
                 elements:
                   - type: "mrkdwn"
-                    text: "<https://www.npmjs.com/package/cline/v/${{ steps.version.outputs.version }}|View on npm>${{ steps.prev_tag.outputs.prev_tag != '' && format(' | Full Changelog: https://github.com/{0}/compare/{1}...{2}', github.repository, steps.prev_tag.outputs.prev_tag, steps.version.outputs.tag) || '' }}"
+                    text: "<https://www.npmjs.com/package/induscode/v/${{ steps.version.outputs.version }}|View on npm>${{ steps.prev_tag.outputs.prev_tag != '' && format(' | Full Changelog: https://github.com/{0}/compare/{1}...{2}', github.repository, steps.prev_tag.outputs.prev_tag, steps.version.outputs.tag) || '' }}"
 
   publish-nightly:
-    name: Publish cline nightly
+    name: Publish induscode nightly
     permissions:
       contents: read
       id-token: write
     if: |
-      github.repository == 'cline/cline' &&
+      github.repository == 'induscode/induscode' &&
       github.ref == 'refs/heads/main' &&
       (
         github.event_name == 'schedule' ||
@@ -426,7 +426,7 @@ jobs:
           OTEL_LOGS_EXPORTER: otlp
           OTEL_METRICS_EXPORTER: otlp
           OTEL_TRACES_EXPORTER: otlp
-          CLINE_TRACE_RECORD_CONTENT: "true"
+          INDUSCODE_TRACE_RECORD_CONTENT: "true"
           OTEL_EXPORTER_OTLP_PROTOCOL: ${{ secrets.OTEL_EXPORTER_OTLP_PROTOCOL }}
           OTEL_EXPORTER_OTLP_ENDPOINT: ${{ secrets.OTEL_EXPORTER_OTLP_ENDPOINT }}
           OTEL_EXPORTER_OTLP_HEADERS: ${{ secrets.OTEL_EXPORTER_OTLP_HEADERS }}
@@ -437,16 +437,16 @@ jobs:
           VERSION: ${{ steps.version.outputs.version }}
         run: |
           EXPECTED=(
-            "@cline/cli-darwin-arm64"
-            "@cline/cli-darwin-x64"
-            "@cline/cli-linux-arm64"
-            "@cline/cli-linux-x64"
-            "@cline/cli-windows-arm64"
-            "@cline/cli-windows-x64"
+            "@induscode/cli-darwin-arm64"
+            "@induscode/cli-darwin-x64"
+            "@induscode/cli-linux-arm64"
+            "@induscode/cli-linux-x64"
+            "@induscode/cli-windows-arm64"
+            "@induscode/cli-windows-x64"
           )
 
           for package_name in "${EXPECTED[@]}"; do
-            dir="apps/cli/dist/${package_name#@cline/}"
+            dir="apps/cli/dist/${package_name#@induscode/}"
             if [ ! -f "$dir/package.json" ]; then
               echo "Missing package manifest: $dir/package.json"
               exit 1
@@ -475,8 +475,8 @@ jobs:
           account: ${{ secrets.AZURE_TRUSTED_SIGNING_ACCOUNT_NAME }}
           certificate-profile: ${{ secrets.AZURE_TRUSTED_SIGNING_CERTIFICATE_PROFILE_CLI }}
           files: |
-            apps/cli/dist/cli-windows-x64/bin/cline.exe
-            apps/cli/dist/cli-windows-arm64/bin/cline.exe
+            apps/cli/dist/cli-windows-x64/bin/induscode.exe
+            apps/cli/dist/cli-windows-arm64/bin/induscode.exe
 
       - name: Publish to NPM with nightly tag
         if: steps.check_commits.outputs.skip != 'true'
@@ -490,5 +490,5 @@ jobs:
         env:
           VERSION: ${{ steps.version.outputs.version }}
         run: |
-          echo "Published cline@${VERSION} to npm with dist-tag 'nightly'"
-          echo "Install with: npm install -g cline@nightly"
+          echo "Published induscode@${VERSION} to npm with dist-tag 'nightly'"
+          echo "Install with: npm install -g induscode@nightly"

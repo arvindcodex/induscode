@@ -60,7 +60,7 @@ describe("RemoteDirectoryPicker", () => {
 						environmentId: "pi-host",
 						currentPath: "/srv/projects",
 						parentPath: "/srv",
-						entries: [{ name: "cline", path: "/srv/projects/cline" }],
+						entries: [{ name: "induscode", path: "/srv/projects/induscode" }],
 						truncated: false,
 					};
 				}
@@ -100,19 +100,19 @@ describe("RemoteDirectoryPicker", () => {
 
 		await clickButton("projects");
 		await vi.waitFor(() => {
-			expect(document.body.textContent).toContain("cline");
+			expect(document.body.textContent).toContain("induscode");
 		});
 		expect(invokeMock).toHaveBeenCalledWith("list_workspace_directories", {
 			environmentId: "pi-host",
 			path: "/home/pi/projects",
 		});
 
-		await clickButton("cline");
+		await clickButton("induscode");
 		await vi.waitFor(() => {
-			expect(document.body.textContent).toContain("/srv/projects/cline");
+			expect(document.body.textContent).toContain("/srv/projects/induscode");
 		});
 		await clickButton("Use this folder");
-		expect(onSelect).toHaveBeenCalledWith("/srv/projects/cline");
+		expect(onSelect).toHaveBeenCalledWith("/srv/projects/induscode");
 	});
 
 	it("rejects a directory response from another environment", async () => {

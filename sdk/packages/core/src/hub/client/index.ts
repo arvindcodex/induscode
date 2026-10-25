@@ -7,9 +7,9 @@ import {
 	type HubReplyEnvelope,
 	type HubTransportFrame,
 	isHubProtocolCompatible,
-	resolveClineBuildEnv,
+	resolveIndusCodeBuildEnv,
 	resolveHubCommandTimeoutMs,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { HttpProxyAgent } from "http-proxy-agent";
 import { HttpsProxyAgent } from "https-proxy-agent";
 import { getProxyForUrl } from "proxy-from-env";
@@ -60,7 +60,7 @@ type SubscriptionEntry = {
 };
 
 function resolveDefaultHubOwnerContext(): HubOwnerContext {
-	return resolveClineBuildEnv() === "production"
+	return resolveIndusCodeBuildEnv() === "production"
 		? resolveProductionHubOwnerContext()
 		: resolveSharedHubOwnerContext();
 }
@@ -202,13 +202,13 @@ export interface HubClientOptions {
 	clientId?: string;
 	clientType?: string;
 	displayName?: string;
-	/** Version reported to the hub; defaults to the @cline/core version. */
+	/** Version reported to the hub; defaults to the @induscode/core version. */
 	clientVersion?: string;
 	/** Additional registration metadata; version and pid are owned by the client. */
 	metadata?: Record<string, unknown>;
 	workspaceRoot?: string;
 	cwd?: string;
-	/** Hub token sent with the `cline-hub-auth.*` WebSocket subprotocol. */
+	/** Hub token sent with the `induscode-hub-auth.*` WebSocket subprotocol. */
 	authToken?: string;
 	/**
 	 * Resolves HTTP headers for each new WebSocket, including reconnects.
@@ -236,7 +236,7 @@ export interface LocalHubResolutionOptions {
 
 const GLOBAL_SUBSCRIPTION_KEY = "*";
 const HUB_CONNECT_TIMEOUT_MS = 8_000;
-const HUB_AUTH_PROTOCOL_PREFIX = "cline-hub-auth.";
+const HUB_AUTH_PROTOCOL_PREFIX = "induscode-hub-auth.";
 const LOCAL_HUB_AUTH_TOKENS = new Map<string, string>();
 const RECOVERABLE_LOCAL_HUB_URLS = new Set<string>();
 const HUB_RECOVERY_SESSION_LIST_TIMEOUT_MS = 3_000;
@@ -767,7 +767,7 @@ export class NodeHubClient {
 								new HubCommandError(
 									command,
 									"hub_command_timeout",
-									`Hub command ${command} timed out after ${effectiveTimeoutMs}ms (hub=${this.currentUrl}, requestId=${requestId}, clientId=${this.clientId}). Check hub-daemon.log for matching command.start/command.slow entries, or run 'cline doctor fix' to restart the hub.`,
+									`Hub command ${command} timed out after ${effectiveTimeoutMs}ms (hub=${this.currentUrl}, requestId=${requestId}, clientId=${this.clientId}). Check hub-daemon.log for matching command.start/command.slow entries, or run 'induscode doctor fix' to restart the hub.`,
 								),
 							);
 						}, effectiveTimeoutMs);

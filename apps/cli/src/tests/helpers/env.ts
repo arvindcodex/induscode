@@ -2,9 +2,9 @@
 // Environment helpers for test setup.
 //
 // Usage:
-//   test.use({ env: clineEnv("default") });
-//   test.use({ env: clineEnv("claude-sonnet-4.6") });
-//   test.use({ env: clineEnv("/absolute/path/to/config") });
+//   test.use({ env: induscodeEnv("default") });
+//   test.use({ env: induscodeEnv("claude-sonnet-4.6") });
+//   test.use({ env: induscodeEnv("/absolute/path/to/config") });
 // ---------------------------------------------------------------------------
 
 import { cpSync, mkdirSync, mkdtempSync } from "node:fs";
@@ -15,9 +15,9 @@ export const TEST_SUITE_ROOT = new URL("../", import.meta.url).pathname;
 
 let envCounter = 0;
 
-function createIsolatedClineDir(sourceDir: string): string {
-	const tempRoot = mkdtempSync(path.join(os.tmpdir(), "cline-tui-test-"));
-	const targetDir = path.join(tempRoot, "cline");
+function createIsolatedIndusCodeDir(sourceDir: string): string {
+	const tempRoot = mkdtempSync(path.join(os.tmpdir(), "induscode-tui-test-"));
+	const targetDir = path.join(tempRoot, "induscode");
 	cpSync(sourceDir, targetDir, {
 		recursive: true,
 		errorOnExist: false,
@@ -34,33 +34,33 @@ function nextHubPort(): string {
 }
 
 /**
- * Build the process environment for a cline test.
+ * Build the process environment for a induscode test.
  *
  * @param configDir - Named config under `configs/`, or an absolute path.
  * @param extra     - Additional env vars to merge in (override defaults).
  */
-export function clineEnv(
+export function induscodeEnv(
 	configDir: string,
 	extra: NodeJS.ProcessEnv = {},
 ): NodeJS.ProcessEnv {
-	const clinePath = path.isAbsolute(configDir)
+	const induscodePath = path.isAbsolute(configDir)
 		? configDir
 		: path.join(TEST_SUITE_ROOT, "configs", configDir);
-	const isolatedClinePath = createIsolatedClineDir(clinePath);
-	const dataDir = path.join(isolatedClinePath, "data");
+	const isolatedIndusCodePath = createIsolatedIndusCodeDir(induscodePath);
+	const dataDir = path.join(isolatedIndusCodePath, "data");
 
 	// Determine effective VCR mode: extra overrides > parent env > default "playback"
 	const effectiveVcrMode =
-		extra.CLINE_VCR ?? process.env.CLINE_VCR ?? "playback";
+		extra.INDUSCODE_VCR ?? process.env.INDUSCODE_VCR ?? "playback";
 
 	// During recording, authenticated configs read real OAuth credentials from
-	// ~/.cline/data/settings/providers.json while keeping all other settings
+	// ~/.induscode/data/settings/providers.json while keeping all other settings
 	// (model, provider, global state) from the mock config directory.
 	const isRecording = effectiveVcrMode === "record";
 	const isAuthenticated = configDir !== "unauthenticated";
 	const realProvidersFile =
 		isRecording && isAuthenticated
-			? path.join(os.homedir(), ".cline", "data", "settings", "providers.json")
+			? path.join(os.homedir(), ".induscode", "data", "settings", "providers.json")
 			: undefined;
 
 	// Remove CI so terminal renderers treat the spawned process as interactive.
@@ -70,17 +70,17 @@ export function clineEnv(
 	// recording/playback is silently skipped.
 	const { CI: _ci, VITEST: _vitest, ...cleanEnv } = process.env;
 	if (!isAuthenticated) {
-		delete cleanEnv.CLINE_API_KEY;
+		delete cleanEnv.INDUSCODE_API_KEY;
 	}
 
 	// Only enable VCR when a cassette path is provided (via extra or parent env),
 	// otherwise tests without cassettes would trigger a spurious
-	// "[VCR] No CLINE_VCR_CASSETTE" warning on every run.
+	// "[VCR] No INDUSCODE_VCR_CASSETTE" warning on every run.
 	const hasCassette = !!(
-		extra.CLINE_VCR_CASSETTE ?? process.env.CLINE_VCR_CASSETTE
+		extra.INDUSCODE_VCR_CASSETTE ?? process.env.INDUSCODE_VCR_CASSETTE
 	);
 	const vcrDefaults = hasCassette
-		? { CLINE_VCR: "playback", CLINE_VCR_FILTER: "" }
+		? { INDUSCODE_VCR: "playback", INDUSCODE_VCR_FILTER: "" }
 		: {};
 
 	// the order of these env vars matter; later ones override earlier ones
@@ -88,45 +88,45 @@ export function clineEnv(
 		...vcrDefaults,
 		...cleanEnv,
 		...(realProvidersFile
-			? { CLINE_PROVIDER_SETTINGS_PATH: realProvidersFile }
+			? { INDUSCODE_PROVIDER_SETTINGS_PATH: realProvidersFile }
 			: {}),
-		CLINE_TELEMETRY_DISABLED: "1",
-		HOME: path.join(isolatedClinePath, "home"),
-		CLINE_DIR: isolatedClinePath,
-		CLINE_DATA_DIR: dataDir,
-		CLINE_DB_DATA_DIR: path.join(dataDir, "db"),
-		CLINE_GLOBAL_SETTINGS_PATH: path.join(
+		INDUSCODE_TELEMETRY_DISABLED: "1",
+		HOME: path.join(isolatedIndusCodePath, "home"),
+		INDUSCODE_DIR: isolatedIndusCodePath,
+		INDUSCODE_DATA_DIR: dataDir,
+		INDUSCODE_DB_DATA_DIR: path.join(dataDir, "db"),
+		INDUSCODE_GLOBAL_SETTINGS_PATH: path.join(
 			dataDir,
 			"settings",
 			"global-settings.json",
 		),
-		CLINE_HOOKS_LOG_PATH: path.join(dataDir, "logs", "hooks.jsonl"),
-		CLINE_HUB_DISCOVERY_PATH: path.join(
+		INDUSCODE_HOOKS_LOG_PATH: path.join(dataDir, "logs", "hooks.jsonl"),
+		INDUSCODE_HUB_DISCOVERY_PATH: path.join(
 			dataDir,
 			"locks",
 			"hub",
 			"discovery.json",
 		),
-		CLINE_HUB_PORT: nextHubPort(),
-		CLINE_MCP_SETTINGS_PATH: path.join(
+		INDUSCODE_HUB_PORT: nextHubPort(),
+		INDUSCODE_MCP_SETTINGS_PATH: path.join(
 			dataDir,
 			"settings",
-			"cline_mcp_settings.json",
+			"induscode_mcp_settings.json",
 		),
 		...(realProvidersFile
 			? {}
 			: {
-					CLINE_PROVIDER_SETTINGS_PATH: path.join(
+					INDUSCODE_PROVIDER_SETTINGS_PATH: path.join(
 						dataDir,
 						"settings",
 						"providers.json",
 					),
 				}),
-		CLINE_SESSION_DATA_DIR: path.join(dataDir, "sessions"),
-		CLINE_TEAM_DATA_DIR: path.join(dataDir, "teams"),
-		CLINE_DISABLE_CLINE_PASS_NOTICE: "1",
+		INDUSCODE_SESSION_DATA_DIR: path.join(dataDir, "sessions"),
+		INDUSCODE_TEAM_DATA_DIR: path.join(dataDir, "teams"),
+		INDUSCODE_DISABLE_INDUSCODE_PASS_NOTICE: "1",
 		NO_UPDATE_NOTIFIER: "1",
-		CLINE_NO_AUTO_UPDATE: "1",
+		INDUSCODE_NO_AUTO_UPDATE: "1",
 		...extra,
 	};
 }

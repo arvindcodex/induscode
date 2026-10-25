@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { AgentToolContext } from "@cline/shared";
+import type { AgentToolContext } from "@induscode/shared";
 import { describe, expect, it } from "vitest";
 import {
 	CommandSpawnError,
@@ -18,7 +18,7 @@ const context: AgentToolContext = {
 
 describe("public shell error boundary", () => {
 	it("rejects at the executor but returns a failed run_commands result for a missing shell", async () => {
-		const shell = join(tmpdir(), `cline-missing-shell-${randomUUID()}`);
+		const shell = join(tmpdir(), `induscode-missing-shell-${randomUUID()}`);
 		const executor = createShellExecutor({ shell });
 		const error = await executor("echo ok", process.cwd(), context).catch(
 			(caught: unknown) => caught,

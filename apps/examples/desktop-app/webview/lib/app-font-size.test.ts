@@ -17,7 +17,7 @@ import {
 afterEach(() => {
 	window.localStorage.clear();
 	document.documentElement.style.removeProperty("font-size");
-	delete document.documentElement.dataset.clineFontSize;
+	delete document.documentElement.dataset.induscodeFontSize;
 });
 
 function runFontSizeBootstrap(): void {
@@ -40,7 +40,7 @@ describe("app font size", () => {
 		expect(setStoredAppFontSize(18)).toBe(18);
 		expect(window.localStorage.getItem(APP_FONT_SIZE_STORAGE_KEY)).toBe("18");
 		expect(document.documentElement.style.fontSize).toBe("18px");
-		expect(document.documentElement.dataset.clineFontSize).toBe("18");
+		expect(document.documentElement.dataset.induscodeFontSize).toBe("18");
 
 		document.documentElement.style.removeProperty("font-size");
 		expect(syncAppFontSize()).toBe(18);
@@ -80,7 +80,7 @@ describe("app font size", () => {
 		runFontSizeBootstrap();
 
 		expect(document.documentElement.style.fontSize).toBe("19px");
-		expect(document.documentElement.dataset.clineFontSize).toBe("19");
+		expect(document.documentElement.dataset.induscodeFontSize).toBe("19");
 	});
 
 	it("uses the default before paint when storage is invalid", () => {
@@ -89,6 +89,6 @@ describe("app font size", () => {
 		runFontSizeBootstrap();
 
 		expect(document.documentElement.style.fontSize).toBe("15px");
-		expect(document.documentElement.dataset.clineFontSize).toBe("15");
+		expect(document.documentElement.dataset.induscodeFontSize).toBe("15");
 	});
 });

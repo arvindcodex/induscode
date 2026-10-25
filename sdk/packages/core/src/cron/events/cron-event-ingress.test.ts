@@ -1,7 +1,7 @@
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { CronEventSpec } from "@cline/shared";
+import type { CronEventSpec } from "@induscode/shared";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { SqliteCronStore } from "../store/sqlite-cron-store";
 import {
@@ -39,7 +39,7 @@ describe("CronEventIngress", () => {
 	let ingress: CronEventIngress;
 
 	beforeEach(() => {
-		dir = mkdtempSync(join(tmpdir(), "cline-event-ingress-"));
+		dir = mkdtempSync(join(tmpdir(), "induscode-event-ingress-"));
 		store = new SqliteCronStore({ dbPath: join(dir, "cron.db") });
 		nowMs = Date.parse("2026-04-23T10:00:00.000Z");
 		ingress = new CronEventIngress({ store, now: () => nowMs });

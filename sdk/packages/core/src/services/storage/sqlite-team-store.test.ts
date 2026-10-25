@@ -1,7 +1,7 @@
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { loadSqliteDb } from "@cline/shared/db";
+import { loadSqliteDb } from "@induscode/shared/db";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { SqliteTeamStore } from "./sqlite-team-store";
 import {
@@ -18,7 +18,7 @@ describe("SqliteTeamStore v2", () => {
 	let store: SqliteTeamStore;
 
 	beforeEach(() => {
-		dir = mkdtempSync(join(tmpdir(), "cline-team-store-"));
+		dir = mkdtempSync(join(tmpdir(), "induscode-team-store-"));
 		store = new SqliteTeamStore({ teamDir: dir, eventRetentionPerTeam: 5 });
 		store.init();
 	});

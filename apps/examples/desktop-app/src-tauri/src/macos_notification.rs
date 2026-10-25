@@ -76,7 +76,7 @@ fn create_dev_application_bundle(
         .and_then(|_| fs::create_dir_all(&resources))
         .map_err(|error| format!("failed creating development app bundle: {error}"))?;
 
-    let bundled_executable = macos.join("cline-app");
+    let bundled_executable = macos.join("IndusCode");
     match fs::symlink_metadata(&bundled_executable) {
         Ok(metadata) if metadata.file_type().is_symlink() => {
             let current_target = fs::read_link(&bundled_executable).map_err(|error| {
@@ -133,7 +133,7 @@ fn dev_info_plist(identifier: &str, app_name: &str) -> String {
   <key>CFBundleDisplayName</key>
   <string>{app_name}</string>
   <key>CFBundleExecutable</key>
-  <string>cline-app</string>
+  <string>IndusCode</string>
   <key>CFBundleIconFile</key>
   <string>icon.icns</string>
   <key>CFBundleIdentifier</key>
@@ -177,7 +177,7 @@ mod tests {
                 .expect("system clock must be after the Unix epoch")
                 .as_nanos();
             let path = std::env::temp_dir().join(format!(
-                "cline-notification-identity-test-{}-{unique}",
+                "induscode-notification-identity-test-{}-{unique}",
                 std::process::id()
             ));
             fs::create_dir_all(&path).expect("test directory should be created");
@@ -194,21 +194,21 @@ mod tests {
     #[test]
     fn creates_a_registered_application_shape_for_development() {
         let test_directory = TestDirectory::new();
-        let executable = test_directory.0.join("target/debug/cline-app");
+        let executable = test_directory.0.join("target/debug/induscode-app");
         let icon = test_directory.0.join("icon.icns");
         fs::create_dir_all(executable.parent().unwrap()).unwrap();
         fs::write(&executable, b"test executable").unwrap();
         fs::write(&icon, b"test icon").unwrap();
 
         let bundle =
-            create_dev_application_bundle(&executable, &icon, "bot.cline.app.dev", "Cline Dev")
+            create_dev_application_bundle(&executable, &icon, "bot.induscode.app.dev", "IndusCode Dev")
                 .unwrap();
         let plist = fs::read_to_string(bundle.join("Contents/Info.plist")).unwrap();
 
-        assert!(plist.contains("<string>bot.cline.app.dev</string>"));
-        assert!(plist.contains("<string>Cline Dev</string>"));
+        assert!(plist.contains("<string>bot.induscode.app.dev</string>"));
+        assert!(plist.contains("<string>IndusCode Dev</string>"));
         assert_eq!(
-            fs::read_link(bundle.join("Contents/MacOS/cline-app")).unwrap(),
+            fs::read_link(bundle.join("Contents/MacOS/induscode-app")).unwrap(),
             executable
         );
         assert_eq!(

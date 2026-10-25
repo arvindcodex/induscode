@@ -16,7 +16,7 @@ function createContext(workspaceRoot: string): SidecarContext {
 
 describe("desktop MCP settings", () => {
 	it("keeps valid and malformed entries visible independently", () => {
-		const response = buildMcpServersResponse("/tmp/cline_mcp_settings.json", {
+		const response = buildMcpServersResponse("/tmp/induscode_mcp_settings.json", {
 			mcpServers: {
 				linear: {
 					command: "npx",
@@ -71,21 +71,21 @@ describe("desktop MCP settings", () => {
 		).toBe(true);
 	});
 
-	it("resolves the settings file through the shared resolver (honors CLINE_DATA_DIR)", async () => {
-		// Regression test for cline/cline#14152: the sidecar used to carry its
+	it("resolves the settings file through the shared resolver (honors INDUSCODE_DATA_DIR)", async () => {
+		// Regression test for induscode/induscode#14152: the sidecar used to carry its
 		// own homedir-based resolver next to the shared one, so commands could
-		// read and write different files once CLINE_DIR/CLINE_DATA_DIR (or a
+		// read and write different files once INDUSCODE_DIR/INDUSCODE_DATA_DIR (or a
 		// HOME override) came into play.
 		const tempRoot = await mkdtemp(join(tmpdir(), "desktop-mcp-datadir-"));
-		const previousDataDir = process.env.CLINE_DATA_DIR;
-		const previousSettingsPath = process.env.CLINE_MCP_SETTINGS_PATH;
-		process.env.CLINE_DATA_DIR = tempRoot;
-		delete process.env.CLINE_MCP_SETTINGS_PATH;
+		const previousDataDir = process.env.INDUSCODE_DATA_DIR;
+		const previousSettingsPath = process.env.INDUSCODE_MCP_SETTINGS_PATH;
+		process.env.INDUSCODE_DATA_DIR = tempRoot;
+		delete process.env.INDUSCODE_MCP_SETTINGS_PATH;
 		try {
 			const expectedPath = join(
 				tempRoot,
 				"settings",
-				"cline_mcp_settings.json",
+				"induscode_mcp_settings.json",
 			);
 			const ensuredPath = (await handleCommand(
 				createContext(tempRoot),
@@ -105,12 +105,12 @@ describe("desktop MCP settings", () => {
 			expect(response.settingsPath).toBe(expectedPath);
 		} finally {
 			if (previousDataDir === undefined) {
-				delete process.env.CLINE_DATA_DIR;
+				delete process.env.INDUSCODE_DATA_DIR;
 			} else {
-				process.env.CLINE_DATA_DIR = previousDataDir;
+				process.env.INDUSCODE_DATA_DIR = previousDataDir;
 			}
 			if (previousSettingsPath !== undefined) {
-				process.env.CLINE_MCP_SETTINGS_PATH = previousSettingsPath;
+				process.env.INDUSCODE_MCP_SETTINGS_PATH = previousSettingsPath;
 			}
 			await rm(tempRoot, { recursive: true, force: true });
 		}
@@ -118,9 +118,9 @@ describe("desktop MCP settings", () => {
 
 	it("keeps an unchanged enabled remote server enabled when saving metadata", async () => {
 		const tempRoot = await mkdtemp(join(tmpdir(), "desktop-mcp-settings-"));
-		const settingsPath = join(tempRoot, "cline_mcp_settings.json");
-		const previousSettingsPath = process.env.CLINE_MCP_SETTINGS_PATH;
-		process.env.CLINE_MCP_SETTINGS_PATH = settingsPath;
+		const settingsPath = join(tempRoot, "induscode_mcp_settings.json");
+		const previousSettingsPath = process.env.INDUSCODE_MCP_SETTINGS_PATH;
+		process.env.INDUSCODE_MCP_SETTINGS_PATH = settingsPath;
 		try {
 			await writeFile(
 				settingsPath,
@@ -165,9 +165,9 @@ describe("desktop MCP settings", () => {
 			expect(written.mcpServers.linear.disabled).toBe(false);
 		} finally {
 			if (previousSettingsPath === undefined) {
-				delete process.env.CLINE_MCP_SETTINGS_PATH;
+				delete process.env.INDUSCODE_MCP_SETTINGS_PATH;
 			} else {
-				process.env.CLINE_MCP_SETTINGS_PATH = previousSettingsPath;
+				process.env.INDUSCODE_MCP_SETTINGS_PATH = previousSettingsPath;
 			}
 			await rm(tempRoot, { recursive: true, force: true });
 		}

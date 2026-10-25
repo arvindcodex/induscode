@@ -1,12 +1,12 @@
 export const FeatureFlag = {
-	/** Enables ClinePass provider/model list exposure in supported clients. */
-	CLINE_PASS: "ext-cline-pass",
-	/** Enables Cloud sessions in the Cline Code desktop app. */
+	/** Enables IndusCodePass provider/model list exposure in supported clients. */
+	INDUSCODE_PASS: "ext-induscode-pass",
+	/** Enables Cloud sessions in the IndusCode Code desktop app. */
 	CODE_CLOUD_AGENTS: "code-cloud-agents",
 	/** Shows the GitHub integration step in the desktop app */
 	CODE_ONBOARDING_GITHUB: "code-onboarding-github",
-	/** Enables Composio connectors for the signed-in Cline account. */
-	CLINE_COMPOSIO_BETA: "CLINE_COMPOSIO_BETA",
+	/** Enables Composio connectors for the signed-in IndusCode account. */
+	INDUSCODE_COMPOSIO_BETA: "INDUSCODE_COMPOSIO_BETA",
 } as const;
 
 export type KnownFeatureFlag = (typeof FeatureFlag)[keyof typeof FeatureFlag];
@@ -30,7 +30,7 @@ export type FeatureFlagsAndPayloads = {
 export interface FeatureFlagsContext {
 	/** Stable SDK/client/user identifier used by providers that evaluate per identity. */
 	distinctId?: string;
-	/** Authenticated Cline account/user ID, when available. */
+	/** Authenticated IndusCode account/user ID, when available. */
 	userId?: string | null;
 	/**
 	 * Authenticated account email, when available. Providers do not send it anywhere.
@@ -71,10 +71,10 @@ export interface IFeatureFlagsProvider {
 export const FeatureFlagDefaultValue: Partial<
 	Record<FeatureFlag, FeatureFlagPayload | undefined>
 > = {
-	[FeatureFlag.CLINE_PASS]: false,
+	[FeatureFlag.INDUSCODE_PASS]: false,
 	[FeatureFlag.CODE_CLOUD_AGENTS]: false,
 	[FeatureFlag.CODE_ONBOARDING_GITHUB]: false,
-	[FeatureFlag.CLINE_COMPOSIO_BETA]: false,
+	[FeatureFlag.INDUSCODE_COMPOSIO_BETA]: false,
 };
 
 export const FEATURE_FLAGS: readonly FeatureFlag[] = Object.values(FeatureFlag);

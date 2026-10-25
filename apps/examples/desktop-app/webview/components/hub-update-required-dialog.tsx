@@ -1,6 +1,6 @@
 "use client";
 
-import { describeOutdatedHubSessions } from "@cline/shared/browser";
+import { describeOutdatedHubSessions } from "@induscode/shared/browser";
 import { useCallback, useEffect, useState } from "react";
 import {
 	AlertDialog,
@@ -48,7 +48,7 @@ const HUB_UPGRADE_TIMEOUT_MS = 60_000;
  * reloads, relaunches), and in-memory dismissal state resurrected the modal
  * each time. Storage keeps one key - a different hub build prompts again.
  */
-const DISMISSED_MISMATCH_STORAGE_KEY = "cline.hub-mismatch-dismissed";
+const DISMISSED_MISMATCH_STORAGE_KEY = "induscode.hub-mismatch-dismissed";
 
 function readPersistedDismissedKey(): string | null {
 	try {
@@ -73,7 +73,7 @@ function persistDismissedKey(key: string): void {
 let updateCheckKickedForKey: string | null = null;
 
 /**
- * Blocking prompt shown when the sidecar reports that the shared Cline Hub
+ * Blocking prompt shown when the sidecar reports that the shared IndusCode Hub
  * does not match this app's build.
  *
  * Two directions, two dialogs:
@@ -175,7 +175,7 @@ export function HubUpdateRequiredDialog() {
 			setUpdateHint(
 				error instanceof Error && error.message
 					? error.message
-					: "Updating the Cline Hub failed. Try again, or run 'cline doctor fix' in a terminal.",
+					: "Updating the IndusCode Hub failed. Try again, or run 'induscode doctor fix' in a terminal.",
 			);
 			setPhase("idle");
 			return;

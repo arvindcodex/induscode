@@ -2,8 +2,8 @@ import type {
 	AutomationEventEnvelope,
 	BasicLogger,
 	ITelemetryService,
-} from "@cline/shared";
-import type { ResolveCronSpecsDirOptions } from "@cline/shared/storage";
+} from "@induscode/shared";
+import type { ResolveCronSpecsDirOptions } from "@induscode/shared/storage";
 import {
 	CronEventIngress,
 	type CronEventIngressResult,
@@ -40,7 +40,7 @@ import type { HubScheduleRuntimeHandlers } from "./schedule-service";
 export interface CronServiceOptions {
 	/** Default runtime workspace for the hub/daemon process. */
 	workspaceRoot: string;
-	/** Cron spec source/report location. Defaults to global `~/.cline/cron`. */
+	/** Cron spec source/report location. Defaults to global `~/.induscode/cron`. */
 	specs?: ResolveCronSpecsDirOptions;
 	runtimeHandlers: HubScheduleRuntimeHandlers;
 	dbPath?: string;

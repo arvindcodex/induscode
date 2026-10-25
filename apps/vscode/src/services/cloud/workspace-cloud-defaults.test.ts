@@ -25,7 +25,7 @@ describe("resolveWorkspaceCloudDefaults", () => {
 		await git("push", "origin", "main")
 		// Point origin at GitHub after pushing so the URL is recognised; the
 		// remote-tracking refs already recorded are what the lookup reads.
-		await git("remote", "set-url", "origin", "git@github.com:cline/fixture.git")
+		await git("remote", "set-url", "origin", "git@github.com:induscode/fixture.git")
 	})
 
 	afterEach(async () => {
@@ -34,14 +34,14 @@ describe("resolveWorkspaceCloudDefaults", () => {
 
 	it("suggests the checked-out branch once it exists on origin", async () => {
 		expect(await resolveWorkspaceCloudDefaults(clone)).toEqual({
-			repoUrl: "https://github.com/cline/fixture",
+			repoUrl: "https://github.com/induscode/fixture",
 			branch: "main",
 		})
 	})
 
 	it("does not suggest a branch that was never pushed", async () => {
 		await git("switch", "-c", "local-only")
-		expect(await resolveWorkspaceCloudDefaults(clone)).toEqual({ repoUrl: "https://github.com/cline/fixture" })
+		expect(await resolveWorkspaceCloudDefaults(clone)).toEqual({ repoUrl: "https://github.com/induscode/fixture" })
 	})
 
 	it("suggests the upstream branch when it is named differently", async () => {

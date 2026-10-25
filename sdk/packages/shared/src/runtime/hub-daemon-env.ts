@@ -1,14 +1,14 @@
-export const CLINE_RUN_AS_HUB_DAEMON_ENV = "CLINE_RUN_AS_HUB_DAEMON";
-export const CLINE_CONNECTOR_CLI_LAUNCH_ENV = "CLINE_CONNECTOR_CLI_LAUNCH";
-export const CLINE_CONNECTOR_STARTING_INSTANCE_ENV =
-	"CLINE_CONNECTOR_STARTING_INSTANCE";
-export const CLINE_CONNECTOR_SUPERVISED_ENV = "CLINE_CONNECTOR_SUPERVISED";
-export const CLINE_HUB_LAUNCHER_CLIENT_ENV = "CLINE_HUB_LAUNCHER_CLIENT";
-export const CLINE_HUB_LAUNCHER_VERSION_ENV = "CLINE_HUB_LAUNCHER_VERSION";
-export const CLINE_HUB_LAUNCHER_TRANSPORT_ENV = "CLINE_HUB_LAUNCHER_TRANSPORT";
+export const INDUSCODE_RUN_AS_HUB_DAEMON_ENV = "INDUSCODE_RUN_AS_HUB_DAEMON";
+export const INDUSCODE_CONNECTOR_CLI_LAUNCH_ENV = "INDUSCODE_CONNECTOR_CLI_LAUNCH";
+export const INDUSCODE_CONNECTOR_STARTING_INSTANCE_ENV =
+	"INDUSCODE_CONNECTOR_STARTING_INSTANCE";
+export const INDUSCODE_CONNECTOR_SUPERVISED_ENV = "INDUSCODE_CONNECTOR_SUPERVISED";
+export const INDUSCODE_HUB_LAUNCHER_CLIENT_ENV = "INDUSCODE_HUB_LAUNCHER_CLIENT";
+export const INDUSCODE_HUB_LAUNCHER_VERSION_ENV = "INDUSCODE_HUB_LAUNCHER_VERSION";
+export const INDUSCODE_HUB_LAUNCHER_TRANSPORT_ENV = "INDUSCODE_HUB_LAUNCHER_TRANSPORT";
 
 /**
- * Which Cline client started a Hub daemon. The daemon is one shared process
+ * Which IndusCode client started a Hub daemon. The daemon is one shared process
  * per machine and any client attaches to it, so a session's own client
  * identity (desktop, CLI, extension) says nothing about whose build is
  * hosting it. The spawner stamps this into the daemon's environment and the
@@ -16,7 +16,7 @@ export const CLINE_HUB_LAUNCHER_TRANSPORT_ENV = "CLINE_HUB_LAUNCHER_TRANSPORT";
  * session can be read as "served by the hub the CLI started" (or vice versa).
  */
 export interface HubLauncherIdentity {
-	/** Client name of the spawner, e.g. `cline-desktop`, `cline-cli`. */
+	/** Client name of the spawner, e.g. `induscode-desktop`, `induscode-cli`. */
 	client: string;
 	version?: string;
 	/** `local` for a daemon on the client's own machine, `ssh` for a remote one. */
@@ -26,14 +26,14 @@ export interface HubLauncherIdentity {
 /**
  * Stamp the launcher identity onto a daemon environment. A launcher already
  * in `env` is kept as a whole: an embedding host (the desktop app running
- * `cline-cli hub ensure`) stamps itself before handing the spawn to the CLI,
+ * `induscode-cli hub ensure`) stamps itself before handing the spawn to the CLI,
  * and filling in fields it left unset from the CLI's identity would pair the
  * host's name with another build's version.
  */
 export function withHubLauncherIdentity<
 	T extends Record<string, string | undefined>,
 >(env: T, identity: HubLauncherIdentity | undefined): T {
-	if (env[CLINE_HUB_LAUNCHER_CLIENT_ENV]?.trim()) {
+	if (env[INDUSCODE_HUB_LAUNCHER_CLIENT_ENV]?.trim()) {
 		return env;
 	}
 	const client = identity?.client?.trim();
@@ -43,9 +43,9 @@ export function withHubLauncherIdentity<
 	const version = identity?.version?.trim();
 	return {
 		...env,
-		[CLINE_HUB_LAUNCHER_CLIENT_ENV]: client,
-		...(version ? { [CLINE_HUB_LAUNCHER_VERSION_ENV]: version } : {}),
-		[CLINE_HUB_LAUNCHER_TRANSPORT_ENV]: identity?.transport ?? "local",
+		[INDUSCODE_HUB_LAUNCHER_CLIENT_ENV]: client,
+		...(version ? { [INDUSCODE_HUB_LAUNCHER_VERSION_ENV]: version } : {}),
+		[INDUSCODE_HUB_LAUNCHER_TRANSPORT_ENV]: identity?.transport ?? "local",
 	};
 }
 
@@ -54,7 +54,7 @@ export function withHubLauncherIdentity<
  *
  * Same hazard as {@link claimHubDaemonProcess}: everything a hub-hosted
  * session spawns inherits the daemon's environment. A shell command that
- * starts its own hub (`cline hub ensure --discovery-path ...`) would
+ * starts its own hub (`induscode hub ensure --discovery-path ...`) would
  * otherwise keep the outer hub's stamp, and a local CLI hub started inside
  * an SSH-hosted session would report the desktop launcher and `ssh`.
  */
@@ -62,21 +62,21 @@ export function claimHubLauncherIdentity(
 	env: Record<string, string | undefined> = process.env,
 ): HubLauncherIdentity | undefined {
 	const identity = readHubLauncherIdentity(env);
-	delete env[CLINE_HUB_LAUNCHER_CLIENT_ENV];
-	delete env[CLINE_HUB_LAUNCHER_VERSION_ENV];
-	delete env[CLINE_HUB_LAUNCHER_TRANSPORT_ENV];
+	delete env[INDUSCODE_HUB_LAUNCHER_CLIENT_ENV];
+	delete env[INDUSCODE_HUB_LAUNCHER_VERSION_ENV];
+	delete env[INDUSCODE_HUB_LAUNCHER_TRANSPORT_ENV];
 	return identity;
 }
 
 export function readHubLauncherIdentity(
 	env: Record<string, string | undefined> = process.env,
 ): HubLauncherIdentity | undefined {
-	const client = env[CLINE_HUB_LAUNCHER_CLIENT_ENV]?.trim();
+	const client = env[INDUSCODE_HUB_LAUNCHER_CLIENT_ENV]?.trim();
 	if (!client) {
 		return undefined;
 	}
-	const version = env[CLINE_HUB_LAUNCHER_VERSION_ENV]?.trim();
-	const transport = env[CLINE_HUB_LAUNCHER_TRANSPORT_ENV]?.trim();
+	const version = env[INDUSCODE_HUB_LAUNCHER_VERSION_ENV]?.trim();
+	const transport = env[INDUSCODE_HUB_LAUNCHER_TRANSPORT_ENV]?.trim();
 	return {
 		client,
 		...(version ? { version } : {}),
@@ -110,8 +110,8 @@ let claimedHubDaemonProcess: boolean | undefined;
  * process a session spawns - agent shell commands, MCP servers, hooks, plugin
  * sandboxes - inherits its environment. An inherited sentinel makes each of
  * those try to become a hub daemon instead of running the command, and they die
- * on EADDRINUSE against the real hub. Observed as every `cline` invocation from
- * a Slack connector agent failing, `cline --help` included, because the
+ * on EADDRINUSE against the real hub. Observed as every `induscode` invocation from
+ * a Slack connector agent failing, `induscode --help` included, because the
  * personality is chosen before any argument parsing.
  *
  * Call this once from an entrypoint, in place of {@link isHubDaemonProcess}.
@@ -121,8 +121,8 @@ let claimedHubDaemonProcess: boolean | undefined;
 export function claimHubDaemonProcess(
 	env: Record<string, string | undefined> = process.env,
 ): boolean {
-	claimedHubDaemonProcess = env[CLINE_RUN_AS_HUB_DAEMON_ENV] === "1";
-	delete env[CLINE_RUN_AS_HUB_DAEMON_ENV];
+	claimedHubDaemonProcess = env[INDUSCODE_RUN_AS_HUB_DAEMON_ENV] === "1";
+	delete env[INDUSCODE_RUN_AS_HUB_DAEMON_ENV];
 	return claimedHubDaemonProcess;
 }
 
@@ -138,10 +138,10 @@ export function isHubDaemonProcess(
 	env?: Record<string, string | undefined>,
 ): boolean {
 	if (env) {
-		return env[CLINE_RUN_AS_HUB_DAEMON_ENV] === "1";
+		return env[INDUSCODE_RUN_AS_HUB_DAEMON_ENV] === "1";
 	}
 	return (
-		claimedHubDaemonProcess ?? process.env[CLINE_RUN_AS_HUB_DAEMON_ENV] === "1"
+		claimedHubDaemonProcess ?? process.env[INDUSCODE_RUN_AS_HUB_DAEMON_ENV] === "1"
 	);
 }
 
@@ -149,7 +149,7 @@ export function setConnectorCliLaunchSpec(
 	spec: ConnectorCliLaunchSpec,
 	env: Record<string, string | undefined> = process.env,
 ): void {
-	env[CLINE_CONNECTOR_CLI_LAUNCH_ENV] = JSON.stringify(spec);
+	env[INDUSCODE_CONNECTOR_CLI_LAUNCH_ENV] = JSON.stringify(spec);
 }
 
 /** Latched result of {@link claimSupervisedConnectorProcess}. */
@@ -160,7 +160,7 @@ let claimedSupervisedConnectorProcess: boolean | undefined;
  *
  * Same hazard as {@link claimHubDaemonProcess}: a supervised connector hosts
  * agent sessions, and everything they spawn — shell commands, MCP servers, hooks
- * — inherits its environment. An inherited marker makes a nested `cline connect`
+ * — inherits its environment. An inherited marker makes a nested `induscode connect`
  * think it is the process the hub is tracking, so it runs the connector in the
  * foreground of that shell command instead of handing it to the hub.
  *
@@ -172,8 +172,8 @@ export function claimSupervisedConnectorProcess(
 	env: Record<string, string | undefined> = process.env,
 ): boolean {
 	claimedSupervisedConnectorProcess =
-		env[CLINE_CONNECTOR_SUPERVISED_ENV] === "1";
-	delete env[CLINE_CONNECTOR_SUPERVISED_ENV];
+		env[INDUSCODE_CONNECTOR_SUPERVISED_ENV] === "1";
+	delete env[INDUSCODE_CONNECTOR_SUPERVISED_ENV];
 	return claimedSupervisedConnectorProcess;
 }
 
@@ -194,11 +194,11 @@ export function isSupervisedConnectorProcess(
 	env?: Record<string, string | undefined>,
 ): boolean {
 	if (env) {
-		return env[CLINE_CONNECTOR_SUPERVISED_ENV] === "1";
+		return env[INDUSCODE_CONNECTOR_SUPERVISED_ENV] === "1";
 	}
 	return (
 		claimedSupervisedConnectorProcess ??
-		process.env[CLINE_CONNECTOR_SUPERVISED_ENV] === "1"
+		process.env[INDUSCODE_CONNECTOR_SUPERVISED_ENV] === "1"
 	);
 }
 
@@ -217,13 +217,13 @@ export function setStartingConnectorInstance(
 	ref: ConnectorInstanceRef,
 	env: Record<string, string | undefined> = process.env,
 ): void {
-	env[CLINE_CONNECTOR_STARTING_INSTANCE_ENV] = JSON.stringify(ref);
+	env[INDUSCODE_CONNECTOR_STARTING_INSTANCE_ENV] = JSON.stringify(ref);
 }
 
 export function readStartingConnectorInstance(
 	env: Record<string, string | undefined> = process.env,
 ): ConnectorInstanceRef | undefined {
-	const raw = env[CLINE_CONNECTOR_STARTING_INSTANCE_ENV];
+	const raw = env[INDUSCODE_CONNECTOR_STARTING_INSTANCE_ENV];
 	if (!raw) {
 		return undefined;
 	}
@@ -246,7 +246,7 @@ export function readStartingConnectorInstance(
 export function readConnectorCliLaunchSpec(
 	env: Record<string, string | undefined> = process.env,
 ): ConnectorCliLaunchSpec | undefined {
-	const raw = env[CLINE_CONNECTOR_CLI_LAUNCH_ENV];
+	const raw = env[INDUSCODE_CONNECTOR_CLI_LAUNCH_ENV];
 	if (!raw) {
 		return undefined;
 	}

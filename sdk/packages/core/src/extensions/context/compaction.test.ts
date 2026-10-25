@@ -1,8 +1,8 @@
-import type * as LlmsProviders from "@cline/llms";
+import type * as LlmsProviders from "@induscode/llms";
 import {
 	estimateRequestInputTokens,
 	type MessageWithMetadata,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
 	createSessionCompactionState,
@@ -31,7 +31,7 @@ type FakeChunk = Record<string, unknown>;
 
 const createHandlerMock = vi.fn();
 
-vi.mock("@cline/llms", () => ({
+vi.mock("@induscode/llms", () => ({
 	createHandlerAsync: (config: unknown) => createHandlerMock(config),
 }));
 
@@ -1437,7 +1437,7 @@ describe("createContextCompactionPrepareTurn", () => {
 	});
 
 	it("skips with a diagnostic warning when the summarizer only produced reasoning output", async () => {
-		// Repro for CLINE-2911: a reasoning model can spend the entire output
+		// Repro for INDUSCODE-2911: a reasoning model can spend the entire output
 		// budget thinking. Reasoning chunks are discarded, so no summary text
 		// arrives and compaction is skipped — that skip must be diagnosable.
 		const logger = { debug: vi.fn(), log: vi.fn() };
@@ -1703,7 +1703,7 @@ describe("createContextCompactionPrepareTurn", () => {
 			apiMessages: messages,
 			model: {
 				id: "mock-model",
-				provider: "cline",
+				provider: "induscode",
 				info: { id: "mock-model", maxInputTokens: 10 },
 			},
 		};
@@ -1712,15 +1712,15 @@ describe("createContextCompactionPrepareTurn", () => {
 		const liveConfig = (): Parameters<
 			typeof createContextCompactionPrepareTurn
 		>[0] => ({
-			providerId: "cline",
-			modelId: "cline-free/model",
+			providerId: "induscode",
+			modelId: "induscode-free/model",
 			apiKey: "workos:initial",
 			providerConfig: {
-				providerId: "cline",
-				modelId: "cline-free/model",
+				providerId: "induscode",
+				modelId: "induscode-free/model",
 				apiKey: "workos:initial",
-				baseUrl: "https://api.cline.bot",
-				headers: { "X-CLIENT-TYPE": "cline-desktop" },
+				baseUrl: "https://api.induscode.bot",
+				headers: { "X-CLIENT-TYPE": "induscode-desktop" },
 			} as LlmsProviders.ProviderConfig,
 			compaction: {
 				enabled: true,
@@ -1757,11 +1757,11 @@ describe("createContextCompactionPrepareTurn", () => {
 			expect(createHandlerMock).toHaveBeenCalledTimes(2);
 			for (const [summarizerConfig] of createHandlerMock.mock.calls) {
 				expect(summarizerConfig).toMatchObject({
-					providerId: "cline",
-					modelId: "cline-free/model",
+					providerId: "induscode",
+					modelId: "induscode-free/model",
 					apiKey: "workos:refreshed",
-					baseUrl: "https://api.cline.bot",
-					headers: { "X-CLIENT-TYPE": "cline-desktop" },
+					baseUrl: "https://api.induscode.bot",
+					headers: { "X-CLIENT-TYPE": "induscode-desktop" },
 				});
 			}
 		});

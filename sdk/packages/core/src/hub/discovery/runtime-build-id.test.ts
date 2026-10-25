@@ -14,7 +14,7 @@ describe("SDK runtime build identity", () => {
 	});
 
 	function createRuntimeFixture(): string {
-		const root = mkdtempSync(join(tmpdir(), "cline-runtime-build-id-"));
+		const root = mkdtempSync(join(tmpdir(), "induscode-runtime-build-id-"));
 		tempDirs.push(root);
 		writeFileSync(join(root, "bun.lock"), "lockfile-v1\n");
 		for (const packageName of ["shared", "llms", "agents", "core"]) {
@@ -22,7 +22,7 @@ describe("SDK runtime build identity", () => {
 			mkdirSync(join(packageRoot, "src"), { recursive: true });
 			writeFileSync(
 				join(packageRoot, "package.json"),
-				`${JSON.stringify({ name: `@cline/${packageName}`, version: "0.0.1" })}\n`,
+				`${JSON.stringify({ name: `@induscode/${packageName}`, version: "0.0.1" })}\n`,
 			);
 			writeFileSync(
 				join(packageRoot, "src", "index.ts"),

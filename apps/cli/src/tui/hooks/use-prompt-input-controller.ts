@@ -1,6 +1,6 @@
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { shouldExpandSkillSlashCommands } from "../../runtime/prompt";
-import { formatCliErrorMessage } from "../../utils/cline-pass-errors";
+import { formatCliErrorMessage } from "../../utils/induscode-pass-errors";
 import { shouldShowCliUsageCost } from "../../utils/usage-cost-display";
 import type { SlashCommandRegistry } from "../commands/slash-command-registry";
 import {

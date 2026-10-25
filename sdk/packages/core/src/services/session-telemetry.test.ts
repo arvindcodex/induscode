@@ -1,5 +1,5 @@
-import type { ITelemetryService } from "@cline/shared";
-import * as storage from "@cline/shared/storage";
+import type { ITelemetryService } from "@induscode/shared";
+import * as storage from "@induscode/shared/storage";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as hookConfig from "../hooks/hook-file-config";
 import { captureHookDiscoveryTelemetry } from "./session-telemetry";
@@ -17,20 +17,20 @@ describe("captureHookDiscoveryTelemetry", () => {
 			.spyOn(coreEvents, "captureHookDiscovery")
 			.mockImplementation(() => {});
 		vi.spyOn(storage, "resolveDocumentsExtensionPath").mockReturnValue(
-			"/Users/test/Documents/Cline/Hooks",
+			"/Users/test/Documents/IndusCode/Hooks",
 		);
 
 		vi.spyOn(hookConfig, "listHookConfigFiles").mockReturnValue([
 			{
-				path: "/Users/test/Documents/Cline/Hooks/TaskStart.sh",
+				path: "/Users/test/Documents/IndusCode/Hooks/TaskStart.sh",
 				hookEventName: "agent_start",
 			},
 			{
-				path: "/workspace/.clinerules/hooks/TaskStart.sh",
+				path: "/workspace/.induscoderules/hooks/TaskStart.sh",
 				hookEventName: "agent_start",
 			},
 			{
-				path: "/workspace/.clinerules/hooks/PreToolUse.sh",
+				path: "/workspace/.induscoderules/hooks/PreToolUse.sh",
 				hookEventName: "tool_call",
 			},
 		] as ReturnType<typeof hookConfig.listHookConfigFiles>);
@@ -48,20 +48,20 @@ describe("captureHookDiscoveryTelemetry", () => {
 			.spyOn(coreEvents, "captureHookDiscovery")
 			.mockImplementation(() => {});
 		vi.spyOn(storage, "resolveDocumentsExtensionPath").mockReturnValue(
-			"C:\\Users\\test\\Documents\\Cline\\Hooks",
+			"C:\\Users\\test\\Documents\\IndusCode\\Hooks",
 		);
 
 		vi.spyOn(hookConfig, "listHookConfigFiles").mockReturnValue([
 			{
-				path: "C:\\Users\\test\\Documents\\Cline\\Hooks\\TaskStart.ps1",
+				path: "C:\\Users\\test\\Documents\\IndusCode\\Hooks\\TaskStart.ps1",
 				hookEventName: "agent_start",
 			},
 			{
-				path: "C:\\projects\\my-app\\.clinerules\\hooks\\TaskStart.ps1",
+				path: "C:\\projects\\my-app\\.induscoderules\\hooks\\TaskStart.ps1",
 				hookEventName: "agent_start",
 			},
 			{
-				path: "C:\\Users\\test\\Documents\\Cline\\Hooks\\PreToolUse.ps1",
+				path: "C:\\Users\\test\\Documents\\IndusCode\\Hooks\\PreToolUse.ps1",
 				hookEventName: "tool_call",
 			},
 		] as ReturnType<typeof hookConfig.listHookConfigFiles>);
@@ -79,12 +79,12 @@ describe("captureHookDiscoveryTelemetry", () => {
 			.spyOn(coreEvents, "captureHookDiscovery")
 			.mockImplementation(() => {});
 		vi.spyOn(storage, "resolveDocumentsExtensionPath").mockReturnValue(
-			"C:/Users/test/Documents/Cline/Hooks",
+			"C:/Users/test/Documents/IndusCode/Hooks",
 		);
 
 		vi.spyOn(hookConfig, "listHookConfigFiles").mockReturnValue([
 			{
-				path: "C:\\Users\\test\\Documents\\Cline\\Hooks\\TaskStart.ps1",
+				path: "C:\\Users\\test\\Documents\\IndusCode\\Hooks\\TaskStart.ps1",
 				hookEventName: "agent_start",
 			},
 		] as ReturnType<typeof hookConfig.listHookConfigFiles>);

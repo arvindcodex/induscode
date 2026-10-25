@@ -1,4 +1,4 @@
-import type { ClineMessage } from "@shared/ExtensionMessage"
+import type { IndusCodeMessage } from "@shared/ExtensionMessage"
 import { describe, expect, it } from "vitest"
 import type { PendingResponse } from "../types/chatTypes"
 import { isPendingResponseUnconfirmed, withPendingUserMessage } from "./pendingResponse"
@@ -29,28 +29,28 @@ describe("isPendingResponseUnconfirmed", () => {
 
 describe("withPendingUserMessage", () => {
 	it("provides an immediate task row before the backend transcript exists", () => {
-		const task: ClineMessage = { ts: 10, type: "say", say: "task", text: "new task", partial: false }
+		const task: IndusCodeMessage = { ts: 10, type: "say", say: "task", text: "new task", partial: false }
 
 		expect(withPendingUserMessage([], { afterTs: 0, message: task })).toEqual([task])
 	})
 
 	it("replaces the optimistic task with its backend confirmation without duplication", () => {
-		const optimistic: ClineMessage = { ts: 10, type: "say", say: "task", text: "new task", partial: false }
-		const confirmed: ClineMessage = { ...optimistic, ts: 11 }
+		const optimistic: IndusCodeMessage = { ts: 10, type: "say", say: "task", text: "new task", partial: false }
+		const confirmed: IndusCodeMessage = { ...optimistic, ts: 11 }
 
 		expect(withPendingUserMessage([confirmed], { afterTs: 0, message: optimistic })).toEqual([confirmed])
 	})
 
 	it("keeps a follow-up bubble until the matching backend message arrives", () => {
-		const task: ClineMessage = { ts: 1, type: "say", say: "task", text: "task" }
-		const followup: ClineMessage = { ts: 3, type: "say", say: "user_feedback", text: "more" }
+		const task: IndusCodeMessage = { ts: 1, type: "say", say: "task", text: "task" }
+		const followup: IndusCodeMessage = { ts: 3, type: "say", say: "user_feedback", text: "more" }
 
 		expect(withPendingUserMessage([task], { afterTs: 1, message: followup })).toEqual([task, followup])
 	})
 
 	it("treats a task row as confirmation of a follow-up bubble that restarted the task", () => {
-		const followup: ClineMessage = { ts: 3, type: "say", say: "user_feedback", text: "revised prompt" }
-		const restarted: ClineMessage = { ts: 4, type: "say", say: "task", text: "revised prompt" }
+		const followup: IndusCodeMessage = { ts: 3, type: "say", say: "user_feedback", text: "revised prompt" }
+		const restarted: IndusCodeMessage = { ts: 4, type: "say", say: "task", text: "revised prompt" }
 
 		expect(withPendingUserMessage([restarted], { afterTs: 2, message: followup })).toEqual([restarted])
 	})

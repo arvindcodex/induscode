@@ -2,14 +2,14 @@ import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
 import { basename, join, normalize } from "node:path";
 import process from "node:process";
-import { listActiveConnectors } from "@cline/core";
+import { listActiveConnectors } from "@induscode/core";
 import {
 	buildConnectorConnectArgs,
 	CONNECTOR_PLATFORMS,
 	listConnectorCatalog,
 	setConnectorCliLaunchSpec,
-	withResolvedClineBuildEnv,
-} from "@cline/shared";
+	withResolvedIndusCodeBuildEnv,
+} from "@induscode/shared";
 import { resolveDesktopCliPath } from "./cli-runtime";
 import type { JsonRecord } from "./types";
 
@@ -199,7 +199,7 @@ async function runCliConnectCommand(
 	const { launcher, childArgs } = buildCliConnectCommand(workspaceRoot, args);
 	const child = spawn(launcher, childArgs, {
 		cwd: workspaceRoot,
-		env: withResolvedClineBuildEnv(process.env),
+		env: withResolvedIndusCodeBuildEnv(process.env),
 		stdio: ["ignore", "pipe", "pipe"],
 		windowsHide: true,
 	});

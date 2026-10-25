@@ -1,11 +1,11 @@
 import * as readline from "node:readline";
-import { Agent, createTool } from "@cline/sdk";
+import { Agent, createTool } from "@induscode/sdk";
 import { z } from "zod";
 
 const agent = new Agent({
-	providerId: "cline",
+	providerId: "induscode",
 	modelId: "anthropic/claude-sonnet-4.6",
-	apiKey: process.env.CLINE_API_KEY,
+	apiKey: process.env.INDUSCODE_API_KEY,
 	systemPrompt: "You are a helpful assistant in a terminal chat. Be concise.",
 	maxIterations: 10,
 	tools: [
@@ -68,7 +68,7 @@ function prompt(): Promise<string> {
 	});
 }
 
-console.log("Cline CLI Agent (type 'exit' to quit)\n");
+console.log("IndusCode CLI Agent (type 'exit' to quit)\n");
 
 let isFirstMessage = true;
 while (true) {

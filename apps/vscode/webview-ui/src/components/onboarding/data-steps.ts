@@ -1,5 +1,5 @@
 export enum NEW_USER_TYPE {
-	CLINE_PASS = "cline-pass",
+	INDUSCODE_PASS = "induscode-pass",
 	FREE = "free",
 	POWER = "power",
 	BYOK = "byok",
@@ -14,15 +14,15 @@ type UserTypeSelection = {
 
 export const STEP_CONFIG = {
 	0: {
-		title: "How will you use Cline?",
+		title: "How will you use IndusCode?",
 		description: "Select an option below to get started.",
 		buttons: [
 			{ text: "Continue", action: "next", variant: "default" },
-			{ text: "Login to Cline", action: "signin", variant: "secondary" },
+			{ text: "Login to IndusCode", action: "signin", variant: "secondary" },
 		],
 	},
-	[NEW_USER_TYPE.CLINE_PASS]: {
-		title: "Select a ClinePass model",
+	[NEW_USER_TYPE.INDUSCODE_PASS]: {
+		title: "Select a IndusCodePass model",
 		buttons: [
 			{ text: "Create my Account", action: "signup", variant: "default" },
 			{ text: "Back", action: "back", variant: "secondary" },
@@ -56,24 +56,24 @@ export const STEP_CONFIG = {
 	},
 } as const
 
-const CLINE_PASS_USER_TYPE_SELECTION: UserTypeSelection = {
-	title: "ClinePass",
+const INDUSCODE_PASS_USER_TYPE_SELECTION: UserTypeSelection = {
+	title: "IndusCodePass",
 	description: "Low cost subscription plan for best open weights model.",
-	type: NEW_USER_TYPE.CLINE_PASS,
-	learnMoreUrl: "https://docs.cline.bot/getting-started/clinepass",
+	type: NEW_USER_TYPE.INDUSCODE_PASS,
+	learnMoreUrl: "https://docs.induscode.bot/getting-started/induscodepass",
 }
 
 const BASE_USER_TYPE_SELECTIONS: UserTypeSelection[] = [
 	{ title: "Absolutely Free", description: "Get started at no cost", type: NEW_USER_TYPE.FREE },
 	{ title: "Frontier Model", description: "Claude, GPT Codex, Gemini, etc.", type: NEW_USER_TYPE.POWER },
-	{ title: "Bring my own API key", description: "Use Cline with your provider of choice", type: NEW_USER_TYPE.BYOK },
+	{ title: "Bring my own API key", description: "Use IndusCode with your provider of choice", type: NEW_USER_TYPE.BYOK },
 ]
 
-/** Free leads (and is the default); ClinePass is inserted second when its models are available. */
-export function getUserTypeSelections(hasClinePassModels: boolean): UserTypeSelection[] {
-	if (!hasClinePassModels) {
+/** Free leads (and is the default); IndusCodePass is inserted second when its models are available. */
+export function getUserTypeSelections(hasIndusCodePassModels: boolean): UserTypeSelection[] {
+	if (!hasIndusCodePassModels) {
 		return BASE_USER_TYPE_SELECTIONS
 	}
 	const [free, ...rest] = BASE_USER_TYPE_SELECTIONS
-	return [free, CLINE_PASS_USER_TYPE_SELECTION, ...rest]
+	return [free, INDUSCODE_PASS_USER_TYPE_SELECTION, ...rest]
 }

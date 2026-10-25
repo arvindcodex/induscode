@@ -8,7 +8,7 @@ import {
 } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import * as LlmsModels from "@cline/llms";
+import * as LlmsModels from "@induscode/llms";
 import { afterEach, describe, expect, it } from "vitest";
 import { ProviderSettingsManager } from "./provider-settings-manager";
 
@@ -202,7 +202,7 @@ describe("ProviderSettingsManager", () => {
 
 		manager.saveProviderSettings(
 			{
-				provider: "cline",
+				provider: "induscode",
 				model: "anthropic/claude-sonnet-4.6",
 				baseUrl: "https://api.example.test",
 				auth: {
@@ -213,31 +213,31 @@ describe("ProviderSettingsManager", () => {
 			{ setLastUsed: false, tokenSource: "oauth" },
 		);
 
-		expect(manager.getProviderSettings("cline-pass")).toEqual({
-			provider: "cline-pass",
+		expect(manager.getProviderSettings("induscode-pass")).toEqual({
+			provider: "induscode-pass",
 			baseUrl: "https://api.example.test",
 			auth: {
 				accessToken: "workos:shared-token",
 				refreshToken: "shared-refresh",
 			},
 		});
-		expect(manager.getProviderConfig("cline-pass")).toMatchObject({
-			providerId: "cline-pass",
+		expect(manager.getProviderConfig("induscode-pass")).toMatchObject({
+			providerId: "induscode-pass",
 			apiKey: "workos:shared-token",
 			baseUrl: "https://api.example.test",
 		});
 
 		manager.saveProviderSettings(
 			{
-				provider: "cline-pass",
-				model: "cline-pass/glm-5.2",
+				provider: "induscode-pass",
+				model: "induscode-pass/glm-5.2",
 			},
 			{ setLastUsed: true },
 		);
 
-		expect(manager.getProviderSettings("cline-pass")).toEqual({
-			provider: "cline-pass",
-			model: "cline-pass/glm-5.2",
+		expect(manager.getProviderSettings("induscode-pass")).toEqual({
+			provider: "induscode-pass",
+			model: "induscode-pass/glm-5.2",
 			baseUrl: "https://api.example.test",
 			auth: {
 				accessToken: "workos:shared-token",
@@ -246,7 +246,7 @@ describe("ProviderSettingsManager", () => {
 		});
 	});
 
-	it("falls back to cline when last-used provider is cline-pass and the feature is disabled", () => {
+	it("falls back to induscode when last-used provider is induscode-pass and the feature is disabled", () => {
 		const tempDir = mkdtempSync(
 			path.join(os.tmpdir(), "core-provider-settings-"),
 		);
@@ -256,7 +256,7 @@ describe("ProviderSettingsManager", () => {
 
 		manager.saveProviderSettings(
 			{
-				provider: "cline",
+				provider: "induscode",
 				model: "anthropic/claude-sonnet-4.6",
 				baseUrl: "https://api.example.test",
 				auth: {
@@ -268,20 +268,20 @@ describe("ProviderSettingsManager", () => {
 		);
 		manager.saveProviderSettings(
 			{
-				provider: "cline-pass",
-				model: "cline-pass/glm-5.2",
+				provider: "induscode-pass",
+				model: "induscode-pass/glm-5.2",
 			},
 			{ setLastUsed: true },
 		);
 
 		expect(manager.getLastUsedProviderSettings()).toMatchObject({
-			provider: "cline-pass",
-			model: "cline-pass/glm-5.2",
+			provider: "induscode-pass",
+			model: "induscode-pass/glm-5.2",
 		});
 		expect(
-			manager.getLastUsedProviderSettings({ isClinePassEnabled: false }),
+			manager.getLastUsedProviderSettings({ isIndusCodePassEnabled: false }),
 		).toEqual({
-			provider: "cline",
+			provider: "induscode",
 			model: "anthropic/claude-sonnet-4.6",
 			baseUrl: "https://api.example.test",
 			auth: {
@@ -290,15 +290,15 @@ describe("ProviderSettingsManager", () => {
 			},
 		});
 		expect(
-			manager.getLastUsedProviderConfig({ isClinePassEnabled: false }),
+			manager.getLastUsedProviderConfig({ isIndusCodePassEnabled: false }),
 		).toMatchObject({
-			providerId: "cline",
+			providerId: "induscode",
 			apiKey: "workos:shared-token",
 			baseUrl: "https://api.example.test",
 		});
 	});
 
-	it("returns default cline settings when cline-pass is last-used and no cline settings exist", () => {
+	it("returns default induscode settings when induscode-pass is last-used and no induscode settings exist", () => {
 		const tempDir = mkdtempSync(
 			path.join(os.tmpdir(), "core-provider-settings-"),
 		);
@@ -308,26 +308,26 @@ describe("ProviderSettingsManager", () => {
 
 		manager.saveProviderSettings(
 			{
-				provider: "cline-pass",
-				model: "cline-pass/glm-5.2",
+				provider: "induscode-pass",
+				model: "induscode-pass/glm-5.2",
 			},
 			{ setLastUsed: true },
 		);
 
 		manager.saveProviderSettings(
 			{
-				provider: "cline",
+				provider: "induscode",
 			},
 			{ setLastUsed: true },
 		);
 
 		expect(
-			manager.getLastUsedProviderSettings({ isClinePassEnabled: false }),
-		).toEqual({ provider: "cline" });
+			manager.getLastUsedProviderSettings({ isIndusCodePassEnabled: false }),
+		).toEqual({ provider: "induscode" });
 		expect(
-			manager.getLastUsedProviderConfig({ isClinePassEnabled: false })
+			manager.getLastUsedProviderConfig({ isIndusCodePassEnabled: false })
 				?.providerId,
-		).toBe("cline");
+		).toBe("induscode");
 	});
 
 	it("migrates legacy provider settings during manager construction", () => {
@@ -687,7 +687,7 @@ describe("ProviderSettingsManager", () => {
 			const { manager, filePath } = createManager();
 
 			manager.saveProviderSettings({
-				provider: "cline",
+				provider: "induscode",
 				auth: {
 					apiKey: " auth-key\u200b ",
 					accessToken: " access-token ",
@@ -697,7 +697,7 @@ describe("ProviderSettingsManager", () => {
 				},
 			});
 
-			expect(readStoredSettings(filePath, "cline")?.auth).toEqual({
+			expect(readStoredSettings(filePath, "induscode")?.auth).toEqual({
 				apiKey: "auth-key",
 				accessToken: "access-token",
 				refreshToken: "refresh-token",

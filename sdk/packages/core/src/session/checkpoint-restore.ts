@@ -1,7 +1,7 @@
 import { execFile as execFileCallback } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { promisify } from "node:util";
-import type * as LlmsProviders from "@cline/llms";
+import type * as LlmsProviders from "@induscode/llms";
 import type {
 	CheckpointEntry,
 	CheckpointMetadata,
@@ -65,7 +65,7 @@ export async function beginWorktreeRestoreTransaction(
 	).stdout.trim();
 	const previousStashRef = await resolveOptionalGitRef(cwd, "refs/stash");
 	const transactionId = randomUUID();
-	const privateRef = `refs/cline/restore-transactions/${transactionId}`;
+	const privateRef = `refs/induscode/restore-transactions/${transactionId}`;
 
 	await execFile(
 		"git",
@@ -76,7 +76,7 @@ export async function beginWorktreeRestoreTransaction(
 			"push",
 			"--include-untracked",
 			"--message",
-			`cline restore transaction ${transactionId}`,
+			`induscode restore transaction ${transactionId}`,
 		],
 		{ windowsHide: true },
 	);
@@ -326,7 +326,7 @@ async function resolveCheckpointKind(
 	const message =
 		separatorIndex < 0 ? "" : result.stdout.slice(separatorIndex + 1);
 
-	// Checkpoints created before `kind` was persisted used Cline's stash
+	// Checkpoints created before `kind` was persisted used IndusCode's stash
 	// message. Requiring both its merge shape and marker keeps ordinary merge
 	// commits from being passed to `git stash apply`.
 	return parents.length >= 2 && isCheckpointStashMessage(message)
@@ -448,7 +448,7 @@ export async function applyCheckpointToWorktree(
 			cwd,
 			"update-ref",
 			"-m",
-			"cline: checkpoint restore",
+			"induscode: checkpoint restore",
 			"HEAD",
 			restoreBaseSha,
 			currentHead,

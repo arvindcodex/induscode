@@ -1,5 +1,5 @@
 /**
- * # Network Support for Cline
+ * # Network Support for IndusCode
  *
  * ## Development Guidelines
  *
@@ -35,7 +35,7 @@
  *
  * ## Proxy Support
  *
- * Cline uses platform-specific fetch implementations to handle proxy
+ * IndusCode uses platform-specific fetch implementations to handle proxy
  * configuration:
  * - **VSCode**: Uses global fetch (VSCode provides proxy configuration)
  * - **JetBrains, CLI**: Uses undici fetch with explicit ProxyAgent
@@ -61,7 +61,7 @@
  * JetBrains exports trusted certificates from the OS and writes them to a
  * temporary file, then configures node TLS by setting NODE_EXTRA_CA_CERTS.
  *
- * The CLI's npm wrapper (bin/cline) does the same automatically: it harvests
+ * The CLI's npm wrapper (bin/induscode) does the same automatically: it harvests
  * the OS trust store and points the child's NODE_EXTRA_CA_CERTS at a managed
  * bundle, because the Bun runtime does not read the OS store on its own. A
  * user-set NODE_EXTRA_CA_CERTS is merged in rather than replaced.
@@ -78,10 +78,10 @@
  *
  * 1. Verify proxy env vars: `echo $http_proxy $https_proxy`
  * 2. Check certificates: `echo $NODE_EXTRA_CA_CERTS` (should point to PEM file)
- * 3. View logs: check for network-related failures in ~/.cline/data/logs/cline.log
- *    (CLI, override with CLINE_LOG_PATH). If the hub is involved, also check
- *    ~/.cline/data/logs/hub-daemon.log. In JetBrains, check
- *    ~/.cline/cline-core-service.log, which every open project's core writes to.
+ * 3. View logs: check for network-related failures in ~/.induscode/data/logs/induscode.log
+ *    (CLI, override with INDUSCODE_LOG_PATH). If the hub is involved, also check
+ *    ~/.induscode/data/logs/hub-daemon.log. In JetBrains, check
+ *    ~/.induscode/induscode-core-service.log, which every open project's core writes to.
  * 4. Test connection: Use `curl -x host:port` etc. to isolate proxy
  *    configuration versus client issues.
  *
@@ -169,7 +169,7 @@ function isLoopbackHost(input: string | URL | Request): boolean {
  * each) of silence on the wire. A local model processing a large prompt
  * sends its headers at once and then nothing until the first token, often
  * for longer than that, so the request dies with `UND_ERR_BODY_TIMEOUT`
- * while the server is still generating (cline/cline#13371, #13464).
+ * while the server is still generating (induscode/induscode#13371, #13464).
  * Cancellation stays with the request's AbortSignal, i.e. the stop button.
  *
  * This goes through undici's own fetch rather than global fetch: the VS Code

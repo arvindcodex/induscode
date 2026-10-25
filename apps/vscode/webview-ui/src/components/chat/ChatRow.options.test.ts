@@ -1,8 +1,8 @@
-import type { ClineMessage, TurnState } from "@shared/ExtensionMessage"
+import type { IndusCodeMessage, TurnState } from "@shared/ExtensionMessage"
 import { describe, expect, it } from "vitest"
 import { isOptionsAskActive } from "./chat-view/shared/buttonConfig"
 
-const followup: ClineMessage = {
+const followup: IndusCodeMessage = {
 	ts: 2,
 	type: "ask",
 	ask: "followup",

@@ -29,12 +29,12 @@ import {
 	type SkillConfig,
 	type UserInstructionConfigService,
 	type WorkflowConfig,
-} from "@cline/core";
+} from "@induscode/core";
 import {
 	isMcpTimeoutConfigured,
 	resolveMcpTimeoutSeconds,
-} from "@cline/shared";
-import { readFileSyncStrippingUtf8Bom } from "@cline/shared/node";
+} from "@induscode/shared";
+import { readFileSyncStrippingUtf8Bom } from "@induscode/shared/node";
 import { getToolCatalog } from "../runtime/tools";
 import {
 	type InteractiveSlashCommand,

@@ -1,4 +1,4 @@
-import { createTeamName } from "@cline/core";
+import { createTeamName } from "@induscode/core";
 import type { InteractiveTurnResult } from "../../tui/types";
 import type { ChatCommandHost } from "../../utils/chat-commands";
 import {

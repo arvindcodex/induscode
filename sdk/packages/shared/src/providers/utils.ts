@@ -1,3 +1,3 @@
-export function isClineProvider(providerId: string): boolean {
-	return providerId === "cline" || providerId === "cline-pass";
+export function isIndusCodeProvider(providerId: string): boolean {
+	return providerId === "induscode" || providerId === "induscode-pass";
 }

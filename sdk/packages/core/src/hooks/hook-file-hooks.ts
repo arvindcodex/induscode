@@ -11,9 +11,9 @@ import type {
 	HookControl,
 	HookSessionContext,
 	WorkspaceInfo,
-} from "@cline/shared";
-import { augmentNodeCommandForDebug } from "@cline/shared";
-import { ensureHookLogDir } from "@cline/shared/storage";
+} from "@induscode/shared";
+import { augmentNodeCommandForDebug } from "@induscode/shared";
+import { ensureHookLogDir } from "@induscode/shared/storage";
 import { createAgentHooksExtension } from "./hook-extension";
 import { listHookConfigFiles } from "./hook-file-config";
 import {
@@ -236,12 +236,12 @@ function createPayloadBase(
 	options: HookRuntimeOptions,
 ): Omit<HookEventPayload, "hookName"> {
 	const userId =
-		process.env.CLINE_USER_ID?.trim() || process.env.USER?.trim() || "unknown";
+		process.env.INDUSCODE_USER_ID?.trim() || process.env.USER?.trim() || "unknown";
 	const sessionContext: HookSessionContext = {
 		rootSessionId: options.rootSessionId || ctx.conversationId,
 	};
 	return {
-		clineVersion: process.env.CLINE_VERSION?.trim() || "",
+		induscodeVersion: process.env.INDUSCODE_VERSION?.trim() || "",
 		timestamp: new Date().toISOString(),
 		taskId: ctx.conversationId,
 		sessionContext,
@@ -643,7 +643,7 @@ export function createHookAuditHooks(options: {
 			ts: new Date().toISOString(),
 			...payload,
 		})}\n`;
-		const envPath = process.env.CLINE_HOOKS_LOG_PATH?.trim() || undefined;
+		const envPath = process.env.INDUSCODE_HOOKS_LOG_PATH?.trim() || undefined;
 		const logPath = envPath ?? join(ensureHookLogDir(), "hooks.jsonl");
 		ensureHookLogDir(logPath);
 		appendFileSync(logPath, line, "utf8");
@@ -997,7 +997,7 @@ export function createHookConfigFileHooks(
 		) {
 			hooks.beforeRun = async (ctx: AgentRunLifecycleContext) => {
 				const hookName =
-					process.env.CLINE_HOOK_AGENT_RESUME === "1"
+					process.env.INDUSCODE_HOOK_AGENT_RESUME === "1"
 						? "agent_resume"
 						: "agent_start";
 				const control = await runAgentStart(

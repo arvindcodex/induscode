@@ -13,7 +13,7 @@ describe("CronReconciler", () => {
 	let reconciler: CronReconciler;
 
 	beforeEach(() => {
-		root = mkdtempSync(join(tmpdir(), "cline-reconciler-"));
+		root = mkdtempSync(join(tmpdir(), "induscode-reconciler-"));
 		cronDir = join(root, "cron-specs");
 		mkdirSync(cronDir, { recursive: true });
 		dbPath = join(root, "cron.db");

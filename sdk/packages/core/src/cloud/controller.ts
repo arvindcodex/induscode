@@ -5,7 +5,7 @@ import type {
 	HubEventEnvelope,
 	MessageWithMetadata,
 	ToolApprovalResult,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { NodeHubClient } from "../hub/client/index";
 import { isSessionNotFoundError } from "../runtime/host/runtime-host";
 import {
@@ -90,7 +90,7 @@ export const CLOUD_SESSION_SYSTEM_PROMPT =
 export function buildCloudSessionSystemPrompt(
 	record: Pick<CloudSessionRecord, "id" | "sandboxType" | "metadata">,
 ): string {
-	const branch = `cline/${(record.metadata.taskId?.trim() || record.id).slice(-8).toLowerCase()}`;
+	const branch = `induscode/${(record.metadata.taskId?.trim() || record.id).slice(-8).toLowerCase()}`;
 	const resumable =
 		record.sandboxType === "resumable" ||
 		record.metadata.sandboxType === "resumable";
@@ -172,7 +172,7 @@ export class CloudQueueUnconfirmedError extends CloudSessionError {
 	constructor() {
 		super(
 			"request_failed",
-			"The connection was interrupted and Cline could not confirm whether this message was queued. Check the cloud session before resending it.",
+			"The connection was interrupted and IndusCode could not confirm whether this message was queued. Check the cloud session before resending it.",
 		);
 		this.name = "CloudQueueUnconfirmedError";
 	}
@@ -181,7 +181,7 @@ export class CloudQueueUnconfirmedError extends CloudSessionError {
 export class CloudHandoffSeedUnsupportedError extends Error {
 	constructor() {
 		super(
-			"The cloud session was created, but its transcript was not persisted. This cloud runtime cannot durably seed handoff transcripts and must use @cline/core 0.0.72 or newer. Updating the cloud runtime or pod is required; retrying /cloud against this same pod will not help.",
+			"The cloud session was created, but its transcript was not persisted. This cloud runtime cannot durably seed handoff transcripts and must use @induscode/core 0.0.72 or newer. Updating the cloud runtime or pod is required; retrying /cloud against this same pod will not help.",
 		);
 		this.name = "CloudHandoffSeedUnsupportedError";
 	}
@@ -293,8 +293,8 @@ function recordToCloudSessionState(
 	return {
 		config: {
 			executionTarget: "cloud",
-			provider: "cline",
-			providerId: "cline",
+			provider: "induscode",
+			providerId: "induscode",
 			model: record.metadata.modelId ?? "",
 			modelId: record.metadata.modelId ?? "",
 			repoUrl: record.repoContext.repoUrl ?? "",
@@ -329,7 +329,7 @@ function attachResultPayload(
 		origin: "cloud",
 		executionTarget: "cloud",
 		status,
-		provider: "cline",
+		provider: "induscode",
 		model: record.metadata.modelId ?? "",
 		repoUrl: record.repoContext.repoUrl ?? "",
 		branch: record.repoContext.branch ?? "",
@@ -355,7 +355,7 @@ export function cloudSessionToDiscoveryRecord(
 		origin: "cloud",
 		executionTarget: "cloud",
 		status: record.status,
-		provider: "cline",
+		provider: "induscode",
 		model: record.metadata.modelId ?? "",
 		cwd: cloudSessionCwd(record),
 		workspaceRoot: CLOUD_WORKSPACE_ROOT,
@@ -1157,7 +1157,7 @@ export class CloudSessionController {
 				);
 			}
 			throw new Error(
-				"Cline account changed while the cloud session was starting",
+				"IndusCode account changed while the cloud session was starting",
 			);
 		}
 		const record: CloudSessionRecord = {
@@ -1229,7 +1229,7 @@ export class CloudSessionController {
 			origin: "cloud",
 			executionTarget: "cloud",
 			status: record.status,
-			provider: "cline",
+			provider: "induscode",
 			model: input.modelId,
 			repoUrl: input.repoUrl,
 			branch: input.branch ?? "",
@@ -1502,7 +1502,7 @@ export class CloudSessionController {
 				if (delivery === "steer") {
 					throw new CloudSessionError(
 						"request_failed",
-						"Cline could not confirm whether this message was accepted. Check the cloud session before resending it.",
+						"IndusCode could not confirm whether this message was accepted. Check the cloud session before resending it.",
 					);
 				}
 				const promptOccurrencesAfterRecovery = countPromptOccurrences(
@@ -1513,7 +1513,7 @@ export class CloudSessionController {
 				if (promptOccurrencesAfterRecovery <= promptOccurrencesBeforeSend) {
 					throw new CloudSessionError(
 						"request_failed",
-						"Cline could not confirm whether this message was accepted. Check the cloud session before resending it.",
+						"IndusCode could not confirm whether this message was accepted. Check the cloud session before resending it.",
 					);
 				}
 				return {
@@ -2389,7 +2389,7 @@ export class CloudSessionController {
 				clientId: `${this.options.clientIdentity?.prefix ?? "cloud"}-${outerSessionId}-${randomUUID()}`,
 				clientType: this.options.clientIdentity?.type ?? "cloud-client",
 				displayName:
-					this.options.clientIdentity?.displayName ?? "Cline cloud session",
+					this.options.clientIdentity?.displayName ?? "IndusCode cloud session",
 				workspaceRoot: CLOUD_WORKSPACE_ROOT,
 				cwd: CLOUD_WORKSPACE_ROOT,
 				resolveConnectionHeaders: async () => {
@@ -2437,7 +2437,7 @@ export class CloudSessionController {
 					if (!token?.trim()) {
 						throw new CloudSessionError(
 							"authentication_required",
-							"Sign in to Cline to reconnect this cloud session.",
+							"Sign in to IndusCode to reconnect this cloud session.",
 						);
 					}
 					assertCurrent();
@@ -2630,7 +2630,7 @@ export class CloudSessionController {
 				metadata: { ...metadata, interactive: true },
 				sessionConfig: {
 					sessionId,
-					providerId: metadata.provider ?? "cline",
+					providerId: metadata.provider ?? "induscode",
 					modelId:
 						metadata.model ??
 						metadata.modelId ??
@@ -2681,7 +2681,7 @@ export class CloudSessionController {
 		) {
 			throw new CloudSessionError(
 				"request_failed",
-				"This cloud workspace already contains another conversation. Open it in Cline Cloud or delete it before retrying the handoff.",
+				"This cloud workspace already contains another conversation. Open it in IndusCode Cloud or delete it before retrying the handoff.",
 			);
 		}
 	}
@@ -2746,7 +2746,7 @@ export class CloudSessionController {
 		) {
 			throw new CloudSessionError(
 				"request_failed",
-				"This cloud workspace already contains another conversation. Open it in Cline Cloud or delete it before retrying the handoff.",
+				"This cloud workspace already contains another conversation. Open it in IndusCode Cloud or delete it before retrying the handoff.",
 			);
 		}
 		connection.innerSessionId = innerSessionId;
@@ -2789,7 +2789,7 @@ export class CloudSessionController {
 					...(connection.remote.metadata.taskId?.trim()
 						? { sessionId: connection.remote.metadata.taskId.trim() }
 						: {}),
-					providerId: "cline",
+					providerId: "induscode",
 					modelId,
 					workspaceRoot: CLOUD_WORKSPACE_ROOT,
 					cwd,
@@ -2808,7 +2808,7 @@ export class CloudSessionController {
 				},
 				metadata: {
 					source: this.options.clientIdentity?.source ?? "sdk",
-					provider: "cline",
+					provider: "induscode",
 					model: modelId,
 					interactive: true,
 					thinking: thinking ?? null,
@@ -2825,7 +2825,7 @@ export class CloudSessionController {
 						: {}),
 				},
 				runtimeOptions: { mode },
-				modelSelection: { provider: "cline", model: modelId },
+				modelSelection: { provider: "induscode", model: modelId },
 				toolPolicies: {
 					"*": {
 						autoApprove:

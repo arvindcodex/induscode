@@ -49,8 +49,8 @@ export async function withLangfuseTraceAttributes<T>(
 }
 
 /**
- * Operator-supplied trace dimensions. `CLINE_LANGFUSE_TAGS` is a
- * comma-separated tag list and `CLINE_LANGFUSE_METADATA` is either a JSON
+ * Operator-supplied trace dimensions. `INDUSCODE_LANGFUSE_TAGS` is a
+ * comma-separated tag list and `INDUSCODE_LANGFUSE_METADATA` is either a JSON
  * object or comma-separated `key=value` pairs. Both are merged under the
  * runtime's own attributes, so a benchmark harness can label every trace it
  * produces (for example `benchmark-run-1`) without touching call sites.
@@ -128,11 +128,11 @@ function dedupe(values: string[]): string[] {
 	return [...new Set(values)];
 }
 
-const LANGFUSE_DEBUG_ENV = "CLINE_DEBUG_LANGFUSE";
-/** Opt-in: trace non-Cline (BYOK) providers through direct credentials. */
-const LANGFUSE_ALL_PROVIDERS_ENV = "CLINE_LANGFUSE_ALL_PROVIDERS";
-const LANGFUSE_TAGS_ENV = "CLINE_LANGFUSE_TAGS";
-const LANGFUSE_METADATA_ENV = "CLINE_LANGFUSE_METADATA";
+const LANGFUSE_DEBUG_ENV = "INDUSCODE_DEBUG_LANGFUSE";
+/** Opt-in: trace non-IndusCode (BYOK) providers through direct credentials. */
+const LANGFUSE_ALL_PROVIDERS_ENV = "INDUSCODE_LANGFUSE_ALL_PROVIDERS";
+const LANGFUSE_TAGS_ENV = "INDUSCODE_LANGFUSE_TAGS";
+const LANGFUSE_METADATA_ENV = "INDUSCODE_LANGFUSE_METADATA";
 /** Read by `LangfuseSpanProcessor` too; passed explicitly so it keys the runtime. */
 const LANGFUSE_ENVIRONMENT_ENV = "LANGFUSE_TRACING_ENVIRONMENT";
 
@@ -167,8 +167,8 @@ function isAllProvidersTracingEnabled(): boolean {
 	return isEnvTruthy(process.env[LANGFUSE_ALL_PROVIDERS_ENV]);
 }
 
-function isClineProviderId(providerId: string): boolean {
-	return providerId === "cline" || providerId === "cline-pass";
+function isIndusCodeProviderId(providerId: string): boolean {
+	return providerId === "induscode" || providerId === "induscode-pass";
 }
 
 export type AiSdkTelemetryDecision = {
@@ -186,7 +186,7 @@ const TELEMETRY_DISABLED: AiSdkTelemetryDecision = { isEnabled: false };
  * checked on every stream. Direct exports own an isolated tracer provider.
  *
  * Third-party (BYOK) providers are traced only when the operator opts in with
- * `CLINE_LANGFUSE_ALL_PROVIDERS` and supplies direct `LANGFUSE_*` credentials.
+ * `INDUSCODE_LANGFUSE_ALL_PROVIDERS` and supplies direct `LANGFUSE_*` credentials.
  * They never ride the host relay, so BYOK prompts cannot reach a collector the
  * operator did not configure themselves.
  *
@@ -199,7 +199,7 @@ export async function resolveAiSdkTelemetry(
 	providerId: string,
 	samplingKey?: string,
 ): Promise<AiSdkTelemetryDecision> {
-	if (!isClineProviderId(providerId)) {
+	if (!isIndusCodeProviderId(providerId)) {
 		if (!isAllProvidersTracingEnabled()) {
 			return TELEMETRY_DISABLED;
 		}
@@ -256,7 +256,7 @@ export async function resolveAiSdkTelemetry(
 	// Resolve the host tracer per call so remote-config replacement cannot
 	// leave a cached integration attached to a shut-down provider.
 	const integration = new LangfuseStreamTelemetry(relayTracer);
-	const recordContent = isEnvTruthy(process.env.CLINE_TRACE_RECORD_CONTENT);
+	const recordContent = isEnvTruthy(process.env.INDUSCODE_TRACE_RECORD_CONTENT);
 	return {
 		isEnabled: true,
 		integrations: integration,
@@ -267,7 +267,7 @@ export async function resolveAiSdkTelemetry(
 
 function readTraceSamplePercent(): number {
 	// Literal env access so bundlers can inline a build-time value.
-	const raw = process.env.CLINE_TRACE_SAMPLE_PERCENT?.trim();
+	const raw = process.env.INDUSCODE_TRACE_SAMPLE_PERCENT?.trim();
 	if (!raw) {
 		// Registering a traces exporter is the host's opt-in; default to
 		// everything and let the env (or the collector) reduce volume.
@@ -289,7 +289,7 @@ async function isTelemetryOptedOutGlobally(): Promise<boolean> {
 	let raw: string;
 	try {
 		const [{ readFileSync }, { resolveGlobalSettingsPath }] = await Promise.all(
-			[import("node:fs"), import("@cline/shared/storage")],
+			[import("node:fs"), import("@induscode/shared/storage")],
 		);
 		raw = readFileSync(resolveGlobalSettingsPath(), "utf8");
 	} catch (error) {
@@ -317,14 +317,14 @@ async function isTelemetryOptedOutGlobally(): Promise<boolean> {
 async function getHostOtlpTracer(): Promise<Tracer | undefined> {
 	const [{ trace }, { isOtlpTraceRelayProvider }] = await Promise.all([
 		import("@opentelemetry/api"),
-		import("@cline/shared"),
+		import("@induscode/shared"),
 	]);
 	const provider = trace.getTracerProvider() as { getDelegate?: () => unknown };
 	if (
 		isOtlpTraceRelayProvider(provider) ||
 		isOtlpTraceRelayProvider(provider.getDelegate?.())
 	) {
-		return trace.getTracer("cline-provider-langfuse");
+		return trace.getTracer("induscode-provider-langfuse");
 	}
 	return undefined;
 }
@@ -364,7 +364,7 @@ async function ensureDirectLangfuseIntegration(
 
 async function registerDirectLangfuseDisposable(): Promise<void> {
 	if (!directLangfuseDisposableRegistration) {
-		directLangfuseDisposableRegistration = import("@cline/shared").then(
+		directLangfuseDisposableRegistration = import("@induscode/shared").then(
 			({ registerDisposable }) => {
 				registerDisposable(disposeLangfuseTelemetry);
 			},
@@ -396,7 +396,7 @@ async function initializeDirectLangfuseTelemetry(
 		// Direct SDK consumers own this isolated exporter. It intentionally does
 		// not replace or modify the process's global tracer provider.
 		if (!process.env.OTEL_SERVICE_NAME?.trim()) {
-			process.env.OTEL_SERVICE_NAME = "cline-sdk";
+			process.env.OTEL_SERVICE_NAME = "induscode-sdk";
 		}
 		await ensureLangfuseContextManager();
 		const [
@@ -414,7 +414,7 @@ async function initializeDirectLangfuseTelemetry(
 			spanProcessors: [spanProcessor],
 		});
 		const integration = new LangfuseStreamTelemetry(
-			tracerProvider.getTracer("cline-langfuse-direct"),
+			tracerProvider.getTracer("induscode-langfuse-direct"),
 		);
 		debugLangfuse(
 			`created isolated direct exporter baseUrl=${config.baseUrl} environment=${config.environment ?? ""}`,

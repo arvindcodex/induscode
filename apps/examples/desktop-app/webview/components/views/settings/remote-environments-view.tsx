@@ -71,7 +71,7 @@ import {
 	validateRemoteEnvironmentProfile,
 } from "@/lib/remote-environments";
 import { cn } from "@/lib/utils";
-import { Switch } from "@cline/ui";
+import { Switch } from "@induscode/ui";
 import { PageEmptyState, PageFrame, PageHeader } from "../page-layout";
 import { WhatsAppConnectDialog } from "./whatsapp-connect-dialog";
 

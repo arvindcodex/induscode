@@ -1,4 +1,4 @@
-import { TeamMessageType } from "@cline/shared";
+import { TeamMessageType } from "@induscode/shared";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { TeamEvent } from "../../extensions/tools/team";
 import type { TeamPersistenceBatch } from "../../types/storage";

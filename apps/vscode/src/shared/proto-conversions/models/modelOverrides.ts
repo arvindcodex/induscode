@@ -1,5 +1,5 @@
 import type { ModelInfo } from "@shared/api"
-import { ModelOverrides } from "@shared/proto/cline/models"
+import { ModelOverrides } from "@shared/proto/induscode/models"
 
 /**
  * Domain shape of user-authored per-model metadata overrides, shared by the

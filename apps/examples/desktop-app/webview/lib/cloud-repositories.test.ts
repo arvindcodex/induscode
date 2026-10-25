@@ -34,18 +34,18 @@ describe("cloud repository selection", () => {
 		]);
 	});
 	it("accepts GitHub repository URLs but not arbitrary URLs", () => {
-		expect(isGitHubRepositoryUrl("https://github.com/cline/cline")).toBe(true);
-		expect(isGitHubRepositoryUrl("git@github.com:cline/cline.git")).toBe(false);
-		expect(isGitHubRepositoryUrl("https://github.com/cline")).toBe(false);
-		expect(isGitHubRepositoryUrl("https://example.com/cline/cline")).toBe(
+		expect(isGitHubRepositoryUrl("https://github.com/induscode/induscode")).toBe(true);
+		expect(isGitHubRepositoryUrl("git@github.com:induscode/induscode.git")).toBe(false);
+		expect(isGitHubRepositoryUrl("https://github.com/induscode")).toBe(false);
+		expect(isGitHubRepositoryUrl("https://example.com/induscode/induscode")).toBe(
 			false,
 		);
 	});
 
 	it("normalizes repository URLs returned by the integration API", () => {
 		expect(
-			normalizeCloudRepositoryUrl(" https://github.com/cline/cline/ "),
-		).toBe("https://github.com/cline/cline");
+			normalizeCloudRepositoryUrl(" https://github.com/induscode/induscode/ "),
+		).toBe("https://github.com/induscode/induscode");
 	});
 
 	it("prefers the saved default branch, then common defaults, then the first branch", () => {

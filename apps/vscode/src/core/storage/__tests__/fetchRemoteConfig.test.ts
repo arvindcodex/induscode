@@ -3,13 +3,13 @@ import * as actualDiskStorage from "@core/storage/disk"
 import * as actualRemoteConfigUtils from "@core/storage/remote-config/utils"
 import * as assert from "assert"
 import sinon from "sinon"
-import { ClineAccountService } from "@/services/account/ClineAccountService"
+import { IndusCodeAccountService } from "@/services/account/IndusCodeAccountService"
 import { AuthService } from "@/services/auth/AuthService"
 
 // bun loads real ESM, so sinon cannot stub the `@core/storage/disk` and
 // `@core/storage/remote-config/utils` namespace exports ("ES Modules cannot be
 // stubbed"). Inject module-level sinon stubs via mock.module so the full sinon
-// stub API keeps working. `AuthService`/`ClineAccountService` statics and the
+// stub API keeps working. `AuthService`/`IndusCodeAccountService` statics and the
 // `accountService` instance method are still sinon-stubbed directly below.
 const isRemoteConfigEnabledStub: sinon.SinonStub = sinon.stub()
 const applyRemoteConfigStub: sinon.SinonStub = sinon.stub()
@@ -42,7 +42,7 @@ import * as remoteConfigFetch from "@core/storage/remote-config/fetch"
 
 describe("fetchRemoteConfig", () => {
 	let sandbox: sinon.SinonSandbox
-	let accountService: ClineAccountService
+	let accountService: IndusCodeAccountService
 	let authServiceStub: Partial<AuthService>
 	let fetchUserRemoteConfigStub: sinon.SinonStub
 
@@ -50,8 +50,8 @@ describe("fetchRemoteConfig", () => {
 		sandbox = sinon.createSandbox()
 		authServiceStub = {}
 		sandbox.stub(AuthService, "getInstance").returns(authServiceStub as AuthService)
-		accountService = new ClineAccountService()
-		sandbox.stub(ClineAccountService, "getInstance").returns(accountService)
+		accountService = new IndusCodeAccountService()
+		sandbox.stub(IndusCodeAccountService, "getInstance").returns(accountService)
 		fetchUserRemoteConfigStub = sandbox.stub(accountService, "fetchUserRemoteConfig")
 
 		// Reset and (re)configure the module-level sinon stubs injected above.
@@ -86,7 +86,7 @@ describe("fetchRemoteConfig", () => {
 		const controller = {
 			accountService: { switchAccount: sandbox.stub().resolves() },
 			stateManager: {
-				getApiConfiguration: sandbox.stub().returns({ planModeApiProvider: "cline", actModeApiProvider: "cline" }),
+				getApiConfiguration: sandbox.stub().returns({ planModeApiProvider: "induscode", actModeApiProvider: "induscode" }),
 				setSecret: sandbox.stub(),
 			},
 			mcpHub: {},
@@ -114,7 +114,7 @@ describe("fetchRemoteConfig", () => {
 		const controller = {
 			accountService: { switchAccount: sandbox.stub() },
 			stateManager: {
-				getApiConfiguration: sandbox.stub().returns({ planModeApiProvider: "cline", actModeApiProvider: "cline" }),
+				getApiConfiguration: sandbox.stub().returns({ planModeApiProvider: "induscode", actModeApiProvider: "induscode" }),
 				setSecret: sandbox.stub(),
 			},
 			mcpHub: {},
@@ -142,7 +142,7 @@ describe("fetchRemoteConfig", () => {
 		const controller = {
 			accountService: { switchAccount: sandbox.stub() },
 			stateManager: {
-				getApiConfiguration: sandbox.stub().returns({ planModeApiProvider: "cline", actModeApiProvider: "cline" }),
+				getApiConfiguration: sandbox.stub().returns({ planModeApiProvider: "induscode", actModeApiProvider: "induscode" }),
 				setSecret: sandbox.stub(),
 			},
 			mcpHub: {},
@@ -173,7 +173,7 @@ describe("fetchRemoteConfig", () => {
 		const controller = {
 			accountService: { switchAccount: sandbox.stub() },
 			stateManager: {
-				getApiConfiguration: sandbox.stub().returns({ planModeApiProvider: "cline", actModeApiProvider: "cline" }),
+				getApiConfiguration: sandbox.stub().returns({ planModeApiProvider: "induscode", actModeApiProvider: "induscode" }),
 				setSecret: sandbox.stub(),
 			},
 			mcpHub: {},
@@ -205,7 +205,7 @@ describe("fetchRemoteConfig", () => {
 		const controller = {
 			accountService: { switchAccount: sandbox.stub() },
 			stateManager: {
-				getApiConfiguration: sandbox.stub().returns({ planModeApiProvider: "cline", actModeApiProvider: "cline" }),
+				getApiConfiguration: sandbox.stub().returns({ planModeApiProvider: "induscode", actModeApiProvider: "induscode" }),
 				setSecret: sandbox.stub(),
 			},
 			mcpHub: {},
@@ -246,7 +246,7 @@ describe("fetchRemoteConfig", () => {
 		const controller = {
 			accountService: { switchAccount: sandbox.stub().resolves() },
 			stateManager: {
-				getApiConfiguration: sandbox.stub().returns({ planModeApiProvider: "cline", actModeApiProvider: "cline" }),
+				getApiConfiguration: sandbox.stub().returns({ planModeApiProvider: "induscode", actModeApiProvider: "induscode" }),
 				setSecret: sandbox.stub(),
 			},
 			mcpHub: {},
@@ -273,7 +273,7 @@ describe("fetchRemoteConfig", () => {
 		const controller = {
 			accountService: { switchAccount: sandbox.stub() },
 			stateManager: {
-				getApiConfiguration: sandbox.stub().returns({ planModeApiProvider: "cline", actModeApiProvider: "cline" }),
+				getApiConfiguration: sandbox.stub().returns({ planModeApiProvider: "induscode", actModeApiProvider: "induscode" }),
 				setSecret: sandbox.stub(),
 			},
 			mcpHub: {},
@@ -293,7 +293,7 @@ describe("fetchRemoteConfig", () => {
 		const controller = {
 			accountService: { switchAccount: sandbox.stub() },
 			stateManager: {
-				getApiConfiguration: sandbox.stub().returns({ planModeApiProvider: "cline", actModeApiProvider: "cline" }),
+				getApiConfiguration: sandbox.stub().returns({ planModeApiProvider: "induscode", actModeApiProvider: "induscode" }),
 				setSecret: sandbox.stub(),
 			},
 			mcpHub: {},
@@ -325,7 +325,7 @@ describe("fetchRemoteConfig", () => {
 		const controller = {
 			accountService: { switchAccount: sandbox.stub() },
 			stateManager: {
-				getApiConfiguration: sandbox.stub().returns({ planModeApiProvider: "cline", actModeApiProvider: "cline" }),
+				getApiConfiguration: sandbox.stub().returns({ planModeApiProvider: "induscode", actModeApiProvider: "induscode" }),
 				setSecret: sandbox.stub(),
 			},
 			mcpHub: {},
@@ -345,7 +345,7 @@ describe("fetchRemoteConfig", () => {
 		const controller = {
 			accountService: { switchAccount: sandbox.stub() },
 			stateManager: {
-				getApiConfiguration: sandbox.stub().returns({ planModeApiProvider: "cline", actModeApiProvider: "cline" }),
+				getApiConfiguration: sandbox.stub().returns({ planModeApiProvider: "induscode", actModeApiProvider: "induscode" }),
 				setSecret: sandbox.stub(),
 			},
 			mcpHub: {},
@@ -373,7 +373,7 @@ describe("fetchRemoteConfig", () => {
 		const controller = {
 			accountService: { switchAccount: sandbox.stub().rejects(new Error("switch failed")) },
 			stateManager: {
-				getApiConfiguration: sandbox.stub().returns({ planModeApiProvider: "cline", actModeApiProvider: "cline" }),
+				getApiConfiguration: sandbox.stub().returns({ planModeApiProvider: "induscode", actModeApiProvider: "induscode" }),
 				setSecret: sandbox.stub(),
 			},
 			mcpHub: {},

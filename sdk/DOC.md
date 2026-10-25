@@ -3,15 +3,15 @@
 
 Cached text excludes native image data. Cache admission uses the persisted JSON/string model-preview size for the truncation threshold; YAML size controls only cache capacity. Plain strings stay unchanged; structured cached text is serialized as YAML, preserving multiline payloads as literal blocks without automatic wrapping. Original history and tool events keep their existing format. Recovery uses the existing `read_files` output and per-line limits; disabling that tool does not disable caching or remove recovery notices.
 
-Tools created with `createTool` may set `resultPolicy: "cache-oversized"`. Core enables this for MCP and Composio tools. Original output remains in history and events; synchronous model preparation sends a bounded preview with a `cline://cache/<encoded-session-id>/<result-id>.result.txt` URI for cached oversized responses. Use `read_files` with `start_line`/`end_line` to read omitted content. Shell and filesystem search tools do not support these URIs. The stateless agent runtime does not own a cache.
+Tools created with `createTool` may set `resultPolicy: "cache-oversized"`. Core enables this for MCP and Composio tools. Original output remains in history and events; synchronous model preparation sends a bounded preview with a `induscode://cache/<encoded-session-id>/<result-id>.result.txt` URI for cached oversized responses. Use `read_files` with `start_line`/`end_line` to read omitted content. Shell and filesystem search tools do not support these URIs. The stateless agent runtime does not own a cache.
 
 Entries expire after five further model iterations without a cache read, across follow-up turns. Explicit reads refresh expiry; model requests do not. A 16 MiB UTF-8 text limit per session evicts least recently read entries; individually larger results have no recovery URI. Shutdown, history reset, and restore clear the cache, and resume does not regenerate entries. Missing reads instruct the agent to refetch with an appropriate read/query tool without repeating side-effecting actions. Evicting cached text does not remove original conversation output or change earlier recovery notices; URI references remain until the cache is cleared. Cache-miss feedback appears only when an agent attempts to read missing content.
 
 ## Shared agent review UI
 
-`@cline/ui` exports presentation-only components for showing a session's changed
+`@induscode/ui` exports presentation-only components for showing a session's changed
 files and pull-request status. Configure Tailwind v4 and a token entry point before
-importing `@cline/ui/components.css`, following the
+importing `@induscode/ui/components.css`, following the
 [complete styling setup](./packages/ui/ADOPTION.md#option-2-tailwind-mappings-without-base-styles).
 Then import the components from the package root:
 
@@ -20,7 +20,7 @@ import {
   AgentChangedFile,
   AgentChangesPanel,
   AgentPullRequestBar,
-} from "@cline/ui";
+} from "@induscode/ui";
 ```
 
 `AgentChangesPanel` owns the Changes header, count, close action, empty state,
@@ -39,11 +39,11 @@ host presentation.
 
 ## Fork metadata
 
-`createForkSessionMetadata` from `@cline/core` copies metadata, replaces fork ancestry, and removes inherited handoff markers. Callers supply the source ID, timestamp, source, and optional `beforeRunCount`; titles and session creation remain caller-owned.
+`createForkSessionMetadata` from `@induscode/core` copies metadata, replaces fork ancestry, and removes inherited handoff markers. Callers supply the source ID, timestamp, source, and optional `beforeRunCount`; titles and session creation remain caller-owned.
 
 ## Cloud sessions (experimental)
 
-`CloudSessionApi` and `CloudSessionController` are exported from `@cline/core/cloud`.
+`CloudSessionApi` and `CloudSessionController` are exported from `@induscode/core/cloud`.
 The API handles REST requests; the controller handles remote Hub connections,
 session lifecycle, transcript reconciliation, and approvals. Hosts provide API
 URLs and a fresh-token callback; feature gating and account selection stay in the
@@ -86,14 +86,14 @@ Callback errors preserve their original type; they do not prove an earlier POST 
 
 ## Voice input models
 
-`getLocalTranscriptionModels(providerId, config?)` from `@cline/core` returns the
+`getLocalTranscriptionModels(providerId, config?)` from `@induscode/core` returns the
 voice models supported by a provider's transcription transport. Use it to build
 voice pickers rather than filtering the bundled chat catalog. Vercel uses its live
 model list and advertised streaming tags; unavailable or malformed responses fail
 discovery rather than restoring stale bundled models. Voice selection saves and
 both batch and streaming execution revalidate through the same service.
 
-`isTranscriptionModel` from `@cline/shared` (also exported for browsers) accepts
+`isTranscriptionModel` from `@induscode/shared` (also exported for browsers) accepts
 exact audio-only input and text-only output modalities. An explicit transcription
 label does not override additional input or output modalities. Multimodal live
 models are classified as `realtime`, which currently has no built-in transport
@@ -108,7 +108,7 @@ ElevenLabs exposes batch `scribe_v2` and live `scribe_v2_realtime` separately.
 
 ## SSH remote environments
 
-`RemoteEnvironmentService` (exported by `@cline/core` and `@cline/sdk`) owns SSH
+`RemoteEnvironmentService` (exported by `@induscode/core` and `@induscode/sdk`) owns SSH
 profiles, connection testing, helper installation, authenticated loopback tunnels,
 remote commands, status changes, and cleanup. It runs in the client's Node host;
 browser clients expose this API through their host transport. No desktop code is
@@ -119,7 +119,7 @@ fingerprint through a trusted channel and enroll it using your SSH client. Unkno
 or changed keys are rejected before inspection, upload, or execution.
 
 ```ts
-import { ClineCore, RemoteEnvironmentService } from "@cline/core";
+import { IndusCodeCore, RemoteEnvironmentService } from "@induscode/core";
 
 const environments = new RemoteEnvironmentService({
   helperBinaryDirectory: "/opt/my-client/remote-helpers",
@@ -127,7 +127,7 @@ const environments = new RemoteEnvironmentService({
 });
 const profile = await environments.upsert({ name: "Build host", host: "builder" });
 const connection = await environments.connect(profile.id);
-const core = await ClineCore.create({
+const core = await IndusCodeCore.create({
   clientName: "my-client",
   backendMode: "remote",
   remote: {
@@ -152,39 +152,39 @@ The service also exposes `list`, `upsert`, `delete`, `test`, `disconnect`, `run`
 Each service instance has a unique remote Hub discovery record, so another
 client connecting to the same host cannot stop its Hub.
 Connect/disconnect/profile mutations are serialized; concurrent connects reuse
-one tunnel. Dispose the `ClineCore` runtime before disconnecting its environment.
+one tunnel. Dispose the `IndusCodeCore` runtime before disconnecting its environment.
 Do not expose the connection's authentication token to a browser or logs.
 
-Profiles default to `~/.cline/data/settings/remote-environments.json`, written
+Profiles default to `~/.induscode/data/settings/remote-environments.json`, written
 atomically with mode 0600. They contain identity-file paths, never private keys.
 Options include `profilesPath`, `sshPath`, `knownHostsPath`, process timeouts,
 `helperBinaryPath`, and `helperBinaryDirectory`. The corresponding helper/SSH
-configuration variables are `CLINE_REMOTE_HELPER_BINARY`,
-`CLINE_REMOTE_HELPER_DIRECTORY`, `CLINE_SSH_PATH`, and
-`CLINE_SSH_KNOWN_HOSTS_FILE`.
+configuration variables are `INDUSCODE_REMOTE_HELPER_BINARY`,
+`INDUSCODE_REMOTE_HELPER_DIRECTORY`, `INDUSCODE_SSH_PATH`, and
+`INDUSCODE_SSH_KNOWN_HOSTS_FILE`.
 
-Remote Hubs are CLI-managed. Clients package the self-contained Cline CLI
+Remote Hubs are CLI-managed. Clients package the self-contained IndusCode CLI
 binary (`apps/cli`, compiled with Bun) for each remote OS and architecture; the
-service stages it on the host and runs `cline hub ensure --json --discovery-path
-<path> ...` to start or reuse a loopback Hub, and `cline hub stop
+service stages it on the host and runs `induscode hub ensure --json --discovery-path
+<path> ...` to start or reuse a loopback Hub, and `induscode hub stop
 --discovery-path <path>` to stop it. Use `remoteHelperBinaryFilename({ platform,
-arch })` for the bundled filename (`cline-<target-triple>`). Linux and macOS on
+arch })` for the bundled filename (`induscode-<target-triple>`). Linux and macOS on
 x64/arm64 are supported. The CLI must be built from the same SDK build as the
 client; missing binaries produce an explicit error, without installing a
 runtime from the network. Agent tools and persistence run remotely; the host
 only manages SSH and forwards the authenticated hub connection.
 
 Clients whose own process cannot host the Hub daemon can call
-`setHubDaemonLauncher({ command: "/path/to/cline" })` so detached Hubs they
-start are launched through the Cline CLI.
+`setHubDaemonLauncher({ command: "/path/to/induscode" })` so detached Hubs they
+start are launched through the IndusCode CLI.
 
 ### Provider authentication metadata for host UIs
 
-`@cline/shared` (including its browser entry point) exports `ProviderAuthInfo`,
+`@induscode/shared` (including its browser entry point) exports `ProviderAuthInfo`,
 `ProviderLocalCli`, `resolveProviderLocalCli(provider)`, and
 `resolveProviderApiKeyOptional(provider)`. The resolvers accept provider data
 (`metadata.localCliCommand` with optional `docsUrl`, and `metadata.apiKeyOptional`);
-they perform no registry lookup. Hosts resolve providers through `@cline/llms` and
+they perform no registry lookup. Hosts resolve providers through `@induscode/llms` and
 then pass that data to the shared helpers. `listLocalProviders` includes the
 resulting facts in each `ProviderListItem.auth` (`localCli`, and `apiKeyOptional`
 for local inference servers and cloud-credential providers that run without a
@@ -252,7 +252,7 @@ capability overrides continue to take precedence after refreshes.
 
 ## Shared UI session rows
 
-`@cline/ui` exports `AgentSessionRow`, `AgentSessionRowEditor`, and
+`@induscode/ui` exports `AgentSessionRow`, `AgentSessionRowEditor`, and
 `AgentSessionOverview`, together with their public props types. These are
 presentation primitives for session navigation, rename, and metadata content;
 the host retains session data, routing, menus, permissions, formatting, and
@@ -280,7 +280,7 @@ metadata rows; the host owns the hover-card lifecycle, positioning, and
 metadata formatting. See the [session-row adoption guide](./packages/ui/ADOPTION.md#session-rows)
 for the import, slot, and trigger/ref examples.
 
-## Shared context usage presentation (`@cline/ui`)
+## Shared context usage presentation (`@induscode/ui`)
 
 `AgentContextUsage` exposes desktop's context ring and token breakdown through
 its `children` render callback. It adds no wrapper: the host receives
@@ -298,10 +298,10 @@ are part of input usage, not additional context consumption.
 `costLabel` is a separate host-formatted cost. Numeric zero is displayed;
 previously hidden falsy values remain omitted. Desktop retains its existing
 cost formatter and usage source. Import the component and all three public
-types from `@cline/ui`; see [UI adoption guidance](packages/ui/ADOPTION.md) for
+types from `@induscode/ui`; see [UI adoption guidance](packages/ui/ADOPTION.md) for
 theme setup, styling, and composition examples.
 
-## Shared command output and image presentation (`@cline/ui`)
+## Shared command output and image presentation (`@induscode/ui`)
 
 `AgentCommandOutput` renders `output` with a running cursor controlled by
 `isRunning`. Optional `children` let the host retain ANSI rendering or normalize
@@ -321,7 +321,7 @@ or its inline-byte validation.
 ## Shell executor errors
 
 The executor returned by `createShellExecutor` rejects on execution failure.
-The following error classes are exported from `@cline/core` so hosts can
+The following error classes are exported from `@induscode/core` so hosts can
 distinguish process outcomes without parsing messages. They are not an exhaustive
 list of rejections: cancellation, timeout, and stdin-write failures can reject
 with other errors.

@@ -49,7 +49,7 @@ describe("ca-certs", () => {
 	let dir: string;
 
 	beforeEach(() => {
-		dir = mkdtempSync(join(tmpdir(), "cline-ca-"));
+		dir = mkdtempSync(join(tmpdir(), "induscode-ca-"));
 	});
 
 	afterEach(() => {
@@ -190,7 +190,7 @@ describe("ca-certs", () => {
 
 	describe("configureNodeExtraCaCerts", () => {
 		it("writes a managed bundle and points the env var at it", () => {
-			const env: Record<string, string> = { CLINE_DIR: dir };
+			const env: Record<string, string> = { INDUSCODE_DIR: dir };
 			const out = caCerts.configureNodeExtraCaCerts(env, {
 				tls: fakeTls([certSystem]),
 			});
@@ -204,7 +204,7 @@ describe("ca-certs", () => {
 			const userPath = join(dir, "corp.pem");
 			writeFileSync(userPath, certUser);
 			const env: Record<string, string> = {
-				CLINE_DIR: dir,
+				INDUSCODE_DIR: dir,
 				NODE_EXTRA_CA_CERTS: userPath,
 			};
 			const out = caCerts.configureNodeExtraCaCerts(env, {
@@ -217,7 +217,7 @@ describe("ca-certs", () => {
 		});
 
 		it("reports unchanged and skips rewrite on the second run", () => {
-			const env: Record<string, string> = { CLINE_DIR: dir };
+			const env: Record<string, string> = { INDUSCODE_DIR: dir };
 			expect(
 				caCerts.configureNodeExtraCaCerts(env, { tls: fakeTls([certSystem]) })
 					.action,
@@ -229,12 +229,12 @@ describe("ca-certs", () => {
 		});
 
 		it("does not re-append when the user already points at the managed bundle", () => {
-			const env: Record<string, string> = { CLINE_DIR: dir };
+			const env: Record<string, string> = { INDUSCODE_DIR: dir };
 			const first = caCerts.configureNodeExtraCaCerts(env, {
 				tls: fakeTls([certSystem]),
 			}).path as string;
 			const env2: Record<string, string> = {
-				CLINE_DIR: dir,
+				INDUSCODE_DIR: dir,
 				NODE_EXTRA_CA_CERTS: first,
 			};
 			caCerts.configureNodeExtraCaCerts(env2, { tls: fakeTls([certSystem]) });
@@ -244,7 +244,7 @@ describe("ca-certs", () => {
 
 		it("no-ops when no system certs are available", () => {
 			const env: Record<string, string> = {
-				CLINE_DIR: dir,
+				INDUSCODE_DIR: dir,
 				NODE_EXTRA_CA_CERTS: "/user/corp.pem",
 			};
 			const out = caCerts.configureNodeExtraCaCerts(env, { tls: fakeTls([]) });
@@ -255,7 +255,7 @@ describe("ca-certs", () => {
 
 		it("reports api-unavailable on Nodes without getCACertificates", () => {
 			const env: Record<string, string> = {
-				CLINE_DIR: dir,
+				INDUSCODE_DIR: dir,
 				NODE_EXTRA_CA_CERTS: "/user/corp.pem",
 			};
 			const out = caCerts.configureNodeExtraCaCerts(env, { tls: {} });
@@ -275,7 +275,7 @@ describe("ca-certs", () => {
 					throw new Error("EACCES");
 				},
 			};
-			const env: Record<string, string> = { CLINE_DIR: dir };
+			const env: Record<string, string> = { INDUSCODE_DIR: dir };
 			const out = caCerts.configureNodeExtraCaCerts(env, {
 				tls: fakeTls([certSystem]),
 				fs: failingFs,
@@ -287,7 +287,7 @@ describe("ca-certs", () => {
 
 		it("reuses a stale bundle when the rewrite fails", () => {
 			// First run writes the bundle normally.
-			const env: Record<string, string> = { CLINE_DIR: dir };
+			const env: Record<string, string> = { INDUSCODE_DIR: dir };
 			const managedPath = caCerts.configureNodeExtraCaCerts(env, {
 				tls: fakeTls([certSystem]),
 			}).path as string;
@@ -303,7 +303,7 @@ describe("ca-certs", () => {
 					throw new Error("EACCES");
 				},
 			};
-			const env2: Record<string, string> = { CLINE_DIR: dir };
+			const env2: Record<string, string> = { INDUSCODE_DIR: dir };
 			const out = caCerts.configureNodeExtraCaCerts(env2, {
 				// A different system cert forces a rewrite attempt (not "unchanged").
 				tls: fakeTls([certUser]),
@@ -327,14 +327,14 @@ describe("ca-certs", () => {
 
 	describe("shouldWarnApiUnavailable", () => {
 		it("warns once per Node version, then stays quiet", () => {
-			const env = { CLINE_DIR: dir };
+			const env = { INDUSCODE_DIR: dir };
 			const deps = { nodeVersion: "22.1.0" };
 			expect(caCerts.shouldWarnApiUnavailable(env, deps)).toBe(true);
 			expect(caCerts.shouldWarnApiUnavailable(env, deps)).toBe(false);
 		});
 
 		it("re-arms when the Node version changes", () => {
-			const env = { CLINE_DIR: dir };
+			const env = { INDUSCODE_DIR: dir };
 			expect(
 				caCerts.shouldWarnApiUnavailable(env, { nodeVersion: "22.1.0" }),
 			).toBe(true);
@@ -357,7 +357,7 @@ describe("ca-certs", () => {
 					throw new Error("EACCES");
 				},
 			};
-			const env = { CLINE_DIR: dir };
+			const env = { INDUSCODE_DIR: dir };
 			const deps = { fs: failingFs, nodeVersion: "22.1.0" };
 			// Bookkeeping failure must never suppress the diagnostic.
 			expect(caCerts.shouldWarnApiUnavailable(env, deps)).toBe(true);

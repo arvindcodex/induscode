@@ -19,7 +19,7 @@ import { refreshCohort, reportLoaderDecision } from "./rollout";
 import { scopedContext } from "./scoped-context";
 
 /**
- * Cline rollout loader.
+ * IndusCode rollout loader.
  *
  * The VSIX ships two complete, independently built extension bundles:
  *   next/    — the SDK-based extension (built from main's apps/vscode)
@@ -135,7 +135,7 @@ async function activateBundle(
 			void refreshCohort(context).catch(() => {});
 		}
 		// Authoritative activation event, captured by the bundle's own telemetry
-		// (built with CLINE_ROLLOUT_VARIANT). On fallback this runs in the legacy
+		// (built with INDUSCODE_ROLLOUT_VARIANT). On fallback this runs in the legacy
 		// bundle — next's pipeline is the thing that just crashed.
 		if (typeof module.reportRolloutActivation === "function") {
 			void module
@@ -172,7 +172,7 @@ async function activateBundle(
 			throw error;
 		}
 		console.error(
-			"[cline-rollout] next bundle failed to activate, falling back to legacy:",
+			"[induscode-rollout] next bundle failed to activate, falling back to legacy:",
 			error,
 		);
 		disposeSubscriptionsAddedAfter(context, subscriptionsBefore);
@@ -217,7 +217,7 @@ function showNightlyBundleIndicator(
 	meta: ActivationMeta,
 	fallbackFrom: FallbackFrom | undefined,
 ) {
-	if (prefix !== "cline-nightly") {
+	if (prefix !== "induscode-nightly") {
 		return;
 	}
 	try {
@@ -225,17 +225,17 @@ function showNightlyBundleIndicator(
 			vscode.StatusBarAlignment.Right,
 			-1000,
 		);
-		item.text = bundle === "next" ? "Cline: Next" : "Cline: Legacy";
+		item.text = bundle === "next" ? "IndusCode: Next" : "IndusCode: Legacy";
 		const detail = fallbackFrom
 			? "crash fallback from the next bundle"
 			: meta.override
 				? `forced by ${meta.override === "env" ? `the ${BUNDLE_OVERRIDE_ENV} env var` : "the bundleOverride setting"}`
 				: "rollout assignment";
-		item.tooltip = `Cline nightly A/B rollout: running the ${bundle === "next" ? "next (SDK)" : "legacy"} bundle (${detail}).`;
+		item.tooltip = `IndusCode nightly A/B rollout: running the ${bundle === "next" ? "next (SDK)" : "legacy"} bundle (${detail}).`;
 		item.show();
 		context.subscriptions.push(item);
 	} catch (error) {
-		console.warn("[cline-rollout] could not show bundle indicator:", error);
+		console.warn("[induscode-rollout] could not show bundle indicator:", error);
 	}
 }
 

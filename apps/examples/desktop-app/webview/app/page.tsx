@@ -1,10 +1,10 @@
 "use client";
 
 import {
-	CLINE_DEFAULT_MODEL_ID,
+	INDUSCODE_DEFAULT_MODEL_ID,
 	type ProviderAuthInfo,
-} from "@cline/shared/browser";
-import { AttachmentDropZone } from "@cline/ui";
+} from "@induscode/shared/browser";
+import { AttachmentDropZone } from "@induscode/ui";
 import { Loader2, LoaderCircle } from "lucide-react";
 import dynamic from "next/dynamic";
 import {
@@ -67,7 +67,7 @@ import { toast } from "@/hooks/use-toast";
 import { applyAppZoomAction, syncAppFontSize } from "@/lib/app-font-size";
 import { syncAppIcon } from "@/lib/app-icon";
 import type { ChatSessionConfig } from "@/lib/chat-schema";
-import { openPersonalGitHubInstallUrl } from "@/lib/cline-integrations";
+import { openPersonalGitHubInstallUrl } from "@/lib/induscode-integrations";
 import { cloudRepositoryLabel } from "@/lib/cloud-repositories";
 import {
 	humanizeCloudSessionError,
@@ -284,7 +284,7 @@ function CloudProvisioningPane({ phase }: { phase: string }) {
 				className="mt-4 flex items-center gap-2 text-sm text-muted-foreground"
 			>
 				<LoaderCircle className="h-4 w-4 animate-spin" />
-				<span className="cline-chat-streaming-title">{phase}</span>
+				<span className="induscode-chat-streaming-title">{phase}</span>
 			</div>
 		</div>
 	);
@@ -2124,7 +2124,7 @@ function ChatThreadPane({
 			hydratedSessionRef.current = null;
 			manualTitleSessionRef.current = null;
 			window.dispatchEvent(
-				new CustomEvent("cline:session-deleted", {
+				new CustomEvent("induscode:session-deleted", {
 					detail: {
 						sessionId: activeSessionToDelete,
 						environmentId,
@@ -2180,11 +2180,11 @@ function ChatThreadPane({
 					return {
 						...prev,
 						executionTarget: "cloud",
-						provider: "cline",
+						provider: "induscode",
 						model:
-							remembered.lastModelByProvider.cline ||
-							(prev.provider === "cline" ? prev.model : CLINE_DEFAULT_MODEL_ID),
-						apiKey: providerCredentials.cline?.apiKey ?? "",
+							remembered.lastModelByProvider.induscode ||
+							(prev.provider === "induscode" ? prev.model : INDUSCODE_DEFAULT_MODEL_ID),
+						apiKey: providerCredentials.induscode?.apiKey ?? "",
 						workspaceRoot: "",
 						cwd: "",
 					};
@@ -2217,7 +2217,7 @@ function ChatThreadPane({
 		},
 		[
 			environmentId,
-			providerCredentials.cline?.apiKey,
+			providerCredentials.induscode?.apiKey,
 			setConfig,
 			cloudAgentsEnabled,
 			setPendingAttachments,
@@ -2303,8 +2303,8 @@ function ChatThreadPane({
 				try {
 					writeModelSelectionStorageToWindow(
 						{
-							lastProvider: "cline",
-							lastModelByProvider: { cline: nextModel },
+							lastProvider: "induscode",
+							lastModelByProvider: { induscode: nextModel },
 						},
 						"cloud",
 					);
@@ -2463,7 +2463,7 @@ function ChatThreadPane({
 					title: normalizedTitle || undefined,
 				});
 				window.dispatchEvent(
-					new CustomEvent("cline:session-title-updated", {
+					new CustomEvent("induscode:session-title-updated", {
 						detail: {
 							sessionId: activeSessionForTitle,
 							environmentId,
@@ -2607,7 +2607,7 @@ function ChatThreadPane({
 			>
 				{!isWelcomeState ? (
 					<WindowTitleBarContent>
-						<div className="cline-view-enter z-20 border-b border-border/70 bg-background/85 backdrop-blur-sm">
+						<div className="induscode-view-enter z-20 border-b border-border/70 bg-background/85 backdrop-blur-sm">
 							<AgentHeader
 								agentActivity={isCloudSession ? undefined : agentActivity}
 								agents={isCloudSession ? undefined : agents}

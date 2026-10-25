@@ -1,8 +1,8 @@
 import fsSync from "node:fs"
 import os from "node:os"
 import path from "node:path"
-import { ClineFileStorage } from "./ClineFileStorage"
-import { ClineMemento } from "./ClineStorage"
+import { IndusCodeFileStorage } from "./IndusCodeFileStorage"
+import { IndusCodeMemento } from "./IndusCodeStorage"
 
 /**
  * The storage backend context object used by StateManager and other components.
@@ -14,24 +14,24 @@ import { ClineMemento } from "./ClineStorage"
  */
 export interface StorageContext {
 	/** Global state — settings, task history references, UI state, etc. */
-	readonly globalState: ClineMemento
+	readonly globalState: IndusCodeMemento
 
 	// TODO: Privatize this field after StorageContext becomes class with a reset method.
 	/**
 	 * The backing store for global state. Prefer `globalState` when possible.
 	 *
-	 * This split exists because CLI needs to intercept the ClineMemento interface to global state,
+	 * This split exists because CLI needs to intercept the IndusCodeMemento interface to global state,
 	 * but state resets need to write through to the backing store.
 	 */
-	readonly globalStateBackingStore: ClineFileStorage
+	readonly globalStateBackingStore: IndusCodeFileStorage
 
 	/** Secrets — API keys and other sensitive values. File uses restricted permissions (0o600). */
-	readonly secrets: ClineFileStorage<string>
+	readonly secrets: IndusCodeFileStorage<string>
 
 	/** Workspace-scoped state — per-project toggles, rules, etc. */
-	readonly workspaceState: ClineFileStorage
+	readonly workspaceState: IndusCodeFileStorage
 
-	/** The resolved path to the data directory (~/.cline/data) */
+	/** The resolved path to the data directory (~/.induscode/data) */
 	readonly dataDir: string
 
 	/** The resolved path to the workspace storage directory (contains workspaceState.json) */
@@ -40,11 +40,11 @@ export interface StorageContext {
 
 export interface StorageContextOptions {
 	/**
-	 * Override the Cline home directory. When set, the data directory is always
-	 * `<clineDir>/data`. Defaults to env-based resolution: CLINE_DATA_DIR, then
-	 * CLINE_DIR + "/data", then ~/.cline/data.
+	 * Override the IndusCode home directory. When set, the data directory is always
+	 * `<induscodeDir>/data`. Defaults to env-based resolution: INDUSCODE_DATA_DIR, then
+	 * INDUSCODE_DIR + "/data", then ~/.induscode/data.
 	 */
-	clineDir?: string
+	induscodeDir?: string
 
 	/**
 	 * The workspace/project directory path. Used to compute a hash-based
@@ -80,23 +80,27 @@ function hashString(str: string): string {
 }
 
 /**
- * Resolve the Cline data directory from the environment:
- * CLINE_DATA_DIR (trimmed) > CLINE_DIR + "/data" > ~/.cline/data.
+ * Resolve the IndusCode data directory from the environment:
+ * INDUSCODE_DATA_DIR (trimmed) > INDUSCODE_DIR + "/data" > ~/.induscode/data.
  *
  * Single source of truth shared by createStorageContext and the SDK adapter's
- * legacy-state-reader, matching the SDK's own resolveClineDataDir. Every
+ * legacy-state-reader, matching the SDK's own resolveIndusCodeDataDir. Every
  * reader/writer of globalState.json, secrets.json, and providers.json must
  * resolve through the same rules — diverging resolvers split provider state
  * across directories, so requests can run on a provider the settings never
  * show (ENG-2332).
  */
 export function resolveDataDirFromEnv(): string {
-	const envDataDir = process.env.CLINE_DATA_DIR?.trim()
+	const envDataDir = process.env.INDUSCODE_DATA_DIR?.trim() || process.env.INDUSCODE_DATA_DIR?.trim()
 	if (envDataDir) {
 		return envDataDir
 	}
-	const clineDir = process.env.CLINE_DIR?.trim() || path.join(os.homedir(), ".cline")
-	return path.join(clineDir, SETTINGS_SUBFOLDER)
+	const indusDir = path.join(os.homedir(), ".induscode")
+	const induscodeDir =
+		process.env.INDUSCODE_DIR?.trim() ||
+		process.env.INDUSCODE_DIR?.trim() ||
+		(fs.existsSync(indusDir) ? indusDir : fs.existsSync(path.join(os.homedir(), ".induscode")) ? path.join(os.homedir(), ".induscode") : indusDir)
+	return path.join(induscodeDir, SETTINGS_SUBFOLDER)
 }
 
 /**
@@ -105,7 +109,7 @@ export function resolveDataDirFromEnv(): string {
  * All path computation is contained here — callers should not
  * construct paths to these storage files themselves.
  *
- * File layout (under the resolved data directory, ~/.cline/data by default):
+ * File layout (under the resolved data directory, ~/.induscode/data by default):
  *   <dataDir>/globalState.json    — global state
  *   <dataDir>/secrets.json        — secrets (mode 0o600)
  *   <dataDir>/workspaces/<hash>/workspaceState.json — per-workspace state
@@ -114,7 +118,7 @@ export function resolveDataDirFromEnv(): string {
  * @returns A StorageContext ready for use by StateManager
  */
 export function createStorageContext(opts: StorageContextOptions = {}): StorageContext {
-	const dataDir = opts.clineDir ? path.join(opts.clineDir, SETTINGS_SUBFOLDER) : resolveDataDirFromEnv()
+	const dataDir = opts.induscodeDir ? path.join(opts.induscodeDir, SETTINGS_SUBFOLDER) : resolveDataDirFromEnv()
 
 	// Resolve workspace storage directory
 	let workspaceDir: string
@@ -132,15 +136,15 @@ export function createStorageContext(opts: StorageContextOptions = {}): StorageC
 	fsSync.mkdirSync(dataDir, { recursive: true })
 	fsSync.mkdirSync(workspaceDir, { recursive: true })
 
-	const globalState = new ClineFileStorage(path.join(dataDir, "globalState.json"), "GlobalState")
+	const globalState = new IndusCodeFileStorage(path.join(dataDir, "globalState.json"), "GlobalState")
 
 	return {
 		globalState,
 		globalStateBackingStore: globalState,
-		secrets: new ClineFileStorage<string>(path.join(dataDir, "secrets.json"), "Secrets", {
+		secrets: new IndusCodeFileStorage<string>(path.join(dataDir, "secrets.json"), "Secrets", {
 			fileMode: 0o600, // Owner read/write only — protects API keys
 		}),
-		workspaceState: new ClineFileStorage(path.join(workspaceDir, "workspaceState.json"), "WorkspaceState"),
+		workspaceState: new IndusCodeFileStorage(path.join(workspaceDir, "workspaceState.json"), "WorkspaceState"),
 		dataDir,
 		workspaceStoragePath: workspaceDir,
 	}

@@ -1,4 +1,4 @@
-import { CommandExitError, CommandSpawnError, CommandTerminationError } from "@cline/core"
+import { CommandExitError, CommandSpawnError, CommandTerminationError } from "@induscode/core"
 import { describe, expect, it } from "vitest"
 import { describeBackgroundFailure } from "./background-failure"
 

@@ -2,7 +2,7 @@ import {
 	classifyTool,
 	normalizeToolName,
 	type ToolKind,
-} from "@cline/ui/components/agent-chat/tool-summary";
+} from "@induscode/ui/components/agent-chat/tool-summary";
 import {
 	BlocksIcon,
 	BoxIcon,

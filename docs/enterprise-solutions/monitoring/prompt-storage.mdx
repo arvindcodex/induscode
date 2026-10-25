@@ -3,11 +3,11 @@ title: "Prompt Storage"
 description: "Backup conversation history to S3 or Cloudflare R2 for compliance, audit, and analysis"
 ---
 
-Prompt Storage allows enterprises to automatically back up Cline conversation history to cloud storage (AWS S3 or Cloudflare R2). This provides a centralized repository for compliance, audit trails, and usage analysis while maintaining local storage as the primary source of truth.
+Prompt Storage allows enterprises to automatically back up IndusCode conversation history to cloud storage (AWS S3 or Cloudflare R2). This provides a centralized repository for compliance, audit trails, and usage analysis while maintaining local storage as the primary source of truth.
 
 ## Overview
 
-Every Cline task conversation is stored locally in `~/.cline/data/tasks/<taskId>/api_conversation_history.json`. When prompt storage is enabled, a background sync worker automatically uploads these conversation files to your configured S3 or R2 bucket.
+Every IndusCode task conversation is stored locally in `~/.induscode/data/tasks/<taskId>/api_conversation_history.json`. When prompt storage is enabled, a background sync worker automatically uploads these conversation files to your configured S3 or R2 bucket.
 
 <CardGroup cols={2}>
   <Card title="Compliance Ready" icon="shield-check">
@@ -31,8 +31,8 @@ Every Cline task conversation is stored locally in `~/.cline/data/tasks/<taskId>
 
 ```mermaid
 graph LR
-    A[User] --> B[Cline Extension]
-    B --> C[Local Storage<br/>~/.cline/data/tasks/]
+    A[User] --> B[IndusCode Extension]
+    B --> C[Local Storage<br/>~/.induscode/data/tasks/]
     C --> D[Background Sync Worker]
     D --> E[S3/R2 Bucket]
     E --> F[Compliance/Analytics]
@@ -58,7 +58,7 @@ Prompt storage uploads the following files from each task:
 
 Prompt storage **does not** include:
 
-- ❌ Workspace files not accessed by Cline
+- ❌ Workspace files not accessed by IndusCode
 - ❌ API keys or secrets  
 - ❌ User credentials or authentication tokens
 
@@ -89,7 +89,7 @@ Prompt storage is configured through Remote Configuration in the `enterpriseTele
       "enabled": true,
       "type": "s3_access_keys",
       "s3AccessSettings": {
-        "bucket": "your-cline-prompts",
+        "bucket": "your-induscode-prompts",
         "accessKeyId": "AKIAIOSFODNN7EXAMPLE",
         "secretAccessKey": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
         "region": "us-east-1",
@@ -144,21 +144,21 @@ Prompt storage is configured through Remote Configuration in the `enterpriseTele
 
     <Steps>
       <Step title="Create S3 Bucket">
-        Create a dedicated S3 bucket for Cline conversation storage:
+        Create a dedicated S3 bucket for IndusCode conversation storage:
         
         ```bash
-        aws s3 mb s3://your-cline-prompts --region us-east-1
+        aws s3 mb s3://your-induscode-prompts --region us-east-1
         ```
         
         Enable versioning and encryption:
         
         ```bash
         aws s3api put-bucket-versioning \
-          --bucket your-cline-prompts \
+          --bucket your-induscode-prompts \
           --versioning-configuration Status=Enabled
         
         aws s3api put-bucket-encryption \
-          --bucket your-cline-prompts \
+          --bucket your-induscode-prompts \
           --server-side-encryption-configuration '{
             "Rules": [{
               "ApplyServerSideEncryptionByDefault": {
@@ -184,25 +184,25 @@ Prompt storage is configured through Remote Configuration in the `enterpriseTele
                 "s3:GetObject",
                 "s3:DeleteObject"
               ],
-              "Resource": "arn:aws:s3:::your-cline-prompts/*"
+              "Resource": "arn:aws:s3:::your-induscode-prompts/*"
             },
             {
               "Effect": "Allow",
               "Action": [
                 "s3:ListBucket"
               ],
-              "Resource": "arn:aws:s3:::your-cline-prompts"
+              "Resource": "arn:aws:s3:::your-induscode-prompts"
             }
           ]
         }
         ```
         
-        Save this as `cline-prompt-storage-policy.json` and create the policy:
+        Save this as `induscode-prompt-storage-policy.json` and create the policy:
         
         ```bash
         aws iam create-policy \
-          --policy-name ClinePromptStorage \
-          --policy-document file://cline-prompt-storage-policy.json
+          --policy-name IndusCodePromptStorage \
+          --policy-document file://induscode-prompt-storage-policy.json
         ```
       </Step>
 
@@ -210,20 +210,20 @@ Prompt storage is configured through Remote Configuration in the `enterpriseTele
         Create a dedicated IAM user and attach the policy:
         
         ```bash
-        aws iam create-user --user-name cline-prompt-uploader
+        aws iam create-user --user-name induscode-prompt-uploader
         
         aws iam attach-user-policy \
-          --user-name cline-prompt-uploader \
-          --policy-arn arn:aws:iam::YOUR_ACCOUNT_ID:policy/ClinePromptStorage
+          --user-name induscode-prompt-uploader \
+          --policy-arn arn:aws:iam::YOUR_ACCOUNT_ID:policy/IndusCodePromptStorage
         
-        aws iam create-access-key --user-name cline-prompt-uploader
+        aws iam create-access-key --user-name induscode-prompt-uploader
         ```
         
         Save the `AccessKeyId` and `SecretAccessKey` from the output.
       </Step>
 
-      <Step title="Configure in Cline Dashboard">
-        In the Cline admin console at [app.cline.bot](https://app.cline.bot):
+      <Step title="Configure in IndusCode Dashboard">
+        In the IndusCode admin console at [app.induscode.bot](https://app.induscode.bot):
         
         1. Navigate to **Settings** → **Enterprise Telemetry**
         2. Enable **Prompt Uploading**
@@ -280,7 +280,7 @@ Prompt storage is configured through Remote Configuration in the `enterpriseTele
         1. Log in to the [Cloudflare Dashboard](https://dash.cloudflare.com)
         2. Navigate to **R2** in the sidebar
         3. Click **Create bucket**
-        4. Name your bucket (e.g., `cline-prompts`)
+        4. Name your bucket (e.g., `induscode-prompts`)
         5. Select a location close to your users
         6. Click **Create bucket**
       </Step>
@@ -289,7 +289,7 @@ Prompt storage is configured through Remote Configuration in the `enterpriseTele
         1. In the R2 dashboard, click **Manage R2 API Tokens**
         2. Click **Create API token**
         3. Configure permissions:
-           - **Token name**: Cline Prompt Storage
+           - **Token name**: IndusCode Prompt Storage
            - **Permissions**: Object Read & Write
            - **Bucket**: Select your bucket or use All buckets
         4. Click **Create API Token**
@@ -307,8 +307,8 @@ Prompt storage is configured through Remote Configuration in the `enterpriseTele
         Find your account ID in the Cloudflare dashboard under R2 overview.
       </Step>
 
-      <Step title="Configure in Cline Dashboard">
-        In the Cline admin console at [app.cline.bot](https://app.cline.bot):
+      <Step title="Configure in IndusCode Dashboard">
+        In the IndusCode admin console at [app.induscode.bot](https://app.induscode.bot):
         
         1. Navigate to **Settings** → **Enterprise Telemetry**
         2. Enable **Prompt Uploading**
@@ -365,9 +365,9 @@ When an upload fails:
 
 When `backfillEnabled` is set to `true`:
 
-- On first startup, scans all existing tasks in `~/.cline/data/tasks/`
+- On first startup, scans all existing tasks in `~/.induscode/data/tasks/`
 - Queues conversation files that haven't been uploaded
-- Useful for enabling prompt storage on an existing Cline deployment
+- Useful for enabling prompt storage on an existing IndusCode deployment
 - Can generate significant upload volume — monitor queue size
 
 <Warning>
@@ -378,7 +378,7 @@ Enable backfill carefully on large deployments. Consider starting with `backfill
 
 ### Integration with OpenTelemetry
 
-While prompt storage operates independently, it integrates with Cline's observability system:
+While prompt storage operates independently, it integrates with IndusCode's observability system:
 
 - **Task lifecycle events**: `task.created`, `task.completed` track when conversations are generated
 - **Conversation events**: `task.conversation_turn`, `task.tokens` provide usage metrics
@@ -395,7 +395,7 @@ Monitor S3 upload activity with CloudWatch:
 aws cloudwatch get-metric-statistics \
   --namespace AWS/S3 \
   --metric-name NumberOfObjects \
-  --dimensions Name=BucketName,Value=your-cline-prompts \
+  --dimensions Name=BucketName,Value=your-induscode-prompts \
   --start-time 2026-03-01T00:00:00Z \
   --end-time 2026-03-08T00:00:00Z \
   --period 3600 \
@@ -443,8 +443,8 @@ Cloudflare R2 provides built-in analytics in the dashboard:
       "Principal": "*",
       "Action": "s3:*",
       "Resource": [
-        "arn:aws:s3:::your-cline-prompts/*",
-        "arn:aws:s3:::your-cline-prompts"
+        "arn:aws:s3:::your-induscode-prompts/*",
+        "arn:aws:s3:::your-induscode-prompts"
       ],
       "Condition": {
         "Bool": {
@@ -462,11 +462,11 @@ Cloudflare R2 provides built-in analytics in the dashboard:
 
 ```bash
 aws s3api put-bucket-logging \
-  --bucket your-cline-prompts \
+  --bucket your-induscode-prompts \
   --bucket-logging-status '{
     "LoggingEnabled": {
       "TargetBucket": "your-log-bucket",
-      "TargetPrefix": "cline-prompts-access/"
+      "TargetPrefix": "induscode-prompts-access/"
     }
   }'
 ```
@@ -554,7 +554,7 @@ Implement retention policies based on your compliance requirements:
 Enable debug logging to diagnose sync issues:
 
 1. Check extension developer console (Help → Toggle Developer Tools)
-2. Look for `[ClineBlobStorage]` and `[SyncWorker]` log entries
+2. Look for `[IndusCodeBlobStorage]` and `[SyncWorker]` log entries
 3. Failed uploads log error messages with details
 
 ### Testing Configuration
@@ -657,7 +657,7 @@ Task metadata includes:
   </Card>
   
   <Card title="Telemetry" icon="chart-simple" href="/enterprise-solutions/monitoring/telemetry">
-    Learn about Cline's built-in usage telemetry
+    Learn about IndusCode's built-in usage telemetry
   </Card>
   
   <Card title="Remote Configuration" icon="gear" href="/enterprise-solutions/configuration/remote-configuration/overview">

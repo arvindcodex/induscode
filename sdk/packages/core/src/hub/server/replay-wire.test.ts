@@ -8,7 +8,7 @@
 import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { HubEventEnvelope, HubTransportFrame } from "@cline/shared";
+import type { HubEventEnvelope, HubTransportFrame } from "@induscode/shared";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { WebSocket } from "ws";
 
@@ -40,7 +40,7 @@ afterEach(async () => {
 });
 
 function stubSessionHost() {
-	const root = mkdtempSync(join(tmpdir(), "cline-hub-replay-wire-"));
+	const root = mkdtempSync(join(tmpdir(), "induscode-hub-replay-wire-"));
 	const sessions = new Map<string, Record<string, unknown>>();
 	return {
 		root,
@@ -101,7 +101,7 @@ function stubSessionHost() {
 }
 
 async function openSocket(url: string, authToken: string): Promise<WebSocket> {
-	const socket = new WebSocket(url, `cline-hub-auth.${authToken}`);
+	const socket = new WebSocket(url, `induscode-hub-auth.${authToken}`);
 	sockets.add(socket);
 	await new Promise<void>((resolve, reject) => {
 		socket.once("open", () => resolve());

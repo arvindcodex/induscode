@@ -1,7 +1,7 @@
-import { isChatWorkspacePath } from "@cline/shared/browser";
+import { isChatWorkspacePath } from "@induscode/shared/browser";
 
 export const WORKSPACE_SELECTION_STORAGE_KEY =
-	"cline.code.workspace-selection.v2";
+	"induscode.code.workspace-selection.v2";
 
 export const LOCAL_WORKSPACE_ENVIRONMENT_ID = "local";
 
@@ -122,8 +122,8 @@ function isRegisteredHomeOrDesktop(normalized: string): boolean {
 }
 
 /**
- * Sessions can run anywhere (Cline-internal worktrees and plugin installs
- * under `.cline`, or a shell's default cwd like the home or Desktop
+ * Sessions can run anywhere (IndusCode-internal worktrees and plugin installs
+ * under `.induscode`, or a shell's default cwd like the home or Desktop
  * directory), but those locations are not projects to offer in the
  * workspace catalog. The active workspace root is registered separately,
  * so an explicitly opened directory still shows while selected.
@@ -136,7 +136,7 @@ export function isExcludedWorkspacePath(path: string): boolean {
 	if (isChatWorkspacePath(normalized)) {
 		return true;
 	}
-	if (normalized.split(/[\\/]/).includes(".cline")) {
+	if (normalized.split(/[\\/]/).includes(".induscode")) {
 		return true;
 	}
 	return (
@@ -149,8 +149,8 @@ export function isExcludedWorkspacePath(path: string): boolean {
 let taskWorktreeRoot = "";
 
 /**
- * The sidecar creates task worktrees under `<cline dir>/worktrees`, where the
- * Cline dir honors `CLINE_DIR`, and reports that root through
+ * The sidecar creates task worktrees under `<induscode dir>/worktrees`, where the
+ * IndusCode dir honors `INDUSCODE_DIR`, and reports that root through
  * `get_process_context` so the webview matches the same location it uses.
  */
 export function registerTaskWorktreeRoot(path: string): void {

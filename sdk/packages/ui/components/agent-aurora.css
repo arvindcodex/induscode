@@ -1,19 +1,19 @@
-.cline-ui-agent-aurora {
+.induscode-ui-agent-aurora {
 	position: absolute;
 	inset: 0;
 	overflow: hidden;
 	pointer-events: none;
 }
 
-.cline-ui-agent-aurora__horizon,
-.cline-ui-agent-aurora__current,
-.cline-ui-agent-aurora__blob,
-.cline-ui-agent-aurora__star {
+.induscode-ui-agent-aurora__horizon,
+.induscode-ui-agent-aurora__current,
+.induscode-ui-agent-aurora__blob,
+.induscode-ui-agent-aurora__star {
 	position: absolute;
 }
 
 /* Avoid filter: blur; it forced full-surface repaints below 10fps. */
-.cline-ui-agent-aurora__soft-band {
+.induscode-ui-agent-aurora__soft-band {
 	-webkit-mask-image: linear-gradient(
 		to bottom,
 		transparent,
@@ -30,7 +30,7 @@
 	);
 }
 
-.cline-ui-agent-aurora__horizon {
+.induscode-ui-agent-aurora__horizon {
 	right: -8%;
 	bottom: -3%;
 	left: -8%;
@@ -43,20 +43,20 @@
 		color-mix(in oklab, var(--brand-cyan) 58%, transparent)
 	);
 	opacity: 0.6;
-	animation: cline-ui-agent-aurora-horizon 8s ease-in-out -3s infinite alternate;
+	animation: induscode-ui-agent-aurora-horizon 8s ease-in-out -3s infinite alternate;
 	transform-origin: center bottom;
 	will-change: opacity, transform;
 }
 
-.cline-ui-agent-aurora__current {
-	animation-name: cline-ui-agent-aurora-current;
+.induscode-ui-agent-aurora__current {
+	animation-name: induscode-ui-agent-aurora-current;
 	animation-timing-function: ease-in-out;
 	animation-iteration-count: infinite;
 	animation-direction: alternate;
 	will-change: opacity, transform;
 }
 
-.cline-ui-agent-aurora__current--left {
+.induscode-ui-agent-aurora__current--left {
 	bottom: 3%;
 	left: -45%;
 	width: 125%;
@@ -73,7 +73,7 @@
 	animation-delay: -2s;
 }
 
-.cline-ui-agent-aurora__current--right {
+.induscode-ui-agent-aurora__current--right {
 	right: -42%;
 	bottom: -5%;
 	width: 120%;
@@ -91,64 +91,64 @@
 	animation-direction: alternate-reverse;
 }
 
-.cline-ui-agent-aurora__blob {
-	animation-name: cline-ui-agent-aurora-drift;
+.induscode-ui-agent-aurora__blob {
+	animation-name: induscode-ui-agent-aurora-drift;
 	animation-timing-function: ease-in-out;
 	animation-iteration-count: infinite;
 	animation-direction: alternate;
 	will-change: opacity, transform;
 }
 
-.cline-ui-agent-aurora__blob--left {
+.induscode-ui-agent-aurora__blob--left {
 	bottom: -40%;
 	left: -20%;
 	width: 70%;
 	height: 80%;
 }
 
-.cline-ui-agent-aurora__blob--right {
+.induscode-ui-agent-aurora__blob--right {
 	right: -15%;
 	bottom: -40%;
 	width: 65%;
 	height: 85%;
-	animation-name: cline-ui-agent-aurora-drift-reverse;
+	animation-name: induscode-ui-agent-aurora-drift-reverse;
 }
 
-.cline-ui-agent-aurora__star {
+.induscode-ui-agent-aurora__star {
 	border-radius: 1px;
-	animation-name: cline-ui-agent-aurora-twinkle;
+	animation-name: induscode-ui-agent-aurora-twinkle;
 	animation-timing-function: ease-in-out;
 	animation-iteration-count: infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
-	.cline-ui-agent-aurora__blob,
-	.cline-ui-agent-aurora__current,
-	.cline-ui-agent-aurora__horizon,
-	.cline-ui-agent-aurora__star {
+	.induscode-ui-agent-aurora__blob,
+	.induscode-ui-agent-aurora__current,
+	.induscode-ui-agent-aurora__horizon,
+	.induscode-ui-agent-aurora__star {
 		/* biome-ignore lint/complexity/noImportantStyles: overrides inline timing */
 		animation: none !important;
 	}
 
-	.cline-ui-agent-aurora__horizon {
+	.induscode-ui-agent-aurora__horizon {
 		opacity: 0.68;
 		transform: translate3d(0, -1%, 0) scale(1.05);
 	}
 
-	.cline-ui-agent-aurora__blob,
-	.cline-ui-agent-aurora__current {
+	.induscode-ui-agent-aurora__blob,
+	.induscode-ui-agent-aurora__current {
 		opacity: 0.58;
 		transform: none;
 	}
 
-	.cline-ui-agent-aurora__blob,
-	.cline-ui-agent-aurora__current,
-	.cline-ui-agent-aurora__horizon {
+	.induscode-ui-agent-aurora__blob,
+	.induscode-ui-agent-aurora__current,
+	.induscode-ui-agent-aurora__horizon {
 		will-change: auto;
 	}
 }
 
-@keyframes cline-ui-agent-aurora-drift {
+@keyframes induscode-ui-agent-aurora-drift {
 	0% {
 		opacity: 0.55;
 		transform: translate3d(-8%, 5%, 0) scale(0.94);
@@ -165,7 +165,7 @@
 	}
 }
 
-@keyframes cline-ui-agent-aurora-drift-reverse {
+@keyframes induscode-ui-agent-aurora-drift-reverse {
 	0% {
 		opacity: 0.62;
 		transform: translate3d(10%, -6%, 0) scale(1.08);
@@ -182,7 +182,7 @@
 	}
 }
 
-@keyframes cline-ui-agent-aurora-horizon {
+@keyframes induscode-ui-agent-aurora-horizon {
 	0% {
 		opacity: 0.48;
 		transform: translate3d(-3%, 9%, 0) scale(0.96, 0.84);
@@ -199,7 +199,7 @@
 	}
 }
 
-@keyframes cline-ui-agent-aurora-current {
+@keyframes induscode-ui-agent-aurora-current {
 	0% {
 		opacity: 0.28;
 		transform: translate3d(-16%, 8%, 0) scaleX(0.84);
@@ -216,7 +216,7 @@
 	}
 }
 
-@keyframes cline-ui-agent-aurora-twinkle {
+@keyframes induscode-ui-agent-aurora-twinkle {
 	0%,
 	100% {
 		opacity: 0.15;

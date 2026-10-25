@@ -1,4 +1,4 @@
-import { SapAiCoreModelDeployment } from "@shared/proto/index.cline"
+import { SapAiCoreModelDeployment } from "@shared/proto/index.induscode"
 import { VSCodeDropdown, VSCodeOption } from "@vscode/webview-ui-toolkit/react"
 import React, { memo, useEffect, useMemo } from "react"
 import { useProviderModels } from "@/hooks/useProviderModels"
@@ -86,13 +86,13 @@ const SapAiCoreModelPicker: React.FC<SapAiCoreModelPickerProps> = ({
 	const categorizedModels = useMemo(() => {
 		const allSupportedModels = Object.keys(visibleSapAiCoreModels)
 
-		// Models that are both deployed AND supported in Cline
+		// Models that are both deployed AND supported in IndusCode
 		const deployedModelNames = sapAiCoreModelDeployments.map((d) => d.modelName)
 		const deployedAndSupported = deployedModelNames.filter((deployedModel: string) =>
 			allSupportedModels.includes(deployedModel),
 		)
 
-		// Models that are supported in Cline but NOT deployed
+		// Models that are supported in IndusCode but NOT deployed
 		const supportedButNotDeployed = allSupportedModels.filter(
 			(supportedModel: string) => !deployedModelNames.includes(supportedModel),
 		)

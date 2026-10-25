@@ -14,7 +14,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { compileCliBinary } from "../../../cli/script/compile-binary";
 
-// Exercise the shipped runtime artifacts: the compiled Cline CLI that starts
+// Exercise the shipped runtime artifacts: the compiled IndusCode CLI that starts
 // the Hub and the backend bundle that runs on its embedded runtime. Source-only
 // tests miss mixed SDK build identities between the desktop client and the
 // CLI-managed Hub it attaches to.
@@ -22,19 +22,19 @@ import { compileCliBinary } from "../../../cli/script/compile-binary";
 let buildDir: string | undefined;
 
 function ensureBuildDir(): string {
-	buildDir ??= mkdtempSync(join(tmpdir(), "cline-desktop-startup-bin-"));
+	buildDir ??= mkdtempSync(join(tmpdir(), "induscode-desktop-startup-bin-"));
 	return buildDir;
 }
 
 let compiledCli: string | undefined;
 async function resolveCliBinary(): Promise<string> {
-	if (process.env.CLINE_TEST_DESKTOP_CLI_BIN) {
-		return resolve(process.env.CLINE_TEST_DESKTOP_CLI_BIN);
+	if (process.env.INDUSCODE_TEST_DESKTOP_CLI_BIN) {
+		return resolve(process.env.INDUSCODE_TEST_DESKTOP_CLI_BIN);
 	}
 	if (!compiledCli) {
 		const outfile = join(
 			ensureBuildDir(),
-			process.platform === "win32" ? "cline-cli.exe" : "cline-cli",
+			process.platform === "win32" ? "induscode-cli.exe" : "induscode-cli",
 		);
 		await compileCliBinary({
 			bunTarget:
@@ -50,8 +50,8 @@ async function resolveCliBinary(): Promise<string> {
 
 let bundledBackend: string | undefined;
 function resolveBackendBundle(): string {
-	if (process.env.CLINE_TEST_DESKTOP_BACKEND_BUNDLE) {
-		return resolve(process.env.CLINE_TEST_DESKTOP_BACKEND_BUNDLE);
+	if (process.env.INDUSCODE_TEST_DESKTOP_BACKEND_BUNDLE) {
+		return resolve(process.env.INDUSCODE_TEST_DESKTOP_BACKEND_BUNDLE);
 	}
 	if (!bundledBackend) {
 		const outdir = join(ensureBuildDir(), "desktop-backend");
@@ -135,7 +135,7 @@ async function runStartupScenario(
 	extraEnv: Record<string, string>,
 	options: { hubAlreadyRunning: boolean; discoveryContents?: string },
 ): Promise<void> {
-	const root = mkdtempSync(join(tmpdir(), "cline-desktop-startup-"));
+	const root = mkdtempSync(join(tmpdir(), "induscode-desktop-startup-"));
 	const discoveryPath = join(root, "hub.json");
 	const stdoutPath = join(root, "stdout.log");
 	const stderrPath = join(root, "stderr.log");
@@ -153,15 +153,15 @@ async function runStartupScenario(
 		const env = Object.fromEntries(
 			Object.entries(process.env).filter(
 				([key]) =>
-					!/^(CLINE_|OTEL_|TELEMETRY_|ERROR_SERVICE_|BUN_BE_BUN)/.test(key) &&
+					!/^(INDUSCODE_|OTEL_|TELEMETRY_|ERROR_SERVICE_|BUN_BE_BUN)/.test(key) &&
 					!/^(https?_proxy|all_proxy|no_proxy)$/i.test(key),
 			),
 		);
 		Object.assign(env, {
-			CLINE_DIR: root,
-			CLINE_DATA_DIR: join(root, "data"),
-			CLINE_HUB_DISCOVERY_PATH: discoveryPath,
-			CLINE_NO_AUTO_UPDATE: "1",
+			INDUSCODE_DIR: root,
+			INDUSCODE_DATA_DIR: join(root, "data"),
+			INDUSCODE_HUB_DISCOVERY_PATH: discoveryPath,
+			INDUSCODE_NO_AUTO_UPDATE: "1",
 			...extraEnv,
 		});
 		// Pin the Hub to a free port so this test cannot touch a developer's
@@ -193,10 +193,10 @@ async function runStartupScenario(
 				url: hub.url,
 				authToken: hub.authToken,
 			});
-			env.CLINE_HUB_PORT = String(hub.port);
+			env.INDUSCODE_HUB_PORT = String(hub.port);
 			existingHub = { pid: hub.pid, url: hub.url };
 		} else {
-			env.CLINE_HUB_PORT = String(await reserveLoopbackPort());
+			env.INDUSCODE_HUB_PORT = String(await reserveLoopbackPort());
 		}
 
 		// The backend bundle on the CLI's runtime, started outside the
@@ -208,8 +208,8 @@ async function runStartupScenario(
 				env: {
 					...env,
 					BUN_BE_BUN: "1",
-					CLINE_DESKTOP_CLI_PATH: cli,
-					CLINE_DESKTOP_WORKSPACE_ROOT: root,
+					INDUSCODE_DESKTOP_CLI_PATH: cli,
+					INDUSCODE_DESKTOP_WORKSPACE_ROOT: root,
 				},
 				stdin: "ignore",
 				stdout,
@@ -245,14 +245,14 @@ async function runStartupScenario(
 			// The backend attached to the running Hub instead of replacing it.
 			expect(hub).toMatchObject(existingHub);
 		} else {
-			expect(hub.port).toBe(Number(env.CLINE_HUB_PORT));
+			expect(hub.port).toBe(Number(env.INDUSCODE_HUB_PORT));
 		}
 		// Either way the Hub daemon is the bundled CLI, not the backend.
 		expect(hub.pid).not.toBe(child.pid);
 		const hubCommand = processCommandLine(hub.pid);
 		if (hubCommand !== undefined) {
 			expect(hubCommand).toContain(cli);
-			expect(hubCommand).toContain("--cline-hub-daemon");
+			expect(hubCommand).toContain("--induscode-hub-daemon");
 		}
 	} finally {
 		if (child && child.exitCode === null) {
@@ -311,7 +311,7 @@ test("desktop backend reuses a compatible Hub the CLI already started", async ()
 }, 180_000);
 
 // Bun's fetch has no localhost proxy bypass, so a system proxy used to swallow
-// the hub discovery probes (cline/cline#14265, #14292).
+// the hub discovery probes (induscode/induscode#14265, #14292).
 test("desktop startup works behind a dead HTTP(S) proxy", async () => {
 	await runStartupScenario(
 		{

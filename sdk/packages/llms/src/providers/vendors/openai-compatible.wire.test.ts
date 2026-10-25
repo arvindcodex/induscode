@@ -19,7 +19,7 @@ import type {
 	GatewayStreamRequest,
 	ModelInfo,
 	ModelReasoningOption,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { describe, expect, it } from "vitest";
 import { createGateway } from "../gateway";
 

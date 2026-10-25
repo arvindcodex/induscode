@@ -1,4 +1,4 @@
-import { CommandExitError, CommandSpawnError, CommandTerminationError, type ShellExecutor } from "@cline/core"
+import { CommandExitError, CommandSpawnError, CommandTerminationError, type ShellExecutor } from "@induscode/core"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import type { ITelemetryProvider } from "@/services/telemetry/providers/ITelemetryProvider"
 import { createVscodeRunCommandsTool } from "./vscode-run-commands-tool"
@@ -9,8 +9,8 @@ const mocks = vi.hoisted(() => ({
 	log: vi.fn<ITelemetryProvider["log"]>(),
 }))
 
-vi.mock("@cline/core", async (importOriginal) => ({
-	...(await importOriginal<typeof import("@cline/core")>()),
+vi.mock("@induscode/core", async (importOriginal) => ({
+	...(await importOriginal<typeof import("@induscode/core")>()),
 	createShellExecutor: () => mocks.executeBackground,
 }))
 
@@ -29,7 +29,7 @@ vi.mock("@services/telemetry", async () => {
 		TerminalUserInterventionAction,
 		telemetryService: new TelemetryService([provider], {
 			extension_version: "test",
-			cline_type: "cline-unit-tests",
+			induscode_type: "induscode-unit-tests",
 			platform: "test-platform",
 			platform_version: "1.0.0",
 			os_type: "test-os",

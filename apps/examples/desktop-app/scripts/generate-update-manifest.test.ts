@@ -6,28 +6,28 @@ import { buildUpdateManifest } from "./generate-update-manifest";
 
 const makeUniversalArtifactDir = (): string => {
 	const dir = mkdtempSync(path.join(tmpdir(), "update-manifest-"));
-	writeFileSync(path.join(dir, "Cline-Code_0.1.0_universal.app.tar.gz"), "tar");
+	writeFileSync(path.join(dir, "IndusCode-Code_0.1.0_universal.app.tar.gz"), "tar");
 	writeFileSync(
-		path.join(dir, "Cline-Code_0.1.0_universal.app.tar.gz.sig"),
+		path.join(dir, "IndusCode-Code_0.1.0_universal.app.tar.gz.sig"),
 		"sig-universal\n",
 	);
-	writeFileSync(path.join(dir, "Cline-Code_0.1.0_universal.dmg"), "dmg");
+	writeFileSync(path.join(dir, "IndusCode-Code_0.1.0_universal.dmg"), "dmg");
 	return dir;
 };
 
 const makePerArchArtifactDir = (): string => {
 	const dir = mkdtempSync(path.join(tmpdir(), "update-manifest-"));
-	writeFileSync(path.join(dir, "Cline-Code_0.1.0_aarch64.app.tar.gz"), "tar");
+	writeFileSync(path.join(dir, "IndusCode-Code_0.1.0_aarch64.app.tar.gz"), "tar");
 	writeFileSync(
-		path.join(dir, "Cline-Code_0.1.0_aarch64.app.tar.gz.sig"),
+		path.join(dir, "IndusCode-Code_0.1.0_aarch64.app.tar.gz.sig"),
 		"sig-aarch64\n",
 	);
-	writeFileSync(path.join(dir, "Cline-Code_0.1.0_x86_64.app.tar.gz"), "tar");
+	writeFileSync(path.join(dir, "IndusCode-Code_0.1.0_x86_64.app.tar.gz"), "tar");
 	writeFileSync(
-		path.join(dir, "Cline-Code_0.1.0_x86_64.app.tar.gz.sig"),
+		path.join(dir, "IndusCode-Code_0.1.0_x86_64.app.tar.gz.sig"),
 		"sig-x86_64\n",
 	);
-	writeFileSync(path.join(dir, "Cline-Code_0.1.0_aarch64.dmg"), "dmg");
+	writeFileSync(path.join(dir, "IndusCode-Code_0.1.0_aarch64.dmg"), "dmg");
 	return dir;
 };
 
@@ -38,7 +38,7 @@ describe("buildUpdateManifest", () => {
 			version: "0.1.0",
 			tag: "desktop-v0.1.0",
 			dir,
-			repo: "cline/cline",
+			repo: "induscode/induscode",
 			notes: "notes",
 			pubDate: "2026-07-21T00:00:00.000Z",
 		});
@@ -46,7 +46,7 @@ describe("buildUpdateManifest", () => {
 		expect(manifest.version).toBe("0.1.0");
 		const universalEntry = {
 			signature: "sig-universal",
-			url: "https://github.com/cline/cline/releases/download/desktop-v0.1.0/Cline-Code_0.1.0_universal.app.tar.gz",
+			url: "https://github.com/induscode/induscode/releases/download/desktop-v0.1.0/IndusCode-Code_0.1.0_universal.app.tar.gz",
 		};
 		expect(manifest.platforms["darwin-aarch64"]).toEqual(universalEntry);
 		expect(manifest.platforms["darwin-x86_64"]).toEqual(universalEntry);
@@ -60,7 +60,7 @@ describe("buildUpdateManifest", () => {
 			version: "0.1.0",
 			tag: "desktop-v0.1.0",
 			dir,
-			repo: "cline/cline",
+			repo: "induscode/induscode",
 			notes: "notes",
 			pubDate: "2026-07-21T00:00:00.000Z",
 		});
@@ -68,34 +68,34 @@ describe("buildUpdateManifest", () => {
 		expect(manifest.version).toBe("0.1.0");
 		expect(manifest.platforms["darwin-aarch64"]).toEqual({
 			signature: "sig-aarch64",
-			url: "https://github.com/cline/cline/releases/download/desktop-v0.1.0/Cline-Code_0.1.0_aarch64.app.tar.gz",
+			url: "https://github.com/induscode/induscode/releases/download/desktop-v0.1.0/IndusCode-Code_0.1.0_aarch64.app.tar.gz",
 		});
 		expect(manifest.platforms["darwin-x86_64"]).toEqual({
 			signature: "sig-x86_64",
-			url: "https://github.com/cline/cline/releases/download/desktop-v0.1.0/Cline-Code_0.1.0_x86_64.app.tar.gz",
+			url: "https://github.com/induscode/induscode/releases/download/desktop-v0.1.0/IndusCode-Code_0.1.0_x86_64.app.tar.gz",
 		});
 		expect(Object.keys(manifest.platforms)).toHaveLength(2);
 	});
 
 	test("maps a Windows NSIS setup artifact to windows-x86_64", () => {
 		const dir = makeUniversalArtifactDir();
-		writeFileSync(path.join(dir, "Cline-Code_0.1.0_x64-setup.exe"), "nsis");
+		writeFileSync(path.join(dir, "IndusCode-Code_0.1.0_x64-setup.exe"), "nsis");
 		writeFileSync(
-			path.join(dir, "Cline-Code_0.1.0_x64-setup.exe.sig"),
+			path.join(dir, "IndusCode-Code_0.1.0_x64-setup.exe.sig"),
 			"sig-windows-x64\n",
 		);
 		const manifest = buildUpdateManifest({
 			version: "0.1.0",
 			tag: "desktop-v0.1.0",
 			dir,
-			repo: "cline/cline",
+			repo: "induscode/induscode",
 			notes: "notes",
 			pubDate: "2026-07-21T00:00:00.000Z",
 		});
 
 		expect(manifest.platforms["windows-x86_64"]).toEqual({
 			signature: "sig-windows-x64",
-			url: "https://github.com/cline/cline/releases/download/desktop-v0.1.0/Cline-Code_0.1.0_x64-setup.exe",
+			url: "https://github.com/induscode/induscode/releases/download/desktop-v0.1.0/IndusCode-Code_0.1.0_x64-setup.exe",
 		});
 		// darwin entries from the universal artifact are unaffected.
 		expect(Object.keys(manifest.platforms).sort()).toEqual([
@@ -107,50 +107,50 @@ describe("buildUpdateManifest", () => {
 
 	test("maps Linux deb and rpm packages to their installer-specific keys only", () => {
 		const dir = makeUniversalArtifactDir();
-		writeFileSync(path.join(dir, "Cline-Code_0.1.0_amd64.deb"), "deb");
+		writeFileSync(path.join(dir, "IndusCode-Code_0.1.0_amd64.deb"), "deb");
 		writeFileSync(
-			path.join(dir, "Cline-Code_0.1.0_amd64.deb.sig"),
+			path.join(dir, "IndusCode-Code_0.1.0_amd64.deb.sig"),
 			"sig-deb\n",
 		);
-		writeFileSync(path.join(dir, "Cline-Code_0.1.0_x86_64.rpm"), "rpm");
+		writeFileSync(path.join(dir, "IndusCode-Code_0.1.0_x86_64.rpm"), "rpm");
 		writeFileSync(
-			path.join(dir, "Cline-Code_0.1.0_x86_64.rpm.sig"),
+			path.join(dir, "IndusCode-Code_0.1.0_x86_64.rpm.sig"),
 			"sig-rpm\n",
 		);
-		writeFileSync(path.join(dir, "Cline-Code_0.1.0_arm64.deb"), "deb");
+		writeFileSync(path.join(dir, "IndusCode-Code_0.1.0_arm64.deb"), "deb");
 		writeFileSync(
-			path.join(dir, "Cline-Code_0.1.0_arm64.deb.sig"),
+			path.join(dir, "IndusCode-Code_0.1.0_arm64.deb.sig"),
 			"sig-deb-arm64\n",
 		);
-		writeFileSync(path.join(dir, "Cline-Code_0.1.0_aarch64.rpm"), "rpm");
+		writeFileSync(path.join(dir, "IndusCode-Code_0.1.0_aarch64.rpm"), "rpm");
 		writeFileSync(
-			path.join(dir, "Cline-Code_0.1.0_aarch64.rpm.sig"),
+			path.join(dir, "IndusCode-Code_0.1.0_aarch64.rpm.sig"),
 			"sig-rpm-arm64\n",
 		);
 		const manifest = buildUpdateManifest({
 			version: "0.1.0",
 			tag: "desktop-v0.1.0",
 			dir,
-			repo: "cline/cline",
+			repo: "induscode/induscode",
 			notes: "notes",
 			pubDate: "2026-07-21T00:00:00.000Z",
 		});
 
 		expect(manifest.platforms["linux-x86_64-deb"]).toEqual({
 			signature: "sig-deb",
-			url: "https://github.com/cline/cline/releases/download/desktop-v0.1.0/Cline-Code_0.1.0_amd64.deb",
+			url: "https://github.com/induscode/induscode/releases/download/desktop-v0.1.0/IndusCode-Code_0.1.0_amd64.deb",
 		});
 		expect(manifest.platforms["linux-x86_64-rpm"]).toEqual({
 			signature: "sig-rpm",
-			url: "https://github.com/cline/cline/releases/download/desktop-v0.1.0/Cline-Code_0.1.0_x86_64.rpm",
+			url: "https://github.com/induscode/induscode/releases/download/desktop-v0.1.0/IndusCode-Code_0.1.0_x86_64.rpm",
 		});
 		expect(manifest.platforms["linux-aarch64-deb"]).toEqual({
 			signature: "sig-deb-arm64",
-			url: "https://github.com/cline/cline/releases/download/desktop-v0.1.0/Cline-Code_0.1.0_arm64.deb",
+			url: "https://github.com/induscode/induscode/releases/download/desktop-v0.1.0/IndusCode-Code_0.1.0_arm64.deb",
 		});
 		expect(manifest.platforms["linux-aarch64-rpm"]).toEqual({
 			signature: "sig-rpm-arm64",
-			url: "https://github.com/cline/cline/releases/download/desktop-v0.1.0/Cline-Code_0.1.0_aarch64.rpm",
+			url: "https://github.com/induscode/induscode/releases/download/desktop-v0.1.0/IndusCode-Code_0.1.0_aarch64.rpm",
 		});
 		// No bare linux-<arch> keys: the updater would fall back to them for an
 		// install whose package format has no entry of its own.
@@ -166,12 +166,12 @@ describe("buildUpdateManifest", () => {
 
 	test("ignores non-updater exe files without a setup arch suffix", () => {
 		const dir = makeUniversalArtifactDir();
-		writeFileSync(path.join(dir, "Cline-Code_0.1.0_x64.exe"), "exe");
+		writeFileSync(path.join(dir, "IndusCode-Code_0.1.0_x64.exe"), "exe");
 		const manifest = buildUpdateManifest({
 			version: "0.1.0",
 			tag: "desktop-v0.1.0",
 			dir,
-			repo: "cline/cline",
+			repo: "induscode/induscode",
 			notes: "notes",
 			pubDate: "2026-07-21T00:00:00.000Z",
 		});
@@ -183,13 +183,13 @@ describe("buildUpdateManifest", () => {
 
 	test("throws when a Windows setup artifact is missing its signature", () => {
 		const dir = makeUniversalArtifactDir();
-		writeFileSync(path.join(dir, "Cline-Code_0.1.0_x64-setup.exe"), "nsis");
+		writeFileSync(path.join(dir, "IndusCode-Code_0.1.0_x64-setup.exe"), "nsis");
 		expect(() =>
 			buildUpdateManifest({
 				version: "0.1.0",
 				tag: "desktop-v0.1.0",
 				dir,
-				repo: "cline/cline",
+				repo: "induscode/induscode",
 				notes: "notes",
 				pubDate: "2026-07-21T00:00:00.000Z",
 			}),
@@ -199,11 +199,11 @@ describe("buildUpdateManifest", () => {
 	test("throws when universal and per-arch artifacts claim the same platform", () => {
 		const dir = makePerArchArtifactDir();
 		writeFileSync(
-			path.join(dir, "Cline-Code_0.1.0_universal.app.tar.gz"),
+			path.join(dir, "IndusCode-Code_0.1.0_universal.app.tar.gz"),
 			"tar",
 		);
 		writeFileSync(
-			path.join(dir, "Cline-Code_0.1.0_universal.app.tar.gz.sig"),
+			path.join(dir, "IndusCode-Code_0.1.0_universal.app.tar.gz.sig"),
 			"sig-universal\n",
 		);
 		expect(() =>
@@ -211,7 +211,7 @@ describe("buildUpdateManifest", () => {
 				version: "0.1.0",
 				tag: "desktop-v0.1.0",
 				dir,
-				repo: "cline/cline",
+				repo: "induscode/induscode",
 				notes: "notes",
 				pubDate: "2026-07-21T00:00:00.000Z",
 			}),
@@ -220,13 +220,13 @@ describe("buildUpdateManifest", () => {
 
 	test("throws when a signature file is missing", () => {
 		const dir = mkdtempSync(path.join(tmpdir(), "update-manifest-"));
-		writeFileSync(path.join(dir, "Cline-Code_0.1.0_aarch64.app.tar.gz"), "tar");
+		writeFileSync(path.join(dir, "IndusCode-Code_0.1.0_aarch64.app.tar.gz"), "tar");
 		expect(() =>
 			buildUpdateManifest({
 				version: "0.1.0",
 				tag: "desktop-v0.1.0",
 				dir,
-				repo: "cline/cline",
+				repo: "induscode/induscode",
 				notes: "notes",
 				pubDate: "2026-07-21T00:00:00.000Z",
 			}),
@@ -235,13 +235,13 @@ describe("buildUpdateManifest", () => {
 
 	test("throws when no updater artifacts exist", () => {
 		const dir = mkdtempSync(path.join(tmpdir(), "update-manifest-"));
-		writeFileSync(path.join(dir, "Cline-Code_0.1.0_aarch64.dmg"), "dmg");
+		writeFileSync(path.join(dir, "IndusCode-Code_0.1.0_aarch64.dmg"), "dmg");
 		expect(() =>
 			buildUpdateManifest({
 				version: "0.1.0",
 				tag: "desktop-v0.1.0",
 				dir,
-				repo: "cline/cline",
+				repo: "induscode/induscode",
 				notes: "notes",
 				pubDate: "2026-07-21T00:00:00.000Z",
 			}),

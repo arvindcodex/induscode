@@ -78,10 +78,10 @@ const AutoApproveModal: React.FC<AutoApproveModalProps> = ({
 				<div className="mb-2.5 text-muted-foreground text-xs cursor-pointer" onClick={() => setIsVisible(false)}>
 					{cloudAutoApprove
 						? "Cloud sessions always auto-approve these actions. Your local settings are unchanged. "
-						: "Let Cline take these actions without asking for approval. "}
+						: "Let IndusCode take these actions without asking for approval. "}
 					<a
 						className="text-link hover:text-link-hover"
-						href="https://docs.cline.bot/features/auto-approve#auto-approve"
+						href="https://docs.induscode.bot/features/auto-approve#auto-approve"
 						rel="noopener"
 						style={{ fontSize: "inherit" }}
 						target="_blank">

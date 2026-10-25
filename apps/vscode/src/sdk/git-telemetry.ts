@@ -2,8 +2,8 @@ import { execFile } from "node:child_process"
 import { createHmac, randomBytes, randomUUID } from "node:crypto"
 import { resolve } from "node:path"
 import { isDeepStrictEqual, promisify } from "node:util"
-import { type ClineCoreStartInput, captureGitSnapshot, type GitSnapshotProperties, type ITelemetryService } from "@cline/core"
-import type { AgentAfterModelContext } from "@cline/shared"
+import { type IndusCodeCoreStartInput, captureGitSnapshot, type GitSnapshotProperties, type ITelemetryService } from "@induscode/core"
+import type { AgentAfterModelContext } from "@induscode/shared"
 import { workspace } from "vscode"
 
 const execFileAsync = promisify(execFile)
@@ -100,10 +100,10 @@ export class VscodeGitTelemetryManager {
 	constructor(private readonly telemetry: ITelemetryService | undefined) {}
 
 	/** Attach hooks to a freshly prepared input, not the caller's original input. */
-	init(input: ClineCoreStartInput): VscodeGitTelemetry | undefined {
+	init(input: IndusCodeCoreStartInput): VscodeGitTelemetry | undefined {
 		if (this.disposed) return
 		const { config } = input
-		if (!config.cwd || (config.providerId !== "cline" && config.providerId !== "cline-pass") || !this.telemetry) return
+		if (!config.cwd || (config.providerId !== "induscode" && config.providerId !== "induscode-pass") || !this.telemetry) return
 		// Use host consent, not an organization telemetry override.
 		const observer = new VscodeGitTelemetry({ ...config, cwd: config.cwd }, this.telemetry)
 		input.config = observer.configure()
@@ -146,7 +146,7 @@ export class VscodeGitTelemetry {
 	private identity?: { sessionId: string; workspaceId: string }
 
 	constructor(
-		private readonly config: ClineCoreStartInput["config"] & { cwd: string },
+		private readonly config: IndusCodeCoreStartInput["config"] & { cwd: string },
 		private readonly telemetry: ITelemetryService,
 	) {}
 
@@ -154,7 +154,7 @@ export class VscodeGitTelemetry {
 		return this.identity?.sessionId
 	}
 
-	configure(): ClineCoreStartInput["config"] {
+	configure(): IndusCodeCoreStartInput["config"] {
 		const config = this.config
 		const { afterModel } = config.hooks ?? {}
 		return {

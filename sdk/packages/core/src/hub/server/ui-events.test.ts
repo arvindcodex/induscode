@@ -1,4 +1,4 @@
-import type { HubUINotifyPayload } from "@cline/shared";
+import type { HubUINotifyPayload } from "@induscode/shared";
 import { afterEach, describe, expect, it } from "vitest";
 import corePackage from "../../../package.json";
 import { SessionSource } from "../../types/common";
@@ -185,7 +185,7 @@ describe("hub UI events", () => {
 			updatedAt: new Date(0).toISOString(),
 			status: "running" as const,
 			interactive: true,
-			provider: "cline",
+			provider: "induscode",
 			model: "test-model",
 			cwd: "/tmp/project",
 			workspaceRoot: "/tmp/project",

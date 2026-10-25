@@ -1,9 +1,9 @@
 import { NodeHubClient } from "../../../../dist/hub/index.js";
 
-const url = process.env.CLINE_TEST_HUB_URL;
-const authorization = process.env.CLINE_TEST_HUB_AUTHORIZATION;
+const url = process.env.INDUSCODE_TEST_HUB_URL;
+const authorization = process.env.INDUSCODE_TEST_HUB_AUTHORIZATION;
 if (!url || !authorization) {
-	throw new Error("Missing CLINE_TEST_HUB_URL or CLINE_TEST_HUB_AUTHORIZATION");
+	throw new Error("Missing INDUSCODE_TEST_HUB_URL or INDUSCODE_TEST_HUB_AUTHORIZATION");
 }
 
 const client = new NodeHubClient({

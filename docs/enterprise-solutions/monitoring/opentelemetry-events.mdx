@@ -1,10 +1,10 @@
 ---
 title: "OpenTelemetry Events Reference"
 sidebarTitle: "OTel Events"
-description: "Complete reference of OpenTelemetry log events emitted by Cline"
+description: "Complete reference of OpenTelemetry log events emitted by IndusCode"
 ---
 
-This page documents all OpenTelemetry log events currently instrumented in Cline. These events are emitted when OpenTelemetry integration is enabled and provide detailed insights into user behavior, task execution, and system operations.
+This page documents all OpenTelemetry log events currently instrumented in IndusCode. These events are emitted when OpenTelemetry integration is enabled and provide detailed insights into user behavior, task execution, and system operations.
 
 <Info>
 Events are only emitted when OpenTelemetry is enabled. See [OpenTelemetry](/enterprise-solutions/monitoring/opentelemetry) for configuration instructions.
@@ -12,7 +12,7 @@ Events are only emitted when OpenTelemetry is enabled. See [OpenTelemetry](/ente
 
 ## Event Categories
 
-Cline emits events across several categories, each prefixed with a namespace:
+IndusCode emits events across several categories, each prefixed with a namespace:
 
 <CardGroup cols={3}>
   <Card title="user.*" icon="user">
@@ -178,9 +178,9 @@ Core events tracking task lifecycle, conversation turns, tool usage, and executi
 | Event | Description | Key Attributes |
 |-------|-------------|----------------|
 | `task.feature_toggled` | Generic feature toggle changed | feature_name, enabled |
-| `task.rule_toggled` | Cline rule toggled on/off | rule_name, enabled, is_global |
+| `task.rule_toggled` | IndusCode rule toggled on/off | rule_name, enabled, is_global |
 | `task.yolo_mode_toggled` | YOLO mode toggled | enabled |
-| `task.cline_web_tools_toggled` | Cline web tools setting toggled | enabled |
+| `task.induscode_web_tools_toggled` | IndusCode web tools setting toggled | enabled |
 
 ### API & Performance
 
@@ -333,13 +333,13 @@ Diagnostic and connection testing events.
 
 | Event | Description | Key Attributes |
 |-------|-------------|----------------|
-| `cline.test.connection` | OTEL connection test event from "Test OTEL Connection" flow | success, exporter_type, endpoint |
+| `induscode.test.connection` | OTEL connection test event from "Test OTEL Connection" flow | success, exporter_type, endpoint |
 
-### Example: cline.test.connection
+### Example: induscode.test.connection
 
 ```json
 {
-  "event": "cline.test.connection",
+  "event": "induscode.test.connection",
   "timestamp": "2026-03-05T15:30:00Z",
   "attributes": {
     "success": true,
@@ -361,7 +361,7 @@ Most events include these standard attributes:
 | `timestamp` | ISO 8601 | Event occurrence time |
 | `user_id` | string | Anonymized user identifier (when authenticated) |
 | `session_id` | string | Current session identifier |
-| `extension_version` | string | Cline extension version |
+| `extension_version` | string | IndusCode extension version |
 | `host_type` | string | vscode, jetbrains, or cli |
 
 ### Privacy & Hashing
@@ -384,27 +384,27 @@ Task events are the most detailed category. Here's a typical task execution flow
 ```mermaid
 sequenceDiagram
     participant User
-    participant Cline
+    participant IndusCode
     participant OTel
 
-    User->>Cline: Start Task
-    Cline->>OTel: task.created
+    User->>IndusCode: Start Task
+    IndusCode->>OTel: task.created
     
-    User->>Cline: Submit Message
-    Cline->>OTel: task.conversation_turn (user)
+    User->>IndusCode: Submit Message
+    IndusCode->>OTel: task.conversation_turn (user)
     
-    Cline->>Cline: Process with AI
-    Cline->>OTel: task.tokens
-    Cline->>OTel: task.conversation_turn (assistant)
+    IndusCode->>IndusCode: Process with AI
+    IndusCode->>OTel: task.tokens
+    IndusCode->>OTel: task.conversation_turn (assistant)
     
-    Cline->>Cline: Use Tool
-    Cline->>OTel: task.tool_used
+    IndusCode->>IndusCode: Use Tool
+    IndusCode->>OTel: task.tool_used
     
-    User->>Cline: Provide Feedback
-    Cline->>OTel: task.option_selected
+    User->>IndusCode: Provide Feedback
+    IndusCode->>OTel: task.option_selected
     
-    User->>Cline: Complete Task
-    Cline->>OTel: task.completed
+    User->>IndusCode: Complete Task
+    IndusCode->>OTel: task.completed
 ```
 
 ### Task Token Tracking
@@ -500,7 +500,7 @@ Create custom Datadog dashboards using these events:
         "type": "timeseries",
         "requests": [
           {
-            "q": "sum:cline.task.completed{*}.as_count()",
+            "q": "sum:induscode.task.completed{*}.as_count()",
             "display_type": "bars"
           }
         ],
@@ -512,7 +512,7 @@ Create custom Datadog dashboards using these events:
         "type": "query_value",
         "requests": [
           {
-            "q": "sum:cline.task.tokens{*}",
+            "q": "sum:induscode.task.tokens{*}",
             "aggregator": "sum"
           }
         ],
@@ -558,7 +558,7 @@ interface OtelLogEvent {
     [key: string]: string | number | boolean
   }
   resource: {
-    service_name: "cline"
+    service_name: "induscode"
     service_version: string   // Extension version
     host_type: string         // vscode | jetbrains | cli
   }

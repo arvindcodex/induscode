@@ -20,8 +20,8 @@ describe("loadCloudModels", () => {
 			loadCloudModels(input, { fetchImpl: fetcher as unknown as typeof fetch }),
 		).resolves.toEqual([]);
 		expect(fetcher.mock.calls.map(([url]) => url)).toEqual([
-			`${expected}/api/v1/ai/cline/models`,
-			`${expected}/api/v1/ai/cline/recommended-models`,
+			`${expected}/api/v1/ai/induscode/models`,
+			`${expected}/api/v1/ai/induscode/recommended-models`,
 		]);
 	});
 	it("includes cloud-only recommendations and unrecommended catalog models", async () => {
@@ -31,7 +31,7 @@ describe("loadCloudModels", () => {
 					JSON.stringify(
 						url.endsWith("/models")
 							? { data: [{ id: "local-model", display_name: "Local model" }] }
-							: { data: { clineCloud: [{ id: "recommended" }] } },
+							: { data: { induscodeCloud: [{ id: "recommended" }] } },
 					),
 				),
 		);
@@ -39,8 +39,8 @@ describe("loadCloudModels", () => {
 			fetchImpl: fetcher as unknown as typeof fetch,
 		});
 		expect(models).toEqual([
-			{ id: "recommended", name: "recommended", catalogId: "cline-cloud" },
-			{ id: "local-model", name: "Local model", catalogId: "cline" },
+			{ id: "recommended", name: "recommended", catalogId: "induscode-cloud" },
+			{ id: "local-model", name: "Local model", catalogId: "induscode" },
 		]);
 	});
 	it.each([
@@ -53,7 +53,7 @@ describe("loadCloudModels", () => {
 					JSON.stringify(
 						url.endsWith("/models")
 							? [{ id: "model" }]
-							: { clinePass: [{ id: "model" }, { id: "pass-only" }] },
+							: { induscodePass: [{ id: "model" }, { id: "pass-only" }] },
 					),
 				),
 		);
@@ -63,10 +63,10 @@ describe("loadCloudModels", () => {
 		});
 		expect(models).toEqual(
 			isOrganizationSession
-				? [{ id: "model", name: "model", catalogId: "cline" }]
+				? [{ id: "model", name: "model", catalogId: "induscode" }]
 				: [
-						{ id: "model", name: "model", catalogId: "cline-pass" },
-						{ id: "pass-only", name: "pass-only", catalogId: "cline-pass" },
+						{ id: "model", name: "model", catalogId: "induscode-pass" },
+						{ id: "pass-only", name: "pass-only", catalogId: "induscode-pass" },
 					],
 		);
 	});

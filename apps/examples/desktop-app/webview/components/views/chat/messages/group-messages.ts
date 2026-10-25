@@ -1,4 +1,4 @@
-import type { AgentMessageRole } from "@cline/ui/components/agent-chat";
+import type { AgentMessageRole } from "@induscode/ui/components/agent-chat";
 import type { ChatMessage } from "@/lib/chat-schema";
 import { parseToolPayload } from "./tool-summaries";
 
@@ -121,7 +121,7 @@ export function getThoughtDurationMilliseconds(
 	return thinkingTimestamp - previousTimestamp;
 }
 
-export { formatThoughtLabel } from "@cline/ui/components/agent-chat";
+export { formatThoughtLabel } from "@induscode/ui/components/agent-chat";
 
 export type CollapseWorkOptions = {
 	/**

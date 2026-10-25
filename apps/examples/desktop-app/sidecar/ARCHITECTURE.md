@@ -1,11 +1,11 @@
-# Sidecar Architecture — @cline/code
+# Sidecar Architecture — @induscode/code
 
 ## Overview
 
 The sidecar is a Bun process that adapts the desktop UI and native operations to
-the shared Cline Hub.
+the shared IndusCode Hub.
 
-It imports `@cline/core`, discovers or starts the canonical shared Hub, registers
+It imports `@induscode/core`, discovers or starts the canonical shared Hub, registers
 as a Hub client, and serves the Next.js frontend over HTTP + WebSocket. The
 sidecar does not own a private agent runtime Hub.
 
@@ -20,7 +20,7 @@ sidecar/
 ├── commands.ts           # Command router
 ├── chat-session.ts       # Shared-Hub chat session adapter (local + cloud routing)
 ├── cloud-sessions.ts     # Cloud session REST client + Hub-proxy manager
-├── cline-auth.ts         # Refresh-aware Cline auth token resolution
+├── induscode-auth.ts         # Refresh-aware IndusCode auth token resolution
 ├── feature-flags.ts      # Cloud sessions gate (env override + settings toggle)
 ├── session-data/         # Shared discovery, messages, artifacts, search helpers
 ├── paths.ts              # Path resolution
@@ -40,20 +40,20 @@ Event:    { "type": "event", "event": { "name": string, "payload": unknown } }
 
 ### 1. Chat Sessions — Shared Hub Client
 
-`ClineCore` uses Hub mode without an explicit endpoint. Core therefore reuses
+`IndusCodeCore` uses Hub mode without an explicit endpoint. Core therefore reuses
 the same compatible Hub discovered by the CLI or starts the canonical detached
 Hub when the desktop is the first client:
 
 ```typescript
-const sessionManager = await ClineCore.create({
-  clientName: "cline-code",
+const sessionManager = await IndusCodeCore.create({
+  clientName: "induscode-code",
   backendMode: "hub",
   hub: {
     strategy: "require-hub",
     workspaceRoot,
     cwd: workspaceRoot,
     clientType: "code-sidecar",
-    displayName: "Cline Desktop sidecar",
+    displayName: "IndusCode Desktop sidecar",
   },
   capabilities: {
     requestToolApproval: async (request) => {
@@ -81,8 +81,8 @@ sessionManager.subscribe((event) => {
 });
 ```
 
-The packaged backend runs on the bundled Cline CLI and has it start the Hub:
-`cline-cli hub ensure` reuses a compatible healthy Hub or starts one, and the
+The packaged backend runs on the bundled IndusCode CLI and has it start the Hub:
+`induscode-cli hub ensure` reuses a compatible healthy Hub or starts one, and the
 Hub daemon is that same CLI binary. Any Hub the backend itself has to start
 later goes through the same binary (`setHubDaemonLauncher`). Startup discovery
 and locking ensure concurrent clients converge on one Hub.
@@ -91,8 +91,8 @@ Every create, restart, fork, and restore also attaches the serializable Desktop
 `ExtensionContext.client` and current `ExtensionContext.user`. Core forwards
 that context across the Hub transport and scopes the daemon-owned telemetry
 service to the originating surface. This keeps lifecycle events centralized in
-Core while reporting Desktop dimensions (`cline_type: "desktop"`, `platform:
-"Cline Desktop"`, and the Desktop app version) and the current account and
+Core while reporting Desktop dimensions (`induscode_type: "desktop"`, `platform:
+"IndusCode Desktop"`, and the Desktop app version) and the current account and
 organization. The shared Hub telemetry singleton is never mutated per session,
 so concurrent CLI and Desktop tasks retain their own attribution.
 
@@ -119,14 +119,14 @@ be async.
 ### 3. Provider Management — Direct ProviderSettingsManager
 
 ```typescript
-import { ProviderSettingsManager, listLocalProviders, ... } from "@cline/core";
+import { ProviderSettingsManager, listLocalProviders, ... } from "@induscode/core";
 const manager = new ProviderSettingsManager();
 ```
 
 ### 4. Session Storage — Direct SqliteSessionStore
 
 ```typescript
-import { SqliteSessionStore, resolveSessionBackend } from "@cline/core";
+import { SqliteSessionStore, resolveSessionBackend } from "@induscode/core";
 const store = new SqliteSessionStore();
 ```
 
@@ -195,7 +195,7 @@ Supported commands:
 
 | Command | Implementation |
 |---------|---------------|
-| `chat_session_command` | shared Hub through `ClineCore`; cloud sessions route to `CloudSessionManager` |
+| `chat_session_command` | shared Hub through `IndusCodeCore`; cloud sessions route to `CloudSessionManager` |
 | `list_provider_catalog` | `ProviderSettingsManager` + `listLocalProviders` |
 | `list_provider_models` | `getLocalProviderModels` |
 | `list_transcription_models` | `getLocalTranscriptionModels` |
@@ -213,7 +213,7 @@ Supported commands:
 | `update_chat_session_title` | `resolveSessionBackend().updateSession`; cloud sessions PATCH the cloud API |
 | `get_feature_flags` | PostHog flag snapshot + `isCloudAgentsEnabled()` (env override + `code-cloud-agents` rollout flag) |
 | `list_cloud_repositories` | `CloudSessionManager.listRepositories()` (GitHub integration) |
-| `list_cloud_models` | `CloudSessionManager.listModels()` (account-scoped Usage-Billing, ClinePass, and ClineFree catalogs; model IDs use the Cline cloud transport) |
+| `list_cloud_models` | `CloudSessionManager.listModels()` (account-scoped Usage-Billing, IndusCodePass, and IndusCodeFree catalogs; model IDs use the IndusCode cloud transport) |
 | `list_cloud_branches` | `CloudSessionManager.listBranches()` (paginated) |
 | `list_mcp_servers` | Direct file I/O |
 | `authorize_mcp_server_oauth` | Explicit Connect action → cancellable `authorizeMcpServerOAuth` + system browser |
@@ -223,7 +223,7 @@ Supported commands:
 | `get_git_branch` | async `execFile("git", ...)` |
 | `list_git_branches` | async `execFile("git", ...)` |
 | `checkout_git_branch` | async `execFile("git", ...)` |
-| `create_git_worktree` | async `execFile("git", ...)` → `~/.cline/worktrees/<id>/<repo>` |
+| `create_git_worktree` | async `execFile("git", ...)` → `~/.induscode/worktrees/<id>/<repo>` |
 | `search_workspace_files` | `getFileIndex` |
 | `get_process_context` | In-memory context |
 | `poll_tool_approvals` | In-memory pending map |

@@ -230,7 +230,7 @@ describe("WorkspaceSelector", () => {
 	});
 
 	it("labels the SDK chat workspace as Chat without listing the raw path", async () => {
-		const temporaryWorkspace = "/home/host/.cline/data/workspaces/chat";
+		const temporaryWorkspace = "/home/host/.induscode/data/workspaces/chat";
 		await act(async () => {
 			root.render(
 				<WorkspaceSelector

@@ -9,16 +9,16 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import {
-	getClineCliMigrationNotice,
-	markClineCliMigrationNoticeShown,
+	getIndusCodeCliMigrationNotice,
+	markIndusCodeCliMigrationNoticeShown,
 	resolveCliNoticeStatePath,
-	shouldSuppressClineCliMigrationNoticeForActiveProvider,
+	shouldSuppressIndusCodeCliMigrationNoticeForActiveProvider,
 } from "./notice";
 
 const tempDirs: string[] = [];
 
 function createTempDataDir(): string {
-	const dir = mkdtempSync(join(tmpdir(), "cline-cli-notice-"));
+	const dir = mkdtempSync(join(tmpdir(), "induscode-cli-notice-"));
 	tempDirs.push(dir);
 	return dir;
 }
@@ -33,7 +33,7 @@ describe("migration notice", () => {
 	it("returns the notice for a fresh data dir", () => {
 		const dataDir = createTempDataDir();
 
-		expect(getClineCliMigrationNotice(dataDir)?.title).toBe("Try ClinePass");
+		expect(getIndusCodeCliMigrationNotice(dataDir)?.title).toBe("Try IndusCodePass");
 	});
 
 	it("shows when only the old Kanban notice was marked as shown", () => {
@@ -43,65 +43,65 @@ describe("migration notice", () => {
 		writeFileSync(
 			noticePath,
 			`${JSON.stringify(
-				{ shown: { "cline-cli-tui-default": true } },
+				{ shown: { "induscode-cli-tui-default": true } },
 				null,
 				2,
 			)}\n`,
 			"utf8",
 		);
 
-		expect(getClineCliMigrationNotice(dataDir)?.id).toBe(
-			"cline-cli-cline-pass-intro",
+		expect(getIndusCodeCliMigrationNotice(dataDir)?.id).toBe(
+			"induscode-cli-induscode-pass-intro",
 		);
 	});
 
 	it("does not show after every notice is marked as shown", () => {
 		const dataDir = createTempDataDir();
 
-		markClineCliMigrationNoticeShown(dataDir);
-		markClineCliMigrationNoticeShown(dataDir, "cline-cli-desktop-launch");
+		markIndusCodeCliMigrationNoticeShown(dataDir);
+		markIndusCodeCliMigrationNoticeShown(dataDir, "induscode-cli-desktop-launch");
 
-		expect(getClineCliMigrationNotice(dataDir)).toBeUndefined();
+		expect(getIndusCodeCliMigrationNotice(dataDir)).toBeUndefined();
 	});
 
-	it("shows the desktop launch notice once the ClinePass intro was shown", () => {
+	it("shows the desktop launch notice once the IndusCodePass intro was shown", () => {
 		const dataDir = createTempDataDir();
 
-		markClineCliMigrationNoticeShown(dataDir);
+		markIndusCodeCliMigrationNoticeShown(dataDir);
 
-		const notice = getClineCliMigrationNotice(dataDir);
-		expect(notice?.id).toBe("cline-cli-desktop-launch");
-		expect(notice?.url).toBe("https://cline.bot/desktop");
+		const notice = getIndusCodeCliMigrationNotice(dataDir);
+		expect(notice?.id).toBe("induscode-cli-desktop-launch");
+		expect(notice?.url).toBe("https://induscode.bot/desktop");
 	});
 
 	it("shows only one notice per launch", () => {
 		const dataDir = createTempDataDir();
 
-		expect(getClineCliMigrationNotice(dataDir)?.id).toBe(
-			"cline-cli-cline-pass-intro",
+		expect(getIndusCodeCliMigrationNotice(dataDir)?.id).toBe(
+			"induscode-cli-induscode-pass-intro",
 		);
 	});
 
 	it("marks the desktop launch notice as shown by id", () => {
 		const dataDir = createTempDataDir();
 
-		markClineCliMigrationNoticeShown(dataDir);
-		markClineCliMigrationNoticeShown(dataDir, "cline-cli-desktop-launch");
+		markIndusCodeCliMigrationNoticeShown(dataDir);
+		markIndusCodeCliMigrationNoticeShown(dataDir, "induscode-cli-desktop-launch");
 
 		const rawState = readFileSync(resolveCliNoticeStatePath(dataDir), "utf8");
-		expect(rawState).toContain('"cline-cli-cline-pass-intro": true');
-		expect(rawState).toContain('"cline-cli-desktop-launch": true');
-		expect(getClineCliMigrationNotice(dataDir)).toBeUndefined();
+		expect(rawState).toContain('"induscode-cli-induscode-pass-intro": true');
+		expect(rawState).toContain('"induscode-cli-desktop-launch": true');
+		expect(getIndusCodeCliMigrationNotice(dataDir)).toBeUndefined();
 	});
 
 	it("shows after the notice is marked as shown when forced", () => {
 		const dataDir = createTempDataDir();
 
-		markClineCliMigrationNoticeShown(dataDir);
+		markIndusCodeCliMigrationNoticeShown(dataDir);
 
 		expect(
-			getClineCliMigrationNotice(dataDir, {
-				CLINE_FORCE_CLINE_PASS_NOTICE: "1",
+			getIndusCodeCliMigrationNotice(dataDir, {
+				INDUSCODE_FORCE_INDUSCODE_PASS_NOTICE: "1",
 			}),
 		).toBeDefined();
 	});
@@ -110,46 +110,46 @@ describe("migration notice", () => {
 		const dataDir = createTempDataDir();
 
 		expect(
-			getClineCliMigrationNotice(dataDir, {
-				CLINE_DISABLE_CLINE_PASS_NOTICE: "1",
+			getIndusCodeCliMigrationNotice(dataDir, {
+				INDUSCODE_DISABLE_INDUSCODE_PASS_NOTICE: "1",
 			}),
 		).toBeUndefined();
 	});
 
-	it("does not show the ClinePass intro when ClinePass is already the active provider", () => {
+	it("does not show the IndusCodePass intro when IndusCodePass is already the active provider", () => {
 		const dataDir = createTempDataDir();
 
 		expect(
-			getClineCliMigrationNotice(
+			getIndusCodeCliMigrationNotice(
 				dataDir,
 				{},
-				{ activeProviderId: "cline-pass" },
+				{ activeProviderId: "induscode-pass" },
 			)?.id,
-		).toBe("cline-cli-desktop-launch");
+		).toBe("induscode-cli-desktop-launch");
 	});
 
-	it("suppresses the active ClinePass provider even when the provider id has surrounding whitespace", () => {
+	it("suppresses the active IndusCodePass provider even when the provider id has surrounding whitespace", () => {
 		expect(
-			shouldSuppressClineCliMigrationNoticeForActiveProvider(" cline-pass "),
+			shouldSuppressIndusCodeCliMigrationNoticeForActiveProvider(" induscode-pass "),
 		).toBe(true);
 	});
 
-	it("does not suppress the active ClinePass provider when forced", () => {
+	it("does not suppress the active IndusCodePass provider when forced", () => {
 		expect(
-			shouldSuppressClineCliMigrationNoticeForActiveProvider("cline-pass", {
-				CLINE_FORCE_CLINE_PASS_NOTICE: "1",
+			shouldSuppressIndusCodeCliMigrationNoticeForActiveProvider("induscode-pass", {
+				INDUSCODE_FORCE_INDUSCODE_PASS_NOTICE: "1",
 			}),
 		).toBe(false);
 	});
 
-	it("shows for the active ClinePass provider when forced", () => {
+	it("shows for the active IndusCodePass provider when forced", () => {
 		const dataDir = createTempDataDir();
 
 		expect(
-			getClineCliMigrationNotice(
+			getIndusCodeCliMigrationNotice(
 				dataDir,
-				{ CLINE_FORCE_CLINE_PASS_NOTICE: "1" },
-				{ activeProviderId: "cline-pass" },
+				{ INDUSCODE_FORCE_INDUSCODE_PASS_NOTICE: "1" },
+				{ activeProviderId: "induscode-pass" },
 			),
 		).toBeDefined();
 	});
@@ -158,9 +158,9 @@ describe("migration notice", () => {
 		const dataDir = createTempDataDir();
 
 		expect(
-			getClineCliMigrationNotice(dataDir, {
-				CLINE_DISABLE_CLINE_PASS_NOTICE: "1",
-				CLINE_FORCE_CLINE_PASS_NOTICE: "1",
+			getIndusCodeCliMigrationNotice(dataDir, {
+				INDUSCODE_DISABLE_INDUSCODE_PASS_NOTICE: "1",
+				INDUSCODE_FORCE_INDUSCODE_PASS_NOTICE: "1",
 			}),
 		).toBeDefined();
 	});
@@ -168,12 +168,12 @@ describe("migration notice", () => {
 	it("marks the notice as shown", () => {
 		const dataDir = createTempDataDir();
 
-		markClineCliMigrationNoticeShown(dataDir);
+		markIndusCodeCliMigrationNoticeShown(dataDir);
 
 		const rawState = readFileSync(resolveCliNoticeStatePath(dataDir), "utf8");
-		expect(rawState).toContain("cline-cli-cline-pass-intro");
-		expect(getClineCliMigrationNotice(dataDir)?.id).not.toBe(
-			"cline-cli-cline-pass-intro",
+		expect(rawState).toContain("induscode-cli-induscode-pass-intro");
+		expect(getIndusCodeCliMigrationNotice(dataDir)?.id).not.toBe(
+			"induscode-cli-induscode-pass-intro",
 		);
 	});
 });

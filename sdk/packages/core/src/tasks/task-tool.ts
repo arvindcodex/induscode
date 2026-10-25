@@ -1,5 +1,5 @@
-import type { AgentExtension, AgentTool } from "@cline/shared";
-import { createTool, zodToJsonSchema } from "@cline/shared";
+import type { AgentExtension, AgentTool } from "@induscode/shared";
+import { createTool, zodToJsonSchema } from "@induscode/shared";
 import { z } from "zod";
 import {
 	executeScheduleOperation,
@@ -21,7 +21,7 @@ export const TASKS_SYSTEM_PROMPT_RULE = `# Tasks
 Use the \`tasks\` tool to manage durable Todo items and explicitly requested scheduled agent work.
 
 - Use \`kind: "todo"\` for meaningful follow-ups, handoffs, ideas, reminders, and other work that should remain visible after this session. This includes useful work you identify and suggest proactively. Agent-created Todos require user approval; Todos created directly by the user are approved immediately. Todo \`available_at\` controls availability in the list; it never schedules execution.
-- Use \`kind: "scheduled"\` only when the user explicitly asks Cline to execute work once at a future time or on a recurrence. One-time schedules require an exact future ISO 8601 \`run_at\` with an offset or Z. Recurring schedules require a five-field \`cron_pattern\` and default to the local timezone. Omit \`timezone\` unless the user explicitly requests a different timezone; never guess EST, UTC, or another zone. When a timezone is requested, use its IANA name (for example, America/New_York) so daylight-saving changes are handled.
+- Use \`kind: "scheduled"\` only when the user explicitly asks IndusCode to execute work once at a future time or on a recurrence. One-time schedules require an exact future ISO 8601 \`run_at\` with an offset or Z. Recurring schedules require a five-field \`cron_pattern\` and default to the local timezone. Omit \`timezone\` unless the user explicitly requests a different timezone; never guess EST, UTC, or another zone. When a timezone is requested, use its IANA name (for example, America/New_York) so daylight-saving changes are handled.
 - "Remind me" is ambiguous: ask whether the user wants a reviewed Todo note or an agent to execute work at that time when intent is unclear.
 - Never create both kinds for the same request unless the user explicitly requests both. Check existing items before creating a likely duplicate.
 - Todo instructions and scheduled prompts must be self-contained. Include the goal, constraints, relevant project context, and expected output.
@@ -31,7 +31,7 @@ Use the \`tasks\` tool to manage durable Todo items and explicitly requested sch
 /** Guidance used while the Todo kind is disabled and only schedules remain. */
 export const SCHEDULED_TASKS_SYSTEM_PROMPT_RULE = `# Tasks
 
-Use the \`tasks\` tool only when the user explicitly asks Cline to execute work once at a future time or on a recurrence. Always pass \`kind: "scheduled"\`.
+Use the \`tasks\` tool only when the user explicitly asks IndusCode to execute work once at a future time or on a recurrence. Always pass \`kind: "scheduled"\`.
 
 - One-time schedules require an exact future ISO 8601 \`run_at\` with an offset or Z. Recurring schedules require a five-field \`cron_pattern\` and default to the local timezone. Omit \`timezone\` unless the user explicitly requests a different timezone; never guess EST, UTC, or another zone. When a timezone is requested, use its IANA name (for example, America/New_York) so daylight-saving changes are handled.
 - Never create a schedule proactively. Check existing schedules before creating a likely duplicate.

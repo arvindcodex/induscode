@@ -130,7 +130,7 @@ function splitTargetArgsAndHeaders(input: {
 
 /**
  * Parse `Header-Name: value` strings, one header per string, as
- * `cline mcp add --header` does. Throws on a malformed header and warns about
+ * `induscode mcp add --header` does. Throws on a malformed header and warns about
  * values that look like unfilled placeholders such as `<token>`.
  */
 export function parseMcpHeaders(values: string[]): {
@@ -180,7 +180,7 @@ export function buildMcpInstallTransport(options: {
 		const [command, ...args] = targetArgs;
 		if (!command?.trim()) {
 			throw new Error(
-				"Stdio MCP install requires a command after the server name, for example: cline mcp install fs --yes -- npx -y @modelcontextprotocol/server-filesystem /tmp",
+				"Stdio MCP install requires a command after the server name, for example: induscode mcp install fs --yes -- npx -y @modelcontextprotocol/server-filesystem /tmp",
 			);
 		}
 		const stdioTransport = resolveNativeMcpTransport({

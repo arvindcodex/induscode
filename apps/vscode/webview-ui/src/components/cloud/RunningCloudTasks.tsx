@@ -1,5 +1,5 @@
 import { formatRepoLabel } from "@shared/cloud/cloud-sessions"
-import { StringRequest } from "@shared/proto/cline/common"
+import { StringRequest } from "@shared/proto/induscode/common"
 import { CloudIcon, LoaderCircleIcon } from "lucide-react"
 import { memo, useMemo } from "react"
 import { useExtensionState } from "@/context/ExtensionStateContext"

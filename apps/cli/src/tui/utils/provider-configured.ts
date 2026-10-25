@@ -2,7 +2,7 @@ import {
 	isProviderSettingsUsable,
 	Llms,
 	ProviderSettingsManager,
-} from "@cline/core";
+} from "@induscode/core";
 import type { TuiProps } from "../types";
 
 /**

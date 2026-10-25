@@ -12,7 +12,7 @@ import {
 } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
-import type { AgentToolContext } from "@cline/shared";
+import type { AgentToolContext } from "@induscode/shared";
 import { describe, expect, it } from "vitest";
 import {
 	CommandExitError,
@@ -209,7 +209,7 @@ describe("createShellExecutor", () => {
 		const result = await execution;
 		expect(result).toContain("Command is still running");
 		expect(result).toContain("started");
-		expect(result).toMatch(/cline-command-.*output\.log/);
+		expect(result).toMatch(/induscode-command-.*output\.log/);
 		const logPath = result.match(/Output will continue in (.+)]/)?.[1];
 		if (!logPath) throw new Error("Expected detached command log path");
 		const commandPid = result.match(/started:(\d+)/)?.[1];
@@ -271,8 +271,8 @@ describe("createShellExecutor", () => {
 		const tempDirectory = await mkdtemp(
 			join(tmpdir(), "detached-log-cleanup-"),
 		);
-		const staleDirectory = join(tempDirectory, "cline-command-stale");
-		const freshDirectory = join(tempDirectory, "cline-command-fresh");
+		const staleDirectory = join(tempDirectory, "induscode-command-stale");
+		const freshDirectory = join(tempDirectory, "induscode-command-fresh");
 		const unrelatedDirectory = join(tempDirectory, "other-command-log");
 		try {
 			const nowMs = Date.now();
@@ -312,8 +312,8 @@ describe("createShellExecutor", () => {
 		const tempDirectory = await mkdtemp(
 			join(tmpdir(), "detached-log-command-cleanup-"),
 		);
-		const liveDirectory = join(tempDirectory, "cline-command-live");
-		const completedDirectory = join(tempDirectory, "cline-command-completed");
+		const liveDirectory = join(tempDirectory, "induscode-command-live");
+		const completedDirectory = join(tempDirectory, "induscode-command-completed");
 		let liveCommandExists = true;
 		try {
 			await Promise.all([mkdir(liveDirectory), mkdir(completedDirectory)]);
@@ -371,7 +371,7 @@ describe("createShellExecutor", () => {
 		const tempDirectory = await mkdtemp(
 			join(tmpdir(), "detached-log-pid-reuse-"),
 		);
-		const reusedPidDirectory = join(tempDirectory, "cline-command-reused-pid");
+		const reusedPidDirectory = join(tempDirectory, "induscode-command-reused-pid");
 		try {
 			await mkdir(reusedPidDirectory);
 			await Promise.all([
@@ -410,7 +410,7 @@ describe("createShellExecutor", () => {
 		const tempDirectory = await mkdtemp(
 			join(tmpdir(), "detached-log-probe-recovery-"),
 		);
-		const directory = join(tempDirectory, "cline-command-probe-recovery");
+		const directory = join(tempDirectory, "induscode-command-probe-recovery");
 		let probeAvailable = false;
 		try {
 			await mkdir(directory);
@@ -462,7 +462,7 @@ describe("createShellExecutor", () => {
 		const tempDirectory = await mkdtemp(
 			join(tmpdir(), "detached-log-probe-timeout-"),
 		);
-		const directory = join(tempDirectory, "cline-command-probe-timeout");
+		const directory = join(tempDirectory, "induscode-command-probe-timeout");
 		let probeStatus: "unavailable" | "missing" = "unavailable";
 		const cleanupOptions = {
 			activeCommandPollIntervalMs: 60_000,
@@ -523,7 +523,7 @@ describe("createShellExecutor", () => {
 		const tempDirectory = await mkdtemp(
 			join(tmpdir(), "detached-log-probe-rejection-"),
 		);
-		const directory = join(tempDirectory, "cline-command-probe-rejection");
+		const directory = join(tempDirectory, "induscode-command-probe-rejection");
 		let probeAttempts = 0;
 		try {
 			await mkdir(directory);
@@ -569,7 +569,7 @@ describe("createShellExecutor", () => {
 		const tempDirectory = await mkdtemp(
 			join(tmpdir(), "detached-log-completion-race-"),
 		);
-		const directory = join(tempDirectory, "cline-command-completion-race");
+		const directory = join(tempDirectory, "induscode-command-completion-race");
 		const completedAtMs = Date.now() - 1_000;
 		let processProbeCount = 0;
 		try {
@@ -1248,7 +1248,7 @@ describe("CommandSpawnError", () => {
 
 	it("reports a shell that cannot be started with the operating system error code", async () => {
 		const executor = createShellExecutor({
-			shell: "cline-definitely-missing-shell",
+			shell: "induscode-definitely-missing-shell",
 		});
 		let error: unknown;
 		try {
@@ -1267,7 +1267,7 @@ describe("CommandSpawnError", () => {
 	it("tells a vanished working directory apart from a missing shell", async () => {
 		// spawn reports ENOENT with the same message in both cases; the class
 		// checks the directory so telemetry does not count one as the other.
-		const gone = join(tmpdir(), `cline-gone-${process.pid}-${Date.now()}`);
+		const gone = join(tmpdir(), `induscode-gone-${process.pid}-${Date.now()}`);
 		const executor = createShellExecutor();
 		let error: unknown;
 		try {

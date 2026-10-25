@@ -1,10 +1,10 @@
 {
-	"name": "@cline/ui",
+	"name": "@induscode/ui",
 	"version": "0.2.0-next.12",
-	"description": "Shared Cline web theme and reusable agent UI components",
+	"description": "Shared IndusCode web theme and reusable agent UI components",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/cline/cline",
+		"url": "https://github.com/induscode/induscode",
 		"directory": "sdk/packages/ui"
 	},
 	"private": false,
@@ -120,7 +120,7 @@
 		"./theme/*.css"
 	],
 	"keywords": [
-		"cline",
+		"induscode",
 		"ui",
 		"design-system",
 		"react",
@@ -202,7 +202,7 @@
 		"vitest": "^4.0.18"
 	},
 	"dependencies": {
-		"@cline/shared": "workspace:*",
+		"@induscode/shared": "workspace:*",
 		"@radix-ui/react-slot": "1.2.4",
 		"@shadcn/react": "0.3.1",
 		"class-variance-authority": "^0.7.1",

@@ -8,8 +8,8 @@ describe("toPosixSeparators", () => {
 			"src/main.ts",
 		);
 		expect(
-			toPosixSeparators(["cline", "evals", "README.md"].join(path.sep)),
-		).toBe("cline/evals/README.md");
+			toPosixSeparators(["induscode", "evals", "README.md"].join(path.sep)),
+		).toBe("induscode/evals/README.md");
 	});
 
 	it("leaves forward slashes and empty input untouched", () => {

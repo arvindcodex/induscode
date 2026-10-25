@@ -1,5 +1,5 @@
-import { Empty } from "@shared/proto/cline/common"
-import { ResetStateRequest } from "@shared/proto/cline/state"
+import { Empty } from "@shared/proto/induscode/common"
+import { ResetStateRequest } from "@shared/proto/induscode/state"
 import { resetGlobalState, resetWorkspaceState } from "@/core/storage/utils/state-helpers"
 import { HostProvider } from "@/hosts/host-provider"
 import { ShowMessageType } from "@/shared/proto/host/window"

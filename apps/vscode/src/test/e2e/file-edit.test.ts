@@ -35,7 +35,7 @@ e2e.describe("File Edit Auto-Approval", () => {
 
 				// File edits are auto-approved by default. The ask row appears with
 				// the file path, but no manual approval buttons are shown.
-				await sidebar.waitForSelector('span:has-text("Cline wants to edit this file:")')
+				await sidebar.waitForSelector('span:has-text("IndusCode wants to edit this file:")')
 				await expect(sidebar.getByText("test.ts").first()).toBeVisible()
 				await expect(sidebar.getByRole("button", { name: "Reject" })).not.toBeVisible()
 				await expect(sidebar.getByRole("button", { name: "Save", exact: true })).not.toBeVisible()
@@ -45,7 +45,7 @@ e2e.describe("File Edit Auto-Approval", () => {
 				await expect(sidebar.getByText("I successfully replaced")).toBeVisible({ timeout: 30_000 })
 
 				// The edit was actually applied to the file on disk.
-				expect(readFileSync(editedFilePath, "utf-8")).toContain('export const name = "cline"')
+				expect(readFileSync(editedFilePath, "utf-8")).toContain('export const name = "induscode"')
 			} finally {
 				// Skip the restore when the initial read failed — there is
 				// nothing to restore and the read error is the real failure.

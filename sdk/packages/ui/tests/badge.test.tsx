@@ -30,8 +30,8 @@ describe("Badge", () => {
 		const badge = container.querySelector("span");
 		expect(badge?.textContent).toBe("Required");
 		expect(badge?.dataset.slot).toBe("badge");
-		expect(badge?.className).toContain("border-cline-ui-border");
-		expect(badge?.className).toContain("bg-cline-ui-surface-hover-lighter");
+		expect(badge?.className).toContain("border-induscode-ui-border");
+		expect(badge?.className).toContain("bg-induscode-ui-surface-hover-lighter");
 	});
 
 	it("forwards native props, refs, and custom classes", async () => {

@@ -11,7 +11,7 @@
 //   4. thinking counts toward the output limit, so the default limit is not
 //      lowered below the 32K default, and an explicit larger limit passes
 //      through up to the model's advertised maximum.
-import type { GatewayStreamRequest, ModelReasoningOption } from "@cline/shared";
+import type { GatewayStreamRequest, ModelReasoningOption } from "@induscode/shared";
 import { describe, expect, it } from "vitest";
 import { createGateway } from "../gateway";
 

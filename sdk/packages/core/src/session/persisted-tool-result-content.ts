@@ -1,4 +1,4 @@
-import type { ToolResultContent } from "@cline/shared";
+import type { ToolResultContent } from "@induscode/shared";
 
 /**
  * Preserve the runtime tool-output serialization used by canonical session
@@ -14,7 +14,7 @@ export function toPersistedToolResultContent(
 	}
 	if (Array.isArray(output)) {
 		// Structured local and provider tool outputs are persisted as arrays even
-		// when their entries are not media/text blocks (for example Cline
+		// when their entries are not media/text blocks (for example IndusCode
 		// ToolOperationResult objects and Anthropic web_search_result objects).
 		return output as ToolResultContent["content"];
 	}

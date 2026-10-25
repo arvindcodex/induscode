@@ -3,15 +3,15 @@
 // These tests verify the auth service's core logic:
 // - Token persistence (read/write/clear from secrets)
 // - Auth state management (authenticated/unauthenticated)
-// - Auth info conversion (SDK OAuthCredentials → ClineAuthInfo)
+// - Auth info conversion (SDK OAuthCredentials → IndusCodeAuthInfo)
 // - Logout flow
 // - Streaming subscription management
 // - workos: prefix handling
 
 import path from "node:path"
-import { getValidClineCredentials, type ITelemetryService, type OAuthCredentials } from "@cline/core"
+import { getValidIndusCodeCredentials, type ITelemetryService, type OAuthCredentials } from "@induscode/core"
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import { AuthService, type ClineAuthInfo, LogoutReason } from "./auth-service"
+import { AuthService, type IndusCodeAuthInfo, LogoutReason } from "./auth-service"
 
 // ---------------------------------------------------------------------------
 // Mocks
@@ -44,12 +44,12 @@ vi.mock("@/core/storage/StateManager", () => ({
 	},
 }))
 
-// Mock ClineEnv
+// Mock IndusCodeEnv
 vi.mock("@/config", () => ({
-	ClineEnv: {
+	IndusCodeEnv: {
 		config: () => ({
-			apiBaseUrl: "https://api.cline.bot",
-			appBaseUrl: "https://app.cline.bot",
+			apiBaseUrl: "https://api.induscode.bot",
+			appBaseUrl: "https://app.induscode.bot",
 		}),
 	},
 }))
@@ -65,7 +65,7 @@ vi.mock("@/core/controller/grpc-handler", () => ({
 vi.mock("@/hosts/host-provider", () => ({
 	HostProvider: {
 		get: () => ({
-			getCallbackUrl: async (path: string) => `vscode://cline.cline${path}`,
+			getCallbackUrl: async (path: string) => `vscode://induscode.induscode${path}`,
 		}),
 	},
 }))
@@ -81,9 +81,9 @@ vi.mock("@/shared/net", () => ({
 	getAxiosSettings: () => ({}),
 }))
 
-// Mock buildBasicClineHeaders
+// Mock buildBasicIndusCodeHeaders
 vi.mock("@/services/EnvUtils", () => ({
-	buildBasicClineHeaders: async () => ({}),
+	buildBasicIndusCodeHeaders: async () => ({}),
 }))
 
 // Mock feature flags
@@ -107,10 +107,10 @@ vi.mock("axios", () => ({
 	},
 }))
 
-const mockLoginClineOAuth = vi.hoisted(() => vi.fn())
+const mockLoginIndusCodeOAuth = vi.hoisted(() => vi.fn())
 
-// Mock @cline/core OAuth functions
-vi.mock("@cline/core", async () => ({
+// Mock @induscode/core OAuth functions
+vi.mock("@induscode/core", async () => ({
 	sdkDebug: () => {},
 	hashSecret: () => "hashed",
 	createOAuthClientCallbacks: (opts: {
@@ -125,17 +125,17 @@ vi.mock("@cline/core", async () => ({
 		},
 		onPrompt: opts.onPrompt,
 	}),
-	loginClineOAuth: mockLoginClineOAuth,
+	loginIndusCodeOAuth: mockLoginIndusCodeOAuth,
 	loginOcaOAuth: vi.fn(),
 	loginOpenAICodex: vi.fn(),
-	refreshClineToken: vi.fn(),
-	getValidClineCredentials: vi.fn(),
-	// Mirrors the SDK registry: cline-pass stores credentials under "cline".
+	refreshIndusCodeToken: vi.fn(),
+	getValidIndusCodeCredentials: vi.fn(),
+	// Mirrors the SDK registry: induscode-pass stores credentials under "induscode".
 	getProviderAuthStorageId: (providerId: string) =>
-		providerId === "cline" || providerId === "cline-pass" ? "cline" : undefined,
+		providerId === "induscode" || providerId === "induscode-pass" ? "induscode" : undefined,
 }))
 
-// Stateful in-memory provider-settings store. Cline credentials are persisted
+// Stateful in-memory provider-settings store. IndusCode credentials are persisted
 // to providers.json (via the SDK's ProviderSettingsManager), not to secrets, so
 // the credential round-trip tests exercise this store.
 const mockProviderSettings = new Map<string, Record<string, unknown>>()
@@ -160,7 +160,7 @@ vi.mock("./provider-migration", () => ({
 
 /** Type that exposes private members for test access */
 interface AuthServiceTestAccess {
-	_clineAuthInfo: ClineAuthInfo | null
+	_induscodeAuthInfo: IndusCodeAuthInfo | null
 	_authenticated: boolean
 	_activeAuthStatusUpdateHandlers: Map<string, unknown>
 	instance: AuthService | null
@@ -180,7 +180,7 @@ function resetSingleton(): void {
 // Test fixtures
 // ---------------------------------------------------------------------------
 
-function createTestAuthInfo(overrides?: Partial<ClineAuthInfo>): ClineAuthInfo {
+function createTestAuthInfo(overrides?: Partial<IndusCodeAuthInfo>): IndusCodeAuthInfo {
 	return {
 		idToken: "test-access-token",
 		refreshToken: "test-refresh-token",
@@ -199,7 +199,7 @@ function createTestAuthInfo(overrides?: Partial<ClineAuthInfo>): ClineAuthInfo {
 				},
 			],
 		},
-		provider: "cline",
+		provider: "induscode",
 		startedAt: Date.now(),
 		...overrides,
 	}
@@ -266,7 +266,7 @@ describe("AuthService", () => {
 
 		it("returns authenticated state with user info when logged in", () => {
 			const authInfo = createTestAuthInfo()
-			testAccess(authService)._clineAuthInfo = authInfo
+			testAccess(authService)._induscodeAuthInfo = authInfo
 			testAccess(authService)._authenticated = true
 
 			const info = authService.getInfo()
@@ -278,7 +278,7 @@ describe("AuthService", () => {
 
 		it("returns unauthenticated state when _authenticated is false even with auth info", () => {
 			const authInfo = createTestAuthInfo()
-			testAccess(authService)._clineAuthInfo = authInfo
+			testAccess(authService)._induscodeAuthInfo = authInfo
 			testAccess(authService)._authenticated = false
 
 			const info = authService.getInfo()
@@ -293,7 +293,7 @@ describe("AuthService", () => {
 
 		it("returns the active organization ID when authenticated", () => {
 			const authInfo = createTestAuthInfo()
-			testAccess(authService)._clineAuthInfo = authInfo
+			testAccess(authService)._induscodeAuthInfo = authInfo
 
 			expect(authService.getActiveOrganizationId()).toBe("org-personal")
 		})
@@ -313,7 +313,7 @@ describe("AuthService", () => {
 					],
 				},
 			})
-			testAccess(authService)._clineAuthInfo = authInfo
+			testAccess(authService)._induscodeAuthInfo = authInfo
 
 			expect(authService.getActiveOrganizationId()).toBeNull()
 		})
@@ -326,7 +326,7 @@ describe("AuthService", () => {
 
 		it("returns organizations when authenticated", () => {
 			const authInfo = createTestAuthInfo()
-			testAccess(authService)._clineAuthInfo = authInfo
+			testAccess(authService)._induscodeAuthInfo = authInfo
 
 			const orgs = authService.getUserOrganizations()
 			expect(orgs).toHaveLength(1)
@@ -341,9 +341,9 @@ describe("AuthService", () => {
 
 		it("returns the provider name when authenticated", () => {
 			const authInfo = createTestAuthInfo()
-			testAccess(authService)._clineAuthInfo = authInfo
+			testAccess(authService)._induscodeAuthInfo = authInfo
 
-			expect(authService.getProviderName()).toBe("cline")
+			expect(authService.getProviderName()).toBe("induscode")
 		})
 	})
 
@@ -354,7 +354,7 @@ describe("AuthService", () => {
 
 		it("returns workos:-prefixed token when authenticated", async () => {
 			const authInfo = createTestAuthInfo()
-			testAccess(authService)._clineAuthInfo = authInfo
+			testAccess(authService)._induscodeAuthInfo = authInfo
 			testAccess(authService)._authenticated = true
 
 			const token = await authService.getAuthToken()
@@ -365,7 +365,7 @@ describe("AuthService", () => {
 			const authInfo = createTestAuthInfo({
 				expiresAt: Math.floor(Date.now() / 1000) - 100, // expired
 			})
-			testAccess(authService)._clineAuthInfo = authInfo
+			testAccess(authService)._induscodeAuthInfo = authInfo
 			testAccess(authService)._authenticated = true
 
 			// No refresh token → can't refresh
@@ -377,18 +377,18 @@ describe("AuthService", () => {
 		it("returns the refreshed token when an already-expired token refreshes successfully", async () => {
 			// Regression test: the process sat idle past token expiry (e.g. across
 			// a laptop suspend), so the refresh happens after expiresAt has passed.
-			testAccess(authService)._clineAuthInfo = createTestAuthInfo({
+			testAccess(authService)._induscodeAuthInfo = createTestAuthInfo({
 				expiresAt: Math.floor(Date.now() / 1000) - 100, // already expired
 			})
 			testAccess(authService)._authenticated = true
-			vi.mocked(getValidClineCredentials).mockResolvedValue(createTestOAuthCredentials())
+			vi.mocked(getValidIndusCodeCredentials).mockResolvedValue(createTestOAuthCredentials())
 
 			const token = await authService.getAuthToken()
 			expect(token).toBe("workos:oauth-access-token")
 		})
 
 		it("does not emit its own logout event when the refresh token is rejected mid-session", async () => {
-			testAccess(authService)._clineAuthInfo = createTestAuthInfo({
+			testAccess(authService)._induscodeAuthInfo = createTestAuthInfo({
 				expiresAt: Math.floor(Date.now() / 1000) - 100, // expired → forces refresh
 			})
 			testAccess(authService)._authenticated = true
@@ -396,7 +396,7 @@ describe("AuthService", () => {
 			// The SDK resolver owns the user.auth_logged_out (token_invalid)
 			// event for this case — the adapter must stay silent or the event
 			// double-counts (see the boundary test below with the real resolver).
-			vi.mocked(getValidClineCredentials).mockResolvedValue(null)
+			vi.mocked(getValidIndusCodeCredentials).mockResolvedValue(null)
 
 			const token = await authService.getAuthToken()
 
@@ -406,11 +406,11 @@ describe("AuthService", () => {
 		})
 
 		it("still rejects a token that comes back from refresh already expired", async () => {
-			testAccess(authService)._clineAuthInfo = createTestAuthInfo({
+			testAccess(authService)._induscodeAuthInfo = createTestAuthInfo({
 				expiresAt: Math.floor(Date.now() / 1000) - 100, // already expired
 			})
 			testAccess(authService)._authenticated = true
-			vi.mocked(getValidClineCredentials).mockResolvedValue({
+			vi.mocked(getValidIndusCodeCredentials).mockResolvedValue({
 				...createTestOAuthCredentials(),
 				expires: Date.now() - 1000, // refresh returned an expired token (ms)
 			})
@@ -422,7 +422,7 @@ describe("AuthService", () => {
 
 	describe("createAuthRequest()", () => {
 		it("returns the SDK device auth instruction so the webview can display the browser confirmation code", async () => {
-			mockLoginClineOAuth.mockImplementationOnce(async ({ callbacks, useWorkOSDeviceAuth }) => {
+			mockLoginIndusCodeOAuth.mockImplementationOnce(async ({ callbacks, useWorkOSDeviceAuth }) => {
 				expect(useWorkOSDeviceAuth).toBe(true)
 				callbacks.onAuth({
 					url: "https://example.com/device?user_code=ABCD-EFGH",
@@ -437,8 +437,8 @@ describe("AuthService", () => {
 			expect(response.value).toBe("Enter this code in your browser: ABCD-EFGH")
 		})
 
-		it("persists the session start time in Cline auth metadata", async () => {
-			mockLoginClineOAuth.mockImplementationOnce(async ({ callbacks }) => {
+		it("persists the session start time in IndusCode auth metadata", async () => {
+			mockLoginIndusCodeOAuth.mockImplementationOnce(async ({ callbacks }) => {
 				callbacks.onAuth({
 					url: "https://example.com/device?user_code=ABCD-EFGH",
 					instructions: "Enter this code in your browser: ABCD-EFGH",
@@ -448,9 +448,9 @@ describe("AuthService", () => {
 			})
 
 			await authService.createAuthRequest()
-			await waitForCondition(() => mockProviderSettings.has("cline"))
+			await waitForCondition(() => mockProviderSettings.has("induscode"))
 
-			const persisted = mockProviderSettings.get("cline") as { auth?: { metadata?: Record<string, unknown> } }
+			const persisted = mockProviderSettings.get("induscode") as { auth?: { metadata?: Record<string, unknown> } }
 			expect(persisted.auth?.metadata).toMatchObject({
 				provider: "workos",
 				sessionStartedAtMs: 1_700_000_000_000,
@@ -465,7 +465,7 @@ describe("AuthService", () => {
 			const loginCompleted = new Promise<OAuthCredentials>((resolve) => {
 				resolveLogin = resolve
 			})
-			mockLoginClineOAuth.mockImplementationOnce(async ({ callbacks }) => {
+			mockLoginIndusCodeOAuth.mockImplementationOnce(async ({ callbacks }) => {
 				callbacks.onAuth({
 					url: "https://example.com/device?user_code=ABCD-EFGH",
 					instructions: "Enter this code in your browser: ABCD-EFGH",
@@ -484,7 +484,7 @@ describe("AuthService", () => {
 		})
 
 		it("does not mark the welcome view completed when OAuth fails", async () => {
-			mockLoginClineOAuth.mockImplementationOnce(async ({ callbacks }) => {
+			mockLoginIndusCodeOAuth.mockImplementationOnce(async ({ callbacks }) => {
 				callbacks.onAuth({
 					url: "https://example.com/device?user_code=ABCD-EFGH",
 					instructions: "Enter this code in your browser: ABCD-EFGH",
@@ -504,42 +504,42 @@ describe("AuthService", () => {
 	describe("handleDeauth() — logout", () => {
 		it("clears auth state and pushes unauthenticated state", async () => {
 			const authInfo = createTestAuthInfo()
-			testAccess(authService)._clineAuthInfo = authInfo
+			testAccess(authService)._induscodeAuthInfo = authInfo
 			testAccess(authService)._authenticated = true
 
-			// Seed persisted Cline credentials in providers.json.
-			mockProviderSettings.set("cline", {
-				provider: "cline",
+			// Seed persisted IndusCode credentials in providers.json.
+			mockProviderSettings.set("induscode", {
+				provider: "induscode",
 				auth: { accessToken: "workos:test-access-token", refreshToken: "test-refresh-token", accountId: "user-123" },
 			})
 
 			await authService.handleDeauth(LogoutReason.USER_INITIATED)
 
 			// In-memory auth state should be cleared.
-			expect(testAccess(authService)._clineAuthInfo).toBeNull()
+			expect(testAccess(authService)._induscodeAuthInfo).toBeNull()
 			expect(testAccess(authService)._authenticated).toBe(false)
 
 			// Persisted credentials should be cleared from providers.json.
-			expect(mockProviderSettings.get("cline")?.auth).toBeUndefined()
-			expect(mockCaptureAuthLoggedOut).toHaveBeenCalledWith("cline", LogoutReason.USER_INITIATED)
+			expect(mockProviderSettings.get("induscode")?.auth).toBeUndefined()
+			expect(mockCaptureAuthLoggedOut).toHaveBeenCalledWith("induscode", LogoutReason.USER_INITIATED)
 		})
 	})
 
 	describe("token persistence (providers.json)", () => {
-		// Cline OAuth credentials are persisted to providers.json via the SDK's
+		// IndusCode OAuth credentials are persisted to providers.json via the SDK's
 		// ProviderSettingsManager, not to VSCode secrets. These tests exercise
 		// the round-trip through the public restore/logout surface.
 
 		it("restores credentials persisted in providers.json", async () => {
-			mockProviderSettings.set("cline", {
-				provider: "cline",
+			mockProviderSettings.set("induscode", {
+				provider: "induscode",
 				auth: {
 					accessToken: "workos:persisted-access-token",
 					refreshToken: "persisted-refresh-token",
 					accountId: "user-123",
 				},
 			})
-			vi.mocked(getValidClineCredentials).mockResolvedValue({
+			vi.mocked(getValidIndusCodeCredentials).mockResolvedValue({
 				access: "persisted-access-token",
 				refresh: "persisted-refresh-token",
 				expires: Date.now() + 3600 * 1000,
@@ -550,12 +550,12 @@ describe("AuthService", () => {
 			await authService.restoreRefreshTokenAndRetrieveAuthInfo()
 
 			expect(testAccess(authService)._authenticated).toBe(true)
-			expect(testAccess(authService)._clineAuthInfo?.idToken).toBe("persisted-access-token")
-			expect(testAccess(authService)._clineAuthInfo?.startedAt).toBeUndefined()
+			expect(testAccess(authService)._induscodeAuthInfo?.idToken).toBe("persisted-access-token")
+			expect(testAccess(authService)._induscodeAuthInfo?.startedAt).toBeUndefined()
 			expect(
-				(mockProviderSettings.get("cline")?.auth as { metadata?: Record<string, unknown> } | undefined)?.metadata,
+				(mockProviderSettings.get("induscode")?.auth as { metadata?: Record<string, unknown> } | undefined)?.metadata,
 			).toBeUndefined()
-			expect(getValidClineCredentials).toHaveBeenCalledWith(
+			expect(getValidIndusCodeCredentials).toHaveBeenCalledWith(
 				expect.any(Object),
 				expect.objectContaining({ telemetry: mockSdkTelemetry }),
 				expect.any(Object),
@@ -563,8 +563,8 @@ describe("AuthService", () => {
 		})
 
 		it("does not let undefined incoming metadata erase existing metadata on restore refresh", async () => {
-			mockProviderSettings.set("cline", {
-				provider: "cline",
+			mockProviderSettings.set("induscode", {
+				provider: "induscode",
 				auth: {
 					accessToken: "workos:persisted-access-token",
 					refreshToken: "persisted-refresh-token",
@@ -576,7 +576,7 @@ describe("AuthService", () => {
 					},
 				},
 			})
-			vi.mocked(getValidClineCredentials).mockResolvedValue({
+			vi.mocked(getValidIndusCodeCredentials).mockResolvedValue({
 				access: "persisted-access-token",
 				refresh: "persisted-refresh-token",
 				expires: Date.now() + 3600 * 1000,
@@ -591,7 +591,7 @@ describe("AuthService", () => {
 
 			await authService.restoreRefreshTokenAndRetrieveAuthInfo()
 
-			const persisted = mockProviderSettings.get("cline") as { auth?: { metadata?: Record<string, unknown> } }
+			const persisted = mockProviderSettings.get("induscode") as { auth?: { metadata?: Record<string, unknown> } }
 			expect(persisted.auth?.metadata).toMatchObject({
 				provider: "workos",
 				sessionStartedAtMs: 1_700_000_000_000,
@@ -599,17 +599,17 @@ describe("AuthService", () => {
 			})
 		})
 
-		it("keeps a ClinePass last-used selection when credentials are refreshed on restore (#13501)", async () => {
-			mockLastUsedProvider = "cline-pass"
-			mockProviderSettings.set("cline", {
-				provider: "cline",
+		it("keeps a IndusCodePass last-used selection when credentials are refreshed on restore (#13501)", async () => {
+			mockLastUsedProvider = "induscode-pass"
+			mockProviderSettings.set("induscode", {
+				provider: "induscode",
 				auth: {
 					accessToken: "workos:persisted-access-token",
 					refreshToken: "persisted-refresh-token",
 					accountId: "user-123",
 				},
 			})
-			vi.mocked(getValidClineCredentials).mockResolvedValue({
+			vi.mocked(getValidIndusCodeCredentials).mockResolvedValue({
 				access: "refreshed-access-token",
 				refresh: "refreshed-refresh-token",
 				expires: Date.now() + 3600 * 1000,
@@ -620,20 +620,20 @@ describe("AuthService", () => {
 			await authService.restoreRefreshTokenAndRetrieveAuthInfo()
 
 			expect(testAccess(authService)._authenticated).toBe(true)
-			expect(mockLastUsedProvider).toBe("cline-pass")
+			expect(mockLastUsedProvider).toBe("induscode-pass")
 		})
 
-		it("claims the last-used slot on restore when no cline-backed provider is selected", async () => {
+		it("claims the last-used slot on restore when no induscode-backed provider is selected", async () => {
 			mockLastUsedProvider = undefined
-			mockProviderSettings.set("cline", {
-				provider: "cline",
+			mockProviderSettings.set("induscode", {
+				provider: "induscode",
 				auth: {
 					accessToken: "workos:persisted-access-token",
 					refreshToken: "persisted-refresh-token",
 					accountId: "user-123",
 				},
 			})
-			vi.mocked(getValidClineCredentials).mockResolvedValue({
+			vi.mocked(getValidIndusCodeCredentials).mockResolvedValue({
 				access: "refreshed-access-token",
 				refresh: "refreshed-refresh-token",
 				expires: Date.now() + 3600 * 1000,
@@ -643,29 +643,29 @@ describe("AuthService", () => {
 
 			await authService.restoreRefreshTokenAndRetrieveAuthInfo()
 
-			expect(mockLastUsedProvider).toBe("cline")
+			expect(mockLastUsedProvider).toBe("induscode")
 		})
 
-		it("sets unauthenticated state when providers.json has no Cline auth", async () => {
+		it("sets unauthenticated state when providers.json has no IndusCode auth", async () => {
 			await authService.restoreRefreshTokenAndRetrieveAuthInfo()
 
 			expect(testAccess(authService)._authenticated).toBe(false)
-			expect(testAccess(authService)._clineAuthInfo).toBeNull()
+			expect(testAccess(authService)._induscodeAuthInfo).toBeNull()
 		})
 
 		it("clears persisted credentials when stored tokens are no longer valid", async () => {
-			mockProviderSettings.set("cline", {
-				provider: "cline",
+			mockProviderSettings.set("induscode", {
+				provider: "induscode",
 				auth: { accessToken: "workos:stale", refreshToken: "stale-refresh", accountId: "user-123" },
 			})
-			// getValidClineCredentials returning null models an unrecoverable token.
-			vi.mocked(getValidClineCredentials).mockResolvedValue(null)
+			// getValidIndusCodeCredentials returning null models an unrecoverable token.
+			vi.mocked(getValidIndusCodeCredentials).mockResolvedValue(null)
 
 			await authService.restoreRefreshTokenAndRetrieveAuthInfo()
 
 			expect(testAccess(authService)._authenticated).toBe(false)
-			expect(testAccess(authService)._clineAuthInfo).toBeNull()
-			expect(mockProviderSettings.get("cline")?.auth).toBeUndefined()
+			expect(testAccess(authService)._induscodeAuthInfo).toBeNull()
+			expect(mockProviderSettings.get("induscode")?.auth).toBeUndefined()
 			// The SDK resolver owns the token_invalid event — no adapter emission.
 			expect(mockCaptureAuthLoggedOut).not.toHaveBeenCalled()
 		})
@@ -673,11 +673,11 @@ describe("AuthService", () => {
 
 	describe("restoreRefreshTokenAndRetrieveAuthInfo()", () => {
 		it("strips the workos: prefix from the persisted access token", async () => {
-			mockProviderSettings.set("cline", {
-				provider: "cline",
+			mockProviderSettings.set("induscode", {
+				provider: "induscode",
 				auth: { accessToken: "workos:raw-access-token", refreshToken: "r", accountId: "user-123" },
 			})
-			vi.mocked(getValidClineCredentials).mockResolvedValue({
+			vi.mocked(getValidIndusCodeCredentials).mockResolvedValue({
 				access: "raw-access-token",
 				refresh: "r",
 				expires: Date.now() + 3600 * 1000,
@@ -687,63 +687,63 @@ describe("AuthService", () => {
 
 			await authService.restoreRefreshTokenAndRetrieveAuthInfo()
 
-			expect(testAccess(authService)._clineAuthInfo?.idToken).toBe("raw-access-token")
+			expect(testAccess(authService)._induscodeAuthInfo?.idToken).toBe("raw-access-token")
 		})
 
 		it("sets unauthenticated state when no credentials exist", async () => {
 			await authService.restoreRefreshTokenAndRetrieveAuthInfo()
 
 			expect(testAccess(authService)._authenticated).toBe(false)
-			expect(testAccess(authService)._clineAuthInfo).toBeNull()
+			expect(testAccess(authService)._induscodeAuthInfo).toBeNull()
 			// Startup with nothing stored is not a logout — no event.
 			expect(mockCaptureAuthLoggedOut).not.toHaveBeenCalled()
 		})
 
 		it("reports nothing when refreshing the stored session fails transiently", async () => {
-			mockProviderSettings.set("cline", {
-				provider: "cline",
+			mockProviderSettings.set("induscode", {
+				provider: "induscode",
 				auth: { accessToken: "workos:stale", refreshToken: "stale-refresh", accountId: "user-123" },
 			})
 			// The resolver throws only on transient failures (network/timeout/5xx);
 			// stored credentials are kept and the next refresh recovers, so an
 			// offline startup must not book as a logout. (The SDK reports these
 			// as user.auth_refresh_soft_failure.)
-			vi.mocked(getValidClineCredentials).mockRejectedValue(new Error("fetch failed"))
+			vi.mocked(getValidIndusCodeCredentials).mockRejectedValue(new Error("fetch failed"))
 
 			await authService.restoreRefreshTokenAndRetrieveAuthInfo()
 
 			expect(testAccess(authService)._authenticated).toBe(false)
-			expect(mockProviderSettings.get("cline")?.auth).toBeDefined()
+			expect(mockProviderSettings.get("induscode")?.auth).toBeDefined()
 			expect(mockCaptureAuthLoggedOut).not.toHaveBeenCalled()
 		})
 
 		it("reports restore_error when restore fails outside the credential refresh", async () => {
-			mockProviderSettings.set("cline", {
-				provider: "cline",
+			mockProviderSettings.set("induscode", {
+				provider: "induscode",
 				auth: { accessToken: "workos:stale", refreshToken: "stale-refresh", accountId: "user-123" },
 			})
-			vi.mocked(getValidClineCredentials).mockResolvedValue(createTestOAuthCredentials())
+			vi.mocked(getValidIndusCodeCredentials).mockResolvedValue(createTestOAuthCredentials())
 			vi.spyOn(authService, "sendAuthStatusUpdate").mockRejectedValue(new Error("state push failed"))
 
 			await authService.restoreRefreshTokenAndRetrieveAuthInfo()
 
 			expect(testAccess(authService)._authenticated).toBe(false)
 			expect(mockCaptureAuthLoggedOut).toHaveBeenCalledTimes(1)
-			expect(mockCaptureAuthLoggedOut).toHaveBeenCalledWith("cline", LogoutReason.RESTORE_ERROR)
+			expect(mockCaptureAuthLoggedOut).toHaveBeenCalledWith("induscode", LogoutReason.RESTORE_ERROR)
 		})
 
 		it("emits exactly one auth_logged_out — from the SDK resolver — when the stored refresh token is rejected", async () => {
-			// Boundary test: run the REAL getValidClineCredentials (the module
+			// Boundary test: run the REAL getValidIndusCodeCredentials (the module
 			// mock normally hides its telemetry) so a reintroduced adapter-side
 			// emission would surface as a second event here. The specifier is a
 			// variable so tsc doesn't pull the SDK sources into this project's
-			// program (same reason the @cline/core vitest stub is tsc-excluded);
+			// program (same reason the @induscode/core vitest stub is tsc-excluded);
 			// vitest resolves it at runtime.
-			const realClineAuthModulePath = path.resolve(import.meta.dirname, "../../../../sdk/packages/core/src/auth/cline.ts")
-			const { getValidClineCredentials: realGetValidClineCredentials } = (await import(
-				/* @vite-ignore */ realClineAuthModulePath
-			)) as { getValidClineCredentials: typeof getValidClineCredentials }
-			vi.mocked(getValidClineCredentials).mockImplementation(realGetValidClineCredentials as never)
+			const realIndusCodeAuthModulePath = path.resolve(import.meta.dirname, "../../../../sdk/packages/core/src/auth/induscode.ts")
+			const { getValidIndusCodeCredentials: realGetValidIndusCodeCredentials } = (await import(
+				/* @vite-ignore */ realIndusCodeAuthModulePath
+			)) as { getValidIndusCodeCredentials: typeof getValidIndusCodeCredentials }
+			vi.mocked(getValidIndusCodeCredentials).mockImplementation(realGetValidIndusCodeCredentials as never)
 			// The resolver refreshes over global fetch; reject the refresh token.
 			vi.stubGlobal(
 				"fetch",
@@ -755,8 +755,8 @@ describe("AuthService", () => {
 						}),
 				),
 			)
-			mockProviderSettings.set("cline", {
-				provider: "cline",
+			mockProviderSettings.set("induscode", {
+				provider: "induscode",
 				auth: {
 					accessToken: "workos:stale",
 					refreshToken: "stale-refresh",
@@ -772,7 +772,7 @@ describe("AuthService", () => {
 			}
 
 			expect(testAccess(authService)._authenticated).toBe(false)
-			expect(mockProviderSettings.get("cline")?.auth).toBeUndefined()
+			expect(mockProviderSettings.get("induscode")?.auth).toBeUndefined()
 			// Exactly one user.auth_logged_out in total: the SDK resolver's
 			// token_invalid (on the SDK telemetry instance) and nothing from
 			// the adapter (on the app telemetry service).
@@ -799,7 +799,7 @@ describe("AuthService", () => {
 	describe("workos: prefix handling", () => {
 		it("getAuthToken always returns workos:-prefixed token", async () => {
 			const authInfo = createTestAuthInfo()
-			testAccess(authService)._clineAuthInfo = authInfo
+			testAccess(authService)._induscodeAuthInfo = authInfo
 			testAccess(authService)._authenticated = true
 
 			const token = await authService.getAuthToken()
@@ -831,7 +831,7 @@ describe("AuthService", () => {
 
 		it("polls feature flags with the authenticated user before posting state", async () => {
 			const authInfo = createTestAuthInfo()
-			testAccess(authService)._clineAuthInfo = authInfo
+			testAccess(authService)._induscodeAuthInfo = authInfo
 			testAccess(authService)._authenticated = true
 
 			const mockResponseStream = vi.fn().mockResolvedValue(undefined)

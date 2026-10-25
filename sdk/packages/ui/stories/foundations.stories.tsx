@@ -63,7 +63,7 @@ const meta: Meta = {
 		docs: {
 			description: {
 				component:
-					"Cline-owned color palettes feed readable visual roles and the shadcn semantic compatibility contract. Use the toolbar to compare light and dark modes.",
+					"IndusCode-owned color palettes feed readable visual roles and the shadcn semantic compatibility contract. Use the toolbar to compare light and dark modes.",
 			},
 		},
 	},
@@ -84,19 +84,19 @@ const TokenCard = ({ label, token }: { label: string; token: string }) => (
 export const Overview = () => (
 	<main className="mx-auto grid max-w-6xl gap-10 p-8">
 		<header className="space-y-3">
-			<p className="text-sm font-medium text-primary">@cline/ui</p>
+			<p className="text-sm font-medium text-primary">@induscode/ui</p>
 			<h1 className="text-4xl font-semibold tracking-tight">
-				Cline visual foundations
+				IndusCode visual foundations
 			</h1>
 			<p className="max-w-3xl text-base text-muted-foreground">
-				Adjust Cline-owned palettes and visual roles; shadcn semantic tokens
+				Adjust IndusCode-owned palettes and visual roles; shadcn semantic tokens
 				remain the stable component compatibility layer.
 			</p>
 		</header>
 
 		<section className="space-y-4">
 			<div>
-				<h2 className="text-xl font-semibold">Cline-owned palettes</h2>
+				<h2 className="text-xl font-semibold">IndusCode-owned palettes</h2>
 				<p className="text-sm text-muted-foreground">
 					Solid and alpha values copied from Radix Colors 3.0.0.
 				</p>
@@ -249,7 +249,7 @@ export const Overview = () => (
 				<input
 					aria-label="Example input"
 					className="w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
-					placeholder="Ask Cline something..."
+					placeholder="Ask IndusCode something..."
 				/>
 			</div>
 		</section>

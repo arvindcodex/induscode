@@ -7,7 +7,7 @@ export const openTab = async (_page: Page, tabName: string) => {
 		.click()
 }
 
-export const addSelectedCodeToClineWebview = async (_page: Page) => {
+export const addSelectedCodeToIndusCodeWebview = async (_page: Page) => {
 	await _page.locator("div:nth-child(4) > span > span").first().click()
 	await _page.getByRole("textbox", { name: "The editor is not accessible" }).press("ControlOrMeta+a")
 
@@ -16,12 +16,12 @@ export const addSelectedCodeToClineWebview = async (_page: Page) => {
 
 	// Target the explicit action instead of pressing Enter on the first item.
 	// The first item can vary by platform or diagnostics.
-	const addToCline = _page.getByText(/Add to Cline/i)
-	await addToCline.waitFor({ state: "visible" })
+	const addToIndusCode = _page.getByText(/Add to IndusCode/i)
+	await addToIndusCode.waitFor({ state: "visible" })
 	// For whatever reason, we need to move the mouse to make the context menu item clickable
 	await _page.mouse.move(10, 10)
 	await _page.mouse.move(20, 10)
-	await addToCline.click()
+	await addToIndusCode.click()
 }
 
 export const toggleNotifications = async (_page: Page) => {

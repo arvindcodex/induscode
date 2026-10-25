@@ -6,8 +6,8 @@ import {
 	SessionSource,
 	type ToolApprovalRequest,
 	type ToolApprovalResult,
-} from "@cline/core";
-import type { AgentTool, Message } from "@cline/shared";
+} from "@induscode/core";
+import type { AgentTool, Message } from "@induscode/shared";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ChatCommandState } from "../../utils/chat-commands";
 import type { Config } from "../../utils/types";
@@ -819,9 +819,9 @@ describe("createInteractiveSessionRuntime", () => {
 		const manager = makeManager();
 		const config = {
 			...createConfig(),
-			providerId: "cline",
+			providerId: "induscode",
 			modelId: "anthropic/claude-sonnet-4.6",
-			apiKey: "cline-key",
+			apiKey: "induscode-key",
 		};
 		const messages: Message[] = [
 			{ role: "user", content: [{ type: "text", text: "hello" }] },
@@ -834,9 +834,9 @@ describe("createInteractiveSessionRuntime", () => {
 			1,
 			expect.objectContaining({
 				config: expect.objectContaining({
-					providerId: "cline",
+					providerId: "induscode",
 					modelId: "anthropic/claude-sonnet-4.6",
-					apiKey: "cline-key",
+					apiKey: "induscode-key",
 				}),
 			}),
 		);

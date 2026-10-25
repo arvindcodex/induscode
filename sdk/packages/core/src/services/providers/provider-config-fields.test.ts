@@ -1,4 +1,4 @@
-import * as LlmsModels from "@cline/llms";
+import * as LlmsModels from "@induscode/llms";
 import { afterEach, describe, expect, it } from "vitest";
 import { registerCustomProvider } from "./local-provider-registry";
 import { getProviderConfigFields } from "./provider-config-fields";
@@ -65,8 +65,8 @@ describe("getProviderConfigFields", () => {
 		);
 	});
 
-	it("returns oauth auth with no fields for cline", () => {
-		const result = getProviderConfigFields("cline");
+	it("returns oauth auth with no fields for induscode", () => {
+		const result = getProviderConfigFields("induscode");
 		expect(result.authMethod).toBe("oauth");
 		expect(result.fields).toEqual({});
 	});

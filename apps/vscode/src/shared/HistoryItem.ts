@@ -26,7 +26,7 @@ export type HistoryItem = {
 	apiProvider?: string
 	isLegacy?: boolean
 
-	/** "cloud" for Cline Cloud sessions; absent/"local" for tasks run in this workspace. */
+	/** "cloud" for IndusCode Cloud sessions; absent/"local" for tasks run in this workspace. */
 	executionTarget?: "local" | "cloud"
 	cloudStatus?: CloudSessionStatus
 	cloudRepoUrl?: string

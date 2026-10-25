@@ -1,0 +1,23 @@
+{
+	"name": "@induscode/induscode-hub",
+	"version": "0.0.0",
+	"private": true,
+	"description": "Browser dashboard for the IndusCode hub: live clients, sessions, streaming chat, and hub restart.",
+	"type": "module",
+	"exports": {
+		".": "./src/server.ts"
+	},
+	"scripts": {
+		"build:webview": "bun run --cwd src/webview build",
+		"dev": "bun run src/dev.ts",
+		"start": "bun run src/server.ts",
+		"smoke:options": "bun run src/validate-options.ts",
+		"test": "bunx vitest run --config vitest.config.ts",
+		"typecheck": "bun tsc -p tsconfig.json --noEmit"
+	},
+	"dependencies": {
+		"@induscode/core": "workspace:*",
+		"@induscode/llms": "workspace:*",
+		"@induscode/shared": "workspace:*"
+	}
+}

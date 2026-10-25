@@ -135,10 +135,10 @@ describe("InputSection", () => {
 
 	it.each([
 		["without a repository", { target: "cloud" }, true],
-		["with a repository", { target: "cloud", repoUrl: "https://github.com/cline/fixture" }, false],
+		["with a repository", { target: "cloud", repoUrl: "https://github.com/induscode/fixture" }, false],
 	])("on the home screen with Cloud selected %s, submit disabled=%s", (_label, cloudTaskTarget, disabled) => {
 		mockTurnState.mockReturnValue({ phase: "idle", seq: 1 })
-		mockCloudState.mockReturnValue({ cloudSessionsEnabled: true, cloudTaskTarget, clineMessages: [] })
+		mockCloudState.mockReturnValue({ cloudSessionsEnabled: true, cloudTaskTarget, induscodeMessages: [] })
 		const handleSendMessage = vi.fn().mockResolvedValue(undefined)
 
 		render(
@@ -168,8 +168,8 @@ describe("InputSection", () => {
 		mockTurnState.mockReturnValue({ phase: "idle", seq: 1 })
 		mockCloudState.mockReturnValue({
 			cloudSessionsEnabled: true,
-			cloudTaskTarget: { target: "cloud", repoUrl: "https://github.com/cline/fixture" },
-			clineMessages: [],
+			cloudTaskTarget: { target: "cloud", repoUrl: "https://github.com/induscode/fixture" },
+			induscodeMessages: [],
 		})
 		const handleSendMessage = vi.fn().mockResolvedValue(undefined)
 
@@ -197,7 +197,7 @@ describe("InputSection", () => {
 		mockCloudState.mockReturnValue({
 			cloudSessionsEnabled: true,
 			currentCloudTask: { sessionId: "cloud-provisioning-1", status: "provisioning" },
-			clineMessages: [{ ts: 1, type: "say", say: "task", text: "test" }],
+			induscodeMessages: [{ ts: 1, type: "say", say: "task", text: "test" }],
 		})
 		const handleSendMessage = vi.fn().mockResolvedValue(undefined)
 
@@ -225,7 +225,7 @@ describe("InputSection", () => {
 
 		render(
 			<InputSection
-				chatState={makeChatState({ clineAsk: "api_req_failed", sendingDisabled: true })}
+				chatState={makeChatState({ induscodeAsk: "api_req_failed", sendingDisabled: true })}
 				messageHandlers={
 					{
 						errorRecoveryAvailable: true,
@@ -253,7 +253,7 @@ describe("InputSection", () => {
 
 		render(
 			<InputSection
-				chatState={makeChatState({ clineAsk: undefined, sendingDisabled: true })}
+				chatState={makeChatState({ induscodeAsk: undefined, sendingDisabled: true })}
 				messageHandlers={
 					{
 						errorRecoveryAvailable: false,
@@ -279,7 +279,7 @@ describe("InputSection", () => {
 		render(
 			<InputSection
 				chatState={makeChatState({
-					clineAsk: "api_req_failed",
+					induscodeAsk: "api_req_failed",
 					pendingResponse: { id: 1, turnStateSeq: 1, messageCount: 2 },
 					sendingDisabled: true,
 				})}
@@ -312,7 +312,7 @@ describe("InputSection", () => {
 
 		render(
 			<InputSection
-				chatState={makeChatState({ clineAsk: "api_req_failed", sendingDisabled: true })}
+				chatState={makeChatState({ induscodeAsk: "api_req_failed", sendingDisabled: true })}
 				messageHandlers={
 					{
 						errorRecoveryAvailable: true,

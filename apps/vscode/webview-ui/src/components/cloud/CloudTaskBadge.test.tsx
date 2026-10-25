@@ -65,19 +65,19 @@ describe("CloudTaskBadge", () => {
 				cloudTask={{
 					sessionId: "ses-ready",
 					status: "running",
-					repoUrl: "https://github.com/cline/fixture",
+					repoUrl: "https://github.com/induscode/fixture",
 					branch: "main",
 				}}
 			/>,
 		)
 		expect(
-			screen.getByText("Running in Cline Cloud on cline/fixture (main). Click to open in the dashboard."),
+			screen.getByText("Running in IndusCode Cloud on induscode/fixture (main). Click to open in the dashboard."),
 		).toBeInTheDocument()
 		unmount()
 
 		render(<CloudTaskBadge cloudTask={{ sessionId: "cloud-provisioning-1", status: "provisioning" }} />)
 		expect(
-			screen.getByText("Running in Cline Cloud. The dashboard link will be available when provisioning finishes."),
+			screen.getByText("Running in IndusCode Cloud. The dashboard link will be available when provisioning finishes."),
 		).toBeInTheDocument()
 	})
 

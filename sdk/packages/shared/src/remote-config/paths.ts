@@ -8,7 +8,7 @@ export function resolveRemoteConfigPaths(input: {
 	pluginName?: string;
 }): RemoteConfigManagedPaths {
 	const pluginName = input.pluginName ?? DEFAULT_REMOTE_CONFIG_PLUGIN_NAME;
-	const pluginPath = path.join(input.workspacePath, ".cline", pluginName);
+	const pluginPath = path.join(input.workspacePath, ".induscode", pluginName);
 	return {
 		pluginName,
 		pluginPath,

@@ -11,7 +11,7 @@ describe("migrateOpenAiCompatibleBaseUrlToV1", () => {
 
 	beforeEach(() => {
 		tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "openai-base-url-migration-"))
-		storage = createStorageContext({ clineDir: tempDir, workspacePath: tempDir })
+		storage = createStorageContext({ induscodeDir: tempDir, workspacePath: tempDir })
 	})
 
 	afterEach(() => {
@@ -65,7 +65,7 @@ describe("migrateOpenAiCompatibleBaseUrlToV1", () => {
 		migrateOpenAiCompatibleBaseUrlToV1(storage)
 		storage.globalState.update("openAiBaseUrl", "https://example.com")
 
-		const otherHost = createStorageContext({ clineDir: tempDir, workspacePath: tempDir })
+		const otherHost = createStorageContext({ induscodeDir: tempDir, workspacePath: tempDir })
 		migrateOpenAiCompatibleBaseUrlToV1(otherHost)
 
 		expect(otherHost.globalState.get<string>("openAiBaseUrl")).toBe("https://example.com")

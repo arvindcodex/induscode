@@ -1,8 +1,8 @@
 #!/usr/bin/env bun
 /**
- * Cline Hook: PostToolUse (TypeScript)
+ * IndusCode Hook: PostToolUse (TypeScript)
  * Logs tool results with structured output.
- * Copy to ~/.cline/hooks/PostToolUse.ts and chmod +x
+ * Copy to ~/.induscode/hooks/PostToolUse.ts and chmod +x
  */
 
 interface ToolResult {

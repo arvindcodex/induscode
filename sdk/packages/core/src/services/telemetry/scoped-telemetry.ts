@@ -4,7 +4,7 @@ import type {
 	TelemetryMetadata,
 	TelemetryProperties,
 	UserContext,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { resolveClientSessionSource } from "../../session/history-origin";
 
 /**
@@ -30,13 +30,13 @@ export function resolveClientTelemetryProperties(
 	context: ClientTelemetryContext,
 ): TelemetryProperties {
 	const client = context.client;
-	const clineType =
+	const induscodeType =
 		resolveClientSessionSource(client) ?? trimNonEmpty(context.source);
 	const version = trimNonEmpty(client.version);
 	const platform = trimNonEmpty(client.platform) ?? trimNonEmpty(client.name);
 	const platformVersion = trimNonEmpty(client.platformVersion) ?? version;
 	const clientProperties: TelemetryProperties = {
-		cline_type: clineType,
+		induscode_type: induscodeType,
 		extension_version: version,
 		platform,
 		platform_version: platformVersion,

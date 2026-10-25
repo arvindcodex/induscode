@@ -1,4 +1,4 @@
-import type { ImageContent, Message, ToolResultContent } from "@cline/shared";
+import type { ImageContent, Message, ToolResultContent } from "@induscode/shared";
 import { describe, expect, it } from "vitest";
 import { MessageBuilder } from "./message-builder";
 
@@ -32,13 +32,13 @@ describe("synchronous model-only recovery", () => {
 		const builder = new MessageBuilder({
 			maxToolResultChars: 500,
 			getToolResultRecovery: () => ({
-				uri: "cline://cache/session/result.result.txt",
+				uri: "induscode://cache/session/result.result.txt",
 			}),
 		});
 		const prepared = builder.buildForApi(messages);
 		expect(prepared).not.toBeInstanceOf(Promise);
 		expect(JSON.stringify(result(prepared))).toContain(
-			"cline://cache/session/result.result.txt",
+			"induscode://cache/session/result.result.txt",
 		);
 		expect(JSON.stringify(result(prepared))).not.toContain(full);
 		expect(result(messages).content).toBe(full);
@@ -76,7 +76,7 @@ describe("synchronous model-only recovery", () => {
 		const builder = new MessageBuilder({
 			maxToolResultChars: 500,
 			getToolResultRecovery: () => ({
-				uri: "cline://cache/session/result.result.txt",
+				uri: "induscode://cache/session/result.result.txt",
 			}),
 		});
 		expect(result(builder.buildForApi(messages)).content).toContainEqual(image);
@@ -112,12 +112,12 @@ describe("synchronous model-only recovery", () => {
 						.map((entry) => entry.text)
 						.join("");
 		expect(Buffer.byteLength(text)).toBeLessThanOrEqual(maxTotalTextBytes);
-		expect(text).not.toContain("cline://cache/");
+		expect(text).not.toContain("induscode://cache/");
 		expect(result(messages).content).toHaveLength(500000);
 	});
 
 	it("protects generated instructions within the aggregate budget", () => {
-		const uri = "cline://cache/session/result.result.txt";
+		const uri = "induscode://cache/session/result.result.txt";
 		const builder = new MessageBuilder({
 			maxToolResultChars: 1000,
 			maxTotalTextBytes: 1000,

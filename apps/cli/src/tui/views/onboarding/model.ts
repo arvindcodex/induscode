@@ -2,7 +2,7 @@ import type {
 	ChatModelModalities,
 	ModelModality,
 	ModelOperation,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { isChatProviderModel } from "../../../utils/chat-models";
 import type {
 	LocalCliStatus,
@@ -20,8 +20,8 @@ export type OnboardingStep =
 	| "byo_provider"
 	| "byo_apikey"
 	| "local_cli_setup"
-	| "cline_pass_subscription"
-	| "cline_model"
+	| "induscode_pass_subscription"
+	| "induscode_model"
 	| "model_picker"
 	| "custom_model_id"
 	| "thinking_level"
@@ -53,27 +53,27 @@ export interface MenuOption {
 	icon: string;
 }
 
-export type ClinePassSubscriptionAction =
+export type IndusCodePassSubscriptionAction =
 	| "subscribe"
 	| "refresh"
 	| "skip"
 	| "back";
 
-export interface ClinePassSubscriptionOption {
-	value: ClinePassSubscriptionAction;
+export interface IndusCodePassSubscriptionOption {
+	value: IndusCodePassSubscriptionAction;
 	label: string;
 }
 
 export const MAIN_MENU: MenuOption[] = [
 	{
-		label: "Sign in with Cline",
-		value: "cline",
+		label: "Sign in with IndusCode",
+		value: "induscode",
 		detail: "Latest models with regular free promos",
 		icon: "\u263a",
 	},
 	{
-		label: "Sign in with ClinePass",
-		value: "cline-pass",
+		label: "Sign in with IndusCodePass",
+		value: "induscode-pass",
 		detail: "Low cost subscription for everyone",
 		icon: "\u2726",
 	},
@@ -121,17 +121,17 @@ export function canContinueLocalCliSetup(
 }
 
 export function getMainMenuOptions(options?: {
-	isClinePassEnabled?: boolean;
+	isIndusCodePassEnabled?: boolean;
 }): MenuOption[] {
 	return MAIN_MENU.filter(
-		(option) => option.value !== "cline-pass" || options?.isClinePassEnabled,
+		(option) => option.value !== "induscode-pass" || options?.isIndusCodePassEnabled,
 	);
 }
 
-export const CLINE_PASS_SUBSCRIPTION_OPTIONS: ClinePassSubscriptionOption[] = [
+export const INDUSCODE_PASS_SUBSCRIPTION_OPTIONS: IndusCodePassSubscriptionOption[] = [
 	{
 		value: "subscribe",
-		label: "Subscribe to ClinePass",
+		label: "Subscribe to IndusCodePass",
 	},
 	{
 		value: "refresh",
@@ -172,7 +172,7 @@ export interface ModelEntry {
 	supportsReasoning: boolean;
 }
 
-export type ClinePassSubscriptionStatus =
+export type IndusCodePassSubscriptionStatus =
 	| "loading"
 	| "subscribed"
 	| "unsubscribed"
@@ -247,11 +247,11 @@ export function toModelEntriesFromKnownModels(
 }
 
 export function getOAuthProviderLabel(providerId: string): string {
-	if (providerId === "cline-pass") {
-		return "ClinePass";
+	if (providerId === "induscode-pass") {
+		return "IndusCodePass";
 	}
-	if (providerId === "cline") {
-		return "Cline";
+	if (providerId === "induscode") {
+		return "IndusCode";
 	}
 	if (providerId === "openai-codex") {
 		return "ChatGPT";
@@ -259,7 +259,7 @@ export function getOAuthProviderLabel(providerId: string): string {
 	return providerId;
 }
 
-export function shouldUseFeaturedClineModelPicker(providerId: string): boolean {
-	// ClinePass uses the featured picker too, with Subscribed/Free sections
-	return providerId === "cline" || providerId === "cline-pass";
+export function shouldUseFeaturedIndusCodeModelPicker(providerId: string): boolean {
+	// IndusCodePass uses the featured picker too, with Subscribed/Free sections
+	return providerId === "induscode" || providerId === "induscode-pass";
 }

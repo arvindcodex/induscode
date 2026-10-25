@@ -193,14 +193,14 @@ describe("rule scope grouping", () => {
 	])("classifies only exact workspace rule roots as Project for %s", async (workspaceRoot) => {
 		const prefix = workspaceRoot.replaceAll("\\", "/").replace(/\/+$/, "");
 		const ruleCases = [
-			["legacy-rule", `${prefix}/.clinerules/legacy-rule.md`, "Project"],
-			["new-rule", `${prefix}/.cline/rules/new-rule.md`, "Project"],
-			["nested-rule", `${prefix}/.cline/rules/team/nested.md`, "Project"],
-			["single-file", `${prefix}/.clinerules`, "Project"],
-			["nested-global", `${prefix}/other/.cline/rules/global.md`, "Global"],
-			["nested-legacy", `${prefix}/other/.clinerules/global.md`, "Global"],
-			["prefix-sibling", `${prefix}/.cline/rules-other/rule.md`, "Global"],
-			["outside-rule", "/elsewhere/.cline/rules/global.md", "Global"],
+			["legacy-rule", `${prefix}/.induscoderules/legacy-rule.md`, "Project"],
+			["new-rule", `${prefix}/.induscode/rules/new-rule.md`, "Project"],
+			["nested-rule", `${prefix}/.induscode/rules/team/nested.md`, "Project"],
+			["single-file", `${prefix}/.induscoderules`, "Project"],
+			["nested-global", `${prefix}/other/.induscode/rules/global.md`, "Global"],
+			["nested-legacy", `${prefix}/other/.induscoderules/global.md`, "Global"],
+			["prefix-sibling", `${prefix}/.induscode/rules-other/rule.md`, "Global"],
+			["outside-rule", "/elsewhere/.induscode/rules/global.md", "Global"],
 		];
 		invoke.mockImplementation(async (command: string) => {
 			if (command === "list_marketplace_installed_entries")

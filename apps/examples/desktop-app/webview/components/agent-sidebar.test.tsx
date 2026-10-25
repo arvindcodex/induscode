@@ -35,7 +35,7 @@ function makeThread(project: string, index: number): SessionThread {
 		codebase: project,
 		workspacePath: `/projects/${project}`,
 		time: `${index}m`,
-		provider: "cline",
+		provider: "induscode",
 		model: "test-model",
 		status: "completed",
 		isScheduled: false,
@@ -126,7 +126,7 @@ function sessionRow(title: string): HTMLButtonElement {
 
 const signedInUser = {
 	id: "user-1",
-	email: "beatrix@cline.bot",
+	email: "beatrix@induscode.bot",
 	displayName: "Beatrix",
 	photoUrl: "",
 	createdAt: "2024-01-01T00:00:00Z",
@@ -135,7 +135,7 @@ const signedInUser = {
 		{
 			active: true,
 			memberId: "member-1",
-			name: "Cline Bot Inc",
+			name: "IndusCode Bot Inc",
 			organizationId: "org-1",
 			roles: ["admin"],
 		},
@@ -152,7 +152,7 @@ beforeEach(() => {
 	}
 	window.localStorage.clear();
 	invoke.mockReset();
-	invoke.mockRejectedValue(new Error("No Cline account auth token found"));
+	invoke.mockRejectedValue(new Error("No IndusCode account auth token found"));
 	desktopMocks.subscribe.mockReset();
 	desktopMocks.subscribe.mockImplementation(() => () => undefined);
 	desktopMocks.subscribeTransportState.mockReset();
@@ -586,11 +586,11 @@ describe("AgentSidebar session organization", () => {
 	});
 
 	it("warns that deleting a task-worktree session also removes its worktree", async () => {
-		registerTaskWorktreeRoot("/home/host/cline-dir/worktrees");
+		registerTaskWorktreeRoot("/home/host/induscode-dir/worktrees");
 		try {
 			const thread = {
 				...makeThread("alpha", 1),
-				workspacePath: "/home/host/cline-dir/worktrees/ab12c/alpha",
+				workspacePath: "/home/host/induscode-dir/worktrees/ab12c/alpha",
 			};
 			const sessionHistory = makeSessionHistory([thread], vi.fn());
 
@@ -817,7 +817,7 @@ describe("AgentSidebar session organization", () => {
 
 	it("builds the hover overview with branch and secondary metadata last", () => {
 		const thread = {
-			...makeThread("cline", 5),
+			...makeThread("induscode", 5),
 			gitBranch: "bee/session-overview",
 			inputTokens: 3_000_000,
 			outputTokens: 9_000,
@@ -825,14 +825,14 @@ describe("AgentSidebar session organization", () => {
 		};
 
 		expect(getSessionOverviewItems(thread)).toEqual([
-			["Workspace", "cline", "/projects/cline"],
+			["Workspace", "induscode", "/projects/induscode"],
 			["Branch", "bee/session-overview"],
-			["Provider", "cline"],
+			["Provider", "induscode"],
 			["Model", "test-model"],
 			["Tokens", "3009k"],
 			["Cost", "$3.06"],
 		]);
-		expect(getSessionOverviewItems(makeThread("cline", 5))).not.toContainEqual([
+		expect(getSessionOverviewItems(makeThread("induscode", 5))).not.toContainEqual([
 			"Branch",
 			expect.anything(),
 		]);
@@ -843,7 +843,7 @@ describe("AgentSidebar session organization", () => {
 		// this is; the row itself only says "Run N".
 		expect(
 			getSessionOverviewItems({
-				...makeThread("cline", 6),
+				...makeThread("induscode", 6),
 				isScheduled: true,
 				scheduleName: "Daily date report",
 				scheduleRunNumber: 6,
@@ -859,13 +859,13 @@ describe("AgentSidebar session organization", () => {
 			getSessionOverviewItems({
 				...makeThread("cloud", 1),
 				origin: "cloud",
-				repoUrl: "https://github.com/cline/cline",
-				workspacePath: "https://github.com/cline/cline",
+				repoUrl: "https://github.com/induscode/induscode",
+				workspacePath: "https://github.com/induscode/induscode",
 			}),
 		).toContainEqual([
 			"Repository",
-			"https://github.com/cline/cline",
-			"https://github.com/cline/cline",
+			"https://github.com/induscode/induscode",
+			"https://github.com/induscode/induscode",
 		]);
 	});
 
@@ -970,7 +970,7 @@ describe("AgentSidebar session organization", () => {
 
 		await vi.waitFor(() => {
 			expect(container.textContent).toContain("Beatrix");
-			expect(container.textContent).toContain("Cline Bot Inc");
+			expect(container.textContent).toContain("IndusCode Bot Inc");
 		});
 		expect(container.textContent).not.toContain("IndusCode Desktop");
 		expect(container.textContent).not.toContain("Local");
@@ -985,7 +985,7 @@ describe("AgentSidebar session organization", () => {
 		].find((element) => element.textContent === "Beatrix");
 		const organizationName = [
 			...(accountButton?.querySelectorAll("span") ?? []),
-		].find((element) => element.textContent === "Cline Bot Inc");
+		].find((element) => element.textContent === "IndusCode Bot Inc");
 		expect(accountName?.nextElementSibling).toBe(organizationName);
 		expect(accountName?.parentElement?.className).toContain("flex-col");
 	});
@@ -1081,7 +1081,7 @@ describe("AgentSidebar session organization", () => {
 					},
 				};
 			}
-			throw new Error("No Cline account auth token found");
+			throw new Error("No IndusCode account auth token found");
 		});
 
 		await act(async () => {
@@ -1110,7 +1110,7 @@ describe("AgentSidebar session organization", () => {
 
 		await vi.waitFor(() => {
 			expect(document.body.textContent).toContain("Version 1.2.3");
-			expect(document.body.textContent).toContain("Cline Hub @25463");
+			expect(document.body.textContent).toContain("IndusCode Hub @25463");
 			expect(document.body.textContent).not.toContain(
 				"ws://127.0.0.1:25463/hub",
 			);
@@ -1155,7 +1155,7 @@ describe("AgentSidebar session organization", () => {
 		await hover(logoButton as Element);
 
 		await vi.waitFor(() => {
-			expect(document.body.textContent).toContain("Cline Hub @25463");
+			expect(document.body.textContent).toContain("IndusCode Hub @25463");
 			expect(document.body.textContent).toContain(
 				"Hub connection closed (code=1006)",
 			);
@@ -1190,7 +1190,7 @@ describe("AgentSidebar session organization", () => {
 
 		const titleBar = container.querySelector("[data-tauri-drag-region]");
 		expect(titleBar).not.toBeNull();
-		expect(titleBar?.textContent).not.toContain("Cline");
+		expect(titleBar?.textContent).not.toContain("IndusCode");
 
 		await click(
 			container.querySelector('[aria-label="Previous page"]') as Element,
@@ -1378,7 +1378,7 @@ describe("AgentSidebar session organization", () => {
 		expect(document.querySelector('[data-slot="command-input"]')).toBeNull();
 	});
 
-	it("uses only the Cline logo for home in the collapsed sidebar", async () => {
+	it("uses only the IndusCode logo for home in the collapsed sidebar", async () => {
 		await act(async () => {
 			root.render(
 				<AccountProvider>

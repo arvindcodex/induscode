@@ -1,9 +1,9 @@
-import { Agent } from "@cline/sdk";
+import { Agent } from "@induscode/sdk";
 
 const agent = new Agent({
-	providerId: "cline",
+	providerId: "induscode",
 	modelId: "anthropic/claude-sonnet-4.6",
-	apiKey: process.env.CLINE_API_KEY,
+	apiKey: process.env.INDUSCODE_API_KEY,
 	maxIterations: 1,
 });
 

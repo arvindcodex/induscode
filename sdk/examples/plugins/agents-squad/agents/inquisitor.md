@@ -1,7 +1,7 @@
 ---
 name: inquisitor
 description: Adversarial review agent — finds bugs, challenges design decisions, and stress-tests assumptions.
-providerId: cline
+providerId: induscode
 modelId: openai/gpt-5.5
 ---
 

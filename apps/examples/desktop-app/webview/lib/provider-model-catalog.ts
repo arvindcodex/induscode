@@ -1,11 +1,11 @@
 "use client";
 
-import type { CloudModel } from "@cline/core/cloud";
+import type { CloudModel } from "@induscode/core/cloud";
 import {
 	isChatCompatibleModel,
 	isTranscriptionModel,
 	type ProviderAuthInfo,
-} from "@cline/shared/browser";
+} from "@induscode/shared/browser";
 import { desktopClient } from "@/lib/desktop-client";
 import { isProviderConnected } from "@/lib/provider-connection";
 import type {
@@ -110,8 +110,62 @@ export function buildProviderModelCatalog(
 	providers: Provider[],
 	voiceInput?: VoiceInputSelection,
 ): ProviderModelCatalog {
-	const providerEntries = providers.map((provider) => {
-		const chatModels = filterChatModels(provider.modelList);
+	const induscodeProvider = providers.find(
+		(p) => p.id === "induscode" || p.id === "induscode",
+	);
+
+	let indusCodeProvider: Provider | null = null;
+	let indusCodeChatModels: ProviderModel[] = [];
+
+	if (induscodeProvider) {
+		const allModelsMap = new Map<string, ProviderModel>();
+
+		// Put induscode models first
+		if (induscodeProvider.modelList) {
+			for (const m of filterChatModels(induscodeProvider.modelList)) {
+				allModelsMap.set(m.id, m);
+			}
+		}
+
+		// Also merge models from all other providers into IndusCode so users have access
+		// to the entire suite of models via IndusCode Gateway
+		for (const p of providers) {
+			if (p.modelList) {
+				for (const m of filterChatModels(p.modelList)) {
+					if (!allModelsMap.has(m.id)) {
+						allModelsMap.set(m.id, m);
+					}
+				}
+			}
+		}
+
+		indusCodeChatModels = Array.from(allModelsMap.values());
+		indusCodeProvider = {
+			...induscodeProvider,
+			id: "induscode",
+			name: "IndusCode",
+			modelList: indusCodeChatModels,
+			models: indusCodeChatModels.length,
+			configured: true,
+			enabled: true,
+			color: induscodeProvider.color || "#c4956a",
+			letter: "I",
+		};
+	}
+
+	// Preserve all other providers (openai, anthropic, openrouter, gemini, groq, ollama, etc.)
+	const otherProviders = providers.filter(
+		(p) => p.id !== "induscode" && p.id !== "induscode",
+	);
+	const allProviders = indusCodeProvider
+		? [indusCodeProvider, ...otherProviders]
+		: providers;
+
+	const providerEntries = allProviders.map((provider) => {
+		const chatModels =
+			provider.id === "induscode" && indusCodeProvider
+				? indusCodeChatModels
+				: filterChatModels(provider.modelList);
 		return {
 			provider,
 			chatModels,
@@ -122,20 +176,28 @@ export function buildProviderModelCatalog(
 		};
 	});
 
+	const SYSTEM_BACKEND_PROVIDER_IDS = new Set([
+		"openai-native",
+		"openai",
+		"openrouter",
+		"cloudflare",
+		"cohere",
+		"gemini-apinex",
+		"groq",
+		"nvidia",
+	]);
+
 	return {
-		providers,
+		providers: allProviders,
 		enabledProviderIds: providerEntries
-			.filter(({ provider, modelIds }) => {
-				const isIndusCode =
-					provider.id === "openai-native" ||
-					provider.id === "cline" ||
-					provider.id === "induscode";
-				if (isIndusCode) {
-					return provider.enabled && modelIds.length > 0;
-				}
-				// Other providers (custom models or forwarders) only appear if user actually configured them
-				return provider.configured && provider.enabled && modelIds.length > 0;
-			})
+			.filter(
+				({ provider, modelIds }) =>
+					(provider.id === "induscode" ||
+						(!SYSTEM_BACKEND_PROVIDER_IDS.has(provider.id) &&
+							((provider.enabled && provider.configured) ||
+								isProviderConnected(provider)))) &&
+					modelIds.length > 0,
+			)
 			.map(({ provider }) => provider.id),
 		providerModels: Object.fromEntries(
 			providerEntries.map(({ provider, modelIds }) => [provider.id, modelIds]),
@@ -147,13 +209,9 @@ export function buildProviderModelCatalog(
 			]),
 		),
 		providerNames: Object.fromEntries(
-			providers.map((provider) => [
+			allProviders.map((provider) => [
 				provider.id,
-				provider.id === "cline" ||
-				provider.id === "openai-native" ||
-				provider.id === "induscode"
-					? "IndusCode"
-					: provider.name,
+				provider.id === "induscode" ? "IndusCode" : provider.name,
 			]),
 		),
 		providerReasoningModels: Object.fromEntries(
@@ -162,7 +220,7 @@ export function buildProviderModelCatalog(
 				reasoningModelIds,
 			]),
 		),
-		voiceInput: selectTranscriptionModel(providers, voiceInput),
+		voiceInput: selectTranscriptionModel(allProviders, voiceInput),
 	};
 }
 
@@ -172,7 +230,7 @@ export function buildProviderModelCatalog(
 // boot issues a single round-trip instead of one per consumer.
 const PROVIDER_CATALOG_CACHE_TTL_MS = 5_000;
 export const VOICE_INPUT_SETTINGS_CHANGED_EVENT =
-	"cline:voice-input-settings-changed";
+	"induscode:voice-input-settings-changed";
 
 let providerCatalogCache: {
 	fetchedAt: number;
@@ -350,13 +408,13 @@ export async function loadProviderModelCatalog(options?: {
 				(provider.modelList ?? []).map((model) => [model.id, model] as const),
 			),
 		);
-		// Cloud catalogs are billing choices on the same Cline transport. Only
+		// Cloud catalogs are billing choices on the same IndusCode transport. Only
 		// the account-scoped cloud response determines which models are offered.
 		return buildProviderModelCatalog(
 			Object.entries({
-				cline: "IndusCode Usage-Billing",
-				"cline-pass": "IndusPass",
-				"cline-cloud": "IndusFree",
+				induscode: "IndusCode Usage-Billing",
+				"induscode-pass": "IndusPass",
+				"induscode-cloud": "IndusFree",
 			}).map(([id, name]) => ({
 				id,
 				name,

@@ -11,7 +11,7 @@ function createReport(
 	data: Parameters<typeof writeCronRunReport>[0]["data"],
 	specOverrides: Partial<CronSpecRecord> = {},
 ): string {
-	const directory = mkdtempSync(join(tmpdir(), "cline-cron-report-"));
+	const directory = mkdtempSync(join(tmpdir(), "induscode-cron-report-"));
 	cleanupPaths.push(directory);
 	const timestamp = "2026-07-29T12:00:00.000Z";
 	const run: CronRunRecord = {

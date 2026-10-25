@@ -8,7 +8,7 @@ import type {
 	AgentTool,
 	AgentToolContext,
 	Message,
-} from "@cline/shared";
+} from "@induscode/shared";
 import {
 	afterAll,
 	beforeAll,
@@ -19,7 +19,7 @@ import {
 	vi,
 } from "vitest";
 import {
-	CLINE_PLUGIN_IDLE_TIMEOUT_MS_ENV,
+	INDUSCODE_PLUGIN_IDLE_TIMEOUT_MS_ENV,
 	loadSandboxedPlugins,
 } from "./plugin-sandbox";
 
@@ -109,7 +109,7 @@ describe.each([
 				"      description: 'emit host event',",
 				"      inputSchema: { type: 'object', properties: { value: { type: 'string' } }, required: ['value'] },",
 				"      execute: async (input) => {",
-				"        globalThis.__clinePluginHost?.emitEvent?.('test_event', { value: input.value });",
+				"        globalThis.__induscodePluginHost?.emitEvent?.('test_event', { value: input.value });",
 				"        return { ok: true };",
 				"      },",
 				"    });",
@@ -126,7 +126,7 @@ describe.each([
 				"  name: 'sandbox-run-end',",
 				"  manifest: { capabilities: ['hooks'] },",
 				"  hooks: { afterRun(ctx) {",
-				"    globalThis.__clinePluginHost?.emitEvent?.('run_end_hook', {",
+				"    globalThis.__induscodePluginHost?.emitEvent?.('run_end_hook', {",
 				"      finishReason: ctx.result?.status,",
 				"      iterations: ctx.result?.iterations,",
 				"    });",
@@ -289,12 +289,12 @@ describe.each([
 			"utf8",
 		);
 
-		const sdkDepDir = join(dir, "node_modules", "@cline", "shared");
+		const sdkDepDir = join(dir, "node_modules", "@induscode", "shared");
 		await mkdir(sdkDepDir, { recursive: true });
 		await writeFile(
 			join(sdkDepDir, "package.json"),
 			JSON.stringify({
-				name: "@cline/shared",
+				name: "@induscode/shared",
 				type: "module",
 				exports: "./index.js",
 			}),
@@ -308,7 +308,7 @@ describe.each([
 		await writeFile(
 			join(dir, "plugin-sdk.ts"),
 			[
-				"import { sdkMarker } from '@cline/shared';",
+				"import { sdkMarker } from '@induscode/shared';",
 				"export default {",
 				"  name: sdkMarker,",
 				"  manifest: { capabilities: ['tools'] },",
@@ -320,10 +320,10 @@ describe.each([
 		await writeFile(
 			join(dir, "plugin-host-dep.ts"),
 			[
-				"import { resolveClineDataDir } from '@cline/shared/storage';",
+				"import { resolveIndusCodeDataDir } from '@induscode/shared/storage';",
 				"import YAML from 'yaml';",
 				"export default {",
-				"  name: YAML.stringify({ host: !!resolveClineDataDir() }).trim(),",
+				"  name: YAML.stringify({ host: !!resolveIndusCodeDataDir() }).trim(),",
 				"  manifest: { capabilities: ['tools'] },",
 				"};",
 			].join("\n"),
@@ -333,7 +333,7 @@ describe.each([
 		await writeFile(
 			join(dir, "plugin-create-tool.ts"),
 			[
-				"import { createTool } from '@cline/agents';",
+				"import { createTool } from '@induscode/agents';",
 				"export default {",
 				"  name: 'sandbox-create-tool',",
 				"  manifest: { capabilities: ['tools'] },",
@@ -470,7 +470,7 @@ describe.each([
 			emitUpdate: () => {},
 			metadata: {
 				modelSupportsImages: true,
-				__clineInternalTelemetry: cyclicTelemetry,
+				__induscodeInternalTelemetry: cyclicTelemetry,
 			},
 		} as unknown as AgentToolContext);
 		expect(result).toEqual({ echoed: "ok" });
@@ -627,7 +627,7 @@ describe.each([
 		}
 	});
 
-	it("respects CLINE_PLUGIN_IMPORT_TIMEOUT_MS env var when options.importTimeoutMs is unset", async () => {
+	it("respects INDUSCODE_PLUGIN_IMPORT_TIMEOUT_MS env var when options.importTimeoutMs is unset", async () => {
 		const envDir = await mkdtemp(
 			join(tmpdir(), "core-plugin-sandbox-import-env-"),
 		);
@@ -650,7 +650,7 @@ describe.each([
 			// Set env override well below the 4000 ms hardcoded default.
 			// If the env var isn't read, this test would block for ~4 s and
 			// the per-test timeout (3000 ms below) would fail it.
-			vi.stubEnv("CLINE_PLUGIN_IMPORT_TIMEOUT_MS", "150");
+			vi.stubEnv("INDUSCODE_PLUGIN_IMPORT_TIMEOUT_MS", "150");
 			await expect(
 				loadSandboxedPlugins({ pluginPaths: [pluginPath], transport }),
 			).rejects.toThrow(/timed out/i);
@@ -685,7 +685,7 @@ describe.each([
 				"utf8",
 			);
 
-			vi.stubEnv(CLINE_PLUGIN_IDLE_TIMEOUT_MS_ENV, "1000");
+			vi.stubEnv(INDUSCODE_PLUGIN_IDLE_TIMEOUT_MS_ENV, "1000");
 			vi.useFakeTimers();
 			sandboxed = await loadSandboxedPlugins({
 				transport,
@@ -792,7 +792,7 @@ describe.each([
 	});
 
 	it("ignores the npm wrapper platform package bootstrap when running from source", async () => {
-		const previousWrapperPath = process.env.CLINE_WRAPPER_PATH;
+		const previousWrapperPath = process.env.INDUSCODE_WRAPPER_PATH;
 		const wrapperRoot = await mkdtemp(
 			join(tmpdir(), "core-plugin-sandbox-wrapper-"),
 		);
@@ -801,7 +801,7 @@ describe.each([
 		const packageRoot = join(
 			wrapperRoot,
 			"node_modules",
-			"@cline",
+			"@induscode",
 			`cli-${platform}-${process.arch}`,
 		);
 		const wrapperBinDir = join(wrapperRoot, "bin");
@@ -810,7 +810,7 @@ describe.each([
 			"extensions",
 			"plugin-sandbox-bootstrap.js",
 		);
-		const wrapperPath = join(wrapperBinDir, "cline");
+		const wrapperPath = join(wrapperBinDir, "induscode");
 		const events: Array<{ name: string; payload?: unknown }> = [];
 
 		try {
@@ -820,7 +820,7 @@ describe.each([
 			await writeFile(
 				join(packageRoot, "package.json"),
 				JSON.stringify({
-					name: `@cline/cli-${platform}-${process.arch}`,
+					name: `@induscode/cli-${platform}-${process.arch}`,
 					version: "0.0.0-test",
 					type: "module",
 				}),
@@ -854,7 +854,7 @@ describe.each([
 				"utf8",
 			);
 
-			process.env.CLINE_WRAPPER_PATH = wrapperPath;
+			process.env.INDUSCODE_WRAPPER_PATH = wrapperPath;
 			vi.resetModules();
 			const { loadSandboxedPlugins: loadSandboxedPluginsFromWrapper } =
 				await import("./plugin-sandbox");
@@ -882,9 +882,9 @@ describe.each([
 			}
 		} finally {
 			if (previousWrapperPath === undefined) {
-				delete process.env.CLINE_WRAPPER_PATH;
+				delete process.env.INDUSCODE_WRAPPER_PATH;
 			} else {
-				process.env.CLINE_WRAPPER_PATH = previousWrapperPath;
+				process.env.INDUSCODE_WRAPPER_PATH = previousWrapperPath;
 			}
 			vi.resetModules();
 			await rm(wrapperRoot, { recursive: true, force: true });
@@ -1201,7 +1201,7 @@ describe("plugin-sandbox (worker only)", () => {
 	});
 
 	it("does not need a JavaScript runtime executable", async () => {
-		vi.stubEnv("CLINE_JS_RUNTIME_PATH", join(dir, "missing-node"));
+		vi.stubEnv("INDUSCODE_JS_RUNTIME_PATH", join(dir, "missing-node"));
 		try {
 			const { sandboxed, tool } = await loadToolPlugin(
 				"worker_no_runtime",

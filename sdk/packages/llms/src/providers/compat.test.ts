@@ -5,7 +5,7 @@ import {
 	createGatewayApiHandlerAsync,
 	toGatewayRequestMessages,
 } from "./compat";
-import { ClineNotSubscribedError } from "./errors";
+import { IndusCodeNotSubscribedError } from "./errors";
 import { DEFAULT_GATEWAY_MAX_OUTPUT_FRACTION } from "./gateway";
 import type { Message } from "./types";
 
@@ -176,7 +176,7 @@ describe("createGatewayApiHandler.getMessages", () => {
 		// `toGatewayRequestMessages` now forwards the raw `tool_result.content`
 		// unchanged. Downstream `formatMessagesForAiSdk` /
 		// `toAiSdkToolResultOutput` is responsible for any flattening or
-		// image-extraction; this layer only translates Cline's `Message[]`
+		// image-extraction; this layer only translates IndusCode's `Message[]`
 		// shape into AI-SDK formatter parts.
 		expect(request.messages[1]).toMatchObject({
 			role: "user",
@@ -550,7 +550,7 @@ describe("createGatewayApiHandler.createMessage", () => {
 				role: "assistant",
 				content: [
 					{ type: "thinking", thinking: "private trace" },
-					{ type: "text", text: "Hello from Cline" },
+					{ type: "text", text: "Hello from IndusCode" },
 				],
 			},
 			{
@@ -572,7 +572,7 @@ describe("createGatewayApiHandler.createMessage", () => {
 					content: [
 						expect.objectContaining({
 							type: "text",
-							text: "Hello from Cline",
+							text: "Hello from IndusCode",
 						}),
 					],
 				}),
@@ -668,7 +668,7 @@ describe("createGatewayApiHandler.createMessage", () => {
 		);
 	});
 
-	it("throws ClineNotSubscribedError for ClinePass required-plan 403 responses", async () => {
+	it("throws IndusCodeNotSubscribedError for IndusCodePass required-plan 403 responses", async () => {
 		streamTextSpy.mockReturnValue({
 			fullStream: (async function* () {
 				yield { type: "finish", finishReason: "stop" };
@@ -688,7 +688,7 @@ describe("createGatewayApiHandler.createMessage", () => {
 		) as unknown as typeof fetch;
 
 		const handler = createGatewayApiHandler({
-			providerId: "cline-pass",
+			providerId: "induscode-pass",
 			clientType: "openai-compatible",
 			modelId: "premium-model",
 			apiKey: "test-key",
@@ -706,10 +706,10 @@ describe("createGatewayApiHandler.createMessage", () => {
 			| undefined;
 
 		await expect(
-			factoryConfig?.fetch?.("https://api.cline.bot/api/v1/chat/completions", {
+			factoryConfig?.fetch?.("https://api.induscode.bot/api/v1/chat/completions", {
 				method: "POST",
 			}),
-		).rejects.toBeInstanceOf(ClineNotSubscribedError);
+		).rejects.toBeInstanceOf(IndusCodeNotSubscribedError);
 	});
 });
 

@@ -1,51 +1,51 @@
 import type { SessionConfigOption } from "@agentclientprotocol/sdk";
 import {
-	type ClineAccountOrganization,
-	ClineAccountService,
+	type IndusCodeAccountOrganization,
+	IndusCodeAccountService,
 	getPersistedProviderApiKey,
 	type ProviderSettingsManager,
 	RuntimeOAuthTokenManager,
-} from "@cline/core";
-import { getClineEnvironmentConfig } from "@cline/shared";
+} from "@induscode/core";
+import { getIndusCodeEnvironmentConfig } from "@induscode/shared";
 
 export const PERSONAL_ACCOUNT_VALUE = "personal";
 
 export const ORGANIZATION_CONFIG_ID = "organization";
 
-export function usesClineAccount(providerId: string): boolean {
-	return providerId === "cline" || providerId === "cline-pass";
+export function usesIndusCodeAccount(providerId: string): boolean {
+	return providerId === "induscode" || providerId === "induscode-pass";
 }
 
 export interface AcpOrganizationState {
-	organizations: ClineAccountOrganization[];
+	organizations: IndusCodeAccountOrganization[];
 	/** Active organization id, or null when the personal account is active. */
 	activeOrganizationId: string | null;
 }
 
-interface ClineAccountInput {
+interface IndusCodeAccountInput {
 	apiKey: string;
 	providerSettingsManager: ProviderSettingsManager;
 }
 
-// Cline access tokens expire between runs, so account requests resolve
+// IndusCode access tokens expire between runs, so account requests resolve
 // through the refresh-aware OAuth manager. A single shared instance keeps
 // refreshes single-flight; the refresh token is single-use, so parallel
 // refreshes would invalidate each other.
 let oauthTokenManager: RuntimeOAuthTokenManager | undefined;
 
-function createAccountService(input: ClineAccountInput): ClineAccountService {
+function createAccountService(input: IndusCodeAccountInput): IndusCodeAccountService {
 	const { providerSettingsManager } = input;
-	const settings = providerSettingsManager.getProviderSettings("cline");
-	return new ClineAccountService({
+	const settings = providerSettingsManager.getProviderSettings("induscode");
+	return new IndusCodeAccountService({
 		apiBaseUrl:
-			settings?.baseUrl?.trim() || getClineEnvironmentConfig().apiBaseUrl,
+			settings?.baseUrl?.trim() || getIndusCodeEnvironmentConfig().apiBaseUrl,
 		getAuthToken: async () => {
 			try {
 				oauthTokenManager ??= new RuntimeOAuthTokenManager({
 					providerSettingsManager,
 				});
 				const resolution = await oauthTokenManager.resolveProviderApiKey({
-					providerId: "cline",
+					providerId: "induscode",
 				});
 				if (resolution?.apiKey) {
 					return resolution.apiKey;
@@ -56,8 +56,8 @@ function createAccountService(input: ClineAccountInput): ClineAccountService {
 			}
 			return (
 				getPersistedProviderApiKey(
-					"cline",
-					providerSettingsManager.getProviderSettings("cline"),
+					"induscode",
+					providerSettingsManager.getProviderSettings("induscode"),
 				) ||
 				input.apiKey ||
 				undefined
@@ -66,8 +66,8 @@ function createAccountService(input: ClineAccountInput): ClineAccountService {
 	});
 }
 
-export async function fetchClineOrganizations(
-	input: ClineAccountInput,
+export async function fetchIndusCodeOrganizations(
+	input: IndusCodeAccountInput,
 ): Promise<AcpOrganizationState | undefined> {
 	try {
 		const service = createAccountService(input);
@@ -93,7 +93,7 @@ export function buildOrganizationConfigOption(
 		id: ORGANIZATION_CONFIG_ID,
 		name: "Account",
 		description:
-			"The Cline account usage is billed to — your personal account or an organization",
+			"The IndusCode account usage is billed to — your personal account or an organization",
 		category: "account",
 		currentValue: state.activeOrganizationId ?? PERSONAL_ACCOUNT_VALUE,
 		options: [
@@ -106,8 +106,8 @@ export function buildOrganizationConfigOption(
 	};
 }
 
-export async function switchClineOrganization(
-	input: ClineAccountInput & { organizationId: string | null },
+export async function switchIndusCodeOrganization(
+	input: IndusCodeAccountInput & { organizationId: string | null },
 ): Promise<void> {
 	const service = createAccountService(input);
 	await service.switchAccount(input.organizationId);
@@ -119,12 +119,12 @@ export async function switchClineOrganization(
 // already succeeded server-side.
 async function persistActiveOrganization(
 	manager: ProviderSettingsManager,
-	service: ClineAccountService,
+	service: IndusCodeAccountService,
 ): Promise<void> {
 	try {
 		const organizations = await service.fetchUserOrganizations();
 		const active = organizations.find((org) => org.active) ?? null;
-		const persisted = manager.getProviderSettings("cline");
+		const persisted = manager.getProviderSettings("induscode");
 		if (!persisted) {
 			return;
 		}
@@ -147,8 +147,8 @@ async function persistActiveOrganization(
 
 export function getAcpOrgSubscriptionMessage(): string {
 	return [
-		"Organization accounts cannot use ClinePass subscriptions.",
-		'Switch the "Account" session option to Personal to keep using ClinePass,',
-		'or switch the "Provider" option to Cline to bill your organization.',
+		"Organization accounts cannot use IndusCodePass subscriptions.",
+		'Switch the "Account" session option to Personal to keep using IndusCodePass,',
+		'or switch the "Provider" option to IndusCode to bill your organization.',
 	].join(" ");
 }

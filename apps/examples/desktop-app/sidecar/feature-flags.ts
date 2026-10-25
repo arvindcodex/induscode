@@ -15,13 +15,13 @@ import {
 	type ITelemetryService,
 	NoOpFeatureFlagsProvider,
 	resolveCoreDistinctId,
-} from "@cline/core";
+} from "@induscode/core";
 import {
-	buildClinePostHogClient,
+	buildIndusCodePostHogClient,
 	PostHogFeatureFlagsProvider,
-} from "@cline/core/services/feature-flags/posthog";
-import { FeatureFlag as SharedFeatureFlag } from "@cline/shared";
-import { resolveClineDataDir } from "@cline/shared/storage";
+} from "@induscode/core/services/feature-flags/posthog";
+import { FeatureFlag as SharedFeatureFlag } from "@induscode/shared";
+import { resolveIndusCodeDataDir } from "@induscode/shared/storage";
 
 const FEATURE_FLAG_CODE_CLOUD_AGENTS = SharedFeatureFlag.CODE_CLOUD_AGENTS;
 
@@ -29,13 +29,13 @@ const DESKTOP_FEATURE_FLAGS_CACHE_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
 const DESKTOP_ACCOUNT_CONTEXT_FILE_VERSION = 1;
 
 let desktopFeatureFlagsContext: FeatureFlagsContext = {
-	clientName: "cline-code",
+	clientName: "induscode-code",
 };
 let desktopFeatureFlagsService: FeatureFlagsService | undefined;
 let desktopAccountContextHydrated = false;
 
 function resolveDesktopFeatureFlagsCachePath(): string {
-	return join(resolveClineDataDir(), "cache", "feature-flags.cline-code.json");
+	return join(resolveIndusCodeDataDir(), "cache", "feature-flags.induscode-code.json");
 }
 
 /**
@@ -45,9 +45,9 @@ function resolveDesktopFeatureFlagsCachePath(): string {
  */
 function resolveDesktopAccountContextPath(): string {
 	return join(
-		resolveClineDataDir(),
+		resolveIndusCodeDataDir(),
 		"cache",
-		"feature-flags-account.cline-code.json",
+		"feature-flags-account.induscode-code.json",
 	);
 }
 
@@ -141,7 +141,7 @@ export function getDesktopFeatureFlagsService(options?: {
 			process.env.IS_TEST !== "true" &&
 			process.env.E2E_TEST !== "true"
 				? new PostHogFeatureFlagsProvider({
-						client: buildClinePostHogClient(apiKey),
+						client: buildIndusCodePostHogClient(apiKey),
 						config: {
 							logger: options?.logger,
 						},
@@ -270,12 +270,12 @@ export async function identifyDesktopFeatureFlagsAccount(
 
 export function resetDesktopFeatureFlagsForTesting(): void {
 	desktopFeatureFlagsService = undefined;
-	desktopFeatureFlagsContext = { clientName: "cline-code" };
+	desktopFeatureFlagsContext = { clientName: "induscode-code" };
 	desktopAccountContextHydrated = false;
 }
 
 export function readCloudAgentsEnvOverride(): boolean | undefined {
-	const override = process.env.CLINE_CODE_CLOUD_AGENTS?.trim().toLowerCase();
+	const override = process.env.INDUSCODE_CODE_CLOUD_AGENTS?.trim().toLowerCase();
 	if (override === "1" || override === "true") return true;
 	if (override === "0" || override === "false") return false;
 	return undefined;

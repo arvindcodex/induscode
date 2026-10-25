@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-	createClineProvider,
+	createIndusCodeProvider,
 	createOpenAICompatibleProvider,
 	createOpenAIProvider,
 	createSapAiCoreProvider,
@@ -103,24 +103,24 @@ describe("provider-ids", () => {
 		);
 	});
 
-	it("registers ClinePass as a distinct Cline-compatible built-in provider", async () => {
-		expect(BUILT_IN_PROVIDER_IDS).toContain("cline-pass");
-		const models = await getModelsForProvider("cline-pass");
-		const provider = await getProvider("cline-pass");
+	it("registers IndusCodePass as a distinct IndusCode-compatible built-in provider", async () => {
+		expect(BUILT_IN_PROVIDER_IDS).toContain("induscode-pass");
+		const models = await getModelsForProvider("induscode-pass");
+		const provider = await getProvider("induscode-pass");
 
 		expect(provider).toMatchObject({
-			id: "cline-pass",
-			name: "ClinePass",
+			id: "induscode-pass",
+			name: "IndusCodePass",
 			client: "openai-compatible",
 		});
 		expect(models).toHaveProperty(provider?.defaultModelId ?? "");
 
-		for (const providerId of ["cline", "cline-pass"]) {
+		for (const providerId of ["induscode", "induscode-pass"]) {
 			const registration = BUILTIN_PROVIDER_REGISTRATIONS.find(
 				(item) => item.manifest.id === providerId,
 			);
 			await expect(registration?.loadProvider?.()).resolves.toMatchObject({
-				createProvider: createClineProvider,
+				createProvider: createIndusCodeProvider,
 			});
 		}
 	});

@@ -18,7 +18,7 @@ import {
 	type AgentRuntime,
 	type AgentRuntimeConfig,
 	createAgentRuntime,
-} from "@cline/agents";
+} from "@induscode/agents";
 import {
 	type AgentConfig,
 	type AgentEvent,
@@ -31,7 +31,7 @@ import {
 	type AgentTool,
 	type AgentToolContext,
 	EMPTY_CONTENT_TEXT,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { describe, expect, it, vi } from "vitest";
 import { createContextCompactionPrepareTurn } from "../../extensions/context/compaction";
 import { MESSAGE_BUILDER_LIMIT_ENV } from "../../session/services/message-builder";
@@ -449,7 +449,7 @@ describe("SessionRuntime.getExtensionRegistry", () => {
 				extensions: [extension],
 				extensionContext: {
 					session: { sessionId: "sess_plugin_context" },
-					client: { name: "cline-sdk", version: "1.2.3" },
+					client: { name: "induscode-sdk", version: "1.2.3" },
 					user: { distinctId: "user-1" },
 					workspace: { rootPath: "/tmp/workspace" },
 					automation: { ingestEvent },
@@ -464,7 +464,7 @@ describe("SessionRuntime.getExtensionRegistry", () => {
 
 		expect(observed?.session?.sessionId).toBe("sess_plugin_context");
 		expect(observed?.client).toEqual({
-			name: "cline-sdk",
+			name: "induscode-sdk",
 			version: "1.2.3",
 		});
 		expect(observed?.user?.distinctId).toBe("user-1");
@@ -985,7 +985,7 @@ it("derives tool image support metadata from resolved provider model catalog", a
 	} as unknown as AgentConfig["telemetry"];
 	const session = new SessionRuntime(
 		makeAgentConfig({
-			providerId: "cline",
+			providerId: "induscode",
 			modelId: "anthropic/claude-sonnet-4.6",
 			telemetry,
 			tools: [
@@ -1826,7 +1826,7 @@ describe("SessionRuntime real AgentRuntime smoke", () => {
 		};
 		const session = new SessionRuntime(
 			makeAgentConfig({
-				providerId: "cline",
+				providerId: "induscode",
 				modelId: "openai/gpt-5.5",
 				apiKey: "test-key",
 			}),
@@ -1907,7 +1907,7 @@ describe("SessionRuntime real AgentRuntime smoke", () => {
 		};
 		const session = new SessionRuntime(
 			makeAgentConfig({
-				providerId: "cline",
+				providerId: "induscode",
 				modelId: "openai/gpt-5.5",
 				apiKey: "test-key",
 				tools: [
@@ -2930,7 +2930,7 @@ describe("SessionRuntime auth retry", () => {
 	const authFailure = {
 		status: "failed",
 		error: new Error(
-			"Unauthorized: Please make sure you're using the latest version of Cline and re-authenticate your Cline account.",
+			"Unauthorized: Please make sure you're using the latest version of IndusCode and re-authenticate your IndusCode account.",
 		),
 	} satisfies Partial<AgentRunResult>;
 

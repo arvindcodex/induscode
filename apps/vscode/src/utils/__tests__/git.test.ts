@@ -17,7 +17,7 @@ describe("getGitDiff", () => {
 	}
 
 	beforeEach(async () => {
-		repoDir = await mkdtemp(path.join(tmpdir(), "cline-git-diff-"))
+		repoDir = await mkdtemp(path.join(tmpdir(), "induscode-git-diff-"))
 		await git("init")
 		await git('config user.email "test@example.com"')
 		await git('config user.name "Test"')

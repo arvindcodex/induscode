@@ -1,4 +1,4 @@
-import { SessionSource } from "@cline/core"
+import { SessionSource } from "@induscode/core"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import { HostProvider } from "@/hosts/host-provider"
 import { CloudSessionHost } from "@/sdk/cloud-session-host"
@@ -13,7 +13,7 @@ import { type LocalCloudEnvironment, startLocalCloudEnvironment } from "./local-
 // Only the IDE window and model-catalog refresh are replaced; transport, runtime,
 // status tracking, registry and History conversion are the shipped implementations.
 vi.mock("@/hosts/host-provider", () => ({ HostProvider: { window: { showMessage: vi.fn(async () => ({})) } } }))
-vi.mock("@/core/controller/models/refreshClineRecommendedModels", () => ({ refreshClineRecommendedModels: vi.fn() }))
+vi.mock("@/core/controller/models/refreshIndusCodeRecommendedModels", () => ({ refreshIndusCodeRecommendedModels: vi.fn() }))
 
 function deferred<T>() {
 	let resolve!: (value: T) => void
@@ -63,7 +63,7 @@ describe("cloud outcome → History and notifications through a real Hub", () =>
 			getAuthToken: async () => environment?.accessToken,
 			getActiveOrganizationId: () => undefined,
 		})
-		const record = await service.createSession({ modelId: "fixture-model", repoUrl: "https://github.com/cline/fixture" })
+		const record = await service.createSession({ modelId: "fixture-model", repoUrl: "https://github.com/induscode/fixture" })
 		const owned = await environment.activateSession(record.id)
 		const connect = CloudSessionHost.connect.bind(CloudSessionHost)
 		let host!: CloudSessionHost
@@ -113,10 +113,10 @@ describe("cloud outcome → History and notifications through a real Hub", () =>
 		await host.start({
 			source: SessionSource.VSCODE,
 			config: {
-				providerId: "cline",
+				providerId: "induscode",
 				modelId: "fixture-model",
 				apiKey: "fixture-key",
-				systemPrompt: "Cline test guidance",
+				systemPrompt: "IndusCode test guidance",
 				enableTools: false,
 				enableSpawnAgent: false,
 				enableAgentTeams: false,

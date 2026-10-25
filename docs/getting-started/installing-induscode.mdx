@@ -1,0 +1,158 @@
+---
+title: "Installing IndusCode"
+description: "Choose your installation path: IDE Extension, CLI, SDK, or Kanban"
+---
+
+## Choose Your Install Path
+
+- [Desktop App](#desktop-app) — IndusCode as a native app
+- [IDE Extension](#ide-extension) — VS Code, Cursor, JetBrains, Windsurf, VSCodium, Antigravity
+- [CLI](#cli) — terminal workflows
+- [Kanban](#kanban) (preview) — easily manage multiple agents through a kanban board
+- [SDK](#sdk) — build with `@induscode/sdk`
+
+## Desktop App
+
+Use this if you want IndusCode outside your editor, as a native desktop app with a dedicated workspace for running and managing agent sessions.
+
+<Steps>
+  <Step title="Download IndusCode Desktop">
+    Get the installer for your platform from [induscode.bot/desktop](https://induscode.bot/desktop). Available for macOS and Windows (Windows is currently in beta).
+  </Step>
+  <Step title="Choose a provider and model">
+    Select the provider and open weight model of your choice. IndusCode Desktop is an open source app for open weight models, so you bring your own model access.
+  </Step>
+  <Step title="Start a session">
+    Run sessions in parallel, schedule recurring tasks, and import sessions from other coding agents to continue in IndusCode.
+  </Step>
+</Steps>
+
+More details: [IndusCode Desktop](/usage/induscode-desktop), and for remote machines [IndusCode Desktop SSH](/usage/induscode-desktop-ssh)
+
+## IDE Extension
+
+Use this if you want IndusCode inside your editor UI.
+
+<Tabs>
+  <Tab title="VS Code / Cursor / Windsurf / VSCodium / Antigravity">
+    <Steps>
+      <Step title="Open Extensions">
+        Press `Ctrl/Cmd + Shift + X`.
+      </Step>
+      <Step title="Search for IndusCode">
+        Type `IndusCode`.
+      </Step>
+      <Step title="Install">
+        Click **Install** on the IndusCode extension.
+      </Step>
+      <Step title="Open IndusCode">
+        Find IndusCode in the extension sidebar.
+      </Step>
+      <Step title="Authorize with IndusCode">
+        After installing the extension, complete provider setup in IndusCode settings. Use the IndusCode Provider for pay-as-you-go access, IndusCodePass for a flat monthly subscription, or bring your own provider key.
+
+        [Authorize with IndusCode](/getting-started/authorizing-with-induscode)
+      </Step>
+    </Steps>
+
+    <Note>
+    Windsurf and VSCodium use Open VSX. The install flow is the same.
+    </Note>
+  </Tab>
+
+  <Tab title="JetBrains">
+    <Steps>
+      <Step title="Open Plugins Marketplace">
+        **Settings** → **Plugins** → **Marketplace**.
+      </Step>
+      <Step title="Install IndusCode">
+        Search `IndusCode`, click **Install**, then restart the IDE.
+      </Step>
+      <Step title="Open IndusCode">
+        **View** → **Tool Windows** → **IndusCode**.
+      </Step>
+      <Step title="Authorize with IndusCode">
+        After installing the extension, complete provider setup in IndusCode settings. Use the IndusCode Provider for pay-as-you-go access, IndusCodePass for a flat monthly subscription, or bring your own provider key.
+
+        [Authorize with IndusCode](/getting-started/authorizing-with-induscode)
+      </Step>
+    </Steps>
+
+    Alternative: install from the [JetBrains Marketplace](https://plugins.jetbrains.com/plugin/28247-induscode).
+  </Tab>
+</Tabs>
+
+## CLI
+
+Use this if you want IndusCode in terminal workflows (interactive + automation).
+
+<Steps>
+  <Step title="Install Node.js">
+    Install Node.js 20+ (22 recommended).
+  </Step>
+  <Step title="Install CLI">
+    ```bash
+    npm install -g induscode
+    ```
+  </Step>
+  <Step title="Authenticate">
+    ```bash
+    induscode auth
+    ```
+  </Step>
+  <Step title="Run IndusCode">
+    ```bash
+    induscode
+    # or
+    induscode "your task"
+    ```
+  </Step>
+</Steps>
+
+More details: [CLI Installation & Setup](/usage/cli-overview)
+
+## Kanban
+
+Use this if you want task-board workflows with agent execution.
+
+<Steps>
+  <Step title="Install Node.js">
+    Install Node.js 18+.
+  </Step>
+  <Step title="Launch Kanban">
+    ```bash
+    npx kanban
+    ```
+  </Step>
+</Steps>
+
+More details: [Kanban](/usage/kanban)
+
+## SDK
+
+Use this if you are building your own app/agent on top of IndusCode.
+
+<Steps>
+  <Step title="Create project">
+    ```bash
+    mkdir my-agent && cd my-agent
+    npm init -y
+    ```
+  </Step>
+  <Step title="Install SDK">
+    ```bash
+    npm install @induscode/sdk
+    ```
+  </Step>
+  <Step title="Build and run">
+    Browse SDK examples to run your first agent.
+  </Step>
+</Steps>
+
+Start here: [SDK Examples](/sdk/examples)
+
+
+## Need Help?
+
+- [Troubleshooting](/troubleshooting/networking-and-proxies)
+- [Discord community](https://discord.gg/induscode)

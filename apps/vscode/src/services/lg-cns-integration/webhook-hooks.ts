@@ -10,10 +10,10 @@ type LgHookScript = {
 
 export async function writeLgWebhookConfig(webhookUrl: string, webhookToken: string): Promise<void> {
 	const documentsPath = await getDocumentsPath()
-	const clineDir = path.join(documentsPath, "Cline")
-	const configPath = path.join(clineDir, "webhook_config.json")
+	const indusDir = path.join(documentsPath, "IndusCode")
+	const configPath = path.join(indusDir, "webhook_config.json")
 
-	await fs.mkdir(clineDir, { recursive: true })
+	await fs.mkdir(indusDir, { recursive: true })
 	await fs.writeFile(
 		configPath,
 		JSON.stringify(
@@ -74,7 +74,10 @@ try {
         $documentsPath = Join-Path $HOME "Documents"
     }
 
-    $configPath = Join-Path (Join-Path $documentsPath "Cline") "webhook_config.json"
+    $configPath = Join-Path (Join-Path $documentsPath "IndusCode") "webhook_config.json"
+    if (-not (Test-Path $configPath)) {
+        $configPath = Join-Path (Join-Path $documentsPath "IndusCode") "webhook_config.json"
+    }
     if (-not (Test-Path $configPath)) {
         @{ cancel = $false } | ConvertTo-Json -Compress
         exit 0
@@ -101,7 +104,7 @@ try {
         timestamp = (Get-Date).ToUniversalTime().ToString("o")
         data = @{
             task_id = if ($inputData) { $inputData.taskId } else { $null }
-            cline_version = if ($inputData) { $inputData.clineVersion } else { $null }
+            induscode_version = if ($inputData) { $inputData.induscodeVersion } else { $null }
             workspace_roots = $workspaceRoots
             task_metadata = $taskMetadata
         }
@@ -134,7 +137,10 @@ try {
         $documentsPath = Join-Path $HOME "Documents"
     }
 
-    $configPath = Join-Path (Join-Path $documentsPath "Cline") "webhook_config.json"
+    $configPath = Join-Path (Join-Path $documentsPath "IndusCode") "webhook_config.json"
+    if (-not (Test-Path $configPath)) {
+        $configPath = Join-Path (Join-Path $documentsPath "IndusCode") "webhook_config.json"
+    }
     if (-not (Test-Path $configPath)) {
         @{ cancel = $false } | ConvertTo-Json -Compress
         exit 0
@@ -190,7 +196,10 @@ try {
         $documentsPath = Join-Path $HOME "Documents"
     }
 
-    $configPath = Join-Path (Join-Path $documentsPath "Cline") "webhook_config.json"
+    $configPath = Join-Path (Join-Path $documentsPath "IndusCode") "webhook_config.json"
+    if (-not (Test-Path $configPath)) {
+        $configPath = Join-Path (Join-Path $documentsPath "IndusCode") "webhook_config.json"
+    }
     if (-not (Test-Path $configPath)) {
         @{ cancel = $false } | ConvertTo-Json -Compress
         exit 0
@@ -233,7 +242,7 @@ const os = require("os")
 const path = require("path")
 
 async function readConfig() {
-  const configPath = path.join(os.homedir(), "Documents", "Cline", "webhook_config.json")
+  let configPath = path.join(os.homedir(), "Documents", "IndusCode", "webhook_config.json")
   try {
     const rawConfig = await fs.readFile(configPath, "utf-8")
     const config = JSON.parse(rawConfig)
@@ -242,7 +251,17 @@ async function readConfig() {
     }
     return config
   } catch {
-    return null
+    configPath = path.join(os.homedir(), "Documents", "IndusCode", "webhook_config.json")
+    try {
+      const rawConfig = await fs.readFile(configPath, "utf-8")
+      const config = JSON.parse(rawConfig)
+      if (!config.webhook_url || !config.webhook_token) {
+        return null
+      }
+      return config
+    } catch {
+      return null
+    }
   }
 }
 
@@ -289,7 +308,7 @@ main((input) => ({
   timestamp: new Date().toISOString(),
   data: {
     task_id: input.taskId ?? null,
-    cline_version: input.clineVersion ?? null,
+    induscode_version: input.induscodeVersion ?? null,
     workspace_roots: input.workspaceRoots ?? [],
     task_metadata: input.taskStart?.taskMetadata ?? {},
   },

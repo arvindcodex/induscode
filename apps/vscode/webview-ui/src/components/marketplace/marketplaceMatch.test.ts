@@ -1,4 +1,4 @@
-import type { MarketplaceEntry, MarketplaceLocalInstalledEntry } from "@shared/proto/cline/marketplace"
+import type { MarketplaceEntry, MarketplaceLocalInstalledEntry } from "@shared/proto/induscode/marketplace"
 import { describe, expect, it } from "vitest"
 import { entryMatchesLocalEntry } from "./marketplaceMatch"
 
@@ -40,9 +40,9 @@ describe("marketplace installed row matching", () => {
 				path: "/home/tester/.agents/skills/sentry-cli/SKILL.md",
 			}),
 			localSkill({
-				id: "cline-sdk",
-				name: "cline-sdk",
-				path: "/home/tester/.agents/skills/cline-sdk/SKILL.md",
+				id: "induscode-sdk",
+				name: "induscode-sdk",
+				path: "/home/tester/.agents/skills/induscode-sdk/SKILL.md",
 			}),
 		]
 

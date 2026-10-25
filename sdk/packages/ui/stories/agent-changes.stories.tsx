@@ -22,7 +22,7 @@ type Story = StoryObj<typeof AgentChangesPanel>;
 
 function MockDiff({ label }: { label: string }) {
 	return (
-		<pre className="overflow-x-auto rounded bg-cline-ui-muted p-3 text-cline-ui-xs">
+		<pre className="overflow-x-auto rounded bg-induscode-ui-muted p-3 text-induscode-ui-xs">
 			{`- previous ${label}\n+ updated ${label}`}
 		</pre>
 	);
@@ -42,7 +42,7 @@ function PanelFrame({
 }) {
 	return (
 		<div
-			className={`h-[480px] max-w-full border border-cline-ui-border ${narrow ? "w-[390px]" : ""}`}
+			className={`h-[480px] max-w-full border border-induscode-ui-border ${narrow ? "w-[390px]" : ""}`}
 		>
 			{children}
 		</div>

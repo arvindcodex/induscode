@@ -1,13 +1,13 @@
 import {
 	type BasicLogger,
 	captureExtensionActivated,
-	createClineTelemetryServiceConfig,
+	createIndusCodeTelemetryServiceConfig,
 	createConfiguredTelemetryHandle,
 	type ITelemetryService,
 	identifyAccount,
 	registerDisposable,
 	TelemetryLoggerSink,
-} from "@cline/core";
+} from "@induscode/core";
 import { getCliBuildInfo } from "./common";
 import { identifyFeatureFlagsAccount } from "./feature-flags";
 import {
@@ -32,10 +32,10 @@ export function getCliTelemetryService(
 ): ITelemetryService {
 	if (!telemetrySingleton) {
 		const { version, name, os_type, os_version } = getCliBuildInfo();
-		const config = createClineTelemetryServiceConfig({
+		const config = createIndusCodeTelemetryServiceConfig({
 			metadata: {
 				extension_version: version,
-				cline_type: "cli",
+				induscode_type: "cli",
 				platform: name,
 				platform_version: process.version,
 				os_type,
@@ -78,9 +78,9 @@ export async function disposeCliTelemetryService(): Promise<void> {
 
 /**
  * Optional account context used to enrich the CLI activation event. Mirrors
- * the legacy `cline` extension behavior where `user.extension_activated`
+ * the legacy `induscode` extension behavior where `user.extension_activated`
  * carries `organization_id`, `organization_name`, and `member_id` derived
- * from the active Cline organization when the user is authenticated.
+ * from the active IndusCode organization when the user is authenticated.
  *
  * All fields are optional. When omitted, the activation event is emitted
  * without account/organization properties (matching unauthenticated runs).

@@ -1,6 +1,6 @@
 "use client";
 
-import { AgentConversationHeader, SessionStatus } from "@cline/ui";
+import { AgentConversationHeader, SessionStatus } from "@induscode/ui";
 import {
 	AlertCircle,
 	Bot,
@@ -185,7 +185,7 @@ function AgentHeaderImpl({
 				showLabel={false}
 				style={
 					{
-						"--cline-ui-session-status-color": statusColor,
+						"--induscode-ui-session-status-color": statusColor,
 					} as CSSProperties
 				}
 				tone={statusTone}

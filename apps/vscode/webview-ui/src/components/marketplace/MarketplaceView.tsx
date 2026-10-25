@@ -1,4 +1,4 @@
-import { EmptyRequest } from "@shared/proto/cline/common"
+import { EmptyRequest } from "@shared/proto/induscode/common"
 import {
 	MarketplaceEntriesRequest,
 	type MarketplaceEntry,
@@ -6,7 +6,7 @@ import {
 	type MarketplaceLocalInstalledEntry,
 	MarketplaceLocalInstalledEntryRequest,
 	ToggleMarketplaceLocalInstalledEntryRequest,
-} from "@shared/proto/cline/marketplace"
+} from "@shared/proto/induscode/marketplace"
 import { VSCodeButton, VSCodeLink, VSCodeProgressRing, VSCodeTextField } from "@vscode/webview-ui-toolkit/react"
 import {
 	CheckIcon,
@@ -55,7 +55,7 @@ const PRIMITIVES: PrimitiveConfig[] = [
 		title: "Skills",
 		description: (
 			<>
-				Reusable instruction sets that Cline loads on demand for specific tasks, without staying in context for unrelated
+				Reusable instruction sets that IndusCode loads on demand for specific tasks, without staying in context for unrelated
 				work. Browse more at <VSCodeLink href="https://agentskills.io/">Agent Skills</VSCodeLink>.
 			</>
 		),
@@ -69,7 +69,7 @@ const PRIMITIVES: PrimitiveConfig[] = [
 		title: "MCP Servers",
 		description: (
 			<>
-				Connect Cline to external APIs, local tools, and hosted services through{" "}
+				Connect IndusCode to external APIs, local tools, and hosted services through{" "}
 				<VSCodeLink href="https://modelcontextprotocol.io/">MCP</VSCodeLink> servers.
 			</>
 		),
@@ -83,7 +83,7 @@ const PRIMITIVES: PrimitiveConfig[] = [
 		title: "Plugins",
 		description: (
 			<>
-				<VSCodeLink href="https://docs.cline.bot/sdk/plugins">Plugins</VSCodeLink> are extensions for capabilities more
+				<VSCodeLink href="https://docs.induscode.bot/sdk/plugins">Plugins</VSCodeLink> are extensions for capabilities more
 				complex than a single MCP server or skill, including custom tools, hooks, rules, slash commands, or bundled
 				skills.
 			</>
@@ -93,7 +93,7 @@ const PRIMITIVES: PrimitiveConfig[] = [
 ]
 
 // Plugins are hidden in the extension until the hub can manage the plugin process
-// (see https://github.com/cline/cline/pull/12522). MCP servers and skills are unaffected.
+// (see https://github.com/induscode/induscode/pull/12522). MCP servers and skills are unaffected.
 const HIDDEN_PRIMITIVE_TYPES: ReadonlySet<PrimitiveType> = new Set(["plugin"])
 
 const VISIBLE_PRIMITIVES = PRIMITIVES.filter((primitive) => !HIDDEN_PRIMITIVE_TYPES.has(primitive.type))

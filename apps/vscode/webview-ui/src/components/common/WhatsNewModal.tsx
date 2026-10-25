@@ -1,4 +1,4 @@
-import { BannerAction, BannerCardData } from "@shared/cline/banner"
+import { BannerAction, BannerCardData } from "@shared/induscode/banner"
 import React from "react"
 import { useMount } from "react-use"
 import DiscordIcon from "@/assets/DiscordIcon"
@@ -61,7 +61,7 @@ const WhatsNewModal: React.FC<WhatsNewModalProps> = ({ open, onClose, version, w
 							<a
 								aria-label="Follow us on X"
 								className="text-[var(--vscode-foreground)] hover:text-[var(--vscode-textLink-activeForeground)] transition-colors"
-								href="https://x.com/cline"
+								href="https://x.com/induscode"
 								rel="noopener noreferrer"
 								target="_blank">
 								<XIcon />
@@ -71,7 +71,7 @@ const WhatsNewModal: React.FC<WhatsNewModalProps> = ({ open, onClose, version, w
 							<a
 								aria-label="Join our Discord"
 								className="text-[var(--vscode-foreground)] hover:text-[var(--vscode-textLink-activeForeground)] transition-colors"
-								href="https://discord.gg/cline"
+								href="https://discord.gg/induscode"
 								rel="noopener noreferrer"
 								target="_blank">
 								<DiscordIcon />
@@ -81,7 +81,7 @@ const WhatsNewModal: React.FC<WhatsNewModalProps> = ({ open, onClose, version, w
 							<a
 								aria-label="Star us on GitHub"
 								className="text-[var(--vscode-foreground)] hover:text-[var(--vscode-textLink-activeForeground)] transition-colors"
-								href="https://github.com/cline/cline"
+								href="https://github.com/induscode/induscode"
 								rel="noopener noreferrer"
 								target="_blank">
 								<GitHubIcon />
@@ -91,7 +91,7 @@ const WhatsNewModal: React.FC<WhatsNewModalProps> = ({ open, onClose, version, w
 							<a
 								aria-label="Join our subreddit"
 								className="text-[var(--vscode-foreground)] hover:text-[var(--vscode-textLink-activeForeground)] transition-colors"
-								href="https://www.reddit.com/r/cline/"
+								href="https://www.reddit.com/r/induscode/"
 								rel="noopener noreferrer"
 								target="_blank">
 								<RedditIcon />
@@ -101,7 +101,7 @@ const WhatsNewModal: React.FC<WhatsNewModalProps> = ({ open, onClose, version, w
 							<a
 								aria-label="Follow us on LinkedIn"
 								className="text-[var(--vscode-foreground)] hover:text-[var(--vscode-textLink-activeForeground)] transition-colors"
-								href="https://www.linkedin.com/company/clinebot/"
+								href="https://www.linkedin.com/company/induscodebot/"
 								rel="noopener noreferrer"
 								target="_blank">
 								<LinkedInIcon />
@@ -110,9 +110,9 @@ const WhatsNewModal: React.FC<WhatsNewModalProps> = ({ open, onClose, version, w
 
 						{/* GitHub Star CTA */}
 						<p className="text-sm text-center" style={{ color: "var(--vscode-descriptionForeground)" }}>
-							Please support Cline by{" "}
+							Please support IndusCode by{" "}
 							<a
-								href="https://github.com/cline/cline"
+								href="https://github.com/induscode/induscode"
 								rel="noopener noreferrer"
 								style={{ color: "var(--vscode-textLink-foreground)" }}
 								target="_blank">

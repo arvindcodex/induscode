@@ -2,14 +2,14 @@ import type {
 	AgentEvent,
 	AgentMode,
 	CheckpointEntry,
-	ClineSubscriptionPlan,
+	IndusCodeSubscriptionPlan,
 	TeamEvent,
-} from "@cline/core";
+} from "@induscode/core";
 import type {
 	MessageWithMetadata,
 	ToolApprovalRequest,
 	ToolApprovalResult,
-} from "@cline/shared";
+} from "@induscode/shared";
 import type { CliMigrationNotice } from "../kanban-migration/notice";
 import type {
 	PendingPromptSnapshot,
@@ -18,7 +18,7 @@ import type {
 import type { HistoryExportFormat } from "../session/history-export";
 import type { RepoStatus } from "../utils/repo-status";
 import type { CliCompactionMode, Config } from "../utils/types";
-import type { ClineAccountSnapshot } from "./cline-account";
+import type { IndusCodeAccountSnapshot } from "./induscode-account";
 import type {
 	InteractiveConfigData,
 	InteractiveConfigItem,
@@ -158,9 +158,9 @@ export interface TuiProps {
 	workflowSlashCommands?: InteractiveSlashCommand[];
 	loadAdditionalSlashCommands?: () => Promise<InteractiveSlashCommand[]>;
 	loadWelcomeLine?: () => Promise<string | undefined>;
-	loadClineAccount: () => Promise<ClineAccountSnapshot>;
-	loadIndividualSubscriptionPlans?: () => Promise<ClineSubscriptionPlan[]>;
-	switchClineAccount: (organizationId?: string | null) => Promise<void>;
+	loadIndusCodeAccount: () => Promise<IndusCodeAccountSnapshot>;
+	loadIndividualSubscriptionPlans?: () => Promise<IndusCodeSubscriptionPlan[]>;
+	switchIndusCodeAccount: (organizationId?: string | null) => Promise<void>;
 	loadConfigData: (
 		options?: LoadInteractiveConfigDataOptions,
 	) => Promise<InteractiveConfigData>;
@@ -194,7 +194,7 @@ export interface TuiProps {
 	onExit: () => void;
 	/**
 	 * Exit the TUI and run the CLI self-update afterwards. Invoked when the
-	 * user accepts the "Hub was updated by another Cline installation" dialog.
+	 * user accepts the "Hub was updated by another IndusCode installation" dialog.
 	 */
 	onHubUpdateRestart?: () => void;
 	onRunningChange: (isRunning: boolean) => void;

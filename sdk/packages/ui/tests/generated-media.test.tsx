@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import type { GeneratedMedia } from "@cline/shared/browser";
+import type { GeneratedMedia } from "@induscode/shared/browser";
 import { act, type ReactNode } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -8,7 +8,7 @@ import { GeneratedMediaContent } from "../components/index.js";
 
 let container: HTMLDivElement;
 let root: Root;
-const createObjectURL = vi.fn(() => "blob:cline-generated-media");
+const createObjectURL = vi.fn(() => "blob:induscode-generated-media");
 const revokeObjectURL = vi.fn();
 
 beforeEach(() => {
@@ -65,7 +65,7 @@ describe("GeneratedMediaContent", () => {
 			`generated-${modality}`,
 		);
 		expect(element?.getAttribute(modality === "file" ? "href" : "src")).toBe(
-			"blob:cline-generated-media",
+			"blob:induscode-generated-media",
 		);
 		expect(createObjectURL).toHaveBeenCalledOnce();
 	});
@@ -142,6 +142,6 @@ describe("GeneratedMediaContent", () => {
 			<GeneratedMediaContent media={media("audio", "audio/mpeg")} />,
 		);
 
-		expect(revokeObjectURL).toHaveBeenCalledWith("blob:cline-generated-media");
+		expect(revokeObjectURL).toHaveBeenCalledWith("blob:induscode-generated-media");
 	});
 });

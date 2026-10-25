@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 
-import type { ModelInfo } from "@cline/shared";
+import type { ModelInfo } from "@induscode/shared";
 import {
 	fetchModelsDevCatalog,
 	fetchModelsDevProviderModels,

@@ -1,7 +1,7 @@
 import {
 	GeneratedMediaSchema,
 	type ProviderAuthInfo,
-} from "@cline/shared/browser";
+} from "@induscode/shared/browser";
 import { z } from "zod";
 
 export const ProviderAuthInfoSchema = z.object({

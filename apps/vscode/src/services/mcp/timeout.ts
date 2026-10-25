@@ -1,6 +1,6 @@
-export { augmentMcpTimeoutError } from "@cline/core"
+export { augmentMcpTimeoutError } from "@induscode/core"
 
-import { resolveMcpTimeoutSeconds } from "@cline/shared"
+import { resolveMcpTimeoutSeconds } from "@induscode/shared"
 import { secondsToMs } from "@utils/time"
 
 /**

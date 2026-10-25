@@ -1,6 +1,6 @@
 import type {
-	ClineCoreListHistoryOptions,
-	ClineCoreStartInput,
+	IndusCodeCoreListHistoryOptions,
+	IndusCodeCoreStartInput,
 	CompareCheckpointInput,
 	CompareCheckpointResult,
 	CoreSessionEvent,
@@ -19,21 +19,21 @@ import type {
 	SessionRecord,
 	StartSessionInput,
 	StartSessionResult,
-} from "@cline/core"
-import type { AgentResult } from "@cline/shared"
+} from "@induscode/core"
+import type { AgentResult } from "@induscode/shared"
 
 export interface SdkSessionHost {
 	readonly runtimeAddress: string | undefined
 	start(input: StartSessionInput): Promise<StartSessionResult>
-	start(input: ClineCoreStartInput): Promise<StartSessionResult>
+	start(input: IndusCodeCoreStartInput): Promise<StartSessionResult>
 	send(input: SendSessionInput): Promise<AgentResult | undefined>
 	getAccumulatedUsage(sessionId: string): Promise<SessionAccumulatedUsage | undefined>
 	abort(sessionId: string, reason?: unknown): Promise<void>
 	stop(sessionId: string): Promise<void>
 	dispose(reason?: string): Promise<void>
 	get(sessionId: string): Promise<SessionRecord | undefined>
-	list(limit?: number, options?: Omit<ClineCoreListHistoryOptions, "limit">): Promise<SessionHistoryRecord[]>
-	listHistory(options?: ClineCoreListHistoryOptions): Promise<SessionHistoryRecord[]>
+	list(limit?: number, options?: Omit<IndusCodeCoreListHistoryOptions, "limit">): Promise<SessionHistoryRecord[]>
+	listHistory(options?: IndusCodeCoreListHistoryOptions): Promise<SessionHistoryRecord[]>
 	delete(sessionId: string): Promise<boolean>
 	readMessages(sessionId: string): Promise<SdkInitialMessages>
 	/**

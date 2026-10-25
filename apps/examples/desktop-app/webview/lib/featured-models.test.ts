@@ -15,8 +15,8 @@ function model(
 }
 
 describe("buildModelPickerData", () => {
-	it("builds recommended / free / all sections for the cline provider", () => {
-		const { options, sections } = buildModelPickerData("cline", [
+	it("builds recommended / free / all sections for the induscode provider", () => {
+		const { options, sections } = buildModelPickerData("induscode", [
 			model("zzz/last-model", "ZZZ Last"),
 			model(
 				"deepseek/deepseek-v4-flash",
@@ -35,7 +35,7 @@ describe("buildModelPickerData", () => {
 
 		expect(sections?.map((section) => section.id)).toEqual([
 			"recommended",
-			"free",
+			"general",
 			"all",
 		]);
 		expect(options.map((option) => option.value)).toEqual([
@@ -50,13 +50,13 @@ describe("buildModelPickerData", () => {
 			label: "Claude Opus 5",
 			section: "recommended",
 		});
-		expect(options[1]).toMatchObject({ badge: undefined, section: "free" });
+		expect(options[1]).toMatchObject({ badge: "PRO", section: "general" });
 		// The "all" tier is sorted by display name, not raw id.
 		expect(options[2]?.label).toBe("AAA First");
 	});
 
 	it("orders featured tiers by feed rank, not list order", () => {
-		const { options } = buildModelPickerData("cline", [
+		const { options } = buildModelPickerData("induscode", [
 			model("openai/gpt-5.6-sol", "GPT-5.6 Sol", {
 				tier: "recommended",
 				rank: 1,
@@ -74,9 +74,9 @@ describe("buildModelPickerData", () => {
 		]);
 	});
 
-	it("builds subscribed / free sections for cline-pass and hides stale catalog leftovers", () => {
-		const { options, sections } = buildModelPickerData("cline-pass", [
-			model("cline-pass/kimi-k3", "Kimi K3", {
+	it("builds subscribed / free sections for induscode-pass and hides stale catalog leftovers", () => {
+		const { options, sections } = buildModelPickerData("induscode-pass", [
+			model("induscode-pass/kimi-k3", "Kimi K3", {
 				tier: "subscribed",
 				rank: 0,
 				tags: [],
@@ -103,13 +103,13 @@ describe("buildModelPickerData", () => {
 	});
 
 	it("keeps subscription and free fallback models separated with a partial feed", () => {
-		const { options, sections } = buildModelPickerData("cline-pass", [
+		const { options, sections } = buildModelPickerData("induscode-pass", [
 			model("deepseek/deepseek-v4-flash", "DeepSeek V4 Flash", {
 				tier: "free",
 				rank: 0,
 				tags: [],
 			}),
-			model("cline-pass/kimi-k3", "Kimi K3"),
+			model("induscode-pass/kimi-k3", "Kimi K3"),
 			model("nvidia/nemotron-ultra", "Nemotron Ultra"),
 		]);
 		expect(sections?.map((section) => section.id)).toEqual([
@@ -117,30 +117,30 @@ describe("buildModelPickerData", () => {
 			"free",
 		]);
 		expect(options.map((option) => [option.value, option.section])).toEqual([
-			["cline-pass/kimi-k3", "subscribed"],
+			["induscode-pass/kimi-k3", "subscribed"],
 			["deepseek/deepseek-v4-flash", "free"],
 			["nvidia/nemotron-ultra", "free"],
 		]);
 	});
 
-	it("groups the offline ClinePass catalog without confusing identical model names", () => {
-		const { options, sections } = buildModelPickerData("cline-pass", [
+	it("groups the offline IndusCodePass catalog without confusing identical model names", () => {
+		const { options, sections } = buildModelPickerData("induscode-pass", [
 			model("deepseek/deepseek-v4-flash", "DeepSeek V4 Flash"),
-			model("cline-pass/glm-5.3-flash", "GLM-5.3-Flash"),
-			model("cline-free/longcat-2.0", "LongCat 2.0 (free)"),
-			model("cline-pass/deepseek-v4-flash", "DeepSeek V4 Flash"),
+			model("induscode-pass/glm-5.3-flash", "GLM-5.3-Flash"),
+			model("induscode-free/longcat-2.0", "LongCat 2.0 (free)"),
+			model("induscode-pass/deepseek-v4-flash", "DeepSeek V4 Flash"),
 			model("z-ai/glm-5.3-flash", "GLM-5.3-Flash"),
 		]);
 		expect(sections?.map((section) => section.label)).toEqual([
 			"Subscribed",
-			"Free",
+			"Standard",
 		]);
 		expect(options.map((option) => [option.value, option.section])).toEqual([
-			["cline-pass/deepseek-v4-flash", "subscribed"],
-			["cline-pass/glm-5.3-flash", "subscribed"],
+			["induscode-pass/deepseek-v4-flash", "subscribed"],
+			["induscode-pass/glm-5.3-flash", "subscribed"],
 			["deepseek/deepseek-v4-flash", "free"],
 			["z-ai/glm-5.3-flash", "free"],
-			["cline-free/longcat-2.0", "free"],
+			["induscode-free/longcat-2.0", "free"],
 		]);
 		expect(options[0]?.label).toBe("DeepSeek V4 Flash");
 		expect(options.slice(2).every((option) => option.badge === undefined)).toBe(
@@ -149,7 +149,7 @@ describe("buildModelPickerData", () => {
 	});
 
 	it("falls back to a flat name-sorted list when nothing is featured", () => {
-		const { options, sections } = buildModelPickerData("cline", [
+		const { options, sections } = buildModelPickerData("induscode", [
 			model("zzz/last", "ZZZ"),
 			model("aaa/first", "AAA"),
 		]);
@@ -159,15 +159,15 @@ describe("buildModelPickerData", () => {
 	});
 
 	it.each([
-		"cline",
+		"induscode",
 		"other-provider",
 	])("distinguishes colliding names in the %s fallback without hiding model routes", (providerId) => {
 		const models = [
-			model("cline-pass/deepseek-v4-flash", "DeepSeek V4 Flash"),
+			model("induscode-pass/deepseek-v4-flash", "DeepSeek V4 Flash"),
 			model("deepseek/deepseek-v4-flash", "DeepSeek V4 Flash"),
-			model("cline-pass/glm-5.3-flash", "GLM-5.3-Flash"),
+			model("induscode-pass/glm-5.3-flash", "GLM-5.3-Flash"),
 			model("z-ai/glm-5.3-flash", "GLM-5.3-Flash"),
-			model("cline-pass/kimi-k3", "Kimi K3"),
+			model("induscode-pass/kimi-k3", "Kimi K3"),
 		];
 		const { options } = buildModelPickerData(providerId, models);
 		expect(options).toHaveLength(models.length);
@@ -182,7 +182,7 @@ describe("buildModelPickerData", () => {
 		}
 		expect(options).toContainEqual({
 			label: "Kimi K3",
-			value: "cline-pass/kimi-k3",
+			value: "induscode-pass/kimi-k3",
 		});
 	});
 

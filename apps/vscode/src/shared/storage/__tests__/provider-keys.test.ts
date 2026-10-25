@@ -1,5 +1,5 @@
 import { describe, it } from "bun:test"
-import { getProviderCollectionSync } from "@cline/llms"
+import { getProviderCollectionSync } from "@induscode/llms"
 import { expect } from "chai"
 import { getProviderDefaultModelId, getProviderModelIdKey } from "../provider-keys"
 
@@ -18,10 +18,10 @@ describe("Provider key mapping", () => {
 		expect(getProviderDefaultModelId("together")).to.equal(openrouterDefault)
 	})
 
-	it("uses the SDK-declared default (first recommended model) for cline", () => {
-		const expectedDefault = getProviderCollectionSync("cline")?.provider.defaultModelId ?? ""
+	it("uses the SDK-declared default (first recommended model) for induscode", () => {
+		const expectedDefault = getProviderCollectionSync("induscode")?.provider.defaultModelId ?? ""
 		expect(expectedDefault).to.not.equal("")
-		expect(getProviderDefaultModelId("cline")).to.equal(expectedDefault)
+		expect(getProviderDefaultModelId("induscode")).to.equal(expectedDefault)
 	})
 
 	it("returns an empty string for local-only providers", () => {
@@ -40,14 +40,14 @@ describe("Provider key mapping", () => {
 		expect(getProviderModelIdKey("openrouter", "plan")).to.equal("planModeOpenRouterModelId")
 	})
 
-	it("uses provider-specific model key behavior for Cline", () => {
-		expect(getProviderModelIdKey("cline", "act")).to.equal("actModeClineModelId")
-		expect(getProviderModelIdKey("cline", "plan")).to.equal("planModeClineModelId")
+	it("uses provider-specific model key behavior for IndusCode", () => {
+		expect(getProviderModelIdKey("induscode", "act")).to.equal("actModeIndusCodeModelId")
+		expect(getProviderModelIdKey("induscode", "plan")).to.equal("planModeIndusCodeModelId")
 	})
 
-	it("uses separate model keys for ClinePass", () => {
-		expect(getProviderModelIdKey("cline-pass", "act")).to.equal("actModeClinePassModelId")
-		expect(getProviderModelIdKey("cline-pass", "plan")).to.equal("planModeClinePassModelId")
+	it("uses separate model keys for IndusCodePass", () => {
+		expect(getProviderModelIdKey("induscode-pass", "act")).to.equal("actModeIndusCodePassModelId")
+		expect(getProviderModelIdKey("induscode-pass", "plan")).to.equal("planModeIndusCodePassModelId")
 	})
 
 	it("uses the SDK-declared default for Nous Research through SDK-boundary casing", () => {

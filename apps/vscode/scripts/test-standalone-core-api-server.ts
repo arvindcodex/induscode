@@ -1,9 +1,9 @@
 #!/usr/bin/env bun
 
 /**
- * Simple Cline gRPC Server
+ * Simple IndusCode gRPC Server
  *
- * This script provides a minimal way to run the Cline core gRPC service
+ * This script provides a minimal way to run the IndusCode core gRPC service
  * without requiring the full installation, while automatically mocking all external services. Simply run:
  *
  *   # One-time setup (generates protobuf files)
@@ -12,18 +12,18 @@
  *
  * The following components are started automatically:
  *   1. HostBridge test server
- *   2. ClineApiServerMock (mock implementation of the Cline API)
+ *   2. IndusCodeApiServerMock (mock implementation of the IndusCode API)
  *   3. SDK WorkOS device-auth flow, with WorkOS fetches mocked by testing-platform-workos-fetch-mock.cjs
  *
  * Environment Variables for Customization:
  *   PROJECT_ROOT - Override project root directory (default: parent of scripts dir)
- *   CLINE_DIST_DIR - Override distribution directory (default: PROJECT_ROOT/dist-standalone)
- *   CLINE_CORE_FILE - Override core file name (default: cline-core.js)
+ *   INDUSCODE_DIST_DIR - Override distribution directory (default: PROJECT_ROOT/dist-standalone)
+ *   INDUSCODE_CORE_FILE - Override core file name (default: induscode-core.js)
  *   PROTOBUS_PORT - gRPC server port (default: 26040)
  *   HOSTBRIDGE_PORT - HostBridge server port (default: 26041)
  *   WORKSPACE_DIR - Working directory (default: current directory)
  *   E2E_TEST - Enable legacy mock auth mode (default: false)
- *   CLINE_ENVIRONMENT - Environment setting (default: local)
+ *   INDUSCODE_ENVIRONMENT - Environment setting (default: local)
  *
  * Ideal for local development, testing, or lightweight E2E scenarios.
  */
@@ -33,25 +33,25 @@ import { mkdtempSync, rmSync } from "node:fs"
 import * as os from "node:os"
 import { ChildProcess, execSync, spawn } from "child_process"
 import * as path from "path"
-import { ClineApiServerMock } from "../src/test/e2e/fixtures/server/index"
+import { IndusCodeApiServerMock } from "../src/test/e2e/fixtures/server/index"
 
 const PROTOBUS_PORT = process.env.PROTOBUS_PORT || "26040"
 const HOSTBRIDGE_PORT = process.env.HOSTBRIDGE_PORT || "26041"
 const WORKSPACE_DIR = process.env.WORKSPACE_DIR || process.cwd()
 const E2E_TEST = process.env.E2E_TEST || "false"
-const CLINE_ENVIRONMENT = process.env.CLINE_ENVIRONMENT || "local"
+const INDUSCODE_ENVIRONMENT = process.env.INDUSCODE_ENVIRONMENT || "local"
 const USE_C8 = process.env.USE_C8 === "true"
 
 // Locate the standalone build directory and core file with flexible path resolution
 const projectRoot = process.env.PROJECT_ROOT || path.resolve(__dirname, "..")
-const distDir = process.env.CLINE_DIST_DIR || path.join(projectRoot, "dist-standalone")
-const clineCoreFile = process.env.CLINE_CORE_FILE || "cline-core.js"
-const coreFile = path.join(distDir, clineCoreFile)
+const distDir = process.env.INDUSCODE_DIST_DIR || path.join(projectRoot, "dist-standalone")
+const induscodeCoreFile = process.env.INDUSCODE_CORE_FILE || "induscode-core.js"
+const coreFile = path.join(distDir, induscodeCoreFile)
 
 const childProcesses: ChildProcess[] = []
 
 async function main(): Promise<void> {
-	console.log("Starting Simple Cline gRPC Server...")
+	console.log("Starting Simple IndusCode gRPC Server...")
 	console.log(`Project Root: ${projectRoot}`)
 	console.log(`Workspace: ${WORKSPACE_DIR}`)
 	console.log(`ProtoBus Port: ${PROTOBUS_PORT}`)
@@ -63,31 +63,31 @@ async function main(): Promise<void> {
 		console.error(`Standalone build not found at: ${coreFile}`)
 		console.error("Available environment variables for customization:")
 		console.error("  PROJECT_ROOT - Override project root directory")
-		console.error("  CLINE_DIST_DIR - Override distribution directory")
-		console.error("  CLINE_CORE_FILE - Override core file name")
+		console.error("  INDUSCODE_DIST_DIR - Override distribution directory")
+		console.error("  INDUSCODE_CORE_FILE - Override core file name")
 		console.error("")
 		console.error("To build the standalone version, run: bun run compile-standalone")
 		process.exit(1)
 	}
 
 	try {
-		await ClineApiServerMock.startGlobalServer()
-		console.log("Cline API Server started in-process")
+		await IndusCodeApiServerMock.startGlobalServer()
+		console.log("IndusCode API Server started in-process")
 	} catch (error) {
-		console.error("Failed to start Cline API Server:", error)
+		console.error("Failed to start IndusCode API Server:", error)
 		process.exit(1)
 	}
 
 	const extensionsDir = path.join(distDir, "vsce-extension")
 	const userDataDir = mkdtempSync(path.join(os.tmpdir(), "vsce"))
-	const clineTestWorkspace = mkdtempSync(path.join(os.tmpdir(), "cline-test-workspace-"))
+	const induscodeTestWorkspace = mkdtempSync(path.join(os.tmpdir(), "induscode-test-workspace-"))
 
 	console.log("Starting HostBridge test server...")
 	const hostbridge: ChildProcess = spawn("bun", [path.join(__dirname, "test-hostbridge-server.ts")], {
 		stdio: "inherit",
 		env: {
 			...process.env,
-			TEST_HOSTBRIDGE_WORKSPACE_DIR: clineTestWorkspace,
+			TEST_HOSTBRIDGE_WORKSPACE_DIR: induscodeTestWorkspace,
 			HOST_BRIDGE_ADDRESS: `127.0.0.1:${HOSTBRIDGE_PORT}`,
 		},
 	})
@@ -116,13 +116,13 @@ async function main(): Promise<void> {
 	const covDir = path.join(projectRoot, `coverage/coverage-core-${PROTOBUS_PORT}`)
 
 	const workosFetchMockPath = path.join(projectRoot, "scripts", "testing-platform-workos-fetch-mock.cjs")
-	const baseArgs = ["--enable-source-maps", "--require", workosFetchMockPath, path.join(distDir, "cline-core.js")]
+	const baseArgs = ["--enable-source-maps", "--require", workosFetchMockPath, path.join(distDir, "induscode-core.js")]
 
 	const c8Bin = path.join(projectRoot, "node_modules", ".bin", process.platform === "win32" ? "c8.cmd" : "c8")
 	const spawnCommand = USE_C8 ? c8Bin : "node"
 	const spawnArgs = USE_C8 ? ["--report-dir", covDir, "node", ...baseArgs] : baseArgs
 
-	console.log(`Starting Cline Core Service... (useC8=${USE_C8})`)
+	console.log(`Starting IndusCode Core Service... (useC8=${USE_C8})`)
 
 	const coreService: ChildProcess = spawn(spawnCommand, spawnArgs, {
 		cwd: projectRoot,
@@ -133,8 +133,8 @@ async function main(): Promise<void> {
 			PROTOBUS_ADDRESS: `127.0.0.1:${PROTOBUS_PORT}`,
 			HOST_BRIDGE_ADDRESS: `localhost:${HOSTBRIDGE_PORT}`,
 			E2E_TEST,
-			CLINE_ENVIRONMENT,
-			CLINE_DIR: userDataDir,
+			INDUSCODE_ENVIRONMENT,
+			INDUSCODE_DIR: userDataDir,
 			INSTALL_DIR: extensionsDir,
 		},
 		stdio: "inherit",
@@ -149,11 +149,11 @@ async function main(): Promise<void> {
 			if (child && !child.killed) child.kill("SIGINT")
 		}
 
-		await ClineApiServerMock.stopGlobalServer()
+		await IndusCodeApiServerMock.stopGlobalServer()
 
 		try {
 			rmSync(userDataDir, { recursive: true, force: true })
-			rmSync(clineTestWorkspace, { recursive: true, force: true })
+			rmSync(induscodeTestWorkspace, { recursive: true, force: true })
 			console.log("Cleaned up temporary directories")
 		} catch (err) {
 			console.warn("Failed to cleanup temp directories:", err)
@@ -174,13 +174,13 @@ async function main(): Promise<void> {
 		shutdown()
 	})
 
-	console.log(`Cline gRPC Server is running on 127.0.0.1:${PROTOBUS_PORT}`)
+	console.log(`IndusCode gRPC Server is running on 127.0.0.1:${PROTOBUS_PORT}`)
 	console.log("Press Ctrl+C to stop")
 }
 
 if (require.main === module) {
 	main().catch((err) => {
-		console.error("Failed to start simple Cline server:", err)
+		console.error("Failed to start simple IndusCode server:", err)
 		process.exit(1)
 	})
 }

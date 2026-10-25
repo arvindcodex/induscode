@@ -2,7 +2,7 @@ import {
 	type AuthorizeMcpServerOAuthOptions,
 	type AuthorizeMcpServerOAuthResult,
 	authorizeMcpServerOAuth,
-} from "@cline/core";
+} from "@induscode/core";
 
 export type McpOAuthCancellationReason =
 	| "user"

@@ -396,7 +396,7 @@ describe("installed connectors", () => {
 		mocks.invoke.mockImplementation(
 			(command: string) =>
 				new Promise((resolve) => {
-					if (command === "cline_account") resolveMe = resolve;
+					if (command === "induscode_account") resolveMe = resolve;
 					else resolve({});
 				}),
 		);
@@ -412,14 +412,14 @@ describe("installed connectors", () => {
 		).not.toBeNull();
 		expect(button("Sign in")).toBeUndefined();
 		await act(async () =>
-			resolveMe({ email: "dev@cline.bot", displayName: "Dev" }),
+			resolveMe({ email: "dev@induscode.bot", displayName: "Dev" }),
 		);
 		expect(container.textContent).toContain(
 			"Connectors aren't enabled for your account yet",
 		);
 	});
 
-	it("offers Cline sign-in when connectors are unavailable and the user is signed out", async () => {
+	it("offers IndusCode sign-in when connectors are unavailable and the user is signed out", async () => {
 		mocks.configured = false;
 		mocks.invoke.mockResolvedValue({
 			signedIn: false,
@@ -433,7 +433,7 @@ describe("installed connectors", () => {
 			),
 		);
 		expect(container.textContent).toContain(
-			"Sign in to Cline to use connectors",
+			"Sign in to IndusCode to use connectors",
 		);
 		expect(container.textContent).not.toContain("Browse");
 		expect(
@@ -444,18 +444,18 @@ describe("installed connectors", () => {
 		await act(async () => button("Sign in")?.click());
 		expect(mocks.invoke).toHaveBeenCalledWith(
 			"run_provider_oauth_login",
-			{ provider: "cline" },
+			{ provider: "induscode" },
 			expect.anything(),
 		);
 		expect(mocks.refresh).toHaveBeenCalled();
 		await act(async () => button("Create account")?.click());
-		expect(mocks.openExternalUrl).toHaveBeenCalledWith("https://app.cline.bot");
+		expect(mocks.openExternalUrl).toHaveBeenCalledWith("https://app.induscode.bot");
 	});
 
 	it("explains the beta rollout when signed in without connector access", async () => {
 		mocks.configured = false;
 		mocks.invoke.mockResolvedValue({
-			email: "dev@cline.bot",
+			email: "dev@induscode.bot",
 			displayName: "Dev",
 		});
 		await act(async () =>

@@ -1,6 +1,6 @@
 // Replaces classic src/core/storage/disk.ts reads (see origin/main)
 //
-// Reads on-disk state written in the pre-SDK storage format from the Cline
+// Reads on-disk state written in the pre-SDK storage format from the IndusCode
 // data directory, so the SDK adapter can surface tasks and settings created
 // before the SDK migration.
 //
@@ -9,7 +9,7 @@
 import fs from "node:fs"
 import path from "node:path"
 import { Anthropic } from "@anthropic-ai/sdk"
-import { ClineMessage } from "@shared/ExtensionMessage"
+import { IndusCodeMessage } from "@shared/ExtensionMessage"
 import { HistoryItem } from "@shared/HistoryItem"
 import { Logger } from "@shared/services/Logger"
 import { GlobalStateAndSettings, Secrets } from "@shared/storage/state-keys"
@@ -20,8 +20,8 @@ import { resolveDataDirFromEnv } from "@shared/storage/storage-context"
 // ---------------------------------------------------------------------------
 
 /**
- * Resolve the Cline data directory.
- * Priority: CLINE_DATA_DIR env > CLINE_DIR env + "/data" > ~/.cline/data
+ * Resolve the IndusCode data directory.
+ * Priority: INDUSCODE_DATA_DIR env > INDUSCODE_DIR env + "/data" > ~/.induscode/data
  */
 export function resolveDataDir(override?: string): string {
 	// Delegates to the same resolver createStorageContext uses so the two
@@ -46,7 +46,7 @@ function taskHistoryPath(dataDir?: string): string {
 
 /** Path to MCP settings file */
 function mcpSettingsPath(dataDir?: string): string {
-	return path.join(resolveDataDir(dataDir), "settings", "cline_mcp_settings.json")
+	return path.join(resolveDataDir(dataDir), "settings", "induscode_mcp_settings.json")
 }
 
 /** Path to a task directory */
@@ -199,8 +199,8 @@ const REMOVED_LEGACY_SAY_TYPES = new Set(["error_retry", "api_req_retried", "tas
  * Read the UI messages for a specific task.
  * Returns an empty array if the file is missing or corrupt.
  */
-export function readUiMessages(taskId: string, dataDir?: string): ClineMessage[] {
-	const messages = readJsonFile<ClineMessage[]>(uiMessagesPath(taskId, dataDir), [])
+export function readUiMessages(taskId: string, dataDir?: string): IndusCodeMessage[] {
+	const messages = readJsonFile<IndusCodeMessage[]>(uiMessagesPath(taskId, dataDir), [])
 	return messages.filter((message) => !REMOVED_LEGACY_SAY_TYPES.has((message as { say?: string }).say ?? ""))
 }
 

@@ -1,5 +1,5 @@
-import { EmptyRequest } from "@shared/proto/cline/common"
-import { CreateWorktreeRequest, SwitchWorktreeRequest } from "@shared/proto/cline/worktree"
+import { EmptyRequest } from "@shared/proto/induscode/common"
+import { CreateWorktreeRequest, SwitchWorktreeRequest } from "@shared/proto/induscode/worktree"
 import { VSCodeButton, VSCodeTextField } from "@vscode/webview-ui-toolkit/react"
 import { AlertCircle, AlertTriangle, Loader2, X } from "lucide-react"
 import { memo, useCallback, useEffect, useState } from "react"
@@ -132,7 +132,7 @@ const CreateWorktreeModal = ({ open, onClose, openAfterCreate = false, onSuccess
 							No .worktreeinclude detected.{" "}
 							<a
 								className="text-[var(--vscode-textLink-foreground)] hover:text-[var(--vscode-textLink-activeForeground)]"
-								href="https://docs.cline.bot/features/worktrees#worktreeinclude"
+								href="https://docs.induscode.bot/features/worktrees#worktreeinclude"
 								rel="noopener noreferrer"
 								style={{ fontSize: "inherit" }}
 								target="_blank">

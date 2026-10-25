@@ -13,7 +13,7 @@ import type {
 	RemoteEnvironmentProfile,
 	RemoteEnvironmentService,
 	RemoteEnvironmentStatus,
-} from "@cline/core";
+} from "@induscode/core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { SessionRuntimeBinding, SidecarContext } from "./types";
 
@@ -26,12 +26,12 @@ const sessionStoreGetMock = vi.hoisted(() => vi.fn());
 const sessionStoreDeleteMock = vi.hoisted(() => vi.fn());
 const sessionStoreRunMock = vi.hoisted(() => vi.fn());
 
-vi.mock("@cline/core", async () => {
+vi.mock("@induscode/core", async () => {
 	const actual =
-		await vi.importActual<typeof import("@cline/core")>("@cline/core");
+		await vi.importActual<typeof import("@induscode/core")>("@induscode/core");
 	return {
 		...actual,
-		ClineCore: {
+		IndusCodeCore: {
 			create: coreCreateMock,
 		},
 		SqliteSessionStore: class {
@@ -363,7 +363,7 @@ describe("remote environment command routing", () => {
 		expect(fake.connect).toHaveBeenCalledWith(profile.id);
 		expect(coreCreateMock).toHaveBeenCalledWith(
 			expect.objectContaining({
-				clientName: "cline-code",
+				clientName: "induscode-code",
 				backendMode: "remote",
 				remote: {
 					endpoint: connection.endpoint,
@@ -692,7 +692,7 @@ describe("remote environment command routing", () => {
 			args: [
 				"-c",
 				expect.stringContaining("find -L"),
-				"cline-list-workspace-directories",
+				"induscode-list-workspace-directories",
 				"/srv/code",
 			],
 		});
@@ -785,7 +785,7 @@ describe("remote environment command routing", () => {
 	it("lists and bounds local workspace directories through the local binding", async () => {
 		const { handleCommand } = await import("./commands");
 		const { createSidecarContext } = await import("./context");
-		const temporaryRoot = mkdtempSync(join(tmpdir(), "cline-workspaces-"));
+		const temporaryRoot = mkdtempSync(join(tmpdir(), "induscode-workspaces-"));
 		try {
 			for (let index = 0; index < 201; index += 1) {
 				mkdirSync(

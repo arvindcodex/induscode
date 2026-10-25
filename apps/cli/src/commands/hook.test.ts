@@ -25,10 +25,10 @@ vi.mock("../session/session", () => ({
 	handleSessionHookEvent: vi.fn(),
 }));
 
-// Exact payload from https://github.com/cline/cline/issues/14808: the shared
+// Exact payload from https://github.com/induscode/induscode/issues/14808: the shared
 // schema accepts it (hookName "agent_error"), so the hook command must too.
 const AGENT_ERROR_PAYLOAD = {
-	clineVersion: "3.0.62",
+	induscodeVersion: "3.0.62",
 	hookName: "agent_error",
 	timestamp: "2000-01-01T00:00:00.000Z",
 	taskId: "t",

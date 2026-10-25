@@ -2,9 +2,9 @@ import { describe, expect, it, mock } from "bun:test"
 import { FeatureFlag } from "@/shared/services/feature-flags/feature-flags"
 import type { FeatureFlagsAndPayloads, FeatureFlagsSettings, IFeatureFlagsProvider } from "./providers/IFeatureFlagsProvider"
 
-mock.module("@/core/controller/models/getClineOnboardingModels", () => ({
+mock.module("@/core/controller/models/getIndusCodeOnboardingModels", () => ({
 	clearOnboardingModelsCache: () => undefined,
-	getClineOnboardingModels: () => undefined,
+	getIndusCodeOnboardingModels: () => undefined,
 }))
 
 mock.module("../telemetry", () => ({

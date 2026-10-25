@@ -18,7 +18,7 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(
 		ref,
 	) => (
 		<span
-			className={clsx("cline-ui-switch", className)}
+			className={clsx("induscode-ui-switch", className)}
 			data-slot="switch-root"
 			dir={dir}
 			hidden={hidden}
@@ -26,7 +26,7 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(
 		>
 			<input
 				{...props}
-				className="cline-ui-switch__input"
+				className="induscode-ui-switch__input"
 				data-slot="switch"
 				dir={dir}
 				onChange={(event) => {
@@ -39,8 +39,8 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(
 				role="switch"
 				type="checkbox"
 			/>
-			<span aria-hidden="true" className="cline-ui-switch__track">
-				<span className="cline-ui-switch__thumb" data-slot="switch-thumb" />
+			<span aria-hidden="true" className="induscode-ui-switch__track">
+				<span className="induscode-ui-switch__thumb" data-slot="switch-thumb" />
 			</span>
 		</span>
 	),

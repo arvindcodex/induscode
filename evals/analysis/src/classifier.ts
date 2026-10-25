@@ -1,5 +1,5 @@
 /**
- * Failure classification system for Cline evaluations
+ * Failure classification system for IndusCode evaluations
  *
  * Classifies failures by matching log patterns against known issues:
  * - Provider bugs (Gemini #7974, Claude #7998)
@@ -31,7 +31,7 @@ export class FailureClassifier {
 	private patterns: Array<FailurePattern & { regex: RegExp }>
 
 	constructor(patternsPath?: string) {
-		const defaultPath = path.join(__dirname, "../patterns/cline-failures.yaml")
+		const defaultPath = path.join(__dirname, "../patterns/induscode-failures.yaml")
 		const configPath = patternsPath || defaultPath
 
 		const config = this.loadPatternsFromYaml(configPath)
@@ -54,7 +54,7 @@ export class FailureClassifier {
 
 	/**
 	 * Classify failures in log text
-	 * @param logs Full log text (e.g., cline.txt content)
+	 * @param logs Full log text (e.g., induscode.txt content)
 	 * @returns Array of matched failure categories with excerpts
 	 */
 	classify(logs: string): FailureInfo[] {

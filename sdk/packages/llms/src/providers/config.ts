@@ -9,7 +9,7 @@ import type {
 	BasicLogger,
 	ExtensionContext,
 	ReasoningEffort,
-} from "@cline/shared";
+} from "@induscode/shared";
 import type { ModelInfo, ProviderClient } from "../catalog/types";
 import {
 	BUILT_IN_PROVIDER,
@@ -266,10 +266,10 @@ export interface ModelCatalogConfig {
 	/** Fetch latest catalog at handler initialization */
 	loadLatestOnInit?: boolean;
 	/**
-	 * Include models that are only valid for Cline Cloud sessions.
+	 * Include models that are only valid for IndusCode Cloud sessions.
 	 * Defaults to false; cloud-inclusive and local catalogs use separate caches.
 	 */
-	includeClineCloudModels?: boolean;
+	includeIndusCodeCloudModels?: boolean;
 	/** Fetch provider-private models when auth is available */
 	loadPrivateOnAuth?: boolean;
 	/** Catalog endpoint URL */

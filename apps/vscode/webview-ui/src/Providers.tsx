@@ -1,7 +1,7 @@
 import { HeroUIProvider } from "@heroui/react"
 import { type ReactNode } from "react"
 import { CustomPostHogProvider } from "./CustomPostHogProvider"
-import { ClineAuthProvider } from "./context/ClineAuthContext"
+import { IndusCodeAuthProvider } from "./context/IndusCodeAuthContext"
 import { ExtensionStateContextProvider } from "./context/ExtensionStateContext"
 import { PlatformProvider } from "./context/PlatformContext"
 
@@ -10,9 +10,9 @@ export function Providers({ children }: { children: ReactNode }) {
 		<PlatformProvider>
 			<ExtensionStateContextProvider>
 				<CustomPostHogProvider>
-					<ClineAuthProvider>
+					<IndusCodeAuthProvider>
 						<HeroUIProvider>{children}</HeroUIProvider>
-					</ClineAuthProvider>
+					</IndusCodeAuthProvider>
 				</CustomPostHogProvider>
 			</ExtensionStateContextProvider>
 		</PlatformProvider>

@@ -1,4 +1,4 @@
-import { EmptyRequest } from "@shared/proto/cline/common"
+import { EmptyRequest } from "@shared/proto/induscode/common"
 import type { Mode } from "@shared/storage/types"
 import { parseVsCodeLmModelSelector, stringifyVsCodeLmModelSelector } from "@shared/vsCodeSelectorUtils"
 import { VSCodeDropdown, VSCodeLink, VSCodeOption } from "@vscode/webview-ui-toolkit/react"

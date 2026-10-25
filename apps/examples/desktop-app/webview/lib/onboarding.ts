@@ -1,11 +1,11 @@
-export const ONBOARDING_STORAGE_KEY = "cline.code.onboarding.v1";
+export const ONBOARDING_STORAGE_KEY = "induscode.code.onboarding.v1";
 
 /**
  * Fired on `window` when the onboarding state is reset (e.g. from the
  * "replay new user experience" setting) so the app shell can re-enter the
  * first-run flow without a full reload.
  */
-export const ONBOARDING_RESET_EVENT = "cline:onboarding-reset";
+export const ONBOARDING_RESET_EVENT = "induscode:onboarding-reset";
 
 export type OnboardingStorage = {
 	completedAt: string | null;

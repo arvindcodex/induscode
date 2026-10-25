@@ -15,13 +15,13 @@ describe("searchable list sections", () => {
 	it("adds section headers as separate rows", () => {
 		expect(
 			rowLabels([
-				{ key: "cline", label: "Cline", section: "Popular" },
+				{ key: "induscode", label: "IndusCode", section: "Popular" },
 				{ key: "anthropic", label: "Anthropic", section: "Popular" },
 				{ key: "deepseek", label: "DeepSeek", section: "Other" },
 			]),
 		).toEqual([
 			"header:Popular",
-			"item:cline",
+			"item:induscode",
 			"item:anthropic",
 			"header:Other",
 			"item:deepseek",
@@ -30,7 +30,7 @@ describe("searchable list sections", () => {
 
 	it("keeps window counts based on selectable items", () => {
 		const items: SearchableItem[] = [
-			{ key: "cline", label: "Cline", section: "Popular" },
+			{ key: "induscode", label: "IndusCode", section: "Popular" },
 			{ key: "anthropic", label: "Anthropic", section: "Popular" },
 			{ key: "openrouter", label: "OpenRouter", section: "Popular" },
 			{ key: "deepseek", label: "DeepSeek", section: "Other" },
@@ -53,7 +53,7 @@ describe("searchable list sections", () => {
 
 	it("does not hide only a section header before showing the above indicator", () => {
 		const items: SearchableItem[] = [
-			{ key: "cline", label: "Cline", section: "Popular" },
+			{ key: "induscode", label: "IndusCode", section: "Popular" },
 			{ key: "openai-codex", label: "ChatGPT", section: "Popular" },
 			{ key: "deepseek", label: "DeepSeek", section: "Popular" },
 			{ key: "anthropic", label: "Anthropic", section: "Popular" },

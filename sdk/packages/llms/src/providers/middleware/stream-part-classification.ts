@@ -26,7 +26,7 @@ export type ModelStreamPartClass =
 	 */
 	| "converted-content"
 	/**
-	 * Real model output that Cline does not (yet) convert into agent events.
+	 * Real model output that IndusCode does not (yet) convert into agent events.
 	 * The model responded, so retrying would waste billable requests and
 	 * likely reproduce the same output — never retried. If a turn contains
 	 * ONLY unsupported output the assistant message can still come out

@@ -3,7 +3,7 @@ import type { EventEmitter } from "node:events";
 import { accessSync, existsSync, constants as fsConstants } from "node:fs";
 import { createRequire } from "node:module";
 import { delimiter, dirname, join } from "node:path";
-import type { GatewayResolvedProviderConfig } from "@cline/shared";
+import type { GatewayResolvedProviderConfig } from "@induscode/shared";
 import { createDifyProvider } from "dify-ai-provider";
 import { resolveApiKey } from "../http";
 import type { ProviderFactoryResult } from "./types";
@@ -133,7 +133,7 @@ export async function createClaudeCodeProviderModule(
 	} catch (error) {
 		throw new Error(
 			"The Claude Code provider requires the optional 'ai-sdk-provider-claude-code' package. " +
-				"Install it alongside @cline/llms to use this provider.",
+				"Install it alongside @induscode/llms to use this provider.",
 			{ cause: error },
 		);
 	}
@@ -148,7 +148,7 @@ export async function createClaudeCodeProviderModule(
 		}
 	}
 	// Hosts forward the workspace root as a top-level `cwd` option (e.g.
-	// @cline/core's buildGatewayProviderOptions). Anchor the spawned agent
+	// @induscode/core's buildGatewayProviderOptions). Anchor the spawned agent
 	// session there; otherwise it inherits the host process cwd (`/` in GUI
 	// extension hosts) and refuses writes outside it. Guard on existence:
 	// the provider hard-fails settings validation for missing directories.
@@ -166,7 +166,7 @@ export async function createClaudeCodeProviderModule(
 	if (defaultSettings.settingSources === undefined) {
 		defaultSettings.settingSources = ["user", "project"];
 	}
-	// Cline has no interactive permission prompt wired into the CLI session
+	// IndusCode has no interactive permission prompt wired into the CLI session
 	// (no canUseTool), so anything not pre-approved is denied outright. In
 	// default mode that means every file write fails. acceptEdits
 	// auto-approves file edits under cwd while leaving command execution
@@ -193,7 +193,7 @@ export async function createOpenAICodexProviderModule(
 	} catch (error) {
 		throw new Error(
 			"The OpenAI Codex provider requires the optional 'ai-sdk-provider-codex-cli' package. " +
-				"Install it alongside @cline/llms to use this provider.",
+				"Install it alongside @induscode/llms to use this provider.",
 			{ cause: error },
 		);
 	}
@@ -425,8 +425,8 @@ export async function createSapAiCoreProviderModule(
 			? { defaultSettings: options.defaultSettings }
 			: {}),
 		requestConfig: {
-			headers: { "ai-client-type": "Cline" },
-			// Standard cline axios settings mirroring `getAxiosSettings()`
+			headers: { "ai-client-type": "IndusCode" },
+			// Standard induscode axios settings mirroring `getAxiosSettings()`
 			adapter: "fetch",
 			...(config.fetch ? { fetch: config.fetch } : {}),
 			maxBodyLength: Number.POSITIVE_INFINITY,

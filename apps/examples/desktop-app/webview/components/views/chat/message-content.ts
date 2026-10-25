@@ -1,7 +1,7 @@
 import {
 	formatDisplayUserInput,
 	type ProviderAuthInfo,
-} from "@cline/shared/browser";
+} from "@induscode/shared/browser";
 import type { ChatMessage } from "@/lib/chat-schema";
 import { formatRunError, HUB_INTERRUPTED_MESSAGE_KIND } from "@/lib/run-error";
 

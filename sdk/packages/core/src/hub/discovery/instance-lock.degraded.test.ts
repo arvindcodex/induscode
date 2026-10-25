@@ -11,7 +11,7 @@ const { loadSqliteDb } = vi.hoisted(() => ({
 
 // Simulates runtimes with a broken or missing SQLite backend (e.g.
 // node:sqlite unavailable) without touching a real database.
-vi.mock("@cline/shared/db", () => ({ loadSqliteDb }));
+vi.mock("@induscode/shared/db", () => ({ loadSqliteDb }));
 
 import {
 	HubInstanceLock,
@@ -22,7 +22,7 @@ import {
 describe("HubInstanceLock without a usable SQLite backend", () => {
 	function tempLockFile(): string {
 		return resolveHubInstanceLockPath(
-			join(mkdtempSync(join(tmpdir(), "cline-hub-lock-")), "discovery.json"),
+			join(mkdtempSync(join(tmpdir(), "induscode-hub-lock-")), "discovery.json"),
 		);
 	}
 

@@ -1,12 +1,12 @@
-import { LangfuseAttributesSpanProcessor } from "@cline/llms";
+import { LangfuseAttributesSpanProcessor } from "@induscode/llms";
 import type {
 	BasicLogger,
 	ITelemetryService,
 	OpenTelemetryClientConfig,
 	TelemetryMetadata,
 	TelemetryProperties,
-} from "@cline/shared";
-import { markOtlpTraceRelayProvider } from "@cline/shared";
+} from "@induscode/shared";
+import { markOtlpTraceRelayProvider } from "@induscode/shared";
 import { metrics, type Tracer, trace } from "@opentelemetry/api";
 import { logs } from "@opentelemetry/api-logs";
 import { OTLPLogExporter as OTLPLogExporterHttp } from "@opentelemetry/exporter-logs-otlp-http";
@@ -172,7 +172,7 @@ export class OpenTelemetryProvider {
 		this.options = options;
 		const resource = resourceFromAttributes({
 			...options.resourceAttributes,
-			[ATTR_SERVICE_NAME]: options.serviceName ?? "cline",
+			[ATTR_SERVICE_NAME]: options.serviceName ?? "induscode",
 			...(options.serviceVersion
 				? { [ATTR_SERVICE_VERSION]: options.serviceVersion }
 				: {}),
@@ -197,7 +197,7 @@ export class OpenTelemetryProvider {
 	 * Returns a tracer for manual spans. Requires {@link OpenTelemetryProviderOptions.tracesExporter}
 	 * so that a {@link NodeTracerProvider} is registered.
 	 */
-	getTracer(name = "cline", version?: string): Tracer {
+	getTracer(name = "induscode", version?: string): Tracer {
 		return trace.getTracer(name, version ?? this.options.serviceVersion);
 	}
 

@@ -1,6 +1,6 @@
 # CLI Distribution
 
-The Cline CLI (`cline`) is distributed as compiled binaries via npm. Users run `npm i -g cline` and get a working `cline` command without needing Bun, Zig, or any other runtime installed.
+The IndusCode CLI (`induscode`) is distributed as compiled binaries via npm. Users run `npm i -g induscode` and get a working `induscode` command without needing Bun, Zig, or any other runtime installed.
 
 ## Why Compiled Binaries?
 
@@ -18,61 +18,61 @@ Publishing the CLI publishes 7 packages to npm:
 
 | Package | Description |
 |---|---|
-| `@cline/cli-darwin-arm64` | macOS Apple Silicon binary |
-| `@cline/cli-darwin-x64` | macOS Intel binary |
-| `@cline/cli-linux-arm64` | Linux ARM binary |
-| `@cline/cli-linux-x64` | Linux x64 binary |
-| `@cline/cli-windows-x64` | Windows x64 binary |
-| `@cline/cli-windows-arm64` | Windows ARM binary |
-| `cline` | Wrapper package (pulls the right binary via `optionalDependencies`) |
+| `@induscode/cli-darwin-arm64` | macOS Apple Silicon binary |
+| `@induscode/cli-darwin-x64` | macOS Intel binary |
+| `@induscode/cli-linux-arm64` | Linux ARM binary |
+| `@induscode/cli-linux-x64` | Linux x64 binary |
+| `@induscode/cli-windows-x64` | Windows x64 binary |
+| `@induscode/cli-windows-arm64` | Windows ARM binary |
+| `induscode` | Wrapper package (pulls the right binary via `optionalDependencies`) |
 
 Each platform package contains a compiled binary and a minimal `package.json` with `os` and `cpu` fields:
 
 ```json
 {
-  "name": "@cline/cli-darwin-arm64",
+  "name": "@induscode/cli-darwin-arm64",
   "version": "0.1.0",
   "os": ["darwin"],
   "cpu": ["arm64"],
   "bin": {
-    "cline": "bin/cline"
+    "induscode": "bin/induscode"
   }
 }
 ```
 
 The `os` and `cpu` fields tell npm to skip this package on non-matching platforms. A macOS ARM user gets ~30-60MB, not ~200MB of binaries for every platform.
 
-The `cline` wrapper package contains no binary -- just the resolver script, postinstall script, and `optionalDependencies` pointing to all platform packages:
+The `induscode` wrapper package contains no binary -- just the resolver script, postinstall script, and `optionalDependencies` pointing to all platform packages:
 
 ```json
 {
-  "name": "cline",
+  "name": "induscode",
   "version": "0.1.0",
   "bin": {
-    "cline": "./bin/cline"
+    "induscode": "./bin/induscode"
   },
   "scripts": {
     "postinstall": "node ./postinstall.mjs || true"
   },
   "optionalDependencies": {
-    "@cline/cli-darwin-arm64": "0.1.0",
-    "@cline/cli-darwin-x64": "0.1.0",
-    "@cline/cli-linux-arm64": "0.1.0",
-    "@cline/cli-linux-x64": "0.1.0",
-    "@cline/cli-windows-x64": "0.1.0",
-    "@cline/cli-windows-arm64": "0.1.0"
+    "@induscode/cli-darwin-arm64": "0.1.0",
+    "@induscode/cli-darwin-x64": "0.1.0",
+    "@induscode/cli-linux-arm64": "0.1.0",
+    "@induscode/cli-linux-x64": "0.1.0",
+    "@induscode/cli-windows-x64": "0.1.0",
+    "@induscode/cli-windows-arm64": "0.1.0"
   }
 }
 ```
 
-After installing, users run `cline`:
+After installing, users run `induscode`:
 
 ```bash
-npm i -g cline
+npm i -g induscode
 
-cline              # interactive mode
-cline "prompt"     # single-prompt mode
-cline auth         # authenticate a provider
+induscode              # interactive mode
+induscode "prompt"     # single-prompt mode
+induscode auth         # authenticate a provider
 ```
 
 ## How to Publish
@@ -80,7 +80,7 @@ cline auth         # authenticate a provider
 Every release starts by preparing one release commit from the code you want to publish:
 
 1. Draft user-facing release notes from the commits since the last `cli-vX.Y.Z` tag.
-2. Choose the release version. Because this publishes over the existing `cline` package, the version must be greater than the current published `cline` version. The handoff release is `3.0.0`.
+2. Choose the release version. Because this publishes over the existing `induscode` package, the version must be greater than the current published `induscode` version. The handoff release is `3.0.0`.
 3. Update `apps/cli/package.json`.
 4. Add the approved notes to `apps/cli/CHANGELOG.md`.
 5. Run checks.
@@ -115,9 +115,9 @@ bun release cli
 gh release create cli-vX.Y.Z --verify-tag --title "CLI vX.Y.Z" --notes "Paste the approved release notes here."
 ```
 
-The release helper checks the working tree, verifies the tag points at `HEAD` locally and on `origin`, runs tests, builds all platform packages, and publishes the platform packages plus the generated `cline` wrapper package to npm. The package version and tag must match.
+The release helper checks the working tree, verifies the tag points at `HEAD` locally and on `origin`, runs tests, builds all platform packages, and publishes the platform packages plus the generated `induscode` wrapper package to npm. The package version and tag must match.
 
-By default, `bun release cli` publishes with the npm dist-tag `latest` (what users get with `npm i -g cline`). To publish under a different dist-tag like `next`, pass `--tag`:
+By default, `bun release cli` publishes with the npm dist-tag `latest` (what users get with `npm i -g induscode`). To publish under a different dist-tag like `next`, pass `--tag`:
 
 ```bash
 bun release cli --tag next
@@ -132,22 +132,22 @@ The GitHub workflow at `.github/workflows/cli-publish.yml` automates publishing:
 - Nightly releases run on a schedule or manually with `publish_target=nightly`.
 - Nightly releases publish `X.Y.Z-nightly.TIMESTAMP` to npm with the `nightly` dist-tag and skip if there were no commits in the last 24 hours unless forced.
 
-CI publishing uses npm trusted publishing. Configure npm trusted publishers for the `cline` wrapper package and every platform package before relying on the workflow.
+CI publishing uses npm trusted publishing. Configure npm trusted publishers for the `induscode` wrapper package and every platform package before relying on the workflow.
 
 ## How It Works Under the Hood
 
 ```
-User runs: npm i -g cline
+User runs: npm i -g induscode
   |
   v
-npm installs cline (wrapper package)
+npm installs induscode (wrapper package)
   + optionalDependencies (only the matching platform gets installed):
-    - @cline/cli-darwin-arm64
-    - @cline/cli-darwin-x64
-    - @cline/cli-linux-arm64
-    - @cline/cli-linux-x64
-    - @cline/cli-windows-x64
-    - @cline/cli-windows-arm64
+    - @induscode/cli-darwin-arm64
+    - @induscode/cli-darwin-x64
+    - @induscode/cli-linux-arm64
+    - @induscode/cli-linux-x64
+    - @induscode/cli-windows-x64
+    - @induscode/cli-windows-arm64
   |
   v
 postinstall script runs:
@@ -156,12 +156,12 @@ postinstall script runs:
   - Creates a cached hard link for fast startup
   |
   v
-User runs: cline
+User runs: induscode
   |
   v
-bin/cline (Node.js resolver) executes:
-  1. Check CLINE_BIN_PATH env var override
-  2. Check cached binary at bin/.cline
+bin/induscode (Node.js resolver) executes:
+  1. Check INDUSCODE_BIN_PATH env var override
+  2. Check cached binary at bin/.induscode
   3. Walk up node_modules for the platform package
   4. Execute the compiled binary
 ```
@@ -171,7 +171,7 @@ bin/cline (Node.js resolver) executes:
 ```
 apps/cli/
   bin/
-    cline                   # Node.js resolver script (npm entry point)
+    induscode                   # Node.js resolver script (npm entry point)
   script/
     build.ts                # Cross-compile for all platforms
     publish-npm.ts          # npm publish orchestration
@@ -195,11 +195,11 @@ Direct `bun pm pack` and `bun pm pack --dry-run` from `apps/cli` are blocked bec
 Cross-compiles the CLI for all target platforms:
 
 1. When `--install-native-variants` is passed, pre-installs all platform variants of `@opentui/core` using `bun install --os="*" --cpu="*"` so Bun can resolve native FFI binaries for cross-compilation. Without this, Bun only has the host platform's native binary and cross-compiled builds fail.
-2. Builds SDK packages (`bun run build:sdk`) and the CLI JS bundle (`bun -F @cline/cli build`)
+2. Builds SDK packages (`bun run build:sdk`) and the CLI JS bundle (`bun -F @induscode/cli build`)
 3. For each target platform:
    - Runs `bun build --compile --target bun-{os}-{arch}` to create a standalone executable
    - Generates a `package.json` with `os` and `cpu` fields for npm platform filtering
-   - Runs a smoke test on the current platform's binary (`cline --version`)
+   - Runs a smoke test on the current platform's binary (`induscode --version`)
    - Copies the plugin sandbox bootstrap file if present
 
 Flags:
@@ -213,31 +213,31 @@ Flags:
 Orchestrates publishing all packages to npm:
 
 1. Reads built packages from `dist/`
-2. Publishes all 6 platform packages in parallel (`@cline/cli-darwin-arm64`, etc.)
-3. Generates a clean main package (`cline`) with:
-   - `bin.cline` pointing to the resolver script
+2. Publishes all 6 platform packages in parallel (`@induscode/cli-darwin-arm64`, etc.)
+3. Generates a clean main package (`induscode`) with:
+   - `bin.induscode` pointing to the resolver script
    - `postinstall` running the binary caching script
    - `optionalDependencies` listing all platform packages
-4. Publishes the generated `cline` wrapper package
+4. Publishes the generated `induscode` wrapper package
 
-Platform packages must be published before the generated `cline` wrapper package because npm validates that `optionalDependencies` exist.
+Platform packages must be published before the generated `induscode` wrapper package because npm validates that `optionalDependencies` exist.
 
-The publish script generates a separate `package.json` for the published `cline` wrapper package. The development `package.json` (with `bin` pointing to `src/index.ts` for `bun link`) is never published directly.
+The publish script generates a separate `package.json` for the published `induscode` wrapper package. The development `package.json` (with `bin` pointing to `src/index.ts` for `bun link`) is never published directly.
 
-## Binary Resolver (`bin/cline`)
+## Binary Resolver (`bin/induscode`)
 
-A Node.js script that serves as the entry point when users run `cline`. It finds and executes the correct platform-specific binary.
+A Node.js script that serves as the entry point when users run `induscode`. It finds and executes the correct platform-specific binary.
 
 The shebang is `#!/usr/bin/env node` because Node.js is guaranteed to be available wherever npm is. The resolver uses only CommonJS (`require`) and Node.js APIs -- no `bun:` imports or Bun-specific APIs. It then spawns the compiled binary which has Bun embedded.
 
 Resolution chain:
-1. `CLINE_BIN_PATH` env var (for development or custom deployments)
-2. `bin/.cline` cached hard link (created by postinstall for fast startup)
+1. `INDUSCODE_BIN_PATH` env var (for development or custom deployments)
+2. `bin/.induscode` cached hard link (created by postinstall for fast startup)
 3. Walk up `node_modules` from the script directory to find the platform package
 
 ## Postinstall (`script/postinstall.mjs`)
 
-Runs after `npm install cline`. Creates a hard link from the platform binary to `bin/.cline` for fast startup on subsequent runs. Falls back to file copy if hard linking fails (NFS, cross-device, network-mounted filesystems).
+Runs after `npm install induscode`. Creates a hard link from the platform binary to `bin/.induscode` for fast startup on subsequent runs. Falls back to file copy if hard linking fails (NFS, cross-device, network-mounted filesystems).
 
 The postinstall is defensive: it wraps everything in try/catch and always exits 0 (the `|| true` in the npm script). If postinstall fails, the resolver script has its own fallback logic to find the binary at runtime, so the cached binary is just an optimization.
 
@@ -250,8 +250,8 @@ During development, `bin` in package.json points to `src/index.ts` for `bun link
 | Mode | bin target | Runtime | Needs Bun? |
 |---|---|---|---|
 | `bun run dev` | src/index.ts | Bun (source) | Yes |
-| `bun link` + `cline` | src/index.ts | Bun (source) | Yes |
-| `npm i -g cline` | bin/cline resolver | Compiled binary | No |
+| `bun link` + `induscode` | src/index.ts | Bun (source) | Yes |
+| `npm i -g induscode` | bin/induscode resolver | Compiled binary | No |
 
 ## Gotchas
 
@@ -262,7 +262,7 @@ When building for a different platform (e.g., compiling for Linux on a Mac), Bun
 All 7 packages (6 platform + 1 wrapper) must have the same version. The build script reads the version from `apps/cli/package.json`. The publish script verifies that the built package versions match each other and `apps/cli/package.json`.
 
 ### Package naming and scoping
-Platform packages are published under the `@cline` scope. The generated wrapper package is published as `cline`, so npm trusted publishing must be configured for all 7 package names.
+Platform packages are published under the `@induscode` scope. The generated wrapper package is published as `induscode`, so npm trusted publishing must be configured for all 7 package names.
 
 ### postinstall reliability
 The postinstall script runs in diverse environments (CI, Docker, restricted permissions, network-mounted filesystems where hard links fail). It always wraps operations in try/catch and exits 0. The resolver script is the ultimate fallback.
@@ -271,7 +271,7 @@ The postinstall script runs in diverse environments (CI, Docker, restricted perm
 Windows binaries are `.exe` files. The build script appends `.exe` to the output filename on Windows targets. The resolver handles this. npm on Windows generates `.cmd` shims for bin entries automatically.
 
 ### Windows code signing
-Windows application control (Smart App Control, WDAC, AppLocker) blocks unsigned executables at launch, regardless of how they were installed — npm distribution gets no exemption ([#12934](https://github.com/cline/cline/issues/12934)). The publish workflow Authenticode-signs `cli-windows-x64/bin/cline.exe` and `cli-windows-arm64/bin/cline.exe` with Azure Trusted Signing before publishing, via the `.github/actions/sign-windows-cli` composite action. Signing runs on the Linux publish runner using [jsign](https://ebourg.github.io/jsign/) (`--storetype TRUSTEDSIGNING`) with an OIDC-federated Entra app, then verifies the signature chain with `osslsigncode` against the Microsoft Identity Verification Root CA 2020. If all `AZURE_*` / `AZURE_TRUSTED_SIGNING_*` repository secrets are absent, the action logs a warning and the release ships unsigned rather than failing; if only some resolve (a typo'd or renamed secret), the release fails loudly instead. The certificate profile secret is suffixed `_CLI` because the desktop app will later get its own profile; the other five secrets are shared. Note that signing bun-compiled executables requires Bun >= 1.2.23 (earlier versions located the embedded bundle relative to the end of the file, which signing corrupts).
+Windows application control (Smart App Control, WDAC, AppLocker) blocks unsigned executables at launch, regardless of how they were installed — npm distribution gets no exemption ([#12934](https://github.com/induscode/induscode/issues/12934)). The publish workflow Authenticode-signs `cli-windows-x64/bin/induscode.exe` and `cli-windows-arm64/bin/induscode.exe` with Azure Trusted Signing before publishing, via the `.github/actions/sign-windows-cli` composite action. Signing runs on the Linux publish runner using [jsign](https://ebourg.github.io/jsign/) (`--storetype TRUSTEDSIGNING`) with an OIDC-federated Entra app, then verifies the signature chain with `osslsigncode` against the Microsoft Identity Verification Root CA 2020. If all `AZURE_*` / `AZURE_TRUSTED_SIGNING_*` repository secrets are absent, the action logs a warning and the release ships unsigned rather than failing; if only some resolve (a typo'd or renamed secret), the release fails loudly instead. The certificate profile secret is suffixed `_CLI` because the desktop app will later get its own profile; the other five secrets are shared. Note that signing bun-compiled executables requires Bun >= 1.2.23 (earlier versions located the embedded bundle relative to the end of the file, which signing corrupts).
 
 ### File permissions
 Compiled binaries need to be executable (`chmod 755`). The build script sets this after copying. The postinstall also sets permissions on the cached binary. Some npm packaging steps can strip permissions, so both handle this defensively.

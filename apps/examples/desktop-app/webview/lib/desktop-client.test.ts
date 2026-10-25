@@ -114,22 +114,22 @@ describe("DesktopClient command deadlines", () => {
 	it.each([
 		"success",
 		"failure",
-	])("waits for queued Cline cancellation %s before another screen signs in", async (outcome) => {
-		const { cancelClineOAuthLogin, runProviderOAuthLogin } = await import(
+	])("waits for queued IndusCode cancellation %s before another screen signs in", async (outcome) => {
+		const { cancelIndusCodeOAuthLogin, runProviderOAuthLogin } = await import(
 			"./provider-connection"
 		);
 		const controller = new AbortController();
-		const oldLogin = runProviderOAuthLogin("cline", controller.signal);
+		const oldLogin = runProviderOAuthLogin("induscode", controller.signal);
 		const rejected = expect(oldLogin).rejects.toMatchObject({
 			name: "AbortError",
 		});
 		await vi.advanceTimersByTimeAsync(0);
 		controller.abort();
-		const cancel = cancelClineOAuthLogin();
+		const cancel = cancelIndusCodeOAuthLogin();
 		const cancelled =
 			outcome === "success"
 				? expect(cancel).resolves.toEqual({
-						provider: "cline",
+						provider: "induscode",
 						cancelled: false,
 					})
 				: expect(cancel).rejects.toThrow("Cancellation failed");
@@ -138,7 +138,7 @@ describe("DesktopClient command deadlines", () => {
 		await rejected;
 
 		// A fresh screen shares the cancellation even though its local hook is idle.
-		const newLogin = runProviderOAuthLogin("cline");
+		const newLogin = runProviderOAuthLogin("induscode");
 		await vi.advanceTimersByTimeAsync(0);
 		expect(socket.sent).toHaveLength(0);
 		await vi.advanceTimersByTimeAsync(400);
@@ -146,7 +146,7 @@ describe("DesktopClient command deadlines", () => {
 			"cancel_provider_oauth_login",
 		]);
 		if (outcome === "success") {
-			socket.respond({ provider: "cline", cancelled: false });
+			socket.respond({ provider: "induscode", cancelled: false });
 		} else {
 			socket.onmessage?.({
 				data: JSON.stringify({
@@ -163,7 +163,7 @@ describe("DesktopClient command deadlines", () => {
 			"cancel_provider_oauth_login",
 			"run_provider_oauth_login",
 		]);
-		const result = { provider: "cline", accessToken: "test-token" };
+		const result = { provider: "induscode", accessToken: "test-token" };
 		socket.respond(result);
 		await expect(newLogin).resolves.toEqual(result);
 	});
@@ -467,7 +467,7 @@ describe("DesktopClient endpoint resolution", () => {
 	});
 
 	it("holds a command open across 'endpoint not ready' failures and sends it once the sidecar comes up", async () => {
-		// The launch race from cline/cline#14201 / #14129: the sidecar is
+		// The launch race from induscode/induscode#14201 / #14129: the sidecar is
 		// still booting (or being respawned) when the user clicks Sign in.
 		tauriInvoke
 			.mockRejectedValueOnce(new Error("desktop backend endpoint not ready"))
@@ -478,7 +478,7 @@ describe("DesktopClient endpoint resolution", () => {
 		let settled = false;
 		const invocation = desktopClient
 			.invoke<{ ok: boolean }>("run_provider_oauth_login", {
-				provider: "cline",
+				provider: "induscode",
 			})
 			.finally(() => {
 				settled = true;
@@ -497,7 +497,7 @@ describe("DesktopClient endpoint resolution", () => {
 		await vi.waitFor(() => expect(socket?.sent.length ?? 0).toBeGreaterThan(0));
 		expect(socket?.lastRequest()).toMatchObject({
 			command: "run_provider_oauth_login",
-			args: { provider: "cline" },
+			args: { provider: "induscode" },
 		});
 		socket?.respond({ ok: true });
 		await expect(invocation).resolves.toEqual({ ok: true });
@@ -510,7 +510,7 @@ describe("DesktopClient endpoint resolution", () => {
 		const { desktopClient } = await import("./desktop-client");
 
 		const invocation = desktopClient.invoke("run_provider_oauth_login", {
-			provider: "cline",
+			provider: "induscode",
 		});
 		const rejection = expect(invocation).rejects.toThrow(
 			"desktop backend endpoint not ready",

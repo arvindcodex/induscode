@@ -1,4 +1,4 @@
-import { isTranscriptionModel } from "@cline/shared";
+import { isTranscriptionModel } from "@induscode/shared";
 import { z } from "zod";
 import type { ProviderConfig } from "../providers/config";
 import { resolveVercelAiGatewayBaseUrl } from "../providers/url";

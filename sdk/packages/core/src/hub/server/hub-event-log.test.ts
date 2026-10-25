@@ -1,8 +1,8 @@
 import { mkdtempSync, statSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { HubEventEnvelope } from "@cline/shared";
-import { loadSqliteDb } from "@cline/shared/db";
+import type { HubEventEnvelope } from "@induscode/shared";
+import { loadSqliteDb } from "@induscode/shared/db";
 import { describe, expect, it } from "vitest";
 import { HubEventLogStore } from "./hub-event-log";
 
@@ -24,7 +24,7 @@ function envelope(
 describe("HubEventLogStore", () => {
 	it("opens its database in WAL mode", () => {
 		const dbPath = join(
-			mkdtempSync(join(tmpdir(), "cline-hub-events-")),
+			mkdtempSync(join(tmpdir(), "induscode-hub-events-")),
 			"hub-events.db",
 		);
 		const log = new HubEventLogStore({ dbPath });
@@ -110,7 +110,7 @@ describe("HubEventLogStore", () => {
 
 	it("prunes by size budget and shrinks the file on disk", () => {
 		const dbPath = join(
-			mkdtempSync(join(tmpdir(), "cline-hub-events-")),
+			mkdtempSync(join(tmpdir(), "induscode-hub-events-")),
 			"hub-events.db",
 		);
 		const log = new HubEventLogStore({ dbPath, maxTotalBytes: 256 * 1024 });

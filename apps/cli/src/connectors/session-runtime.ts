@@ -1,12 +1,12 @@
-import type { ChatStartSessionRequest, RuntimeLoggerConfig } from "@cline/core";
+import type { ChatStartSessionRequest, RuntimeLoggerConfig } from "@induscode/core";
 import {
 	CoreSessionService,
 	HubSessionClient,
 	Llms,
 	ProviderSettingsManager,
 	SqliteSessionStore,
-} from "@cline/core";
-import { CLINE_DEFAULT_MODEL_ID } from "@cline/shared";
+} from "@induscode/core";
+import { INDUSCODE_DEFAULT_MODEL_ID } from "@induscode/shared";
 import type { Thread } from "chat";
 import {
 	ensureOAuthProviderApiKey,
@@ -64,12 +64,12 @@ export async function buildConnectorStartRequest(input: {
 	const providerSettingsManager = new ProviderSettingsManager();
 	const lastUsedProviderSettings =
 		providerSettingsManager.getLastUsedProviderSettings({
-			isClinePassEnabled: true,
+			isIndusCodePassEnabled: true,
 		});
 	const provider = normalizeProviderId(
 		input.options.provider?.trim() ||
 			lastUsedProviderSettings?.provider ||
-			"cline",
+			"induscode",
 	);
 	let selectedProviderSettings =
 		providerSettingsManager.getProviderSettings(provider);
@@ -120,7 +120,7 @@ export async function buildConnectorStartRequest(input: {
 			selectedProviderSettings?.model ||
 			input.defaultModel ||
 			usableProviderDefault ||
-			CLINE_DEFAULT_MODEL_ID,
+			INDUSCODE_DEFAULT_MODEL_ID,
 		mode: input.options.mode,
 		apiKey,
 		systemPrompt,

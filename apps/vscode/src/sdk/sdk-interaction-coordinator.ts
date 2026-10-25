@@ -1,7 +1,7 @@
-import type { AskQuestionExecutor } from "@cline/core"
-import type { ConsecutiveMistakeLimitContext, ConsecutiveMistakeLimitDecision, ImageContent, TextContent } from "@cline/shared"
-import type { ClineAskQuestion, ClineMessage, TurnPhase } from "@shared/ExtensionMessage"
-import type { ClineAskResponse } from "@shared/WebviewMessage"
+import type { AskQuestionExecutor } from "@induscode/core"
+import type { ConsecutiveMistakeLimitContext, ConsecutiveMistakeLimitDecision, ImageContent, TextContent } from "@induscode/shared"
+import type { IndusCodeAskQuestion, IndusCodeMessage, TurnPhase } from "@shared/ExtensionMessage"
+import type { IndusCodeAskResponse } from "@shared/WebviewMessage"
 import { processFilesIntoText } from "@/integrations/misc/extract-text"
 import { Logger } from "@/shared/services/Logger"
 import { MessageIdMinter } from "./message-id-minter"
@@ -98,11 +98,11 @@ export class SdkInteractionCoordinator {
 	): Promise<ConsecutiveMistakeLimitDecision> {
 		const detail = context.details?.trim()
 		const latest = detail ? `${context.reason}: ${detail}` : `${context.reason} at iteration ${context.iteration}`
-		const errorMessage: ClineMessage = {
+		const errorMessage: IndusCodeMessage = {
 			ts: this.nextMessageTs(),
 			type: "say",
 			say: "error",
-			text: `Cline ran into ${context.consecutiveMistakes} errors in a row and stopped the task.\n\nLatest: ${latest}\n\nSend a message to give Cline guidance and continue the task.`,
+			text: `IndusCode ran into ${context.consecutiveMistakes} errors in a row and stopped the task.\n\nLatest: ${latest}\n\nSend a message to give IndusCode guidance and continue the task.`,
 			partial: false,
 		}
 
@@ -130,7 +130,7 @@ export class SdkInteractionCoordinator {
 			Logger.warn(`[SdkController] onToolApprovalAsk failed; showing plain approval ask: ${error}`)
 		}
 
-		const toolAskMessage: ClineMessage = buildToolApprovalAskMessage(
+		const toolAskMessage: IndusCodeMessage = buildToolApprovalAskMessage(
 			request.toolName,
 			request.input,
 			this.nextMessageTs(),
@@ -175,11 +175,11 @@ export class SdkInteractionCoordinator {
 	}
 
 	async handleAskQuestion(question: string, options: string[], _context: unknown): Promise<AskQuestionAnswer> {
-		const askData: ClineAskQuestion = {
+		const askData: IndusCodeAskQuestion = {
 			question,
 			options: options?.length ? options : undefined,
 		}
-		const askMessage: ClineMessage = {
+		const askMessage: IndusCodeMessage = {
 			ts: this.nextMessageTs(),
 			type: "ask",
 			ask: "followup",
@@ -201,7 +201,7 @@ export class SdkInteractionCoordinator {
 
 	resolvePendingToolApproval(
 		prompt: string | undefined,
-		responseType: ClineAskResponse | undefined,
+		responseType: IndusCodeAskResponse | undefined,
 		images?: string[],
 		files?: string[],
 	): boolean {
@@ -235,7 +235,7 @@ export class SdkInteractionCoordinator {
 		// unchanged) — raw feedback alone reads like iteration on an applied change.
 		const denialReason = buildToolApprovalDenialReason(pendingMessage?.toolName, prompt)
 		if (!approved && (prompt?.trim() || images?.length || files?.length)) {
-			const userMessage: ClineMessage = {
+			const userMessage: IndusCodeMessage = {
 				ts: this.nextMessageTs(),
 				type: "say",
 				say: "user_feedback",
@@ -271,7 +271,7 @@ export class SdkInteractionCoordinator {
 		Logger.log(`[SdkController] Resolving pending ask_question with: "${responseText.substring(0, 80)}"`)
 
 		if (responseText || hasAttachments) {
-			const userMessage: ClineMessage = {
+			const userMessage: IndusCodeMessage = {
 				ts: this.nextMessageTs(),
 				type: "say",
 				say: "user_feedback",

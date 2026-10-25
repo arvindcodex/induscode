@@ -14,13 +14,13 @@ function defineProcessEnv(name: string): string {
 	return JSON.stringify(process.env[name] ?? "");
 }
 
-const sourcemap = Bun.env.CLINE_SOURCEMAPS === "1" ? "linked" : "none";
+const sourcemap = Bun.env.INDUSCODE_SOURCEMAPS === "1" ? "linked" : "none";
 const rootDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(rootDir, "../../");
-const hubWebviewSourcePath = join(repoRoot, "apps/cline-hub/src/webview");
-const hubWebviewDistPath = join(repoRoot, "apps/cline-hub/dist/webview");
+const hubWebviewSourcePath = join(repoRoot, "apps/induscode-hub/src/webview");
+const hubWebviewDistPath = join(repoRoot, "apps/induscode-hub/dist/webview");
 const hubWebviewIndexPath = join(hubWebviewDistPath, "index.html");
-const cliHubWebviewDistPath = join(rootDir, "dist/cline-hub/webview");
+const cliHubWebviewDistPath = join(rootDir, "dist/induscode-hub/webview");
 
 function newestFileMtimeMs(dir: string): number {
 	let newest = 0;
@@ -57,8 +57,8 @@ function shouldBuildHubWebview(): boolean {
 }
 
 if (shouldBuildHubWebview()) {
-	console.log("Building Cline Hub webview...");
-	await $`bun -F @cline/cline-hub build:webview`.cwd(repoRoot);
+	console.log("Building IndusCode Hub webview...");
+	await $`bun -F @induscode/induscode-hub build:webview`.cwd(repoRoot);
 }
 
 const result = await Bun.build({
@@ -67,7 +67,7 @@ const result = await Bun.build({
 	target: "node",
 	format: "esm",
 	sourcemap,
-	packages: "bundle", // Keep private workspace packages bundled so npm consumers do not need @cline/* at runtime.
+	packages: "bundle", // Keep private workspace packages bundled so npm consumers do not need @induscode/* at runtime.
 	external: [
 		// OpenTUI resolves a platform-specific native package at runtime.
 		// Bundling through that resolution path rewrites the import in a way that
@@ -112,8 +112,8 @@ const result = await Bun.build({
 		"process.env.OTEL_TRACES_EXPORTER": defineProcessEnv(
 			"OTEL_TRACES_EXPORTER",
 		),
-		"process.env.CLINE_TRACE_RECORD_CONTENT": defineProcessEnv(
-			"CLINE_TRACE_RECORD_CONTENT",
+		"process.env.INDUSCODE_TRACE_RECORD_CONTENT": defineProcessEnv(
+			"INDUSCODE_TRACE_RECORD_CONTENT",
 		),
 		"process.env.OTEL_EXPORTER_OTLP_PROTOCOL": defineProcessEnv(
 			"OTEL_EXPORTER_OTLP_PROTOCOL",
@@ -127,7 +127,7 @@ const result = await Bun.build({
 	},
 	env: "OTEL_*",
 	banner:
-		'import { createRequire as __clineCreateRequire } from "node:module"; const require = __clineCreateRequire(import.meta.url);',
+		'import { createRequire as __induscodeCreateRequire } from "node:module"; const require = __induscodeCreateRequire(import.meta.url);',
 });
 
 if (result.logs.length > 0) {

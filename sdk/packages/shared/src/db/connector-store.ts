@@ -112,7 +112,7 @@ export interface SqliteConnectorStoreOptions {
 
 /**
  * SQLite-backed store for connector configuration and credentials.
- * Replaces the legacy `~/.cline/data/connectors/settings.json` file; any
+ * Replaces the legacy `~/.induscode/data/connectors/settings.json` file; any
  * existing legacy file is imported on first open and renamed so the two
  * stores cannot diverge.
  */
@@ -269,7 +269,7 @@ export class SqliteConnectorStore {
 	}
 
 	/**
-	 * Record a successful `cline connect <channel>` start: keep the exact args
+	 * Record a successful `induscode connect <channel>` start: keep the exact args
 	 * (auth flags included) for auto-reconnect and re-enable the channel.
 	 */
 	recordConnected(

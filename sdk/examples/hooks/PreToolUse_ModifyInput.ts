@@ -1,9 +1,9 @@
 #!/usr/bin/env bun
 /**
- * Cline Hook: PreToolUse (Modify Input)
+ * IndusCode Hook: PreToolUse (Modify Input)
  * Demonstrates how to modify tool inputs before execution.
  * Useful for: normalizing paths, adding default options, sanitizing inputs.
- * Copy to ~/.cline/hooks/PreToolUse.ts and chmod +x
+ * Copy to ~/.induscode/hooks/PreToolUse.ts and chmod +x
  */
 
 interface ToolInput {

@@ -1,4 +1,4 @@
-import { CommandExitError, CommandSpawnError, CommandTerminationError } from "@cline/core"
+import { CommandExitError, CommandSpawnError, CommandTerminationError } from "@induscode/core"
 
 /** Telemetry dimensions for one failed background (`child_process`) execution. */
 export interface BackgroundFailureDimensions {

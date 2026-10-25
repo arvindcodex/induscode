@@ -9,7 +9,7 @@ import {
 /**
  * "What's new" catch-up highlights.
  *
- * Cline Desktop ships every couple of days, so individual releases are not
+ * IndusCode Desktop ships every couple of days, so individual releases are not
  * announced in-app; the About page always has the full changelog. Every so
  * often, once enough notable features have accumulated, we publish a catch-up
  * here and the app shows it once, as a dialog on the next launch.
@@ -61,7 +61,7 @@ export const WHATS_NEW_RELEASES: WhatsNewRelease[] = [
 			{
 				title: "Worktrees",
 				description:
-					"Each task gets its own branch under ~/.cline/worktrees, so parallel work never collides.",
+					"Each task gets its own branch under ~/.induscode/worktrees, so parallel work never collides.",
 				icon: GitBranchPlus,
 			},
 			{

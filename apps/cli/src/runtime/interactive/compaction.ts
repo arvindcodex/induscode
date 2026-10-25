@@ -7,8 +7,8 @@ import {
 	type ReasoningSettings,
 	type SessionCompactionState,
 	toProviderConfig,
-} from "@cline/core";
-import type { MessageWithMetadata } from "@cline/shared";
+} from "@induscode/core";
+import type { MessageWithMetadata } from "@induscode/shared";
 import type { Config } from "../../utils/types";
 
 const FALLBACK_MANUAL_COMPACTION_MAX_INPUT_TOKENS = 64_000;

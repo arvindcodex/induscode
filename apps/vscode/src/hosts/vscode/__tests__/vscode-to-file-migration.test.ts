@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, it } from "bun:test"
 import "should"
-import { ClineFileStorage } from "@shared/storage/ClineFileStorage"
+import { IndusCodeFileStorage } from "@shared/storage/IndusCodeFileStorage"
 import { createStorageContext, type StorageContext } from "@shared/storage/storage-context"
 import fs from "fs"
 import os from "os"
@@ -81,13 +81,13 @@ describe("vscode-to-file-migration", () => {
 
 	beforeEach(() => {
 		sandbox = sinon.createSandbox()
-		originalMcpSettingsPath = process.env.CLINE_MCP_SETTINGS_PATH
+		originalMcpSettingsPath = process.env.INDUSCODE_MCP_SETTINGS_PATH
 		tempDir = path.join(os.tmpdir(), `migration-test-${Date.now()}-${Math.random().toString(36).slice(2)}`)
 		fs.mkdirSync(tempDir, { recursive: true })
-		process.env.CLINE_MCP_SETTINGS_PATH = path.join(tempDir, "runtime-mcp-settings", "cline_mcp_settings.json")
+		process.env.INDUSCODE_MCP_SETTINGS_PATH = path.join(tempDir, "runtime-mcp-settings", "induscode_mcp_settings.json")
 
 		storageContext = createStorageContext({
-			clineDir: tempDir,
+			induscodeDir: tempDir,
 			workspacePath: tempDir,
 		})
 	})
@@ -95,9 +95,9 @@ describe("vscode-to-file-migration", () => {
 	afterEach(() => {
 		sandbox.restore()
 		if (originalMcpSettingsPath === undefined) {
-			delete process.env.CLINE_MCP_SETTINGS_PATH
+			delete process.env.INDUSCODE_MCP_SETTINGS_PATH
 		} else {
-			process.env.CLINE_MCP_SETTINGS_PATH = originalMcpSettingsPath
+			process.env.INDUSCODE_MCP_SETTINGS_PATH = originalMcpSettingsPath
 		}
 		try {
 			fs.rmSync(tempDir, { recursive: true, force: true })
@@ -126,12 +126,12 @@ describe("vscode-to-file-migration", () => {
 			storageContext.workspaceState.set("__vscodeMigrationVersion", 1)
 			const mockCtx = createMockVSCodeContext()
 			mockCtx._globalStateStore.set("mode", "plan")
-			mockCtx._workspaceStateStore.set("localClineRulesToggles", { "rule-1": true })
+			mockCtx._workspaceStateStore.set("localIndusCodeRulesToggles", { "rule-1": true })
 			const extensionStorage = path.join(tempDir, "vscode-global-storage")
 			mockCtx.globalStorageUri.fsPath = extensionStorage
 			fs.mkdirSync(path.join(extensionStorage, "settings"), { recursive: true })
 			fs.writeFileSync(
-				path.join(extensionStorage, "settings", "cline_mcp_settings.json"),
+				path.join(extensionStorage, "settings", "induscode_mcp_settings.json"),
 				JSON.stringify({ mcpServers: { fromV1: { command: "node" } } }),
 			)
 
@@ -143,7 +143,7 @@ describe("vscode-to-file-migration", () => {
 			result.workspaceStateCount.should.equal(0)
 			result.mcpServersAdded.should.equal(1)
 			;(storageContext.globalState.get("mode") === undefined).should.be.true()
-			;(storageContext.workspaceState.get("localClineRulesToggles") === undefined).should.be.true()
+			;(storageContext.workspaceState.get("localIndusCodeRulesToggles") === undefined).should.be.true()
 			storageContext.globalState.get("__vscodeMigrationVersion")!.should.equal(3)
 			storageContext.workspaceState.get("__vscodeMigrationVersion")!.should.equal(3)
 		})
@@ -155,7 +155,7 @@ describe("vscode-to-file-migration", () => {
 
 			const mockCtx = createMockVSCodeContext()
 			mockCtx._globalStateStore.set("mode", "plan")
-			mockCtx._workspaceStateStore.set("localClineRulesToggles", { "rule-1": true })
+			mockCtx._workspaceStateStore.set("localIndusCodeRulesToggles", { "rule-1": true })
 
 			const result = await exportVSCodeStorageToSharedFiles(mockCtx as any, storageContext)
 
@@ -203,7 +203,7 @@ describe("vscode-to-file-migration", () => {
 			const mockCtx = createMockVSCodeContext()
 			mockCtx._globalStateStore.set("mode", "plan") // should be skipped
 			mockCtx._secretsStore.set("apiKey", "sk-test") // should be skipped
-			mockCtx._workspaceStateStore.set("localClineRulesToggles", { "rule-1": true })
+			mockCtx._workspaceStateStore.set("localIndusCodeRulesToggles", { "rule-1": true })
 
 			const result = await exportVSCodeStorageToSharedFiles(mockCtx as any, storageContext)
 
@@ -213,7 +213,7 @@ describe("vscode-to-file-migration", () => {
 			result.secretsCount.should.equal(0)
 			// Workspace state SHOULD have been migrated
 			result.workspaceStateCount.should.equal(1)
-			const stored = storageContext.workspaceState.get("localClineRulesToggles") as any
+			const stored = storageContext.workspaceState.get("localIndusCodeRulesToggles") as any
 			stored.should.deepEqual({ "rule-1": true })
 			// Workspace sentinel should now be set
 			storageContext.workspaceState.get("__vscodeMigrationVersion")!.should.equal(3)
@@ -226,7 +226,7 @@ describe("vscode-to-file-migration", () => {
 
 			const mockCtx = createMockVSCodeContext()
 			mockCtx._globalStateStore.set("mode", "plan")
-			mockCtx._workspaceStateStore.set("localClineRulesToggles", { "rule-1": true }) // should be skipped
+			mockCtx._workspaceStateStore.set("localIndusCodeRulesToggles", { "rule-1": true }) // should be skipped
 
 			const result = await exportVSCodeStorageToSharedFiles(mockCtx as any, storageContext)
 
@@ -296,7 +296,7 @@ describe("vscode-to-file-migration", () => {
 
 	describe("legacy MCP settings migration", () => {
 		function sharedMcpSettingsPath() {
-			return process.env.CLINE_MCP_SETTINGS_PATH!
+			return process.env.INDUSCODE_MCP_SETTINGS_PATH!
 		}
 
 		function readSharedMcpSettings() {
@@ -309,7 +309,7 @@ describe("vscode-to-file-migration", () => {
 			mockCtx.globalStorageUri.fsPath = extensionStorage
 			fs.mkdirSync(path.join(extensionStorage, "settings"), { recursive: true })
 			fs.writeFileSync(
-				path.join(extensionStorage, "settings", "cline_mcp_settings.json"),
+				path.join(extensionStorage, "settings", "induscode_mcp_settings.json"),
 				JSON.stringify({ mcpServers: { overrideTarget: { command: "node" } } }),
 			)
 
@@ -317,7 +317,7 @@ describe("vscode-to-file-migration", () => {
 
 			result.mcpServersAdded.should.equal(1)
 			fs.existsSync(sharedMcpSettingsPath()).should.be.true()
-			fs.existsSync(path.join(storageContext.dataDir, "settings", "cline_mcp_settings.json")).should.be.false()
+			fs.existsSync(path.join(storageContext.dataDir, "settings", "induscode_mcp_settings.json")).should.be.false()
 			readSharedMcpSettings().mcpServers.overrideTarget.should.deepEqual({
 				transport: { type: "stdio", command: "node" },
 			})
@@ -345,7 +345,7 @@ describe("vscode-to-file-migration", () => {
 			mockCtx.globalStorageUri.fsPath = extensionStorage
 			fs.mkdirSync(path.join(extensionStorage, "settings"), { recursive: true })
 			fs.writeFileSync(
-				path.join(extensionStorage, "settings", "cline_mcp_settings.json"),
+				path.join(extensionStorage, "settings", "induscode_mcp_settings.json"),
 				JSON.stringify({ mcpServers: { lockedServer: { command: "node" } } }),
 			)
 
@@ -374,7 +374,7 @@ describe("vscode-to-file-migration", () => {
 
 			fs.mkdirSync(path.join(extensionStorage, "settings"), { recursive: true })
 			fs.writeFileSync(
-				path.join(extensionStorage, "settings", "cline_mcp_settings.json"),
+				path.join(extensionStorage, "settings", "induscode_mcp_settings.json"),
 				JSON.stringify({
 					mcpServers: {
 						existing: { command: "legacy-existing", args: ["old"] },
@@ -417,7 +417,7 @@ describe("vscode-to-file-migration", () => {
 			mockCtx.globalStorageUri.fsPath = extensionStorage
 			fs.mkdirSync(path.join(extensionStorage, "settings"), { recursive: true })
 			fs.writeFileSync(
-				path.join(extensionStorage, "settings", "cline_mcp_settings.json"),
+				path.join(extensionStorage, "settings", "induscode_mcp_settings.json"),
 				JSON.stringify({
 					mcpServers: {
 						managed: {
@@ -464,7 +464,7 @@ describe("vscode-to-file-migration", () => {
 
 			fs.mkdirSync(path.join(extensionStorage, "settings"), { recursive: true })
 			fs.writeFileSync(
-				path.join(extensionStorage, "settings", "cline_mcp_settings.json"),
+				path.join(extensionStorage, "settings", "induscode_mcp_settings.json"),
 				JSON.stringify({
 					mcpServers: {
 						linear: {
@@ -506,7 +506,7 @@ describe("vscode-to-file-migration", () => {
 			mockCtx.globalStorageUri.fsPath = extensionStorage
 			fs.mkdirSync(path.join(extensionStorage, "settings"), { recursive: true })
 			fs.writeFileSync(
-				path.join(extensionStorage, "settings", "cline_mcp_settings.json"),
+				path.join(extensionStorage, "settings", "induscode_mcp_settings.json"),
 				JSON.stringify({ mcpServers: { oneShot: { command: "node" } } }),
 			)
 
@@ -521,7 +521,7 @@ describe("vscode-to-file-migration", () => {
 			;(settings.mcpServers.oneShot === undefined).should.be.true()
 			const tombstone = storageContext.globalState.get("__vscodeLegacyMcpSettingsMigration") as any
 			tombstone.sources.vscodeGlobalStorage.path.should.equal(
-				path.join(extensionStorage, "settings", "cline_mcp_settings.json"),
+				path.join(extensionStorage, "settings", "induscode_mcp_settings.json"),
 			)
 		})
 	})
@@ -588,27 +588,27 @@ describe("vscode-to-file-migration", () => {
 		it("should migrate workspace state keys", async () => {
 			const toggles = { "rule-1": true, "rule-2": false }
 			const mockCtx = createMockVSCodeContext()
-			mockCtx._workspaceStateStore.set("localClineRulesToggles", toggles)
+			mockCtx._workspaceStateStore.set("localIndusCodeRulesToggles", toggles)
 
 			const result = await exportVSCodeStorageToSharedFiles(mockCtx as any, storageContext)
 
 			result.migrated.should.be.true()
 			result.workspaceStateCount.should.equal(1)
-			const stored = storageContext.workspaceState.get("localClineRulesToggles") as any
+			const stored = storageContext.workspaceState.get("localIndusCodeRulesToggles") as any
 			stored.should.deepEqual(toggles)
 		})
 
 		it("should NOT overwrite existing workspace state", async () => {
 			const existingToggles = { "rule-existing": true }
-			storageContext.workspaceState.set("localClineRulesToggles", existingToggles)
+			storageContext.workspaceState.set("localIndusCodeRulesToggles", existingToggles)
 
 			const mockCtx = createMockVSCodeContext()
-			mockCtx._workspaceStateStore.set("localClineRulesToggles", { "rule-vscode": true })
+			mockCtx._workspaceStateStore.set("localIndusCodeRulesToggles", { "rule-vscode": true })
 
 			const result = await exportVSCodeStorageToSharedFiles(mockCtx as any, storageContext)
 
 			result.migrated.should.be.true()
-			const stored = storageContext.workspaceState.get("localClineRulesToggles") as any
+			const stored = storageContext.workspaceState.get("localIndusCodeRulesToggles") as any
 			stored.should.deepEqual(existingToggles)
 		})
 	})
@@ -788,30 +788,30 @@ describe("createStorageContext", () => {
 	})
 
 	it("should create all three stores", () => {
-		const ctx = createStorageContext({ clineDir: tempDir, workspacePath: "/fake/workspace" })
+		const ctx = createStorageContext({ induscodeDir: tempDir, workspacePath: "/fake/workspace" })
 
-		ctx.globalState.should.be.instanceOf(ClineFileStorage)
-		ctx.secrets.should.be.instanceOf(ClineFileStorage)
-		ctx.workspaceState.should.be.instanceOf(ClineFileStorage)
+		ctx.globalState.should.be.instanceOf(IndusCodeFileStorage)
+		ctx.secrets.should.be.instanceOf(IndusCodeFileStorage)
+		ctx.workspaceState.should.be.instanceOf(IndusCodeFileStorage)
 	})
 
 	it("should create directories", () => {
-		const ctx = createStorageContext({ clineDir: tempDir, workspacePath: "/fake/workspace" })
+		const ctx = createStorageContext({ induscodeDir: tempDir, workspacePath: "/fake/workspace" })
 
 		fs.existsSync(ctx.dataDir).should.be.true()
 		fs.existsSync(ctx.workspaceStoragePath).should.be.true()
 	})
 
 	it("should produce deterministic workspace hashes", () => {
-		const ctx1 = createStorageContext({ clineDir: tempDir, workspacePath: "/some/project" })
-		const ctx2 = createStorageContext({ clineDir: tempDir, workspacePath: "/some/project" })
+		const ctx1 = createStorageContext({ induscodeDir: tempDir, workspacePath: "/some/project" })
+		const ctx2 = createStorageContext({ induscodeDir: tempDir, workspacePath: "/some/project" })
 
 		ctx1.workspaceStoragePath.should.equal(ctx2.workspaceStoragePath)
 	})
 
 	it("should produce different hashes for different workspaces", () => {
-		const ctx1 = createStorageContext({ clineDir: tempDir, workspacePath: "/project-a" })
-		const ctx2 = createStorageContext({ clineDir: tempDir, workspacePath: "/project-b" })
+		const ctx1 = createStorageContext({ induscodeDir: tempDir, workspacePath: "/project-a" })
+		const ctx2 = createStorageContext({ induscodeDir: tempDir, workspacePath: "/project-b" })
 
 		ctx1.workspaceStoragePath.should.not.equal(ctx2.workspaceStoragePath)
 	})
@@ -819,7 +819,7 @@ describe("createStorageContext", () => {
 	it("should use explicit workspaceStorageDir when provided", () => {
 		const explicitDir = path.join(tempDir, "explicit-ws")
 		const ctx = createStorageContext({
-			clineDir: tempDir,
+			induscodeDir: tempDir,
 			workspacePath: "/ignored",
 			workspaceStorageDir: explicitDir,
 		})
@@ -828,7 +828,7 @@ describe("createStorageContext", () => {
 	})
 
 	it("should store and retrieve values correctly", () => {
-		const ctx = createStorageContext({ clineDir: tempDir, workspacePath: "/test" })
+		const ctx = createStorageContext({ induscodeDir: tempDir, workspacePath: "/test" })
 
 		ctx.globalState.update("testKey", "testValue")
 		ctx.globalState.get("testKey")!.should.equal("testValue")
@@ -841,17 +841,17 @@ describe("createStorageContext", () => {
 		ws.toggle.should.equal(true)
 	})
 
-	// The data dir must resolve like the SDK's resolveClineDataDir and the
-	// legacy reader's resolveDataDir: CLINE_DATA_DIR first. Ignoring it split
+	// The data dir must resolve like the SDK's resolveIndusCodeDataDir and the
+	// legacy reader's resolveDataDir: INDUSCODE_DATA_DIR first. Ignoring it split
 	// globalState.json/secrets.json and providers.json across two directories,
 	// so the two provider stores disagreed about the active provider (ENG-2332).
 	describe("environment-based data dir resolution", () => {
-		const previousClineDir = process.env.CLINE_DIR
-		const previousClineDataDir = process.env.CLINE_DATA_DIR
+		const previousIndusCodeDir = process.env.INDUSCODE_DIR
+		const previousIndusCodeDataDir = process.env.INDUSCODE_DATA_DIR
 
 		afterEach(() => {
-			restoreEnv("CLINE_DIR", previousClineDir)
-			restoreEnv("CLINE_DATA_DIR", previousClineDataDir)
+			restoreEnv("INDUSCODE_DIR", previousIndusCodeDir)
+			restoreEnv("INDUSCODE_DATA_DIR", previousIndusCodeDataDir)
 		})
 
 		function restoreEnv(key: string, value: string | undefined) {
@@ -862,10 +862,10 @@ describe("createStorageContext", () => {
 			}
 		}
 
-		it("should honor CLINE_DATA_DIR when no clineDir option is given", () => {
+		it("should honor INDUSCODE_DATA_DIR when no induscodeDir option is given", () => {
 			const isolatedDataDir = path.join(tempDir, "isolated-data")
-			process.env.CLINE_DATA_DIR = isolatedDataDir
-			delete process.env.CLINE_DIR
+			process.env.INDUSCODE_DATA_DIR = isolatedDataDir
+			delete process.env.INDUSCODE_DIR
 
 			const ctx = createStorageContext({ workspacePath: "/test" })
 
@@ -873,31 +873,31 @@ describe("createStorageContext", () => {
 			ctx.workspaceStoragePath.startsWith(path.join(isolatedDataDir, "workspaces")).should.be.true()
 		})
 
-		it("should prefer CLINE_DATA_DIR over CLINE_DIR", () => {
+		it("should prefer INDUSCODE_DATA_DIR over INDUSCODE_DIR", () => {
 			const isolatedDataDir = path.join(tempDir, "isolated-data")
-			process.env.CLINE_DATA_DIR = isolatedDataDir
-			process.env.CLINE_DIR = path.join(tempDir, "cline-home")
+			process.env.INDUSCODE_DATA_DIR = isolatedDataDir
+			process.env.INDUSCODE_DIR = path.join(tempDir, "induscode-home")
 
 			const ctx = createStorageContext({ workspacePath: "/test" })
 
 			ctx.dataDir.should.equal(isolatedDataDir)
 		})
 
-		it("should let an explicit clineDir option win over CLINE_DATA_DIR", () => {
-			process.env.CLINE_DATA_DIR = path.join(tempDir, "isolated-data")
+		it("should let an explicit induscodeDir option win over INDUSCODE_DATA_DIR", () => {
+			process.env.INDUSCODE_DATA_DIR = path.join(tempDir, "isolated-data")
 
-			const ctx = createStorageContext({ clineDir: tempDir, workspacePath: "/test" })
+			const ctx = createStorageContext({ induscodeDir: tempDir, workspacePath: "/test" })
 
 			ctx.dataDir.should.equal(path.join(tempDir, "data"))
 		})
 
 		it("should trim whitespace-padded env values like the SDK resolvers", () => {
-			delete process.env.CLINE_DATA_DIR
-			process.env.CLINE_DIR = `  ${path.join(tempDir, "cline-home")}  `
+			delete process.env.INDUSCODE_DATA_DIR
+			process.env.INDUSCODE_DIR = `  ${path.join(tempDir, "induscode-home")}  `
 
 			const ctx = createStorageContext({ workspacePath: "/test" })
 
-			ctx.dataDir.should.equal(path.join(tempDir, "cline-home", "data"))
+			ctx.dataDir.should.equal(path.join(tempDir, "induscode-home", "data"))
 		})
 	})
 })

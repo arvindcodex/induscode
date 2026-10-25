@@ -51,7 +51,7 @@ describe("McpHub timeout reconciliation", () => {
 		const tempDir = await mkdtemp(join(tmpdir(), "mcp-timeout-rpc-"))
 		try {
 			await writeFile(
-				join(tempDir, "cline_mcp_settings.json"),
+				join(tempDir, "induscode_mcp_settings.json"),
 				JSON.stringify({
 					mcpServers: {
 						"slow-server": {

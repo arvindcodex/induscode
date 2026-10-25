@@ -8,7 +8,7 @@ import {
 	writeFileSync,
 } from "node:fs";
 import { basename, dirname } from "node:path";
-import { resolveProviderSettingsPath } from "@cline/shared/storage";
+import { resolveProviderSettingsPath } from "@induscode/shared/storage";
 import { getProviderAuthHandler } from "../../auth/provider-auth-registry";
 import { hashSecret, sdkDebug } from "../../logging/early-logger";
 import {
@@ -46,11 +46,11 @@ export interface SaveProviderSettingsOptions {
 }
 
 export interface ResolveLastUsedProviderSettingsOptions {
-	isClinePassEnabled?: boolean;
+	isIndusCodePassEnabled?: boolean;
 }
 
-const CLINE_PROVIDER_ID = "cline";
-const CLINE_PASS_PROVIDER_ID = "cline-pass";
+const INDUSCODE_PROVIDER_ID = "induscode";
+const INDUSCODE_PASS_PROVIDER_ID = "induscode-pass";
 
 /**
  * A pasted credential can carry invisible control or format characters (BOM,
@@ -194,9 +194,9 @@ export class ProviderSettingsManager {
 			const result = StoredProviderSettingsSchema.safeParse(parsed);
 			if (result.success) {
 				registerConfiguredProvidersFromSettings(result.data);
-				const clineAuth = result.data.providers["cline"]?.settings?.auth;
+				const induscodeAuth = result.data.providers["induscode"]?.settings?.auth;
 				sdkDebug(
-					`providers.read providers=[${Object.keys(result.data.providers).join(",")}] lastUsed=${result.data.lastUsedProvider ?? "none"} clineAuthPresent=${!!clineAuth?.accessToken} clineAccessTokenHash=${hashSecret(clineAuth?.accessToken)} clineRefreshTokenHash=${hashSecret(clineAuth?.refreshToken)}`,
+					`providers.read providers=[${Object.keys(result.data.providers).join(",")}] lastUsed=${result.data.lastUsedProvider ?? "none"} induscodeAuthPresent=${!!induscodeAuth?.accessToken} induscodeAccessTokenHash=${hashSecret(induscodeAuth?.accessToken)} induscodeRefreshTokenHash=${hashSecret(induscodeAuth?.refreshToken)}`,
 				);
 				return result.data;
 			}
@@ -214,7 +214,7 @@ export class ProviderSettingsManager {
 			mkdirSync(dir, { recursive: true, mode: 0o700 });
 		}
 		// Stage to a pid-unique temp file and rename into place. Concurrent
-		// Cline processes (CLI, extension, hub) share this file; a bare
+		// IndusCode processes (CLI, extension, hub) share this file; a bare
 		// writeFileSync lets readers catch a partial file, which read() treats
 		// as empty settings — indistinguishable from being logged out.
 		const tempPath = `${this.filePath}.${process.pid}.tmp`;
@@ -265,15 +265,15 @@ export class ProviderSettingsManager {
 				: previous.lastUsedProvider,
 		};
 		this.write(next);
-		const prevClineAuth = previous.providers["cline"]?.settings?.auth;
-		const nextClineAuth =
-			validatedSettings.provider === "cline"
+		const prevIndusCodeAuth = previous.providers["induscode"]?.settings?.auth;
+		const nextIndusCodeAuth =
+			validatedSettings.provider === "induscode"
 				? validatedSettings.auth
-				: next.providers["cline"]?.settings?.auth;
+				: next.providers["induscode"]?.settings?.auth;
 		const authDropped =
-			!!prevClineAuth?.accessToken && !nextClineAuth?.accessToken;
+			!!prevIndusCodeAuth?.accessToken && !nextIndusCodeAuth?.accessToken;
 		sdkDebug(
-			`providers.save providerId=${providerId} tokenSource=${tokenSource} clineAuthWasPresent=${!!prevClineAuth?.accessToken} clineAuthIsPresent=${!!nextClineAuth?.accessToken} authDropped=${authDropped}`,
+			`providers.save providerId=${providerId} tokenSource=${tokenSource} induscodeAuthWasPresent=${!!prevIndusCodeAuth?.accessToken} induscodeAuthIsPresent=${!!nextIndusCodeAuth?.accessToken} authDropped=${authDropped}`,
 		);
 		return next;
 	}
@@ -331,10 +331,10 @@ export class ProviderSettingsManager {
 	): string | undefined {
 		const providerId = state.lastUsedProvider;
 		if (
-			providerId === CLINE_PASS_PROVIDER_ID &&
-			options.isClinePassEnabled === false
+			providerId === INDUSCODE_PASS_PROVIDER_ID &&
+			options.isIndusCodePassEnabled === false
 		) {
-			return CLINE_PROVIDER_ID;
+			return INDUSCODE_PROVIDER_ID;
 		}
 
 		return providerId;

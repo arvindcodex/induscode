@@ -9,14 +9,14 @@ import {
 import { basename, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
-	CLINE_RUN_AS_HUB_DAEMON_ENV,
-	getClineClientIdentity,
+	INDUSCODE_RUN_AS_HUB_DAEMON_ENV,
+	getIndusCodeClientIdentity,
 	isBunEmbeddedModulePath,
 	isHubDaemonProcess,
-	resolveClineBuildEnv,
+	resolveIndusCodeBuildEnv,
 	withHubLauncherIdentity,
-	withResolvedClineBuildEnv,
-} from "@cline/shared";
+	withResolvedIndusCodeBuildEnv,
+} from "@induscode/shared";
 import {
 	queryHubSessionActivity,
 	rememberRecoverableLocalHubUrl,
@@ -35,7 +35,7 @@ import {
 	isManagedHubReusable,
 	probeHubServer,
 	readHubDiscovery,
-	resolveClineDataDir,
+	resolveIndusCodeDataDir,
 	resolveHubBuildIdentity,
 	withHubStartupLock,
 	writeHubDiscovery,
@@ -74,7 +74,7 @@ const HUB_STARTUP_POLL_MS = 200;
 const HUB_RETIRE_TIMEOUT_MS = 3_000;
 const HUB_RETIRE_POLL_MS = 100;
 const HUB_SPAWN_RETRY_DELAYS_MS = [100, 250, 500, 1_000, 2_000];
-const COMPILED_BUN_HUB_DAEMON_ARG = "--cline-hub-daemon";
+const COMPILED_BUN_HUB_DAEMON_ARG = "--induscode-hub-daemon";
 const HUB_RETIRE_ATTEMPT_LIMIT = 3;
 const HUB_RETIRE_ATTEMPT_WINDOW_MS = 60_000;
 
@@ -128,7 +128,7 @@ function endpointArgs(endpoint: HubEndpointOverrides): string[] {
 
 function openDetachedHubLogFile(): { fd: number; logPath: string } | undefined {
 	try {
-		const logPath = join(resolveClineDataDir(), "logs", "hub-daemon.log");
+		const logPath = join(resolveIndusCodeDataDir(), "logs", "hub-daemon.log");
 		mkdirSync(dirname(logPath), { recursive: true });
 		return { fd: openSync(logPath, "a"), logPath };
 	} catch {
@@ -137,7 +137,7 @@ function openDetachedHubLogFile(): { fd: number; logPath: string } | undefined {
 }
 
 function resolveDefaultHubOwnerContext() {
-	return resolveClineBuildEnv() === "production"
+	return resolveIndusCodeBuildEnv() === "production"
 		? resolveProductionHubOwnerContext()
 		: resolveSharedHubOwnerContext();
 }
@@ -152,7 +152,7 @@ function isReusableHubRecord(record: HubServerProbeRecord): boolean {
  * the file is best-effort recovery metadata, not a live record — and stays
  * synchronous so it adds no async boundary to the ensure flow.
  *
- * Exported for `cline doctor`, which must not mistake a shielded live hub for
+ * Exported for `induscode doctor`, which must not mistake a shielded live hub for
  * a stale daemon just because its record is set aside.
  */
 export function readSupersededHubDiscovery(
@@ -369,7 +369,7 @@ async function retireIncompatibleHub(
  * record so upgrades do not leave orphaned daemons running stale code.
  */
 async function retireLegacySharedHub(owner: HubOwnerContext): Promise<void> {
-	if (resolveClineBuildEnv() !== "production") {
+	if (resolveIndusCodeBuildEnv() !== "production") {
 		return;
 	}
 	const legacy = resolveSharedHubOwnerContext();
@@ -413,7 +413,7 @@ function resolveDaemonEntryArgs(
  * An executable that hosts the detached Hub daemon in place of the current
  * process. Clients that are not themselves a Hub-capable binary (for example
  * the desktop backend, a script running on the bundled CLI's runtime) point
- * this at the Cline CLI so every Hub they start is a CLI-managed Hub.
+ * this at the IndusCode CLI so every Hub they start is a CLI-managed Hub.
  */
 export interface HubDaemonLauncher {
 	command: string;
@@ -469,14 +469,14 @@ function resolveLaunchCommand(
 		env: {
 			// Record which client's build is starting this shared daemon. An
 			// embedding host that already stamped the launcher (the desktop app
-			// running `cline-cli hub ensure`) keeps its own identity; otherwise
-			// this process's client identity (cline-cli, cline-acp, ...) is used.
+			// running `induscode-cli hub ensure`) keeps its own identity; otherwise
+			// this process's client identity (induscode-cli, induscode-acp, ...) is used.
 			...withHubLauncherIdentity(
-				withResolvedClineBuildEnv(process.env),
+				withResolvedIndusCodeBuildEnv(process.env),
 				resolveSelfLauncherIdentity(),
 			),
-			CLINE_NO_INTERACTIVE: "1",
-			[CLINE_RUN_AS_HUB_DAEMON_ENV]: "1",
+			INDUSCODE_NO_INTERACTIVE: "1",
+			[INDUSCODE_RUN_AS_HUB_DAEMON_ENV]: "1",
 		},
 	};
 }
@@ -484,7 +484,7 @@ function resolveLaunchCommand(
 function resolveSelfLauncherIdentity():
 	| { client: string; version?: string; transport: "local" }
 	| undefined {
-	const identity = getClineClientIdentity();
+	const identity = getIndusCodeClientIdentity();
 	const client = identity?.name?.trim();
 	return client
 		? { client, version: identity?.version, transport: "local" }
@@ -574,7 +574,7 @@ async function ensureDetachedHubServerLocked(
 		endpointOverrides.host !== undefined ||
 		endpointOverrides.port !== undefined ||
 		endpointOverrides.pathname !== undefined ||
-		!!process.env.CLINE_HUB_PORT?.trim();
+		!!process.env.INDUSCODE_HUB_PORT?.trim();
 	const endpoint = resolveHubEndpointOptions(endpointOverrides);
 	const expectedUrl = createHubServerUrl(
 		endpoint.host,
@@ -701,10 +701,10 @@ async function ensureDetachedHubServerLocked(
 				});
 			}
 			const upgradeHint = retiredUnusableDiscovery
-				? " This can happen immediately after upgrading from a build that wrote an empty hub auth token; run 'cline doctor fix' to stop the old daemon and repair local hub discovery."
+				? " This can happen immediately after upgrading from a build that wrote an empty hub auth token; run 'induscode doctor fix' to stop the old daemon and repair local hub discovery."
 				: "";
 			throw new Error(
-				`A compatible Cline Hub is already running at ${expectedUrl}, but its discovery record is missing or unreadable and no usable auth token is available. Run 'cline doctor fix' to repair local hub discovery.${upgradeHint}`,
+				`A compatible IndusCode Hub is already running at ${expectedUrl}, but its discovery record is missing or unreadable and no usable auth token is available. Run 'induscode doctor fix' to repair local hub discovery.${upgradeHint}`,
 			);
 		}
 		const expectedOutcome = await retireIncompatibleHub(
@@ -727,7 +727,7 @@ async function ensureDetachedHubServerLocked(
 			}
 			if (endpointOverrides.allowPortFallback !== true && endpoint.port !== 0) {
 				throw new Error(
-					`An older Cline Hub is running at ${expectedUrl} and is still serving active sessions, so it was not replaced, but no usable auth token is available to attach to it. Finish those sessions, or run 'cline doctor fix' to stop the hub.`,
+					`An older IndusCode Hub is running at ${expectedUrl} and is still serving active sessions, so it was not replaced, but no usable auth token is available to attach to it. Finish those sessions, or run 'induscode doctor fix' to stop the hub.`,
 				);
 			}
 		}
@@ -737,7 +737,7 @@ async function ensureDetachedHubServerLocked(
 			endpoint.port !== 0
 		) {
 			throw new Error(
-				`An incompatible Cline Hub is already running at ${expectedUrl} and could not be retired automatically. Run 'cline doctor fix' to stop stale hub daemons before starting a new hub.`,
+				`An incompatible IndusCode Hub is already running at ${expectedUrl} and could not be retired automatically. Run 'induscode doctor fix' to stop stale hub daemons before starting a new hub.`,
 			);
 		}
 	}
@@ -802,7 +802,7 @@ async function ensureDetachedHubServerLocked(
 				endpoint.port !== 0
 			) {
 				throw new Error(
-					`An incompatible Cline Hub is still running at ${expectedUrl} and could not be retired automatically. Run 'cline doctor fix' to stop stale hub daemons before starting a new hub.`,
+					`An incompatible IndusCode Hub is still running at ${expectedUrl} and could not be retired automatically. Run 'induscode doctor fix' to stop stale hub daemons before starting a new hub.`,
 				);
 			}
 		}
@@ -946,7 +946,7 @@ export async function upgradeManagedHub(
 	// automatic ensure path once it is idle at the next client startup.
 	if (!drained) {
 		throw new Error(
-			`The running Cline Hub at ${record.url} did not accept a drain request, so it was not replaced. It is replaced automatically once idle when a Cline client next starts, or run 'cline doctor fix' to stop it now.`,
+			`The running IndusCode Hub at ${record.url} did not accept a drain request, so it was not replaced. It is replaced automatically once idle when a IndusCode client next starts, or run 'induscode doctor fix' to stop it now.`,
 		);
 	}
 	// An aborted upgrade must hand the hub back: leaving it draining refuses
@@ -1002,7 +1002,7 @@ export async function upgradeManagedHub(
 	if (!(await retireDiscoveredHub(record, owner.discoveryPath))) {
 		await undrain();
 		throw new Error(
-			`The running Cline Hub at ${record.url} could not be stopped. Run 'cline doctor fix' to stop stale hub daemons, then try again.`,
+			`The running IndusCode Hub at ${record.url} could not be stopped. Run 'induscode doctor fix' to stop stale hub daemons, then try again.`,
 		);
 	}
 	const ensured = await ensureDetachedHubServer(workspaceRoot);

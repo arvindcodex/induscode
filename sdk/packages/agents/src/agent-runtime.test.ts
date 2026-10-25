@@ -7,7 +7,7 @@ import type {
 	AgentRuntimePlugin,
 	AgentTool,
 	ITelemetryService,
-} from "@cline/shared";
+} from "@induscode/shared";
 import {
 	AGENT_UNEXPECTED_REASONING_TOKENS_EVENT,
 	resetSdkErrorRateLimiterForTests,
@@ -19,7 +19,7 @@ import {
 	TASK_PROVIDER_STREAM_FAILED_EVENT,
 	TASK_PROVIDER_STREAM_STARTED_EVENT,
 	TOOL_REJECTION_SUFFIX,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AgentRuntime } from "./index";
 
@@ -3386,7 +3386,7 @@ describe("AgentRuntime", () => {
 			sessionId: "session-1",
 			messageModelInfo: {
 				id: "deepseek/deepseek-v4-flash",
-				provider: "cline",
+				provider: "induscode",
 			},
 			telemetry,
 		});
@@ -3406,7 +3406,7 @@ describe("AgentRuntime", () => {
 				error_message: "No scripted model step available",
 				error_type: "Error",
 				phase: "provider_request_started",
-				provider: "cline",
+				provider: "induscode",
 				model: "deepseek/deepseek-v4-flash",
 			}),
 		);
@@ -3436,7 +3436,7 @@ describe("AgentRuntime", () => {
 			sessionId: "session-1",
 			messageModelInfo: {
 				id: "deepseek/deepseek-v4-pro",
-				provider: "cline",
+				provider: "induscode",
 			},
 			telemetry,
 		});
@@ -3486,7 +3486,7 @@ describe("AgentRuntime", () => {
 			sessionId: "session-1",
 			messageModelInfo: {
 				id: "deepseek/deepseek-v4-pro",
-				provider: "cline",
+				provider: "induscode",
 			},
 			telemetry,
 		});

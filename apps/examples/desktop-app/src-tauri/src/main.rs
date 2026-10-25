@@ -27,7 +27,7 @@ use tauri_plugin_updater::UpdaterExt;
 const UPDATE_INITIAL_DELAY: Duration = Duration::from_secs(10);
 const UPDATE_CHECK_INTERVAL: Duration = Duration::from_secs(2 * 60 * 60);
 const MAIN_WINDOW_LABEL: &str = "main";
-const TRAY_ICON_ID: &str = "cline-code";
+const TRAY_ICON_ID: &str = "induscode";
 const TRAY_OPEN_MENU_ID: &str = "tray-open";
 const TRAY_NEW_SESSION_MENU_ID: &str = "tray-new-session";
 const TRAY_SETTINGS_MENU_ID: &str = "tray-settings";
@@ -203,7 +203,7 @@ fn running_sessions_text(running_sessions: u32) -> String {
 }
 
 // app_name is package_info().name (the configured productName), so beta
-// builds ("Cline Beta") identify themselves in the tooltip too.
+// builds ("IndusCode Beta") identify themselves in the tooltip too.
 fn tray_tooltip_text(app_name: &str, running_sessions: u32) -> String {
     if running_sessions == 0 {
         app_name.to_string()
@@ -457,12 +457,12 @@ fn resolve_desktop_backend_script_path(context: &AppContext) -> Option<PathBuf> 
     candidates.into_iter().find(|path| path.exists())
 }
 
-/// The bundled Cline CLI (a Tauri `externalBin`). It starts or reuses the
+/// The bundled IndusCode CLI (a Tauri `externalBin`). It starts or reuses the
 /// shared Hub, runs as the Hub daemon, and is the runtime the packaged
 /// desktop backend script executes on, so the app needs no Node or Bun.
 fn desktop_cli_binary_names() -> Vec<String> {
     let extension = if cfg!(windows) { ".exe" } else { "" };
-    let bundled_name = format!("cline-cli{extension}");
+    let bundled_name = format!("induscode-cli{extension}");
     let target_triple = option_env!("TAURI_ENV_TARGET_TRIPLE").unwrap_or("").trim();
     if target_triple.is_empty() {
         return vec![bundled_name];
@@ -470,7 +470,7 @@ fn desktop_cli_binary_names() -> Vec<String> {
 
     vec![
         bundled_name,
-        format!("cline-cli-{target_triple}{extension}"),
+        format!("induscode-cli-{target_triple}{extension}"),
     ]
 }
 
@@ -490,7 +490,7 @@ fn desktop_app_bin_dir(context: &AppContext) -> PathBuf {
 fn resolve_desktop_cli_path(context: &AppContext) -> Option<PathBuf> {
     let current_exe = std::env::current_exe().ok();
     let mut candidates = Vec::new();
-    if let Some(path) = non_empty_env_path("CLINE_DESKTOP_CLI_BIN") {
+    if let Some(path) = non_empty_env_path("INDUSCODE_DESKTOP_CLI_BIN") {
         candidates.push(path);
     }
     for binary_name in desktop_cli_binary_names() {
@@ -514,7 +514,7 @@ fn desktop_backend_bundle_candidates(resource_dir: &Path) -> Vec<PathBuf> {
 
 fn resolve_desktop_backend_bundle_path(context: &AppContext) -> Option<PathBuf> {
     let mut candidates = Vec::new();
-    if let Some(path) = non_empty_env_path("CLINE_DESKTOP_BACKEND_BUNDLE") {
+    if let Some(path) = non_empty_env_path("INDUSCODE_DESKTOP_BACKEND_BUNDLE") {
         candidates.push(path);
     }
     candidates.extend(desktop_backend_bundle_candidates(&context.resource_dir));
@@ -554,7 +554,7 @@ fn spawn_desktop_backend_process(context: &AppContext) -> Result<Child, String> 
             .arg(&bundle_path);
         // Run from the bundle's own directory so the runtime cannot pick up
         // a workspace .env or bunfig.toml; the backend moves to the
-        // workspace root itself (CLINE_DESKTOP_WORKSPACE_ROOT).
+        // workspace root itself (INDUSCODE_DESKTOP_WORKSPACE_ROOT).
         if let Some(bundle_dir) = bundle_path.parent() {
             command.current_dir(bundle_dir);
         }
@@ -565,17 +565,19 @@ fn spawn_desktop_backend_process(context: &AppContext) -> Result<Child, String> 
         let indus_data_dir = indus_dir.join("data");
         command
             .env("BUN_BE_BUN", "1")
-            .env("CLINE_DIR", &indus_dir)
-            .env("CLINE_DATA_DIR", &indus_data_dir)
-            .env("CLINE_DESKTOP_WORKSPACE_ROOT", &context.workspace_root)
+            .env("INDUSCODE_DIR", &indus_dir)
+            .env("INDUSCODE_DATA_DIR", &indus_data_dir)
+            .env("INDUSCODE_DIR", &indus_dir)
+            .env("INDUSCODE_DATA_DIR", &indus_data_dir)
+            .env("INDUSCODE_DESKTOP_WORKSPACE_ROOT", &context.workspace_root)
             .env(
-                "CLINE_REMOTE_HELPER_DIRECTORY",
+                "INDUSCODE_REMOTE_HELPER_DIRECTORY",
                 context.resource_dir.join("bin").join("remote-helpers"),
             );
         command
     } else {
         return Err(format!(
-            "desktop backend not found: needs the bundled Cline CLI ({}) and backend bundle. checked under workspace_root={} and launch_cwd={}",
+            "desktop backend not found: needs the bundled IndusCode CLI ({}) and backend bundle. checked under workspace_root={} and launch_cwd={}",
             if cli_path.is_some() { "found" } else { "missing" },
             context.workspace_root,
             context.launch_cwd
@@ -583,7 +585,7 @@ fn spawn_desktop_backend_process(context: &AppContext) -> Result<Child, String> 
     };
 
     if let Some(cli_path) = cli_path.as_ref() {
-        command.env("CLINE_DESKTOP_CLI_PATH", cli_path);
+        command.env("INDUSCODE_DESKTOP_CLI_PATH", cli_path);
     }
     command
         .stdin(Stdio::null())
@@ -729,18 +731,18 @@ fn non_empty_env(name: &str) -> Option<String> {
         .filter(|value| !value.is_empty())
 }
 
-/// Mirrors `resolveMcpSettingsPath()` in `@cline/shared/storage` (the resolver
+/// Mirrors `resolveMcpSettingsPath()` in `@induscode/shared/storage` (the resolver
 /// the sidecar and the hub runtime use): explicit path override, then the data
-/// dir override, then the cline dir override, then `~/.cline/data`. Keeping the
+/// dir override, then the induscode dir override, then `~/.induscode/data`. Keeping the
 /// same precedence here means the "Open MCP settings" window action opens the
-/// exact file the runtime reads (cline/cline#14152).
+/// exact file the runtime reads (induscode/induscode#14152).
 fn resolve_mcp_settings_path() -> Result<PathBuf, String> {
-    if let Some(explicit) = non_empty_env("INDUSCODE_MCP_SETTINGS_PATH").or_else(|| non_empty_env("CLINE_MCP_SETTINGS_PATH")) {
+    if let Some(explicit) = non_empty_env("INDUSCODE_MCP_SETTINGS_PATH").or_else(|| non_empty_env("INDUSCODE_MCP_SETTINGS_PATH")) {
         return Ok(PathBuf::from(explicit));
     }
-    let data_dir = if let Some(data_dir) = non_empty_env("INDUSCODE_DATA_DIR").or_else(|| non_empty_env("CLINE_DATA_DIR")) {
+    let data_dir = if let Some(data_dir) = non_empty_env("INDUSCODE_DATA_DIR").or_else(|| non_empty_env("INDUSCODE_DATA_DIR")) {
         PathBuf::from(data_dir)
-    } else if let Some(dir) = non_empty_env("INDUSCODE_DIR").or_else(|| non_empty_env("CLINE_DIR")) {
+    } else if let Some(dir) = non_empty_env("INDUSCODE_DIR").or_else(|| non_empty_env("INDUSCODE_DIR")) {
         PathBuf::from(dir).join("data")
     } else {
         // USERPROFILE is the Windows equivalent of HOME (and what the sidecar's
@@ -754,9 +756,9 @@ fn resolve_mcp_settings_path() -> Result<PathBuf, String> {
     if indus_path.exists() {
         return Ok(indus_path);
     }
-    let cline_path = data_dir.join("settings").join("cline_mcp_settings.json");
-    if cline_path.exists() {
-        return Ok(cline_path);
+    let induscode_path = data_dir.join("settings").join("induscode_mcp_settings.json");
+    if induscode_path.exists() {
+        return Ok(induscode_path);
     }
     Ok(indus_path)
 }
@@ -809,7 +811,7 @@ fn open_path_with_default_app(path: &Path) -> Result<(), String> {
 /// ready line. Sidecar startup includes login-shell PATH resolution (bounded
 /// at ~7.5s worst case, see sdk/packages/core/src/remote/shell-path.ts) plus session-manager init,
 /// and a first spawn that dies (e.g. no compatible hub runtime yet, see
-/// cline/cline#14129) is respawned inside the wait — the window must cover a
+/// induscode/induscode#14129) is respawned inside the wait — the window must cover a
 /// failed first start plus a full second startup. The wait returns as soon as
 /// the ready line arrives, so only failure waits long, and the webview keeps
 /// re-requesting the endpoint after a failure anyway.
@@ -825,7 +827,7 @@ const ENDPOINT_RESPAWN_BACKOFF: Duration = Duration::from_secs(2);
 /// before publishing is respawned here (paced by `respawn_backoff`) instead
 /// of failing the wait: recovery used to be left to the 5s health-check loop
 /// plus a webview retry, which made the first sign-in fail whenever the
-/// sidecar's first spawn lost a startup race (cline/cline#14201, #14129).
+/// sidecar's first spawn lost a startup race (induscode/induscode#14201, #14129).
 /// Runs on the blocking pool; `respawn` may take the process lock and spawn.
 fn wait_for_desktop_backend_endpoint(
     state: &Arc<DesktopBackendState>,
@@ -987,7 +989,7 @@ fn apply_staged_update(app: &tauri::AppHandle) {
 }
 
 /// Relaunch the current version of the app. Used after the sidecar replaces
-/// the shared Cline Hub under the running app (the "Cline Hub update
+/// the shared IndusCode Hub under the running app (the "IndusCode Hub update
 /// required" flow): a fresh launch attaches everything to the new Hub instead
 /// of trying to migrate live connections. restart() never returns, so the
 /// run-loop Exit handler cannot stop the sidecar; do it explicitly first.
@@ -997,7 +999,7 @@ fn relaunch_app(app: tauri::AppHandle, backend_state: State<'_, Arc<DesktopBacke
     app.restart();
 }
 
-/// Quit the app. Used by the "Cline Hub update required" flow when the user
+/// Quit the app. Used by the "IndusCode Hub update required" flow when the user
 /// chooses to keep the older running Hub (and its live sessions) and update
 /// later. The run-loop Exit handler stops the sidecar.
 #[tauri::command]
@@ -1007,7 +1009,7 @@ fn quit_app(app: tauri::AppHandle) {
 
 /// Run one updater check/download/stage cycle immediately instead of waiting
 /// for the next background interval, and report the resulting status. Used by
-/// flows that need an update staged right now (e.g. the "Cline Hub was
+/// flows that need an update staged right now (e.g. the "IndusCode Hub was
 /// updated" prompt), where restarting without a staged update would just
 /// relaunch the same version.
 #[tauri::command]
@@ -1094,7 +1096,7 @@ fn clamped_inner_window_size(
 /// displays — a 1920x1080 laptop at 150% has only a 1280x720 logical desktop —
 /// it opened larger than the screen, leaving the bottom and side of the UI
 /// (the settings and account controls among them) off-screen and unreachable
-/// (cline/cline#14270). Shrink an oversized window to the monitor's work area
+/// (induscode/induscode#14270). Shrink an oversized window to the monitor's work area
 /// (which excludes the taskbar/dock) and re-center it.
 fn clamp_main_window_to_work_area(window: &tauri::WebviewWindow) {
     let Ok(Some(monitor)) = window.current_monitor() else {
@@ -1366,7 +1368,7 @@ fn setup_tray_icon(
         .text(
             TRAY_OPEN_MENU_ID,
             // package_info().name is the configured productName, so beta
-            // builds ("Cline Beta") identify themselves in the tray too.
+            // builds ("IndusCode Beta") identify themselves in the tray too.
             format!(
                 "{} v{}",
                 app.package_info().name,
@@ -1387,11 +1389,11 @@ fn setup_tray_icon(
         .text(TRAY_QUIT_MENU_ID, "Quit")
         .build()?;
 
-    // This is the same glyph used by webview/components/cline-logo.tsx,
+    // This is the same glyph used by webview/components/induscode-logo.tsx,
     // rasterized without a background. Template mode lets macOS tint it for
     // the current menu-bar appearance.
     #[cfg(target_os = "macos")]
-    let icon = tauri::image::Image::from_bytes(include_bytes!("../icons/tray/cline-template.png"))?;
+    let icon = tauri::image::Image::from_bytes(include_bytes!("../icons/tray/induscode-template.png"))?;
     #[cfg(not(target_os = "macos"))]
     let icon = app
         .default_window_icon()
@@ -1476,7 +1478,7 @@ fn main() {
         // Start used to start another full copy (tray icon, sidecar) instead
         // of showing this one. Must be the first plugin so the duplicate exits
         // before setup creates the tray icon or spawns the sidecar. Keyed on
-        // the bundle identifier, so Cline and Cline Beta still run side by side.
+        // the bundle identifier, so IndusCode and IndusCode Beta still run side by side.
         .plugin(tauri_plugin_single_instance::init(|app, _argv, _cwd| {
             show_main_window(app);
         }))
@@ -1611,11 +1613,14 @@ mod tests {
     fn backend_bundle_uses_only_the_running_apps_resource_directory() {
         let relative = Path::new("bin").join("desktop-backend").join("index.js");
         for resource_dir in [
-            Path::new("/Applications/Cline.app/Contents/Resources"),
-            Path::new("C:/Program Files/Cline"),
-            Path::new("/usr/lib/Cline"),
-            Path::new("/usr/lib/Cline Beta"),
-            Path::new("/usr/lib/Cline Nightly"),
+            Path::new("/Applications/IndusCode.app/Contents/Resources"),
+            Path::new("/Applications/IndusCode.app/Contents/Resources"),
+            Path::new("C:/Program Files/IndusCode"),
+            Path::new("C:/Program Files/IndusCode"),
+            Path::new("/usr/lib/IndusCode"),
+            Path::new("/usr/lib/IndusCode"),
+            Path::new("/usr/lib/IndusCode Beta"),
+            Path::new("/usr/lib/IndusCode Nightly"),
         ] {
             assert_eq!(
                 desktop_backend_bundle_candidates(resource_dir),
@@ -1628,7 +1633,7 @@ mod tests {
     fn oversized_window_is_clamped_to_the_work_area() {
         // 1920x1080 at 150% scaling: 1280x720 logical work area (minus a
         // 40px-tall taskbar already excluded from the work area) cannot hold
-        // the configured 1500x980 window (cline/cline#14270).
+        // the configured 1500x980 window (induscode/induscode#14270).
         let clamped = clamped_inner_window_size(
             (1500.0, 980.0),
             (1280.0, 693.0),
@@ -1809,11 +1814,11 @@ mod tests {
         assert_eq!(running_sessions_text(0), "0 sessions running");
         assert_eq!(running_sessions_text(1), "1 session running");
         assert_eq!(running_sessions_text(3), "3 sessions running");
-        assert_eq!(tray_tooltip_text("Cline", 0), "Cline");
-        assert_eq!(tray_tooltip_text("Cline", 3), "Cline — 3 sessions running");
+        assert_eq!(tray_tooltip_text("IndusCode", 0), "IndusCode");
+        assert_eq!(tray_tooltip_text("IndusCode", 3), "IndusCode — 3 sessions running");
         assert_eq!(
-            tray_tooltip_text("Cline Beta", 2),
-            "Cline Beta — 2 sessions running"
+            tray_tooltip_text("IndusCode Beta", 2),
+            "IndusCode Beta — 2 sessions running"
         );
         assert_eq!(tray_badge_text(0), None);
         assert_eq!(tray_badge_text(3), Some("3".to_string()));

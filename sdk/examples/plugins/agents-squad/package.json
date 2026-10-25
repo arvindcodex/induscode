@@ -1,8 +1,8 @@
 {
-	"name": "cline-agent-squad-plugin",
+	"name": "induscode-agent-squad-plugin",
 	"version": "0.1.0",
 	"private": true,
-	"description": "Background Subagents Plugin for Cline",
+	"description": "Background Subagents Plugin for IndusCode",
 	"type": "module",
 	"scripts": {
 		"typecheck": "tsc --noEmit",
@@ -11,7 +11,7 @@
 	"exports": {
 		".": "./index.ts"
 	},
-	"cline": {
+	"induscode": {
 		"plugins": [
 			{
 				"paths": [
@@ -25,10 +25,10 @@
 		]
 	},
 	"peerDependencies": {
-		"@cline/core": "*"
+		"@induscode/core": "*"
 	},
 	"peerDependenciesMeta": {
-		"@cline/core": {
+		"@induscode/core": {
 			"optional": true
 		}
 	},

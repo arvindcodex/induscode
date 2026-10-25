@@ -1,4 +1,4 @@
-import type { SessionStatusTone } from "@cline/ui";
+import type { SessionStatusTone } from "@induscode/ui";
 import type { ChatSessionStatus } from "@/lib/chat-schema";
 import type { SessionHistoryStatus } from "@/lib/session-history";
 

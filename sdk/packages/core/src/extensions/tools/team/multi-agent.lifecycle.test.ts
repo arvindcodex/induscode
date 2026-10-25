@@ -1,4 +1,4 @@
-import type { AgentConfig, AgentEvent, AgentResult } from "@cline/shared";
+import type { AgentConfig, AgentEvent, AgentResult } from "@induscode/shared";
 import { describe, expect, it, vi } from "vitest";
 import {
 	AgentTeamsRuntime,
@@ -950,7 +950,7 @@ describe("AgentTeamsRuntime run failure reporting", () => {
 			return {
 				abort: vi.fn(),
 				run: vi.fn(async () => ({
-					text: "Unauthorized: Please re-authenticate your Cline account.",
+					text: "Unauthorized: Please re-authenticate your IndusCode account.",
 					iterations: 8,
 					finishReason: "error",
 					durationMs: 100,

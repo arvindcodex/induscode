@@ -19,25 +19,25 @@ import {
 } from "node:path";
 import type { PluginManifest } from "..";
 import {
-	CLINE_CHAT_WORKSPACE_DIRECTORY_NAME,
-	CLINE_WORKSPACES_DIRECTORY_NAME,
+	INDUSCODE_CHAT_WORKSPACE_DIRECTORY_NAME,
+	INDUSCODE_WORKSPACES_DIRECTORY_NAME,
 } from "./chat-workspace-paths";
 
 // Keep the structural pieces browser-safe while exposing them through the
 // canonical Node storage-path module alongside the data-dir resolver.
 export {
-	CLINE_CHAT_WORKSPACE_DIRECTORY_NAME,
-	CLINE_WORKSPACES_DIRECTORY_NAME,
+	INDUSCODE_CHAT_WORKSPACE_DIRECTORY_NAME,
+	INDUSCODE_WORKSPACES_DIRECTORY_NAME,
 	isChatWorkspacePath,
 } from "./chat-workspace-paths";
 
-const DEPRECATED_CONFIG_DIR = ".clinerules";
-const CLINE_CONFIG_DIR = ".cline";
+const DEPRECATED_CONFIG_DIR = ".induscoderules";
+const INDUSCODE_CONFIG_DIR = ".induscode";
 /**
  * Claude Code's project directory. Skills authored for Claude Code live in
  * `.claude/skills`, which is documented as a supported project skill location,
- * so Cline must scan it too — otherwise the same skill folder works in Claude
- * Code but is silently invisible in Cline.
+ * so IndusCode must scan it too — otherwise the same skill folder works in Claude
+ * Code but is silently invisible in IndusCode.
  */
 const CLAUDE_CONFIG_DIR = ".claude";
 /**
@@ -62,32 +62,31 @@ export const AGENTS_RULES_FILE_NAME = "AGENTS.md";
  * it the discriminator between the two package lanes:
  *
  * - Agent plugin  -> `<root>/plugin.json`, discovered under `.agents/plugins`
- * - Cline plugin  -> a JS/TS module, discovered under `.cline/plugins`
+ * - IndusCode plugin  -> a JS/TS module, discovered under `.induscode/plugins`
  *
- * Cline plugin discovery treats it as a hard stop: a directory carrying this
- * file is never scanned for Cline plugin modules, so a plugin authored for
- * another client and dropped into a Cline plugin root cannot have its skill
- * scripts or another vendor's extension directory imported as Cline code.
+ * IndusCode plugin discovery treats it as a hard stop: a directory carrying this
+ * file is never scanned for IndusCode plugin modules, so a plugin authored for
+ * another client and dropped into a IndusCode plugin root cannot have its skill
+ * scripts or another vendor's extension directory imported as IndusCode code.
  */
 export const AGENT_PLUGIN_MANIFEST_FILE_NAME = "plugin.json";
 
 /**
  * Shared workspace for all sessions started without a `cwd`/`workspaceRoot`.
- * Lives under the cline data dir (not `os.tmpdir()`) so OS temp reapers never
+ * Lives under the induscode data dir (not `os.tmpdir()`) so OS temp reapers never
  * delete user work, the path is private to the user on multi-user hosts, and
  * the directory shares the session store's lifecycle and env overrides.
  */
 export function resolveChatWorkspacePath(): string {
 	return join(
-		resolveClineDataDir(),
-		CLINE_WORKSPACES_DIRECTORY_NAME,
-		CLINE_CHAT_WORKSPACE_DIRECTORY_NAME,
+		resolveIndusCodeDataDir(),
+		INDUSCODE_WORKSPACES_DIRECTORY_NAME,
+		INDUSCODE_CHAT_WORKSPACE_DIRECTORY_NAME,
 	);
 }
 
-export const CLINE_MCP_SETTINGS_FILE_NAME = "cline_mcp_settings.json";
 export const INDUSCODE_MCP_SETTINGS_FILE_NAME = "induscode_mcp_settings.json";
-export const CLINE_CONNECTOR_SETTINGS_FILE_NAME = "settings.json";
+export const INDUSCODE_CONNECTOR_SETTINGS_FILE_NAME = "settings.json";
 
 function resolveDefaultHomeDir(): string {
 	const envHome = process?.env?.HOME?.trim();
@@ -133,41 +132,41 @@ export function setHomeDirIfUnset(dir: string) {
 	HOME_DIR = trimmed;
 }
 
-let CLINE_DIR: string | undefined;
-let CLINE_DIR_SET_EXPLICITLY = false;
+let INDUSCODE_DIR: string | undefined;
+let INDUSCODE_DIR_SET_EXPLICITLY = false;
 
-export function setClineDir(dir: string): void {
+export function setIndusCodeDir(dir: string): void {
 	const trimmed = dir.trim();
 	if (!trimmed) {
 		return;
 	}
-	CLINE_DIR = trimmed;
-	CLINE_DIR_SET_EXPLICITLY = true;
+	INDUSCODE_DIR = trimmed;
+	INDUSCODE_DIR_SET_EXPLICITLY = true;
 }
 
-export function setClineDirIfUnset(dir: string): void {
-	if (CLINE_DIR_SET_EXPLICITLY) {
+export function setIndusCodeDirIfUnset(dir: string): void {
+	if (INDUSCODE_DIR_SET_EXPLICITLY) {
 		return;
 	}
 	const trimmed = dir.trim();
 	if (!trimmed) {
 		return;
 	}
-	CLINE_DIR = trimmed;
+	INDUSCODE_DIR = trimmed;
 }
 
-export function resolveClineDir(): string {
-	if (CLINE_DIR) {
-		return CLINE_DIR;
+export function resolveIndusCodeDir(): string {
+	if (INDUSCODE_DIR) {
+		return INDUSCODE_DIR;
 	}
-	const envDir = (process.env.INDUSCODE_DIR || process.env.CLINE_DIR)?.trim();
+	const envDir = (process.env.INDUSCODE_DIR || process.env.INDUSCODE_DIR)?.trim();
 	if (envDir) {
 		return envDir;
 	}
 	return join(HOME_DIR, ".induscode");
 }
 
-export function resolveDocumentsClineDirectoryPath(): string {
+export function resolveDocumentsIndusCodeDirectoryPath(): string {
 	return join(HOME_DIR, "Documents", "IndusCode");
 }
 
@@ -181,39 +180,39 @@ type DocumentsExtensionName =
 export function resolveDocumentsExtensionPath(
 	name: DocumentsExtensionName,
 ): string {
-	return join(resolveDocumentsClineDirectoryPath(), name);
+	return join(resolveDocumentsIndusCodeDirectoryPath(), name);
 }
 
-export function resolveClineDataDir(): string {
-	const explicitDir = process.env.CLINE_DATA_DIR?.trim();
+export function resolveIndusCodeDataDir(): string {
+	const explicitDir = process.env.INDUSCODE_DATA_DIR?.trim();
 	if (explicitDir) {
 		return explicitDir;
 	}
-	return join(resolveClineDir(), "data");
+	return join(resolveIndusCodeDir(), "data");
 }
 
 export function resolveSessionDataDir(): string {
-	const explicitDir = process.env.CLINE_SESSION_DATA_DIR?.trim();
+	const explicitDir = process.env.INDUSCODE_SESSION_DATA_DIR?.trim();
 	if (explicitDir) {
 		return explicitDir;
 	}
-	return join(resolveClineDataDir(), "sessions");
+	return join(resolveIndusCodeDataDir(), "sessions");
 }
 
 export function resolveTeamDataDir(): string {
-	const explicitDir = process.env.CLINE_TEAM_DATA_DIR?.trim();
+	const explicitDir = process.env.INDUSCODE_TEAM_DATA_DIR?.trim();
 	if (explicitDir) {
 		return explicitDir;
 	}
-	return join(resolveClineDataDir(), "teams");
+	return join(resolveIndusCodeDataDir(), "teams");
 }
 
 export function resolveConnectorDataDir(): string {
-	const explicitDir = process.env.CLINE_CONNECTOR_DATA_DIR?.trim();
+	const explicitDir = process.env.INDUSCODE_CONNECTOR_DATA_DIR?.trim();
 	if (explicitDir) {
 		return explicitDir;
 	}
-	return join(resolveClineDataDir(), "connectors");
+	return join(resolveIndusCodeDataDir(), "connectors");
 }
 
 /**
@@ -229,7 +228,7 @@ export function resolveConnectorLogPath(
 	const safeChannel = channel.replace(/[^a-zA-Z0-9._-]+/g, "_");
 	const safeKey = instanceKey.replace(/[^a-zA-Z0-9._-]+/g, "_");
 	return join(
-		resolveClineDataDir(),
+		resolveIndusCodeDataDir(),
 		"logs",
 		"connectors",
 		safeChannel,
@@ -238,19 +237,19 @@ export function resolveConnectorLogPath(
 }
 
 export function resolveConnectorSettingsPath(): string {
-	const explicitPath = process.env.CLINE_CONNECTOR_SETTINGS_PATH?.trim();
+	const explicitPath = process.env.INDUSCODE_CONNECTOR_SETTINGS_PATH?.trim();
 	if (explicitPath) {
 		return explicitPath;
 	}
-	return join(resolveConnectorDataDir(), CLINE_CONNECTOR_SETTINGS_FILE_NAME);
+	return join(resolveConnectorDataDir(), INDUSCODE_CONNECTOR_SETTINGS_FILE_NAME);
 }
 
 export function resolveDbDataDir(): string {
-	const explicitDir = process.env.CLINE_DB_DATA_DIR?.trim();
+	const explicitDir = process.env.INDUSCODE_DB_DATA_DIR?.trim();
 	if (explicitDir) {
 		return explicitDir;
 	}
-	return join(resolveClineDataDir(), "db");
+	return join(resolveIndusCodeDataDir(), "db");
 }
 
 /**
@@ -259,7 +258,7 @@ export function resolveDbDataDir(): string {
  * credentials/config stay decoupled from session storage.
  */
 export function resolveConnectorsDbPath(): string {
-	const explicitPath = process.env.CLINE_CONNECTORS_DB_PATH?.trim();
+	const explicitPath = process.env.INDUSCODE_CONNECTORS_DB_PATH?.trim();
 	if (explicitPath) {
 		return explicitPath;
 	}
@@ -272,7 +271,7 @@ export function resolveConnectorsDbPath(): string {
  * retention, and query patterns stay decoupled from session storage.
  */
 export function resolveCronDbPath(): string {
-	const explicitPath = process.env.CLINE_CRON_DB_PATH?.trim();
+	const explicitPath = process.env.INDUSCODE_CRON_DB_PATH?.trim();
 	if (explicitPath) {
 		return explicitPath;
 	}
@@ -281,7 +280,7 @@ export function resolveCronDbPath(): string {
 
 /** Path to the dedicated agenda task queue database. */
 export function resolveTasksDbPath(): string {
-	const explicitPath = process.env.CLINE_TASKS_DB_PATH?.trim();
+	const explicitPath = process.env.INDUSCODE_TASKS_DB_PATH?.trim();
 	if (explicitPath) {
 		return explicitPath;
 	}
@@ -299,27 +298,27 @@ export interface ResolveTaskSpecsDirOptions {
 }
 
 /**
- * Home workspace for agent-created schedules: `~/.cline/schedules/`.
+ * Home workspace for agent-created schedules: `~/.induscode/schedules/`.
  * Agent-created schedules are user-level routines, so they anchor here (and
  * their unattended sessions run here) instead of inheriting whichever chat
  * workspace happened to create them.
  */
 export function resolveAgentSchedulesDir(): string {
-	return join(resolveClineDir(), "schedules");
+	return join(resolveIndusCodeDir(), "schedules");
 }
 
-/** Global file-backed agenda tasks: `~/.cline/tasks/`. */
+/** Global file-backed agenda tasks: `~/.induscode/tasks/`. */
 export function resolveGlobalTaskSpecsDir(): string {
-	return join(resolveClineDir(), "tasks");
+	return join(resolveIndusCodeDir(), "tasks");
 }
 
-/** Workspace file-backed agenda tasks: `<workspace>/.cline/tasks/`. */
+/** Workspace file-backed agenda tasks: `<workspace>/.induscode/tasks/`. */
 export function resolveWorkspaceTaskSpecsDir(workspaceRoot: string): string {
 	const normalized = workspaceRoot.trim();
 	if (!normalized) {
 		throw new Error("workspaceRoot is required for workspace task scope");
 	}
-	return join(normalized, ".cline", "tasks");
+	return join(normalized, ".induscode", "tasks");
 }
 
 export function resolveTaskSpecsDir(
@@ -343,7 +342,7 @@ export interface ResolveCronSpecsDirOptions {
 	 * to provide their own merged/global/workspace cron source root.
 	 */
 	cronSpecsDir?: string;
-	/** Defaults to `global`, i.e. `~/.cline/cron`. */
+	/** Defaults to `global`, i.e. `~/.induscode/cron`. */
 	scope?: CronSpecsScope;
 	/** Required when `scope` is `workspace`. */
 	workspaceRoot?: string;
@@ -351,25 +350,25 @@ export interface ResolveCronSpecsDirOptions {
 
 /**
  * Global file-based cron spec authoring directory:
- *   `~/.cline/cron/`
+ *   `~/.induscode/cron/`
  */
 export function resolveGlobalCronSpecsDir(): string {
-	return join(resolveClineDir(), "cron");
+	return join(resolveIndusCodeDir(), "cron");
 }
 
 /**
  * Workspace file-based cron spec authoring directory reserved for future
  * workspace-scoped automation support:
- *   `${workspaceRoot}/.cline/cron/`
+ *   `${workspaceRoot}/.induscode/cron/`
  */
 export function resolveWorkspaceCronSpecsDir(workspaceRoot: string): string {
-	return join(workspaceRoot, ".cline", "cron");
+	return join(workspaceRoot, ".induscode", "cron");
 }
 
 /**
  * Directory containing file-based cron spec authoring.
  *
- * Default: global `~/.cline/cron/`.
+ * Default: global `~/.induscode/cron/`.
  * One-off: `*.md`
  * Recurring: `*.cron.md`
  * Event-driven: `events/*.event.md`
@@ -430,41 +429,28 @@ export function resolveCronEventsDir(
 }
 
 export function resolveProviderSettingsPath(): string {
-	const explicitPath = process.env.CLINE_PROVIDER_SETTINGS_PATH?.trim();
+	const explicitPath = process.env.INDUSCODE_PROVIDER_SETTINGS_PATH?.trim();
 	if (explicitPath) {
 		return explicitPath;
 	}
-	return join(resolveClineDataDir(), "settings", "providers.json");
+	return join(resolveIndusCodeDataDir(), "settings", "providers.json");
 }
 
 export function resolveGlobalSettingsPath(): string {
-	const explicitPath = process.env.CLINE_GLOBAL_SETTINGS_PATH?.trim();
+	const explicitPath = process.env.INDUSCODE_GLOBAL_SETTINGS_PATH?.trim();
 	if (explicitPath) {
 		return explicitPath;
 	}
-	return join(resolveClineDataDir(), "settings", "global-settings.json");
+	return join(resolveIndusCodeDataDir(), "settings", "global-settings.json");
 }
 
 export function resolveMcpSettingsPath(): string {
-	const explicitPath = (
-		process.env.INDUSCODE_MCP_SETTINGS_PATH || process.env.CLINE_MCP_SETTINGS_PATH
-	)?.trim();
+	const explicitPath = process.env.INDUSCODE_MCP_SETTINGS_PATH?.trim();
 	if (explicitPath) {
 		return explicitPath;
 	}
-	const dataDir = resolveClineDataDir();
-	const indusPath = join(dataDir, "settings", INDUSCODE_MCP_SETTINGS_FILE_NAME);
-	if (existsSync(indusPath)) {
-		return indusPath;
-	}
-	const clinePath = join(dataDir, "settings", CLINE_MCP_SETTINGS_FILE_NAME);
-	if (existsSync(clinePath)) {
-		return clinePath;
-	}
-	if (process.env.CLINE_DIR?.includes(".cline") && !process.env.INDUSCODE_DIR) {
-		return clinePath;
-	}
-	return indusPath;
+	const dataDir = resolveIndusCodeDataDir();
+	return join(dataDir, "settings", INDUSCODE_MCP_SETTINGS_FILE_NAME);
 }
 
 function dedupePaths(paths: ReadonlyArray<string>): string[] {
@@ -485,15 +471,16 @@ function getWorkspaceSkillDirectories(workspacePath?: string): string[] {
 		return [];
 	}
 	return [
+		".induscode",
+		INDUSCODE_CONFIG_DIR,
 		DEPRECATED_CONFIG_DIR,
-		CLINE_CONFIG_DIR,
 		CLAUDE_CONFIG_DIR,
 		LEGACY_AGENT_SKILLS_CONFIG_DIR,
 	].map((dir) => join(workspacePath, dir, SKILLS_CONFIG_DIRECTORY_NAME));
 }
 
 export function resolveAgentsConfigDirPath(): string {
-	return join(resolveClineDir(), AGENT_CONFIG_DIRECTORY_NAME);
+	return join(resolveIndusCodeDir(), AGENT_CONFIG_DIRECTORY_NAME);
 }
 
 export function resolveAgentConfigSearchPaths(
@@ -501,7 +488,10 @@ export function resolveAgentConfigSearchPaths(
 ): string[] {
 	return dedupePaths([
 		workspacePath
-			? join(workspacePath, CLINE_CONFIG_DIR, AGENT_CONFIG_DIRECTORY_NAME)
+			? join(workspacePath, ".induscode", AGENT_CONFIG_DIRECTORY_NAME)
+			: "",
+		workspacePath
+			? join(workspacePath, INDUSCODE_CONFIG_DIR, AGENT_CONFIG_DIRECTORY_NAME)
 			: "",
 		resolveAgentsConfigDirPath(),
 	]);
@@ -512,12 +502,13 @@ export function resolveHooksConfigSearchPaths(
 ): string[] {
 	const hooks = [
 		resolveDocumentsExtensionPath("Hooks"),
-		join(resolveClineDir(), HOOKS_CONFIG_DIRECTORY_NAME),
+		join(resolveIndusCodeDir(), HOOKS_CONFIG_DIRECTORY_NAME),
 	];
 	if (workspacePath) {
 		hooks.push(
+			join(workspacePath, ".induscode", HOOKS_CONFIG_DIRECTORY_NAME),
+			join(workspacePath, INDUSCODE_CONFIG_DIR, HOOKS_CONFIG_DIRECTORY_NAME),
 			join(workspacePath, DEPRECATED_CONFIG_DIR, HOOKS_CONFIG_DIRECTORY_NAME),
-			join(workspacePath, CLINE_CONFIG_DIR, HOOKS_CONFIG_DIRECTORY_NAME),
 		);
 	}
 	return dedupePaths(hooks);
@@ -528,7 +519,7 @@ export function resolveSkillsConfigSearchPaths(
 ): string[] {
 	return dedupePaths([
 		...getWorkspaceSkillDirectories(workspacePath),
-		join(resolveClineDir(), SKILLS_CONFIG_DIRECTORY_NAME),
+		join(resolveIndusCodeDir(), SKILLS_CONFIG_DIRECTORY_NAME),
 		join(
 			HOME_DIR,
 			LEGACY_AGENT_SKILLS_CONFIG_DIR,
@@ -543,17 +534,18 @@ export function resolveGlobalAgentsRulesPath(): string {
 
 /**
  * The workspace-local directories rule files may live in: the legacy
- * `<workspace>/.clinerules` layout and the current
- * `<workspace>/.cline/rules` layout. Every Cline surface (CLI, VS Code
+ * `<workspace>/.induscoderules` layout and the current
+ * `<workspace>/.induscode/rules` layout. Every IndusCode surface (CLI, VS Code
  * extension, desktop app) must honor both — hosts that hardcode one of them
- * silently drop the other's rules (cline/cline#14186).
+ * silently drop the other's rules (induscode/induscode#14186).
  */
 export function resolveWorkspaceRulesConfigPaths(
 	workspacePath: string,
 ): string[] {
 	return [
+		join(workspacePath, ".induscode", RULES_CONFIG_DIRECTORY_NAME),
+		join(workspacePath, INDUSCODE_CONFIG_DIR, RULES_CONFIG_DIRECTORY_NAME),
 		join(workspacePath, DEPRECATED_CONFIG_DIR),
-		join(workspacePath, CLINE_CONFIG_DIR, RULES_CONFIG_DIRECTORY_NAME),
 	];
 }
 
@@ -563,7 +555,7 @@ export function resolveWorkspaceRulesConfigPaths(
  * extension resolves the real Documents folder through the OS (PowerShell
  * `[Environment]::GetFolderPath(MyDocuments)`) and creates global rules
  * there, so the plain `HOME/Documents` guess below never sees them on
- * redirected machines (cline/cline#14144). Add the OneDrive candidates so
+ * redirected machines (induscode/induscode#14144). Add the OneDrive candidates so
  * discovery covers both locations; missing directories are skipped by the
  * scanners.
  */
@@ -585,15 +577,15 @@ function resolveRedirectedDocumentsPaths(): string[] {
  */
 export function resolveGlobalRulesConfigPaths(): string[] {
 	return dedupePaths([
-		join(resolveClineDir(), RULES_CONFIG_DIRECTORY_NAME),
-		// The VS Code Rules tab resolves Documents via `xdg-user-dir DOCUMENTS`,
-		// which prints bare $HOME when unconfigured (WSL/headless), putting
-		// global rules at ~/Cline/Rules instead of ~/Documents/Cline/Rules
-		// (cline/cline#13542).
-		join(HOME_DIR, "Cline", "Rules"),
+		join(resolveIndusCodeDir(), RULES_CONFIG_DIRECTORY_NAME),
+		join(HOME_DIR, "IndusCode", "Rules"),
 		resolveDocumentsExtensionPath("Rules"),
 		...resolveRedirectedDocumentsPaths().map((documentsPath) =>
-			join(documentsPath, "Cline", "Rules"),
+			join(documentsPath, "IndusCode", "Rules"),
+		),
+		join(HOME_DIR, "IndusCode", "Rules"),
+		...resolveRedirectedDocumentsPaths().map((documentsPath) =>
+			join(documentsPath, "IndusCode", "Rules"),
 		),
 	]);
 }
@@ -619,13 +611,16 @@ export function resolveWorkflowsConfigSearchPaths(
 	workspacePath?: string,
 ): string[] {
 	return dedupePaths([
-		workspacePath
-			? join(workspacePath, ".clinerules", WORKFLOWS_CONFIG_DIRECTORY_NAME)
-			: "",
 		resolveDocumentsExtensionPath("Workflows"),
-		join(resolveClineDir(), WORKFLOWS_CONFIG_DIRECTORY_NAME),
+		join(resolveIndusCodeDir(), WORKFLOWS_CONFIG_DIRECTORY_NAME),
 		workspacePath
-			? join(workspacePath, ".cline", WORKFLOWS_CONFIG_DIRECTORY_NAME)
+			? join(workspacePath, ".induscode", WORKFLOWS_CONFIG_DIRECTORY_NAME)
+			: "",
+		workspacePath
+			? join(workspacePath, ".induscode", WORKFLOWS_CONFIG_DIRECTORY_NAME)
+			: "",
+		workspacePath
+			? join(workspacePath, ".induscoderules", WORKFLOWS_CONFIG_DIRECTORY_NAME)
 			: "",
 	]);
 }
@@ -634,8 +629,9 @@ export function resolvePluginConfigSearchPaths(
 	workspacePath?: string,
 ): string[] {
 	return dedupePaths([
-		workspacePath ? join(workspacePath, ".cline", PLUGINS_DIRECTORY_NAME) : "",
-		join(resolveClineDir(), PLUGINS_DIRECTORY_NAME),
+		workspacePath ? join(workspacePath, ".induscode", PLUGINS_DIRECTORY_NAME) : "",
+		workspacePath ? join(workspacePath, ".induscode", PLUGINS_DIRECTORY_NAME) : "",
+		join(resolveIndusCodeDir(), PLUGINS_DIRECTORY_NAME),
 		resolveDocumentsExtensionPath("Plugins"),
 	]);
 }
@@ -646,7 +642,7 @@ export function resolvePluginConfigSearchPaths(
  * directory: `.agents/plugins` is the vendor-neutral location, matching the
  * `.agents/skills` convention already honored by skill discovery.
  *
- * Discovery roots are explicitly client-defined by the specification. Cline
+ * Discovery roots are explicitly client-defined by the specification. IndusCode
  * only auto-discovers user-installed packages from the Hub host's home so
  * opening a repository cannot activate repository-controlled MCP servers.
  */
@@ -658,7 +654,7 @@ const PLUGIN_MODULE_EXTENSIONS = new Set([".js", ".ts"]);
 const PLUGIN_PACKAGE_JSON_FILE_NAME = "package.json";
 const PLUGIN_DIRECTORY_INDEX_CANDIDATES = ["index.ts", "index.js"];
 /**
- * Never descended during Cline plugin discovery. A dependency tree is never a
+ * Never descended during IndusCode plugin discovery. A dependency tree is never a
  * set of plugin entries: importing its files individually bypasses each
  * package's own entry point, and for a plugin with real dependencies it means
  * thousands of imports at session startup.
@@ -671,7 +667,7 @@ const PLUGIN_SCAN_EXCLUDED_DIRECTORY_NAMES = new Set(["node_modules"]);
  * Only the manifest's presence is checked here. Validating its contents
  * (`$schema`, `name`, the closed field set) belongs to the Agent Plugin loader;
  * discovery only needs to know that this directory belongs to the other lane
- * and must not be scanned for Cline plugin modules.
+ * and must not be scanned for IndusCode plugin modules.
  */
 export function isAgentPluginDirectory(directoryPath: string): boolean {
 	try {
@@ -700,12 +696,12 @@ function readPluginPackageManifest(
 ): PluginPackageManifest | null {
 	try {
 		const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf8")) as {
-			cline?: PluginPackageManifest;
+			induscode?: PluginPackageManifest;
 		};
-		if (!packageJson.cline || typeof packageJson.cline !== "object") {
+		if (!packageJson.induscode || typeof packageJson.induscode !== "object") {
 			return null;
 		}
-		return packageJson.cline;
+		return packageJson.induscode;
 	} catch {
 		return null;
 	}
@@ -729,7 +725,7 @@ export function resolvePluginModuleEntries(
 		return null;
 	}
 
-	// An Agent Plugin is not a Cline plugin. Claim nothing from it here so an
+	// An Agent Plugin is not a IndusCode plugin. Claim nothing from it here so an
 	// explicitly configured path pointing at one resolves to zero modules
 	// instead of importing whatever JS/TS happens to live inside.
 	if (isAgentPluginDirectory(root)) {
@@ -785,7 +781,7 @@ function isPathWithin(parentPath: string, childPath: string): boolean {
 
 /**
  * Human-readable name for a plugin module entry. Package-backed plugins
- * (e.g. `~/.cline/plugins/_installed/<id>/package/index.ts`) are named after
+ * (e.g. `~/.induscode/plugins/_installed/<id>/package/index.ts`) are named after
  * the `name` in the nearest ancestor `package.json` within `searchRoot`, so
  * every install doesn't surface as "index". Bare module files fall back to
  * the file basename.
@@ -842,7 +838,7 @@ export function discoverPluginModulePaths(directoryPath: string): string[] {
 			if (entry.isDirectory()) {
 				// Agent Plugins own their whole subtree. Descending would import a
 				// plugin's skill scripts, another vendor's extension directory, and
-				// its vendored dependencies as though each were a Cline plugin —
+				// its vendored dependencies as though each were a IndusCode plugin —
 				// and the loader imports a module before validating it, so that
 				// execution cannot be taken back.
 				if (isAgentPluginDirectory(candidate)) {
@@ -935,7 +931,7 @@ export function ensureHookLogDir(filePath?: string): string {
 		ensureParentDir(filePath);
 		return dirname(filePath);
 	}
-	const dir = join(resolveClineDataDir(), "logs");
+	const dir = join(resolveIndusCodeDataDir(), "logs");
 	if (!existsSync(dir)) {
 		mkdirSync(dir, { recursive: true });
 	}

@@ -1,11 +1,11 @@
 import type { ProviderSettingsManager } from "../services/storage/provider-settings-manager";
-import type { ClineAccountUser } from "./types";
+import type { IndusCodeAccountUser } from "./types";
 
 /** Account identity shared by telemetry and feature-flag integrations. */
-export interface ClineAccountTelemetryIdentity {
+export interface IndusCodeAccountTelemetryIdentity {
 	id: string;
 	email?: string;
-	provider: "cline";
+	provider: "induscode";
 	organizationId?: string;
 	organizationName?: string;
 	memberId?: string;
@@ -15,16 +15,16 @@ export interface ClineAccountTelemetryIdentity {
  * Resolve the authenticated user and active organization once so every client
  * applies the same cross-surface account dimensions.
  */
-export function resolveClineAccountTelemetryIdentity(
-	user: ClineAccountUser,
-): ClineAccountTelemetryIdentity {
+export function resolveIndusCodeAccountTelemetryIdentity(
+	user: IndusCodeAccountUser,
+): IndusCodeAccountTelemetryIdentity {
 	const activeOrganization = user.organizations?.find(
 		(organization) => organization.active,
 	);
 	return {
 		id: user.id,
 		email: user.email,
-		provider: "cline",
+		provider: "induscode",
 		organizationId: activeOrganization?.organizationId,
 		organizationName: activeOrganization?.name,
 		memberId: activeOrganization?.memberId,
@@ -36,15 +36,15 @@ export function resolveClineAccountTelemetryIdentity(
  * runtime processes (notably the shared Hub) can then enrich task telemetry
  * without making their own account API request.
  */
-export function persistClineAccountTelemetryIdentity(
+export function persistIndusCodeAccountTelemetryIdentity(
 	manager: Pick<
 		ProviderSettingsManager,
 		"getProviderSettings" | "saveProviderSettings"
 	>,
-	identity: ClineAccountTelemetryIdentity,
+	identity: IndusCodeAccountTelemetryIdentity,
 ): boolean {
 	try {
-		const persisted = manager.getProviderSettings("cline");
+		const persisted = manager.getProviderSettings("induscode");
 		if (!persisted) return false;
 		manager.saveProviderSettings(
 			{

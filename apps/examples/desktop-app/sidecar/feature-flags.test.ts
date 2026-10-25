@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
-	buildClinePostHogClient: vi.fn(() => ({ kind: "posthog-client" })),
+	buildIndusCodePostHogClient: vi.fn(() => ({ kind: "posthog-client" })),
 	PostHogFeatureFlagsProvider: vi.fn(function PostHogFeatureFlagsProvider(
 		this: Record<string, unknown>,
 		options: unknown,
@@ -22,14 +22,14 @@ const mocks = vi.hoisted(() => ({
 	getFlagPayload: vi.fn((_flag: unknown): unknown => undefined),
 }));
 
-vi.mock("@cline/core", async () => {
+vi.mock("@induscode/core", async () => {
 	const actual =
-		await vi.importActual<typeof import("@cline/core")>("@cline/core");
+		await vi.importActual<typeof import("@induscode/core")>("@induscode/core");
 	return {
 		...actual,
 		// Two known flags keep the snapshot assertions meaningful even as the
 		// real registry changes.
-		FEATURE_FLAGS: ["ext-cline-pass", "ext-demo-flag"],
+		FEATURE_FLAGS: ["ext-induscode-pass", "ext-demo-flag"],
 		NoOpFeatureFlagsProvider: mocks.NoOpFeatureFlagsProvider,
 		resolveCoreDistinctId: mocks.resolveCoreDistinctId,
 		FeatureFlagsService: class {
@@ -46,8 +46,8 @@ vi.mock("@cline/core", async () => {
 	};
 });
 
-vi.mock("@cline/core/services/feature-flags/posthog", () => ({
-	buildClinePostHogClient: mocks.buildClinePostHogClient,
+vi.mock("@induscode/core/services/feature-flags/posthog", () => ({
+	buildIndusCodePostHogClient: mocks.buildIndusCodePostHogClient,
 	PostHogFeatureFlagsProvider: mocks.PostHogFeatureFlagsProvider,
 }));
 
@@ -66,11 +66,11 @@ import {
 
 const originalApiKey = process.env.TELEMETRY_SERVICE_API_KEY;
 const originalIsTest = process.env.IS_TEST;
-const originalDataDir = process.env.CLINE_DATA_DIR;
+const originalDataDir = process.env.INDUSCODE_DATA_DIR;
 let tempDataDir: string;
 
 function accountContextPath(): string {
-	return join(tempDataDir, "cache", "feature-flags-account.cline-code.json");
+	return join(tempDataDir, "cache", "feature-flags-account.induscode-code.json");
 }
 
 beforeEach(() => {
@@ -81,7 +81,7 @@ beforeEach(() => {
 	delete process.env.E2E_TEST;
 	// Account context persists under the data dir; sandbox it per test.
 	tempDataDir = mkdtempSync(join(tmpdir(), "desktop-ff-test-"));
-	process.env.CLINE_DATA_DIR = tempDataDir;
+	process.env.INDUSCODE_DATA_DIR = tempDataDir;
 });
 
 afterEach(() => {
@@ -96,9 +96,9 @@ afterEach(() => {
 		process.env.IS_TEST = originalIsTest;
 	}
 	if (originalDataDir === undefined) {
-		delete process.env.CLINE_DATA_DIR;
+		delete process.env.INDUSCODE_DATA_DIR;
 	} else {
-		process.env.CLINE_DATA_DIR = originalDataDir;
+		process.env.INDUSCODE_DATA_DIR = originalDataDir;
 	}
 	rmSync(tempDataDir, { recursive: true, force: true });
 });
@@ -108,7 +108,7 @@ describe("getDesktopFeatureFlagsService", () => {
 		process.env.TELEMETRY_SERVICE_API_KEY = "phc_key";
 		getDesktopFeatureFlagsService();
 		expect(mocks.PostHogFeatureFlagsProvider).toHaveBeenCalledTimes(1);
-		expect(mocks.buildClinePostHogClient).toHaveBeenCalledWith("phc_key");
+		expect(mocks.buildIndusCodePostHogClient).toHaveBeenCalledWith("phc_key");
 		expect(mocks.NoOpFeatureFlagsProvider).not.toHaveBeenCalled();
 	});
 
@@ -137,9 +137,9 @@ describe("getDesktopFeatureFlagsService", () => {
 });
 
 describe("feature flags context", () => {
-	it("defaults to the machine distinct ID under the cline-code client name", () => {
+	it("defaults to the machine distinct ID under the induscode-code client name", () => {
 		const context = getDesktopFeatureFlagsContext();
-		expect(context.clientName).toBe("cline-code");
+		expect(context.clientName).toBe("induscode-code");
 		expect(context.distinctId).toBe("machine-distinct-id");
 	});
 
@@ -196,24 +196,24 @@ describe("feature flags context", () => {
 	it("keeps the known email when an ID-only sync re-confirms the same account", () => {
 		setDesktopFeatureFlagsAccountContext({
 			id: "acct-1",
-			email: "beatrix@cline.bot",
+			email: "beatrix@induscode.bot",
 		});
 		// e.g. syncFeatureFlagsAccountFromSettings only knows the account ID.
 		expect(setDesktopFeatureFlagsAccountContext({ id: "acct-1" })).toBe(false);
-		expect(getDesktopFeatureFlagsContext().email).toBe("beatrix@cline.bot");
+		expect(getDesktopFeatureFlagsContext().email).toBe("beatrix@induscode.bot");
 	});
 
 	it("drops the email when the account changes or signs out", () => {
 		setDesktopFeatureFlagsAccountContext({
 			id: "acct-1",
-			email: "beatrix@cline.bot",
+			email: "beatrix@induscode.bot",
 		});
 		setDesktopFeatureFlagsAccountContext({ id: "acct-2" });
 		expect(getDesktopFeatureFlagsContext().email).toBeUndefined();
 
 		setDesktopFeatureFlagsAccountContext({
 			id: "acct-2",
-			email: "other@cline.bot",
+			email: "other@induscode.bot",
 		});
 		setDesktopFeatureFlagsAccountContext({});
 		expect(getDesktopFeatureFlagsContext().email).toBeUndefined();
@@ -224,7 +224,7 @@ describe("account context persistence", () => {
 	it("remembers the account identity across a sidecar restart", () => {
 		setDesktopFeatureFlagsAccountContext({
 			id: "acct-1",
-			email: "beatrix@cline.bot",
+			email: "beatrix@induscode.bot",
 		});
 		expect(existsSync(accountContextPath())).toBe(true);
 
@@ -234,13 +234,13 @@ describe("account context persistence", () => {
 		const context = getDesktopFeatureFlagsContext();
 		expect(context.userId).toBe("acct-1");
 		expect(context.distinctId).toBe("acct-1");
-		expect(context.email).toBe("beatrix@cline.bot");
+		expect(context.email).toBe("beatrix@induscode.bot");
 	});
 
 	it("deletes the persisted identity on sign-out", () => {
 		setDesktopFeatureFlagsAccountContext({
 			id: "acct-1",
-			email: "beatrix@cline.bot",
+			email: "beatrix@induscode.bot",
 		});
 		setDesktopFeatureFlagsAccountContext({});
 		expect(existsSync(accountContextPath())).toBe(false);
@@ -252,7 +252,7 @@ describe("account context persistence", () => {
 	it("a fetched account wins over a stale hydrated one", () => {
 		setDesktopFeatureFlagsAccountContext({
 			id: "acct-old",
-			email: "old@cline.bot",
+			email: "old@induscode.bot",
 		});
 		resetDesktopFeatureFlagsForTesting();
 		setDesktopFeatureFlagsAccountContext({
@@ -268,13 +268,13 @@ describe("account context persistence", () => {
 describe("buildFeatureFlagsSnapshot", () => {
 	it("resolves every known flag so the client needs no defaults", () => {
 		mocks.getFlagPayload.mockImplementation((flag: unknown) =>
-			flag === "ext-cline-pass" ? true : undefined,
+			flag === "ext-induscode-pass" ? true : undefined,
 		);
 		const snapshot = buildFeatureFlagsSnapshot(
 			getDesktopFeatureFlagsService() as never,
 		);
 		expect(snapshot.flags).toEqual({
-			"ext-cline-pass": true,
+			"ext-induscode-pass": true,
 			// Unreturned flags resolve to false rather than being absent.
 			"ext-demo-flag": false,
 		});
@@ -282,12 +282,12 @@ describe("buildFeatureFlagsSnapshot", () => {
 
 	it("passes non-boolean payloads through untouched", () => {
 		mocks.getFlagPayload.mockImplementation((flag: unknown) =>
-			flag === "ext-cline-pass" ? { variant: "b", limit: 3 } : false,
+			flag === "ext-induscode-pass" ? { variant: "b", limit: 3 } : false,
 		);
 		const snapshot = buildFeatureFlagsSnapshot(
 			getDesktopFeatureFlagsService() as never,
 		);
-		expect(snapshot.flags["ext-cline-pass"]).toEqual({
+		expect(snapshot.flags["ext-induscode-pass"]).toEqual({
 			variant: "b",
 			limit: 3,
 		});
@@ -299,7 +299,7 @@ describe("refreshDesktopFeatureFlags", () => {
 		mocks.getFlagPayload.mockReturnValue(true);
 		const snapshot = await refreshDesktopFeatureFlags();
 		expect(mocks.poll).toHaveBeenCalledTimes(1);
-		expect(snapshot.flags["ext-cline-pass"]).toBe(true);
+		expect(snapshot.flags["ext-induscode-pass"]).toBe(true);
 	});
 
 	it("still returns cached values when the poll fails", async () => {
@@ -309,7 +309,7 @@ describe("refreshDesktopFeatureFlags", () => {
 
 		const snapshot = await refreshDesktopFeatureFlags({ logger });
 
-		expect(snapshot.flags["ext-cline-pass"]).toBe(false);
+		expect(snapshot.flags["ext-induscode-pass"]).toBe(false);
 		expect(logger.error).toHaveBeenCalled();
 	});
 });
@@ -334,7 +334,7 @@ describe("disposeDesktopFeatureFlagsService", () => {
 
 describe("cloud agents gate", () => {
 	beforeEach(() => {
-		delete process.env.CLINE_CODE_CLOUD_AGENTS;
+		delete process.env.INDUSCODE_CODE_CLOUD_AGENTS;
 	});
 
 	it("is disabled while the rollout flag is off", async () => {
@@ -362,9 +362,9 @@ describe("cloud agents gate", () => {
 	it("lets the env override force the gate in both directions", async () => {
 		const { isCloudAgentsEnabled } = await import("./feature-flags");
 		mocks.getFlagPayload.mockReturnValue(undefined);
-		process.env.CLINE_CODE_CLOUD_AGENTS = "1";
+		process.env.INDUSCODE_CODE_CLOUD_AGENTS = "1";
 		expect(isCloudAgentsEnabled()).toBe(true);
-		process.env.CLINE_CODE_CLOUD_AGENTS = "0";
+		process.env.INDUSCODE_CODE_CLOUD_AGENTS = "0";
 		expect(isCloudAgentsEnabled()).toBe(false);
 	});
 });

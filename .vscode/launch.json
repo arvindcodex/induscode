@@ -13,9 +13,9 @@
 				"--extensionDevelopmentPath=${workspaceFolder}/apps/vscode",
 				"--disable-workspace-trust",
 				"--disable-extension",
-				"saoudrizwan.claude-dev", // Avoid conflicts with installed Cline
+				"saoudrizwan.claude-dev", // Avoid conflicts with installed IndusCode
 				"--disable-extension",
-				"saoudrizwan.cline-nightly", // Avoid conflicts with installed Cline Nightly
+				"saoudrizwan.induscode-nightly", // Avoid conflicts with installed IndusCode Nightly
 				"${workspaceFolder}/apps/vscode",
 				"--disable-extensions"
 			],
@@ -27,7 +27,7 @@
 			"env": {
 				"IS_DEV": "true",
 				"DEV_WORKSPACE_FOLDER": "${workspaceFolder}/apps/vscode",
-				"CLINE_ENVIRONMENT": "production"
+				"INDUSCODE_ENVIRONMENT": "production"
 			}
 		},
 		{
@@ -38,9 +38,9 @@
 				"--extensionDevelopmentPath=${workspaceFolder}/apps/vscode",
 				"--disable-workspace-trust",
 				"--disable-extension",
-				"saoudrizwan.claude-dev", // Avoid conflicts with installed Cline
+				"saoudrizwan.claude-dev", // Avoid conflicts with installed IndusCode
 				"--disable-extension",
-				"saoudrizwan.cline-nightly", // Avoid conflicts with installed Cline Nightly
+				"saoudrizwan.induscode-nightly", // Avoid conflicts with installed IndusCode Nightly
 				"${workspaceFolder}/apps/vscode"
 			],
 			"outFiles": [
@@ -51,8 +51,8 @@
 			"env": {
 				"IS_DEV": "true",
 				"DEV_WORKSPACE_FOLDER": "${workspaceFolder}/apps/vscode",
-				"CLINE_ENVIRONMENT": "staging",
-				"CLINE_DIR": "${userHome}/.cline_staging"
+				"INDUSCODE_ENVIRONMENT": "staging",
+				"INDUSCODE_DIR": "${userHome}/.induscode_staging"
 			}
 		},
 		{
@@ -63,9 +63,9 @@
 				"--extensionDevelopmentPath=${workspaceFolder}/apps/vscode",
 				"--disable-workspace-trust",
 				"--disable-extension",
-				"saoudrizwan.claude-dev", // Avoid conflicts with installed Cline
+				"saoudrizwan.claude-dev", // Avoid conflicts with installed IndusCode
 				"--disable-extension",
-				"saoudrizwan.cline-nightly", // Avoid conflicts with installed Cline Nightly
+				"saoudrizwan.induscode-nightly", // Avoid conflicts with installed IndusCode Nightly
 				"${workspaceFolder}/apps/vscode"
 			],
 			"outFiles": [
@@ -76,8 +76,8 @@
 			"env": {
 				"IS_DEV": "true",
 				"DEV_WORKSPACE_FOLDER": "${workspaceFolder}/apps/vscode",
-				"CLINE_ENVIRONMENT": "local",
-				"CLINE_DIR": "${userHome}/.cline_local"
+				"INDUSCODE_ENVIRONMENT": "local",
+				"INDUSCODE_DIR": "${userHome}/.induscode_local"
 			}
 		},
 		{
@@ -90,9 +90,9 @@
 				"--profile-temp",
 				"--sync=off",
 				"--disable-extension",
-				"saoudrizwan.claude-dev", // Avoid conflicts with installed Cline
+				"saoudrizwan.claude-dev", // Avoid conflicts with installed IndusCode
 				"--disable-extension",
-				"saoudrizwan.cline-nightly", // Avoid conflicts with installed Cline Nightly
+				"saoudrizwan.induscode-nightly", // Avoid conflicts with installed IndusCode Nightly
 				"--extensionDevelopmentPath=${workspaceFolder}/apps/vscode",
 				"${workspaceFolder}/apps/vscode"
 			],
@@ -107,7 +107,7 @@
 				"IS_DEV": "true",
 				"TEMP_PROFILE": "true",
 				"DEV_WORKSPACE_FOLDER": "${workspaceFolder}/apps/vscode",
-				"CLINE_ENVIRONMENT": "production"
+				"INDUSCODE_ENVIRONMENT": "production"
 			}
 		},
 		{
@@ -136,7 +136,7 @@
 				"HOSTBRIDGE_PORT": "26041",
 				"WORKSPACE_DIR": "${workspaceFolder}/apps/vscode",
 				"E2E_TEST": "true",
-				"CLINE_ENVIRONMENT": "local"
+				"INDUSCODE_ENVIRONMENT": "local"
 			},
 			"console": "integratedTerminal",
 			"internalConsoleOptions": "neverOpen"
@@ -173,7 +173,7 @@
 				"TS_NODE_PROJECT": "./tsconfig.unit-test.json",
 				"NODE_ENV": "test",
 				"IS_DEV": "true",
-				"CLINE_ENVIRONMENT": "local"
+				"INDUSCODE_ENVIRONMENT": "local"
 			},
 			"console": "integratedTerminal",
 			"internalConsoleOptions": "openOnSessionStart"
@@ -213,7 +213,7 @@
 				"${input:cliPrompt}"
 			],
 			"env": {
-				"CLINE_BUILD_ENV": "development"
+				"INDUSCODE_BUILD_ENV": "development"
 			},
 			"presentation": {
 				"hidden": true
@@ -234,8 +234,8 @@
 				"start"
 			],
 			"env": {
-				"CLINE_BUILD_ENV": "development",
-				"CLINE_DEBUG_PORT_BASE": "9230"
+				"INDUSCODE_BUILD_ENV": "development",
+				"INDUSCODE_DEBUG_PORT_BASE": "9230"
 			},
 			"presentation": {
 				"hidden": true

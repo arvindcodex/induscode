@@ -66,10 +66,10 @@ interface AgentUsageEvent {
 
 ## CoreSessionEvent
 
-`ClineCore.subscribe(listener, options?)` emits session-level events from the runtime host.
+`IndusCodeCore.subscribe(listener, options?)` emits session-level events from the runtime host.
 
 ```typescript
-const unsubscribe = cline.subscribe((event) => {
+const unsubscribe = induscode.subscribe((event) => {
   console.log(event.type, event.sessionId)
 }, { sessionId })
 ```

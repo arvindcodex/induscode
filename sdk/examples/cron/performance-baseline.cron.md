@@ -7,7 +7,7 @@ tools: run_commands,read_files,editor
 mode: act
 enabled: false
 modelSelection:
-  providerId: cline
+  providerId: induscode
   modelId: anthropic/claude-opus-4.7
 timeoutSeconds: 2400
 maxIterations: 20

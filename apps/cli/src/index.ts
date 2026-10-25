@@ -5,26 +5,26 @@ import {
 	buildTelemetrySelfcheckReport,
 	claimHubDaemonProcess,
 	claimSupervisedConnectorProcess,
-	createClineTelemetryServiceConfig,
+	createIndusCodeTelemetryServiceConfig,
 	disableCurrentDirectoryExecutableSearch,
 	disposeAll,
 	ensureLoopbackProxyBypass,
 	initVcr,
 	setConnectorCliLaunchSpec,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { logCliProcessError } from "./logging/errors";
 import {
 	abortActiveRuntime,
 	cleanupActiveRuntime,
 	isAbortInProgress,
 } from "./runtime/active-runtime";
-import { registerClineClientIdentity } from "./utils/cline-client-identity";
+import { registerIndusCodeClientIdentity } from "./utils/induscode-client-identity";
 import { resolveCliLaunchSpec } from "./utils/internal-launch";
 import { writeErr } from "./utils/output";
 
 // Initialize VCR before any HTTP requests are made.
-// Set CLINE_VCR=record|playback and CLINE_VCR_CASSETTE=<path> to enable.
-initVcr(process.env.CLINE_VCR);
+// Set INDUSCODE_VCR=record|playback and INDUSCODE_VCR_CASSETTE=<path> to enable.
+initVcr(process.env.INDUSCODE_VCR);
 
 // Before any personality below can spawn a child with the workspace as cwd.
 disableCurrentDirectoryExecutableSearch();
@@ -38,15 +38,15 @@ if (!isMainThread) {
 	// Inspect the config embedded in this executable without starting a hub,
 	// loading user settings, or initializing telemetry exporters.
 	process.stdout.write(
-		`${JSON.stringify(buildTelemetrySelfcheckReport(createClineTelemetryServiceConfig()))}\n`,
+		`${JSON.stringify(buildTelemetrySelfcheckReport(createIndusCodeTelemetryServiceConfig()))}\n`,
 	);
 } else if (claimHubDaemonProcess()) {
 	// Claim rather than read: the sentinel is consumed here so the processes a
 	// daemon-hosted session spawns do not inherit it and try to become daemons.
 	// The hub daemon owns its process-level abort handling. Installing the CLI's
 	// fatal rejection handler first would make expected abort rejections exit it.
-	registerClineClientIdentity("cline-cli");
-	void import("@cline/core/hub/daemon-entry");
+	registerIndusCodeClientIdentity("induscode-cli");
+	void import("@induscode/core/hub/daemon-entry");
 } else {
 	// Same reasoning as the daemon sentinel above: consume the supervised-connector
 	// marker so the processes an agent session spawns cannot inherit it and mistake

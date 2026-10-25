@@ -124,7 +124,7 @@ describe("remote-config runtime", () => {
 					enabled: true,
 					type: "s3_access_keys",
 					s3AccessSettings: {
-						bucket: "cline-prompts",
+						bucket: "induscode-prompts",
 						accessKeyId: "key",
 						secretAccessKey: "secret",
 						region: "us-west-2",
@@ -137,7 +137,7 @@ describe("remote-config runtime", () => {
 			version: 1,
 			storage: {
 				adapterType: "s3",
-				bucket: "cline-prompts",
+				bucket: "induscode-prompts",
 				region: "us-west-2",
 				endpoint: undefined,
 				accountId: undefined,

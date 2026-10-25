@@ -14,9 +14,9 @@ import {
 } from "../../discovery/instance-lock";
 import { startHubWebSocketServer } from "../../server";
 
-const discoveryPath = process.env.CLINE_HUB_DISCOVERY_PATH?.trim();
-const dataDir = process.env.CLINE_DATA_DIR?.trim();
-const port = Number(process.env.CLINE_HUB_TEST_PORT);
+const discoveryPath = process.env.INDUSCODE_HUB_DISCOVERY_PATH?.trim();
+const dataDir = process.env.INDUSCODE_DATA_DIR?.trim();
+const port = Number(process.env.INDUSCODE_HUB_TEST_PORT);
 
 if (!discoveryPath || !dataDir || !Number.isInteger(port) || port < 0) {
 	throw new Error("Invalid singleton daemon fixture environment");

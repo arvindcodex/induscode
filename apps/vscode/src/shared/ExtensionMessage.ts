@@ -1,20 +1,20 @@
 // type that represents json data that is sent from extension to webview, called ExtensionMessage and has 'type' enum which can be 'plusButtonClicked' or 'settingsButtonClicked' or 'hello'
 
-import type { GeneratedMedia } from "@cline/shared"
+import type { GeneratedMedia } from "@induscode/shared"
 import { WorkspaceRoot } from "@shared/multi-root/types"
 import { RemoteConfigFields } from "@shared/storage/state-keys"
 import type { Environment } from "../config"
 import { AutoApprovalSettings } from "./AutoApprovalSettings"
 import { ApiConfiguration } from "./api"
 import { BrowserSettings } from "./BrowserSettings"
-import { ClineFeatureSetting } from "./ClineFeatureSetting"
-import { BannerCardData } from "./cline/banner"
-import { ClineRulesToggles } from "./cline-rules"
+import { IndusCodeFeatureSetting } from "./IndusCodeFeatureSetting"
+import { BannerCardData } from "./induscode/banner"
+import { IndusCodeRulesToggles } from "./induscode-rules"
 import type { CloudTaskTargetView, CurrentCloudTaskInfo } from "./cloud/cloud-sessions"
 import { HistoryItem } from "./HistoryItem"
 import { McpDisplayMode } from "./McpDisplayMode"
-import { ClineMessageModelInfo } from "./messages"
-import { OnboardingModelGroup } from "./proto/cline/state"
+import { IndusCodeMessageModelInfo } from "./messages"
+import { OnboardingModelGroup } from "./proto/induscode/state"
 import { Mode } from "./storage/types"
 import { TelemetrySetting } from "./TelemetrySetting"
 import { UserInfo } from "./UserInfo"
@@ -36,7 +36,7 @@ export type Platform = "aix" | "darwin" | "freebsd" | "linux" | "openbsd" | "sun
 
 export const DEFAULT_PLATFORM = "unknown"
 
-export const COMMAND_CANCEL_TOKEN = "__cline_command_cancel__"
+export const COMMAND_CANCEL_TOKEN = "__induscode_command_cancel__"
 
 export interface ExtensionState {
 	isNewUser: boolean
@@ -48,7 +48,7 @@ export interface ExtensionState {
 	remoteBrowserHost?: string
 	preferredLanguage?: string
 	mode: Mode
-	clineMessages: ClineMessage[]
+	induscodeMessages: IndusCodeMessage[]
 	checkpointRestoreInput?: {
 		text: string
 		images?: string[]
@@ -57,7 +57,7 @@ export interface ExtensionState {
 	}
 	/**
 	 * The single authoritative UI mode for the current turn, owned by the extension. The webview
-	 * renders the footer/buttons/thinking indicator from this, NOT from the tail of clineMessages.
+	 * renders the footer/buttons/thinking indicator from this, NOT from the tail of induscodeMessages.
 	 * Optional for classic/legacy (absent => webview falls back to legacy tail heuristics).
 	 */
 	turnState?: TurnState
@@ -74,7 +74,7 @@ export interface ExtensionState {
 	 */
 	stateVersion?: number
 	/**
-	 * Conversation/replica fence for this snapshot (see ClineMessage.epoch). A snapshot with a
+	 * Conversation/replica fence for this snapshot (see IndusCodeMessage.epoch). A snapshot with a
 	 * newer epoch replaces the webview transcript; an older one is dropped; an equal one merges.
 	 * Optional for classic/legacy.
 	 */
@@ -86,7 +86,7 @@ export interface ExtensionState {
 	enableCheckpointsSetting?: boolean
 	platform: Platform
 	environment?: Environment
-	/** The editor Cline runs in, as the host reports it ("Visual Studio Code", "Cursor", "PyCharm Professional"). */
+	/** The editor IndusCode runs in, as the host reports it ("Visual Studio Code", "Cursor", "PyCharm Professional"). */
 	hostName?: string
 	shouldShowAnnouncement: boolean
 	taskHistory: HistoryItem[]
@@ -111,27 +111,27 @@ export interface ExtensionState {
 	 */
 	extensionVariant?: "legacy" | "next"
 	distinctId: string
-	globalClineRulesToggles: ClineRulesToggles
-	localClineRulesToggles: ClineRulesToggles
-	localWorkflowToggles: ClineRulesToggles
-	globalWorkflowToggles: ClineRulesToggles
-	localCursorRulesToggles: ClineRulesToggles
-	localWindsurfRulesToggles: ClineRulesToggles
-	remoteRulesToggles?: ClineRulesToggles
-	remoteWorkflowToggles?: ClineRulesToggles
-	localAgentsRulesToggles: ClineRulesToggles
+	globalIndusCodeRulesToggles: IndusCodeRulesToggles
+	localIndusCodeRulesToggles: IndusCodeRulesToggles
+	localWorkflowToggles: IndusCodeRulesToggles
+	globalWorkflowToggles: IndusCodeRulesToggles
+	localCursorRulesToggles: IndusCodeRulesToggles
+	localWindsurfRulesToggles: IndusCodeRulesToggles
+	remoteRulesToggles?: IndusCodeRulesToggles
+	remoteWorkflowToggles?: IndusCodeRulesToggles
+	localAgentsRulesToggles: IndusCodeRulesToggles
 	mcpResponsesCollapsed?: boolean
 	useAutoCondense?: boolean
 	compactionStrategy?: string
 	webSearchEnabled?: boolean
 	subagentsEnabled?: boolean
-	worktreesEnabled?: ClineFeatureSetting
+	worktreesEnabled?: IndusCodeFeatureSetting
 	favoritedModelIds: string[]
 	// NEW: Add workspace information
 	workspaceRoots: WorkspaceRoot[]
 	primaryRootIndex: number
 	isMultiRootWorkspace: boolean
-	multiRootSetting: ClineFeatureSetting
+	multiRootSetting: IndusCodeFeatureSetting
 	lastDismissedInfoBannerVersion: number
 	lastDismissedModelBannerVersion: number
 	lastDismissedCliBannerVersion: number
@@ -147,22 +147,22 @@ export interface ExtensionState {
 	showFeatureTips?: boolean
 	banners?: BannerCardData[]
 	welcomeBanners?: BannerCardData[]
-	/** Cline Cloud sessions rollout flag; shows the Settings toggle. */
+	/** IndusCode Cloud sessions rollout flag; shows the Settings toggle. */
 	cloudSessionsAvailable?: boolean
-	/** Cline Cloud sessions are available and turned on in Settings. */
+	/** IndusCode Cloud sessions are available and turned on in Settings. */
 	cloudSessionsEnabled?: boolean
 	/** Where a new task runs, resolved from the user's choice, the account's repositories and the workspace. */
 	cloudTaskTarget?: CloudTaskTargetView
-	/** Present while the displayed task runs in Cline Cloud. */
+	/** Present while the displayed task runs in IndusCode Cloud. */
 	currentCloudTask?: CurrentCloudTaskInfo
-	/** Cline model the displayed cloud task runs on, else the one a new cloud task would use. */
+	/** IndusCode model the displayed cloud task runs on, else the one a new cloud task would use. */
 	cloudModelId?: string
 	openAiCodexIsAuthenticated?: boolean
 }
 
 /**
  * The authoritative UI mode for the current agent turn, owned by the extension. The webview reads
- * this instead of inferring mode from the tail of clineMessages.
+ * this instead of inferring mode from the tail of induscodeMessages.
  */
 export type TurnPhase =
 	| "idle" // no active turn; input enabled, no buttons
@@ -175,7 +175,7 @@ export type TurnPhase =
 
 export interface TurnState {
 	phase: TurnPhase
-	/** ts of the ClineMessage this phase is "about" (e.g. the pending approval/ask). */
+	/** ts of the IndusCodeMessage this phase is "about" (e.g. the pending approval/ask). */
 	anchorTs?: number
 	/** Monotonic; the webview keeps the highest-seq TurnState and ignores older ones. */
 	seq: number
@@ -188,11 +188,11 @@ export interface QueuedPrompt {
 	attachmentCount: number
 }
 
-export interface ClineMessage {
+export interface IndusCodeMessage {
 	ts: number
 	type: "ask" | "say"
-	ask?: ClineAsk
-	say?: ClineSay
+	ask?: IndusCodeAsk
+	say?: IndusCodeSay
 	text?: string
 	reasoning?: string
 	images?: string[]
@@ -217,10 +217,10 @@ export interface ClineMessage {
 	isOperationOutsideWorkspace?: boolean
 	conversationHistoryIndex?: number
 	conversationHistoryDeletedRange?: [number, number] // for when conversation history is truncated for API requests
-	modelInfo?: ClineMessageModelInfo
+	modelInfo?: IndusCodeMessageModelInfo
 }
 
-export type ClineAsk =
+export type IndusCodeAsk =
 	| "followup"
 	| "plan_mode_respond"
 	| "act_mode_respond"
@@ -240,7 +240,7 @@ export type ClineAsk =
 	| "report_bug"
 	| "use_subagents"
 
-export type ClineSay =
+export type IndusCodeSay =
 	| "task"
 	| "error"
 	| "api_req_started"
@@ -265,7 +265,7 @@ export type ClineSay =
 	| "use_mcp_server"
 	| "diff_error"
 	| "deleted_api_reqs"
-	| "clineignore_error"
+	| "induscodeignore_error"
 	| "command_permission_denied"
 	| "checkpoint_created"
 	| "load_mcp_documentation"
@@ -278,7 +278,7 @@ export type ClineSay =
 	| "conditional_rules_applied"
 	| "compaction" // context compaction progress/result divider
 
-export interface ClineSayTool {
+export interface IndusCodeSayTool {
 	tool:
 		| "editedExistingFile"
 		| "newFileCreated"
@@ -309,7 +309,7 @@ export interface ClineSayTool {
 const browserActions = ["launch", "click", "type", "scroll_down", "scroll_up", "close"] as const
 export type BrowserAction = (typeof browserActions)[number]
 
-export interface ClineSayBrowserAction {
+export interface IndusCodeSayBrowserAction {
 	action: BrowserAction
 	coordinate?: string
 	text?: string
@@ -333,7 +333,7 @@ export interface SubagentStatusItem {
 	error?: string
 }
 
-export interface ClineSaySubagentStatus {
+export interface IndusCodeSaySubagentStatus {
 	status: "running" | "completed" | "failed"
 	total: number
 	completed: number
@@ -355,7 +355,7 @@ export type BrowserActionResult = {
 	currentMousePosition?: string
 }
 
-export interface ClineAskUseMcpServer {
+export interface IndusCodeAskUseMcpServer {
 	serverName: string
 	type: "use_mcp_tool" | "access_mcp_resource"
 	toolName?: string
@@ -363,30 +363,30 @@ export interface ClineAskUseMcpServer {
 	uri?: string
 }
 
-export interface ClineAskUseSubagents {
+export interface IndusCodeAskUseSubagents {
 	prompts: string[]
 }
 
-export interface ClinePlanModeResponse {
+export interface IndusCodePlanModeResponse {
 	response: string
 	options?: string[]
 	selected?: string
 }
 
-export interface ClineAskQuestion {
+export interface IndusCodeAskQuestion {
 	question: string
 	options?: string[]
 	selected?: string
 }
 
-export interface ClineApiReqInfo {
+export interface IndusCodeApiReqInfo {
 	request?: string
 	tokensIn?: number
 	tokensOut?: number
 	cacheWrites?: number
 	cacheReads?: number
 	cost?: number
-	cancelReason?: ClineApiReqCancelReason
+	cancelReason?: IndusCodeApiReqCancelReason
 	streamingFailedMessage?: string
 }
 
@@ -395,7 +395,7 @@ export interface ClineApiReqInfo {
  * divider (apps/cli/src/tui/utils/compaction-status.ts): a "started" row shows
  * a spinner and is later updated in place (same ts) to its terminal status.
  */
-export interface ClineCompactionInfo {
+export interface IndusCodeCompactionInfo {
 	status: "started" | "completed" | "skipped" | "failed" | "cancelled"
 	mode: "auto" | "manual"
 	tokensBefore?: number
@@ -404,7 +404,7 @@ export interface ClineCompactionInfo {
 	messagesAfter?: number
 }
 
-export interface ClineSubagentUsageInfo {
+export interface IndusCodeSubagentUsageInfo {
 	source: "subagents"
 	tokensIn: number
 	tokensOut: number
@@ -413,6 +413,6 @@ export interface ClineSubagentUsageInfo {
 	cost: number
 }
 
-type ClineApiReqCancelReason = "streaming_failed" | "user_cancelled" | "retries_exhausted"
+type IndusCodeApiReqCancelReason = "streaming_failed" | "user_cancelled" | "retries_exhausted"
 
 export const COMPLETION_RESULT_CHANGES_FLAG = "HAS_CHANGES"

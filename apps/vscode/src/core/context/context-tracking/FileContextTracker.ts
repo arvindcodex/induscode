@@ -1,5 +1,5 @@
 import { getTaskMetadata, saveTaskMetadata } from "@core/storage/disk"
-import type { ClineMessage } from "@shared/ExtensionMessage"
+import type { IndusCodeMessage } from "@shared/ExtensionMessage"
 import chokidar, { FSWatcher } from "chokidar"
 import * as path from "path"
 import { Controller } from "@/core/controller"
@@ -8,17 +8,17 @@ import { getCwd } from "@/utils/path"
 import type { FileMetadataEntry } from "./ContextTrackerTypes"
 
 // This class is responsible for tracking file operations that may result in stale context.
-// If a user modifies a file outside of Cline, the context may become stale and need to be updated.
-// We do not want Cline to reload the context every time a file is modified, so we use this class merely
-// to inform Cline that the change has occurred, and tell Cline to reload the file before making
-// any changes to it. This fixes an issue with diff editing, where Cline was unable to complete a diff edit.
-// a diff edit because the file was modified since Cline last read it.
+// If a user modifies a file outside of IndusCode, the context may become stale and need to be updated.
+// We do not want IndusCode to reload the context every time a file is modified, so we use this class merely
+// to inform IndusCode that the change has occurred, and tell IndusCode to reload the file before making
+// any changes to it. This fixes an issue with diff editing, where IndusCode was unable to complete a diff edit.
+// a diff edit because the file was modified since IndusCode last read it.
 
 // FileContextTracker
 /**
 This class is responsible for tracking file operations.
-If the full contents of a file are passed to Cline via a tool, mention, or edit, the file is marked as active.
-If a file is modified outside of Cline, we detect and track this change to prevent stale context.
+If the full contents of a file are passed to IndusCode via a tool, mention, or edit, the file is marked as active.
+If a file is modified outside of IndusCode, we detect and track this change to prevent stale context.
 This is used when restoring a task (non-git "checkpoint" restore), and mid-task.
 */
 export class FileContextTracker {
@@ -28,7 +28,7 @@ export class FileContextTracker {
 	// File tracking and watching
 	private fileWatchers = new Map<string, FSWatcher>()
 	private recentlyModifiedFiles = new Set<string>()
-	private recentlyEditedByCline = new Set<string>()
+	private recentlyEditedByIndusCode = new Set<string>()
 
 	constructor(controller: Controller, taskId: string) {
 		this.controller = controller
@@ -65,10 +65,10 @@ export class FileContextTracker {
 
 		// Track file changes
 		watcher.on("change", () => {
-			if (this.recentlyEditedByCline.has(filePath)) {
-				this.recentlyEditedByCline.delete(filePath) // This was an edit by Cline, no need to inform Cline
+			if (this.recentlyEditedByIndusCode.has(filePath)) {
+				this.recentlyEditedByIndusCode.delete(filePath) // This was an edit by IndusCode, no need to inform IndusCode
 			} else {
-				this.recentlyModifiedFiles.add(filePath) // This was a user edit, we will inform Cline
+				this.recentlyModifiedFiles.add(filePath) // This was a user edit, we will inform IndusCode
 				this.trackFileContext(filePath, "user_edited") // Update the task metadata with file tracking
 			}
 		})
@@ -79,9 +79,9 @@ export class FileContextTracker {
 
 	/**
 	 * Tracks a file operation in metadata and sets up a watcher for the file
-	 * This is the main entry point for FileContextTracker and is called when a file is passed to Cline via a tool, mention, or edit.
+	 * This is the main entry point for FileContextTracker and is called when a file is passed to IndusCode via a tool, mention, or edit.
 	 */
-	async trackFileContext(filePath: string, operation: "read_tool" | "user_edited" | "cline_edited" | "file_mentioned") {
+	async trackFileContext(filePath: string, operation: "read_tool" | "user_edited" | "induscode_edited" | "file_mentioned") {
 		try {
 			const cwd = await getCwd()
 			if (!cwd) {
@@ -129,8 +129,8 @@ export class FileContextTracker {
 				path: filePath,
 				record_state: "active",
 				record_source: source,
-				cline_read_date: getLatestDateForField(filePath, "cline_read_date"),
-				cline_edit_date: getLatestDateForField(filePath, "cline_edit_date"),
+				induscode_read_date: getLatestDateForField(filePath, "induscode_read_date"),
+				induscode_edit_date: getLatestDateForField(filePath, "induscode_edit_date"),
 				user_edit_date: getLatestDateForField(filePath, "user_edit_date"),
 			}
 
@@ -141,16 +141,16 @@ export class FileContextTracker {
 					this.recentlyModifiedFiles.add(filePath)
 					break
 
-				// cline_edited: Cline has edited the file
-				case "cline_edited":
-					newEntry.cline_read_date = now
-					newEntry.cline_edit_date = now
+				// induscode_edited: IndusCode has edited the file
+				case "induscode_edited":
+					newEntry.induscode_read_date = now
+					newEntry.induscode_edit_date = now
 					break
 
-				// read_tool/file_mentioned: Cline has read the file via a tool or file mention
+				// read_tool/file_mentioned: IndusCode has read the file via a tool or file mention
 				case "read_tool":
 				case "file_mentioned":
-					newEntry.cline_read_date = now
+					newEntry.induscode_read_date = now
 					break
 			}
 
@@ -171,10 +171,10 @@ export class FileContextTracker {
 	}
 
 	/**
-	 * Marks a file as edited by Cline to prevent false positives in file watchers
+	 * Marks a file as edited by IndusCode to prevent false positives in file watchers
 	 */
-	markFileAsEditedByCline(filePath: string): void {
-		this.recentlyEditedByCline.add(filePath)
+	markFileAsEditedByIndusCode(filePath: string): void {
+		this.recentlyEditedByIndusCode.add(filePath)
 	}
 
 	/**
@@ -187,22 +187,22 @@ export class FileContextTracker {
 	}
 
 	/**
-	 * Detects files that were edited by Cline or users after a specific message timestamp
+	 * Detects files that were edited by IndusCode or users after a specific message timestamp
 	 * This is used when restoring checkpoints to warn about potential file content mismatches
 	 */
-	async detectFilesEditedAfterMessage(messageTs: number, deletedMessages: ClineMessage[]): Promise<string[]> {
+	async detectFilesEditedAfterMessage(messageTs: number, deletedMessages: IndusCodeMessage[]): Promise<string[]> {
 		const editedFiles: string[] = []
 
 		try {
-			// Check task metadata for files that were edited by Cline or users after the message timestamp
+			// Check task metadata for files that were edited by IndusCode or users after the message timestamp
 			const taskMetadata = await getTaskMetadata(this.taskId)
 
 			if (taskMetadata?.files_in_context) {
 				for (const fileEntry of taskMetadata.files_in_context) {
-					const clineEditedAfter = fileEntry.cline_edit_date && fileEntry.cline_edit_date > messageTs
+					const induscodeEditedAfter = fileEntry.induscode_edit_date && fileEntry.induscode_edit_date > messageTs
 					const userEditedAfter = fileEntry.user_edit_date && fileEntry.user_edit_date > messageTs
 
-					if (clineEditedAfter || userEditedAfter) {
+					if (induscodeEditedAfter || userEditedAfter) {
 						editedFiles.push(fileEntry.path)
 					}
 				}

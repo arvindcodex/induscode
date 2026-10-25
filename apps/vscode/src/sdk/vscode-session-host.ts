@@ -1,15 +1,15 @@
-// VscodeSessionHost — wraps ClineCore with VSCode-specific customizations
+// VscodeSessionHost — wraps IndusCodeCore with VSCode-specific customizations
 //
-// Uses ClineCore.create() so the SDK owns session input normalization,
+// Uses IndusCodeCore.create() so the SDK owns session input normalization,
 // lifecycle bootstrapping, and host selection while the VSCode extension
 // still provides its custom McpHub-backed runtime builder.
 
 import {
 	type ApplyPatchExecutor,
 	type AskQuestionExecutor,
-	ClineCore,
-	type ClineCoreListHistoryOptions,
-	type ClineCoreStartInput,
+	IndusCodeCore,
+	type IndusCodeCoreListHistoryOptions,
+	type IndusCodeCoreStartInput,
 	type CompareCheckpointInput,
 	type CompareCheckpointResult,
 	type CoreSessionEvent,
@@ -32,9 +32,9 @@ import {
 	type StartSessionInput,
 	type StartSessionResult,
 	type ToolExecutors,
-	toClineCoreStartInput,
-} from "@cline/core"
-import { RUNTIME_CONFIG_EXTENSION_KINDS, type ToolApprovalRequest, type ToolApprovalResult, type ToolPolicy } from "@cline/shared"
+	toIndusCodeCoreStartInput,
+} from "@induscode/core"
+import { RUNTIME_CONFIG_EXTENSION_KINDS, type ToolApprovalRequest, type ToolApprovalResult, type ToolPolicy } from "@induscode/shared"
 import { StateManager } from "@/core/storage/StateManager"
 import type { VscodeTerminalManager } from "@/hosts/vscode/terminal/VscodeTerminalManager"
 import { getDistinctId } from "@/services/logging/distinctId"
@@ -94,13 +94,13 @@ export interface VscodeSessionHostOptions {
 
 export class VscodeSessionHost implements SdkSessionHost {
 	readonly runtimeAddress: string | undefined
-	private readonly inner: ClineCore
-	private readonly prepareStartSessionInput: (input: ClineCoreStartInput) => Promise<ClineCoreStartInput>
+	private readonly inner: IndusCodeCore
+	private readonly prepareStartSessionInput: (input: IndusCodeCoreStartInput) => Promise<IndusCodeCoreStartInput>
 	private readonly gitTelemetry: VscodeGitTelemetryManager
 
 	private constructor(
-		inner: ClineCore,
-		prepareStartSessionInput: (input: ClineCoreStartInput) => Promise<ClineCoreStartInput>,
+		inner: IndusCodeCore,
+		prepareStartSessionInput: (input: IndusCodeCoreStartInput) => Promise<IndusCodeCoreStartInput>,
 		options: VscodeSessionHostOptions,
 	) {
 		this.inner = inner
@@ -138,7 +138,7 @@ export class VscodeSessionHost implements SdkSessionHost {
 		}
 
 		// Both start and checkpoint restore use the same input preparation.
-		const prepareStartSessionInput = async (input: ClineCoreStartInput): Promise<ClineCoreStartInput> => {
+		const prepareStartSessionInput = async (input: IndusCodeCoreStartInput): Promise<IndusCodeCoreStartInput> => {
 			await options.beforeStartSession?.()
 			// Read only after the readiness gate: it may have atomically replaced
 			// the integration that must be captured by this session.
@@ -153,7 +153,7 @@ export class VscodeSessionHost implements SdkSessionHost {
 				vscodeTerminalExecutionMode: getEffectiveTerminalExecutionMode(requestedTerminalExecutionMode),
 				foregroundCommands: options.foregroundCommands,
 			})
-			const config: ClineCoreStartInput["config"] = {
+			const config: IndusCodeCoreStartInput["config"] = {
 				...inputWithRemoteConfig.config,
 				telemetry: inputWithRemoteConfig.config.telemetry ?? options.telemetry,
 				extraTools: [...(inputWithRemoteConfig.config.extraTools ?? []), ...extraTools],
@@ -176,7 +176,7 @@ export class VscodeSessionHost implements SdkSessionHost {
 			}
 		}
 
-		const inner = await ClineCore.create({
+		const inner = await IndusCodeCore.create({
 			backendMode: "local",
 			capabilities: {
 				requestToolApproval: options.requestToolApproval as
@@ -189,7 +189,7 @@ export class VscodeSessionHost implements SdkSessionHost {
 			distinctId: getDistinctId() || undefined,
 		})
 
-		Logger.log("[VscodeSessionHost] Initialized with ClineCore + VSCode extra tools")
+		Logger.log("[VscodeSessionHost] Initialized with IndusCodeCore + VSCode extra tools")
 		if (options.getTerminalManager) {
 			Logger.log("[VscodeSessionHost] SDK run_commands suppressed; using custom foreground/background terminal tool")
 		}
@@ -197,9 +197,9 @@ export class VscodeSessionHost implements SdkSessionHost {
 	}
 
 	async start(input: StartSessionInput): Promise<StartSessionResult>
-	async start(input: ClineCoreStartInput): Promise<StartSessionResult>
-	async start(input: StartSessionInput | ClineCoreStartInput): Promise<StartSessionResult> {
-		const prepared = await this.prepareStartSessionInput(toClineCoreStartInput(input))
+	async start(input: IndusCodeCoreStartInput): Promise<StartSessionResult>
+	async start(input: StartSessionInput | IndusCodeCoreStartInput): Promise<StartSessionResult> {
+		const prepared = await this.prepareStartSessionInput(toIndusCodeCoreStartInput(input))
 		const observer = this.gitTelemetry.init(prepared)
 		try {
 			const result = await this.inner.start(prepared)
@@ -259,11 +259,11 @@ export class VscodeSessionHost implements SdkSessionHost {
 		return this.inner.get(sessionId)
 	}
 
-	async list(limit?: number, options: Omit<ClineCoreListHistoryOptions, "limit"> = {}): Promise<SessionHistoryRecord[]> {
+	async list(limit?: number, options: Omit<IndusCodeCoreListHistoryOptions, "limit"> = {}): Promise<SessionHistoryRecord[]> {
 		return this.inner.list(limit, options)
 	}
 
-	async listHistory(options: ClineCoreListHistoryOptions = {}): Promise<SessionHistoryRecord[]> {
+	async listHistory(options: IndusCodeCoreListHistoryOptions = {}): Promise<SessionHistoryRecord[]> {
 		return this.inner.listHistory(options)
 	}
 
@@ -287,7 +287,7 @@ export class VscodeSessionHost implements SdkSessionHost {
 		// Apply the same preparation to checkpoint-restore replacement sessions.
 		let observer: VscodeGitTelemetry | undefined
 		if (input.start) {
-			const start = await this.prepareStartSessionInput(toClineCoreStartInput(input.start))
+			const start = await this.prepareStartSessionInput(toIndusCodeCoreStartInput(input.start))
 			observer = this.gitTelemetry.init(start)
 			input = { ...input, start }
 		}

@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { basename, join, resolve, sep } from "node:path";
 import { isDeepStrictEqual } from "node:util";
-import type { SessionPendingPrompt } from "@cline/core";
+import type { SessionPendingPrompt } from "@induscode/core";
 import { sharedSessionDataDir } from "./paths";
 import type { ChatTurnAttachments, LiveSession } from "./types";
 

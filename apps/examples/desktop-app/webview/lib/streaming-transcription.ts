@@ -2,7 +2,7 @@
 
 import { createGateway } from "@ai-sdk/gateway";
 import { createOpenAI } from "@ai-sdk/openai";
-import type { StreamingAudioTranscriptionSession } from "@cline/shared/browser";
+import type { StreamingAudioTranscriptionSession } from "@induscode/shared/browser";
 import { experimental_streamTranscribe as streamTranscribe } from "ai";
 import { desktopClient, writeDesktopDebugLog } from "@/lib/desktop-client";
 

@@ -1,11 +1,11 @@
-.cline-ui-agent-approval-card,
-.cline-ui-agent-approval-card__detail,
-.cline-ui-agent-approval-card__button {
+.induscode-ui-agent-approval-card,
+.induscode-ui-agent-approval-card__detail,
+.induscode-ui-agent-approval-card__button {
 	box-sizing: border-box;
 	border-style: solid;
 }
 
-.cline-ui-agent-approval-card__detail {
+.induscode-ui-agent-approval-card__detail {
 	margin: 0.5rem 0 0;
 	overflow-x: hidden;
 	overflow-y: auto;
@@ -22,7 +22,7 @@
 	letter-spacing: var(--text-xs--letter-spacing);
 }
 
-.cline-ui-agent-approval-card__error {
+.induscode-ui-agent-approval-card__error {
 	margin-top: 0.5rem;
 	color: var(--error-text);
 	font-size: var(--text-xs);
@@ -30,14 +30,14 @@
 	letter-spacing: var(--text-xs--letter-spacing);
 }
 
-.cline-ui-agent-approval-card__actions {
+.induscode-ui-agent-approval-card__actions {
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
 	margin-top: 0.5rem;
 }
 
-.cline-ui-agent-approval-card__button {
+.induscode-ui-agent-approval-card__button {
 	padding-block: 0;
 	font-family: inherit;
 	font-size: inherit;
@@ -47,24 +47,24 @@
 	line-height: inherit;
 }
 
-.cline-ui-agent-approval-card__spinner {
-	animation: cline-ui-agent-approval-card-spin 1s linear infinite;
+.induscode-ui-agent-approval-card__spinner {
+	animation: induscode-ui-agent-approval-card-spin 1s linear infinite;
 }
 
-.cline-ui-agent-approval-card__button:has(
-		> .cline-ui-agent-approval-card__spinner
+.induscode-ui-agent-approval-card__button:has(
+		> .induscode-ui-agent-approval-card__spinner
 	) {
 	padding-inline: 0.625rem;
 }
 
-@keyframes cline-ui-agent-approval-card-spin {
+@keyframes induscode-ui-agent-approval-card-spin {
 	to {
 		transform: rotate(360deg);
 	}
 }
 
 @media (prefers-reduced-motion: reduce) {
-	.cline-ui-agent-approval-card__spinner {
+	.induscode-ui-agent-approval-card__spinner {
 		animation: none;
 	}
 }

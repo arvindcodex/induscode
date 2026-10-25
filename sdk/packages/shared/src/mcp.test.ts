@@ -61,7 +61,7 @@ describe("clampMcpTimeoutSeconds", () => {
 describe("formatMcpTimeoutErrorMessage", () => {
 	it("names the server, effective bound, and setting to change", () => {
 		expect(formatMcpTimeoutErrorMessage("slow-server", 120_000)).toBe(
-			'MCP request to "slow-server" timed out after 120s. Increase the "timeout" field (in seconds) for this server in cline_mcp_settings.json.',
+			'MCP request to "slow-server" timed out after 120s. Increase the "timeout" field (in seconds) for this server in induscode_mcp_settings.json.',
 		);
 	});
 
@@ -69,7 +69,7 @@ describe("formatMcpTimeoutErrorMessage", () => {
 		expect(
 			formatMcpTimeoutErrorMessage("slow-server", 1_500, "initialize"),
 		).toBe(
-			'MCP request to "slow-server" (initialize) timed out after 1.5s. Increase the "timeout" field (in seconds) for this server in cline_mcp_settings.json.',
+			'MCP request to "slow-server" (initialize) timed out after 1.5s. Increase the "timeout" field (in seconds) for this server in induscode_mcp_settings.json.',
 		);
 	});
 });

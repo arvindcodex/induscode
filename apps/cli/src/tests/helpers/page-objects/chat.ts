@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-// Page-object helpers for the main Cline chat view.
+// Page-object helpers for the main IndusCode chat view.
 // ---------------------------------------------------------------------------
 
 import type { Terminal } from "@microsoft/tui-test/lib/terminal/term";

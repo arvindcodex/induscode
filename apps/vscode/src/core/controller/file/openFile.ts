@@ -1,7 +1,7 @@
 import { parseYamlFrontmatter } from "@core/context/instructions/user-instructions/frontmatter"
 import { StateManager } from "@core/storage/StateManager"
 import { openFile as openFileIntegration } from "@integrations/misc/open-file"
-import { Empty, StringRequest } from "@shared/proto/cline/common"
+import { Empty, StringRequest } from "@shared/proto/induscode/common"
 import { REMOTE_URI_SCHEME } from "@shared/remote-config/constants"
 import type { GlobalInstructionsFile } from "@shared/remote-config/schema"
 import { writeFile } from "@utils/fs"
@@ -74,7 +74,7 @@ async function openRemoteFile(uri: string): Promise<void> {
 
 	// Sanitize the name for use in filename (replace invalid characters)
 	const sanitizedName = name.replace(/[<>:"/\\|?*]/g, "_")
-	const tempPath = path.join(os.tmpdir(), `cline-remote-${type}-${sanitizedName}.md`)
+	const tempPath = path.join(os.tmpdir(), `induscode-remote-${type}-${sanitizedName}.md`)
 
 	await writeFile(tempPath, content)
 	await openFileIntegration(tempPath)

@@ -7,8 +7,8 @@ import {
 	truncateSync,
 } from "node:fs";
 import { dirname } from "node:path";
-import type { BasicLogger, RuntimeLoggerConfig } from "@cline/core";
-import { registerDisposable } from "@cline/shared";
+import type { BasicLogger, RuntimeLoggerConfig } from "@induscode/core";
+import { registerDisposable } from "@induscode/shared";
 import pino, {
 	type DestinationStream,
 	type LevelWithSilent,
@@ -60,15 +60,15 @@ function normalizeRuntimeConfig(input: {
 	runtimeConfig?: RuntimeLoggerConfig;
 }): Required<RuntimeLoggerConfig> {
 	const base = input.runtimeConfig;
-	const enabledEnv = process.env.CLINE_LOG_ENABLED?.trim();
+	const enabledEnv = process.env.INDUSCODE_LOG_ENABLED?.trim();
 	const enabled =
 		base?.enabled ??
 		!(enabledEnv === "0" || enabledEnv?.toLowerCase() === "false");
-	const level = normalizeLogLevel(base?.level ?? process.env.CLINE_LOG_LEVEL);
+	const level = normalizeLogLevel(base?.level ?? process.env.INDUSCODE_LOG_LEVEL);
 	const destination = base?.destination?.trim() || resolveCliLogPath();
 	const name =
 		base?.name?.trim() ||
-		process.env.CLINE_LOG_NAME?.trim() ||
+		process.env.INDUSCODE_LOG_NAME?.trim() ||
 		`${getCliBuildInfo().name}.${input.runtime}`;
 	const bindings = base?.bindings ?? {};
 

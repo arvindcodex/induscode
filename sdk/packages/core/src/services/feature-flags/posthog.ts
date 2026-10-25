@@ -4,7 +4,7 @@ import type {
 	FeatureFlagsContext,
 	FeatureFlagsSettings,
 	IFeatureFlagsProvider,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { PostHog, type PostHogOptions } from "posthog-node";
 
 export interface PostHogFeatureFlagsProviderConfig {
@@ -16,12 +16,12 @@ export interface PostHogFeatureFlagsProviderOptions {
 	client: PostHog;
 }
 
-export function buildClinePostHogClient(
+export function buildIndusCodePostHogClient(
 	apiKey: string,
 	options?: PostHogOptions | undefined,
 ): PostHog {
 	return new PostHog(apiKey, {
-		host: "https://data.cline.bot",
+		host: "https://data.induscode.bot",
 		...options,
 	});
 }

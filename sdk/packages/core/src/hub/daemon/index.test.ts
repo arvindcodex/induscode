@@ -19,12 +19,12 @@ const {
 	probeHubServer,
 	requestHubShutdown,
 	readHubDiscovery,
-	resolveClineDataDir,
+	resolveIndusCodeDataDir,
 	resolveHubBuildId,
 	resolveHubBuildIdentity,
 	withHubStartupLock,
 	writeHubDiscovery,
-	CLINE_RUN_AS_HUB_DAEMON_ENV,
+	INDUSCODE_RUN_AS_HUB_DAEMON_ENV,
 } = vi.hoisted(() => ({
 	spawn: vi.fn(() => ({ unref: vi.fn() })),
 	closeSync: vi.fn(),
@@ -80,7 +80,7 @@ const {
 	probeHubServer: vi.fn(),
 	requestHubShutdown: vi.fn(async () => true),
 	readHubDiscovery: vi.fn(),
-	resolveClineDataDir: vi.fn(() => "/tmp/cline-data"),
+	resolveIndusCodeDataDir: vi.fn(() => "/tmp/induscode-data"),
 	resolveHubBuildId: vi.fn(() => "current-build"),
 	resolveHubBuildIdentity: vi.fn(() => ({
 		buildId: "current-build",
@@ -91,11 +91,11 @@ const {
 			await callback(),
 	),
 	writeHubDiscovery: vi.fn(),
-	CLINE_RUN_AS_HUB_DAEMON_ENV: "CLINE_RUN_AS_HUB_DAEMON",
+	INDUSCODE_RUN_AS_HUB_DAEMON_ENV: "INDUSCODE_RUN_AS_HUB_DAEMON",
 }));
 
-const originalRunAsHubDaemon = process.env[CLINE_RUN_AS_HUB_DAEMON_ENV];
-const originalConnectorCliLaunch = process.env.CLINE_CONNECTOR_CLI_LAUNCH;
+const originalRunAsHubDaemon = process.env[INDUSCODE_RUN_AS_HUB_DAEMON_ENV];
+const originalConnectorCliLaunch = process.env.INDUSCODE_CONNECTOR_CLI_LAUNCH;
 
 vi.mock("node:child_process", () => ({
 	spawn,
@@ -107,15 +107,15 @@ vi.mock("node:fs", () => ({
 	openSync,
 }));
 
-vi.mock("@cline/shared", () => ({
-	CLINE_RUN_AS_HUB_DAEMON_ENV,
-	CLINE_HUB_PORT: 25463,
-	CLINE_HUB_DEV_PORT: 25466,
+vi.mock("@induscode/shared", () => ({
+	INDUSCODE_RUN_AS_HUB_DAEMON_ENV,
+	INDUSCODE_HUB_PORT: 25463,
+	INDUSCODE_HUB_DEV_PORT: 25466,
 	isHubProtocolCompatible: (record: { protocolVersion?: string }) => ({
 		compatible: record.protocolVersion === "v1",
 	}),
 	isHubDaemonProcess: (env: NodeJS.ProcessEnv = process.env) =>
-		env[CLINE_RUN_AS_HUB_DAEMON_ENV] === "1",
+		env[INDUSCODE_RUN_AS_HUB_DAEMON_ENV] === "1",
 	// Mirrors the real helper: POSIX and Windows bunfs spellings.
 	isBunEmbeddedModulePath: (path?: string) => {
 		const trimmed = path?.trim() ?? "";
@@ -124,22 +124,22 @@ vi.mock("@cline/shared", () => ({
 			trimmed.replace(/\\/g, "/").toLowerCase().startsWith("b:/~bun/")
 		);
 	},
-	resolveClineBuildEnv: () => "production",
-	withResolvedClineBuildEnv: (env: NodeJS.ProcessEnv) => env,
-	getClineClientIdentity: () => ({ name: "cline-cli", version: "0.0.0" }),
+	resolveIndusCodeBuildEnv: () => "production",
+	withResolvedIndusCodeBuildEnv: (env: NodeJS.ProcessEnv) => env,
+	getIndusCodeClientIdentity: () => ({ name: "induscode-cli", version: "0.0.0" }),
 	withHubLauncherIdentity: (
 		env: NodeJS.ProcessEnv,
 		identity?: { client: string; version?: string; transport?: string },
 	) =>
-		env.CLINE_HUB_LAUNCHER_CLIENT || !identity
+		env.INDUSCODE_HUB_LAUNCHER_CLIENT || !identity
 			? env
 			: {
 					...env,
-					CLINE_HUB_LAUNCHER_CLIENT: identity.client,
+					INDUSCODE_HUB_LAUNCHER_CLIENT: identity.client,
 					...(identity.version
-						? { CLINE_HUB_LAUNCHER_VERSION: identity.version }
+						? { INDUSCODE_HUB_LAUNCHER_VERSION: identity.version }
 						: {}),
-					CLINE_HUB_LAUNCHER_TRANSPORT: identity.transport ?? "local",
+					INDUSCODE_HUB_LAUNCHER_TRANSPORT: identity.transport ?? "local",
 				},
 }));
 
@@ -164,7 +164,7 @@ vi.mock("../discovery", () => ({
 	isManagedHubReusable,
 	probeHubServer,
 	readHubDiscovery,
-	resolveClineDataDir,
+	resolveIndusCodeDataDir,
 	resolveHubBuildId,
 	resolveHubBuildIdentity,
 	withHubStartupLock,
@@ -179,7 +179,7 @@ describe("ensureDetachedHubServer", () => {
 		// cases all retire the same URL.
 		const { __test__ } = await import(".");
 		__test__.resetRetireAttempts();
-		delete process.env[CLINE_RUN_AS_HUB_DAEMON_ENV];
+		delete process.env[INDUSCODE_RUN_AS_HUB_DAEMON_ENV];
 		spawn.mockReset();
 		spawn.mockImplementation(() => ({ unref: vi.fn() }));
 		closeSync.mockReset();
@@ -209,14 +209,14 @@ describe("ensureDetachedHubServer", () => {
 		vi.clearAllMocks();
 		vi.unstubAllGlobals();
 		if (originalRunAsHubDaemon === undefined) {
-			delete process.env[CLINE_RUN_AS_HUB_DAEMON_ENV];
+			delete process.env[INDUSCODE_RUN_AS_HUB_DAEMON_ENV];
 		} else {
-			process.env[CLINE_RUN_AS_HUB_DAEMON_ENV] = originalRunAsHubDaemon;
+			process.env[INDUSCODE_RUN_AS_HUB_DAEMON_ENV] = originalRunAsHubDaemon;
 		}
 		if (originalConnectorCliLaunch === undefined) {
-			delete process.env.CLINE_CONNECTOR_CLI_LAUNCH;
+			delete process.env.INDUSCODE_CONNECTOR_CLI_LAUNCH;
 		} else {
-			process.env.CLINE_CONNECTOR_CLI_LAUNCH = originalConnectorCliLaunch;
+			process.env.INDUSCODE_CONNECTOR_CLI_LAUNCH = originalConnectorCliLaunch;
 		}
 	});
 
@@ -224,7 +224,7 @@ describe("ensureDetachedHubServer", () => {
 		true,
 		false,
 	])("preserves production startup options with manageConnectors=%s", async (manageConnectors) => {
-		process.env.CLINE_CONNECTOR_CLI_LAUNCH = JSON.stringify({
+		process.env.INDUSCODE_CONNECTOR_CLI_LAUNCH = JSON.stringify({
 			launcher: "bun",
 			connectArgsPrefix: ["/workspace/apps/cli/src/index.ts", "connect"],
 			cwd: "/workspace",
@@ -271,9 +271,9 @@ describe("ensureDetachedHubServer", () => {
 		expect(spawnArgs).toContain("25463");
 		expect(spawnArgs).not.toContain("0");
 		expect(spawnArgs?.includes("--no-connectors")).toBe(!manageConnectors);
-		expect(spawnOptions?.env?.[CLINE_RUN_AS_HUB_DAEMON_ENV]).toBe("1");
-		expect(spawnOptions?.env?.CLINE_CONNECTOR_CLI_LAUNCH).toBe(
-			process.env.CLINE_CONNECTOR_CLI_LAUNCH,
+		expect(spawnOptions?.env?.[INDUSCODE_RUN_AS_HUB_DAEMON_ENV]).toBe("1");
+		expect(spawnOptions?.env?.INDUSCODE_CONNECTOR_CLI_LAUNCH).toBe(
+			process.env.INDUSCODE_CONNECTOR_CLI_LAUNCH,
 		);
 	});
 
@@ -282,7 +282,7 @@ describe("ensureDetachedHubServer", () => {
 		try {
 			const textFileBusy = Object.assign(
 				new Error(
-					"ETXTBSY: text file is busy, posix_spawn '/usr/local/bin/cline'",
+					"ETXTBSY: text file is busy, posix_spawn '/usr/local/bin/induscode'",
 				),
 				{ code: "ETXTBSY" },
 			);
@@ -329,7 +329,7 @@ describe("ensureDetachedHubServer", () => {
 	});
 
 	it("does not spawn another detached daemon from inside the hub daemon process", async () => {
-		process.env[CLINE_RUN_AS_HUB_DAEMON_ENV] = "1";
+		process.env[INDUSCODE_RUN_AS_HUB_DAEMON_ENV] = "1";
 
 		const { spawnDetachedHubServer } = await import(".");
 		spawnDetachedHubServer("/workspace");
@@ -339,7 +339,7 @@ describe("ensureDetachedHubServer", () => {
 	});
 
 	it("does not prewarm another detached daemon from inside the hub daemon process", async () => {
-		process.env[CLINE_RUN_AS_HUB_DAEMON_ENV] = "1";
+		process.env[INDUSCODE_RUN_AS_HUB_DAEMON_ENV] = "1";
 
 		const { prewarmDetachedHubServer } = await import(".");
 		prewarmDetachedHubServer("/workspace");
@@ -378,7 +378,7 @@ describe("ensureDetachedHubServer", () => {
 		try {
 			const textFileBusy = Object.assign(
 				new Error(
-					"ETXTBSY: text file is busy, posix_spawn '/usr/local/bin/cline'",
+					"ETXTBSY: text file is busy, posix_spawn '/usr/local/bin/induscode'",
 				),
 				{ code: "ETXTBSY" },
 			);
@@ -635,7 +635,7 @@ describe("ensureDetachedHubServer", () => {
 			const pending = expect(
 				ensureDetachedHubServer("/workspace"),
 			).rejects.toThrow(
-				"An incompatible Cline Hub is already running at ws://127.0.0.1:25463/hub and could not be retired automatically.",
+				"An incompatible IndusCode Hub is already running at ws://127.0.0.1:25463/hub and could not be retired automatically.",
 			);
 			await vi.runAllTimersAsync();
 
@@ -708,7 +708,7 @@ describe("ensureDetachedHubServer", () => {
 
 		const { ensureDetachedHubServer } = await import(".");
 		await expect(ensureDetachedHubServer("/workspace")).rejects.toThrow(
-			"A compatible Cline Hub is already running at ws://127.0.0.1:25463/hub, but its discovery record is missing or unreadable and no usable auth token is available.",
+			"A compatible IndusCode Hub is already running at ws://127.0.0.1:25463/hub, but its discovery record is missing or unreadable and no usable auth token is available.",
 		);
 		expect(spawn).not.toHaveBeenCalled();
 	});
@@ -925,7 +925,7 @@ describe("upgradeManagedHub", () => {
 	beforeEach(async () => {
 		const { __test__ } = await import(".");
 		__test__.resetRetireAttempts();
-		delete process.env[CLINE_RUN_AS_HUB_DAEMON_ENV];
+		delete process.env[INDUSCODE_RUN_AS_HUB_DAEMON_ENV];
 		spawn.mockReset();
 		spawn.mockImplementation(() => ({ unref: vi.fn() }));
 		rememberRecoverableLocalHubUrl.mockReset();
@@ -951,9 +951,9 @@ describe("upgradeManagedHub", () => {
 		vi.clearAllMocks();
 		vi.unstubAllGlobals();
 		if (originalRunAsHubDaemon === undefined) {
-			delete process.env[CLINE_RUN_AS_HUB_DAEMON_ENV];
+			delete process.env[INDUSCODE_RUN_AS_HUB_DAEMON_ENV];
 		} else {
-			process.env[CLINE_RUN_AS_HUB_DAEMON_ENV] = originalRunAsHubDaemon;
+			process.env[INDUSCODE_RUN_AS_HUB_DAEMON_ENV] = originalRunAsHubDaemon;
 		}
 	});
 
@@ -1295,13 +1295,13 @@ describe("resolveDaemonEntryArgs", () => {
 		"/$bunfs/root/entry.js",
 		// Windows compiled binaries mount bunfs at B:\~BUN; passing that path
 		// as a script argument spawned a daemon with a dead argument
-		// (cline/cline#14292) instead of the personality marker.
+		// (induscode/induscode#14292) instead of the personality marker.
 		"B:\\~BUN\\root\\entry.js",
 		"B:/~BUN/root/entry.js",
-	])("uses the --cline-hub-daemon marker for the embedded entry %s", async (entryPath) => {
+	])("uses the --induscode-hub-daemon marker for the embedded entry %s", async (entryPath) => {
 		const { __test__ } = await import(".");
 		expect(__test__.resolveDaemonEntryArgs(entryPath, true)).toEqual([
-			"--cline-hub-daemon",
+			"--induscode-hub-daemon",
 		]);
 	});
 
@@ -1324,26 +1324,26 @@ describe("setHubDaemonLauncher", () => {
 
 	it("launches the daemon through the configured CLI binary", async () => {
 		const { __test__, setHubDaemonLauncher } = await import(".");
-		setHubDaemonLauncher({ command: "/Applications/Cline.app/cline-cli" });
+		setHubDaemonLauncher({ command: "/Applications/IndusCode.app/induscode-cli" });
 		const command = __test__.resolveLaunchCommand("/work", {
 			port: 0,
 			manageConnectors: false,
 		});
-		expect(command.launcher).toBe("/Applications/Cline.app/cline-cli");
+		expect(command.launcher).toBe("/Applications/IndusCode.app/induscode-cli");
 		expect(command.args).toEqual([
-			"--cline-hub-daemon",
+			"--induscode-hub-daemon",
 			"--cwd",
 			"/work",
 			"--port",
 			"0",
 			"--no-connectors",
 		]);
-		expect(command.env.CLINE_RUN_AS_HUB_DAEMON).toBe("1");
+		expect(command.env.INDUSCODE_RUN_AS_HUB_DAEMON).toBe("1");
 	});
 
 	it("restores the current runtime when cleared", async () => {
 		const { __test__, setHubDaemonLauncher } = await import(".");
-		setHubDaemonLauncher({ command: "/opt/cline-cli", args: ["--x"] });
+		setHubDaemonLauncher({ command: "/opt/induscode-cli", args: ["--x"] });
 		setHubDaemonLauncher(undefined);
 		expect(__test__.resolveLaunchCommand("/work").launcher).toBe(
 			process.execPath,

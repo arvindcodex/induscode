@@ -1,6 +1,6 @@
-import type { Banner, BannerAction, BannerRules, BannersResponse } from "@shared/ClineBanner"
-import { BannerActionType, type BannerCardData } from "@shared/cline/banner"
-import { ClineEnv } from "@/config"
+import type { Banner, BannerAction, BannerRules, BannersResponse } from "@shared/IndusCodeBanner"
+import { BannerActionType, type BannerCardData } from "@shared/induscode/banner"
+import { IndusCodeEnv } from "@/config"
 import { Controller } from "@/core/controller"
 import { StateManager } from "@/core/storage/StateManager"
 import { HostInfo, HostRegistryInfo } from "@/registry"
@@ -8,7 +8,7 @@ import { fetch } from "@/shared/net"
 import { FeatureFlag } from "@/shared/services/feature-flags/feature-flags"
 import { Logger } from "@/shared/services/Logger"
 import { AuthService } from "../auth/AuthService"
-import { buildBasicClineHeaders } from "../EnvUtils"
+import { buildBasicIndusCodeHeaders } from "../EnvUtils"
 import { featureFlagsService } from "../feature-flags"
 
 const DEFAULT_CACHE_DURATION_MS = 24 * 60 * 60 * 1000
@@ -168,13 +168,13 @@ export class BannerService {
 	 * so the webview falls back to hardcoded welcome items.
 	 */
 	public getWelcomeBanners(): BannerCardData[] | undefined {
-		const isLocal = process.env.IS_DEV === "true" || process.env.CLINE_ENVIRONMENT === "local"
+		const isLocal = process.env.IS_DEV === "true" || process.env.INDUSCODE_ENVIRONMENT === "local"
 		const flagEnabled = isLocal || featureFlagsService.getBooleanFlagEnabled(FeatureFlag.REMOTE_WELCOME_BANNERS)
 
 		if (!flagEnabled) {
 			return undefined
 		}
-		const bypassDismissals = process.env.IS_DEV === "true" || process.env.CLINE_ENVIRONMENT === "local"
+		const bypassDismissals = process.env.IS_DEV === "true" || process.env.INDUSCODE_ENVIRONMENT === "local"
 
 		this.ensureFreshCache()
 
@@ -239,7 +239,7 @@ export class BannerService {
 
 			await this.sendBannerEvent(bannerId, "dismiss")
 			// Only refetch when a cached remote banner was dismissed. Dismissing a
-			// hardcoded/webview-local banner id (e.g. the ClinePass promos) should
+			// hardcoded/webview-local banner id (e.g. the IndusCodePass promos) should
 			// not wipe the cached remote carousel banners.
 			if (this.cachedBanners.some((banner) => banner.id === bannerId)) {
 				this.clearCache()
@@ -251,7 +251,7 @@ export class BannerService {
 
 	public async sendBannerEvent(bannerId: string, eventType: "dismiss"): Promise<void> {
 		try {
-			const url = new URL("/banners/v2/messages", ClineEnv.config().apiBaseUrl).toString()
+			const url = new URL("/banners/v2/messages", IndusCodeEnv.config().apiBaseUrl).toString()
 			const ideType = this.getIdeType()
 			const surface = ideType === "cli" ? "cli" : ideType === "jetbrains" ? "jetbrains" : "vscode"
 
@@ -262,7 +262,7 @@ export class BannerService {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
-					...(await buildBasicClineHeaders()),
+					...(await buildBasicIndusCodeHeaders()),
 				},
 				body: JSON.stringify({
 					banner_id: bannerId,
@@ -304,7 +304,7 @@ export class BannerService {
 			const url = this.buildFetchUrl()
 			const headers: Record<string, string> = {
 				"Content-Type": "application/json",
-				...(await buildBasicClineHeaders()),
+				...(await buildBasicIndusCodeHeaders()),
 			}
 			const authToken = await AuthService.getInstance().getAuthToken()
 			if (authToken) {
@@ -406,7 +406,7 @@ export class BannerService {
 	}
 
 	private buildFetchUrl(): string {
-		const url = new URL("/banners/v2/messages", ClineEnv.config().apiBaseUrl)
+		const url = new URL("/banners/v2/messages", IndusCodeEnv.config().apiBaseUrl)
 		url.searchParams.set("ide", this.getIdeType())
 		url.searchParams.set("extension_version", this.hostInfo.extensionVersion)
 		url.searchParams.set("os", OS_MAP[this.hostInfo.os] || "unknown")

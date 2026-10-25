@@ -2,9 +2,9 @@ import { existsSync } from "node:fs";
 import { isAbsolute, resolve as resolvePath } from "node:path";
 import {
 	augmentNodeCommandForDebug,
-	type ClineDebugRole,
+	type IndusCodeDebugRole,
 	isBunEmbeddedModulePath,
-} from "@cline/shared";
+} from "@induscode/shared";
 
 export interface ResolveCliLaunchSpecOptions {
 	execPath?: string;
@@ -12,7 +12,7 @@ export interface ResolveCliLaunchSpecOptions {
 	execArgv?: string[];
 	cwd?: string;
 	env?: NodeJS.ProcessEnv;
-	debugRole?: ClineDebugRole;
+	debugRole?: IndusCodeDebugRole;
 }
 
 export interface CliLaunchSpec {

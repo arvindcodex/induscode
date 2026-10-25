@@ -15,7 +15,7 @@ const tempDirs: string[] = [];
 const originalPath = process.env.PATH;
 
 function createTempDir(): string {
-	const dir = mkdtempSync(join(tmpdir(), "cline-kanban-test-"));
+	const dir = mkdtempSync(join(tmpdir(), "induscode-kanban-test-"));
 	tempDirs.push(dir);
 	return dir;
 }

@@ -1,5 +1,5 @@
 import { createServer } from "node:http";
-import { withLangfuseTraceAttributes } from "@cline/llms";
+import { withLangfuseTraceAttributes } from "@induscode/llms";
 import { context, trace } from "@opentelemetry/api";
 import { expect, it } from "vitest";
 import { OpenTelemetryProvider } from "./OpenTelemetryProvider";
@@ -32,7 +32,7 @@ it("exports user/session attributes through OTLP and isolates concurrent session
 		otlpEndpoint: `http://127.0.0.1:${address.port}`,
 	});
 	try {
-		const tracer = provider.getTracer("cline-provider-langfuse");
+		const tracer = provider.getTracer("induscode-provider-langfuse");
 		await Promise.all(
 			["a", "b"].map((id) =>
 				withLangfuseTraceAttributes(

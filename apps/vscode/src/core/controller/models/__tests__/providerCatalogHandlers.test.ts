@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest"
 import type { EffectiveProviderConfig, ProviderCatalog, ProviderConfigStore } from "@/sdk/model-catalog/contracts"
 import { computeConfigFingerprint } from "@/sdk/model-catalog/fingerprint"
 import { parseProviderId } from "@/sdk/model-catalog/provider-id"
-import { ApiFormat, ModelOverrides } from "@/shared/proto/cline/models"
+import { ApiFormat, ModelOverrides } from "@/shared/proto/induscode/models"
 import type { ProviderCatalogController } from "../providerCatalogShared"
 
 type TestStateManager = {
@@ -158,7 +158,7 @@ describe("provider model catalog handlers", () => {
 
 	it("readProviderConfig redacts secrets", async () => {
 		const { readProviderConfig } = await import("../readProviderConfig")
-		const providerId = parseProviderId("cline")
+		const providerId = parseProviderId("induscode")
 		const store = makeStore({
 			providerId,
 			apiKey: "SECRET_SENTINEL_API_KEY",
@@ -183,10 +183,10 @@ describe("provider model catalog handlers", () => {
 		)
 		const controller = makeController(store, makeCatalog())
 
-		const response = await readProviderConfig(controller, { value: "cline" })
+		const response = await readProviderConfig(controller, { value: "induscode" })
 
 		expect(response).toMatchObject({
-			providerId: "cline",
+			providerId: "induscode",
 			baseUrl: "https://api.example.com/v1",
 			apiKeyLength: "SECRET_SENTINEL_API_KEY".length,
 			hasAccessToken: true,
@@ -194,7 +194,7 @@ describe("provider model catalog handlers", () => {
 			accountId: "acct-1",
 		})
 		expect(response.actSelection).toMatchObject({
-			providerId: "cline",
+			providerId: "induscode",
 			modelId: "custom-model",
 			modelInfo: { name: "Custom model", contextWindow: 64_000 },
 			overrides: {

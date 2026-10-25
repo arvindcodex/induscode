@@ -1,4 +1,4 @@
-import { EmptyRequest } from "@shared/proto/cline/common"
+import { EmptyRequest } from "@shared/proto/induscode/common"
 import { GitCompareIcon } from "lucide-react"
 import { memo, useEffect, useState } from "react"
 import { CheckpointsServiceClient } from "@/services/grpc-client"

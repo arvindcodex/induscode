@@ -29,9 +29,9 @@ jobs:
         id: app-token
         uses: actions/create-github-app-token@v1
         with:
-          app-id: ${{ vars.CLINE_JETBRAINS_APP_ID }}
-          private-key: ${{ secrets.CLINE_JETBRAINS_APP_KEY }}
-          owner: cline
+          app-id: ${{ vars.INDUSCODE_JETBRAINS_APP_ID }}
+          private-key: ${{ secrets.INDUSCODE_JETBRAINS_APP_KEY }}
+          owner: induscode
           repositories: intellij-plugin
 
       - name: Get PR details (for issue_comment trigger)
@@ -71,12 +71,12 @@ jobs:
           curl -X POST \
             -H "Authorization: Bearer ${{ steps.app-token.outputs.token }}" \
             -H "Accept: application/vnd.github.v3+json" \
-            -H "User-Agent: cline-pr-trigger" \
+            -H "User-Agent: induscode-pr-trigger" \
             -H "Content-Type: application/json" \
-            https://api.github.com/repos/cline/intellij-plugin/dispatches \
+            https://api.github.com/repos/induscode/intellij-plugin/dispatches \
             -d @- <<EOF
           {
-            "event_type": "cline-pr-check",
+            "event_type": "induscode-pr-check",
             "client_payload": {
               "pr_number": "$PR_NUMBER",
               "branch_name": $BRANCH_NAME,

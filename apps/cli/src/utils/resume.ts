@@ -1,8 +1,8 @@
-import type { ClineCore } from "@cline/core";
-import type { MessageWithMetadata } from "@cline/shared";
+import type { IndusCodeCore } from "@induscode/core";
+import type { MessageWithMetadata } from "@induscode/shared";
 
 export async function loadInteractiveResumeMessages(
-	sessionManager: ClineCore,
+	sessionManager: IndusCodeCore,
 	resumeSessionId?: string,
 ): Promise<MessageWithMetadata[] | undefined> {
 	const target = resumeSessionId?.trim();

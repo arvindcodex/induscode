@@ -37,9 +37,9 @@ describe("resolveCoreDistinctId", () => {
 	});
 
 	it("persists and reuses a generated fallback when machine ID lookup fails", async () => {
-		const tempDir = mkdtempSync(join(tmpdir(), "cline-distinct-id-"));
+		const tempDir = mkdtempSync(join(tmpdir(), "induscode-distinct-id-"));
 		try {
-			vi.stubEnv("CLINE_DATA_DIR", tempDir);
+			vi.stubEnv("INDUSCODE_DATA_DIR", tempDir);
 			machineIdSyncMock.mockImplementation(() => {
 				throw new Error("machine id unavailable");
 			});

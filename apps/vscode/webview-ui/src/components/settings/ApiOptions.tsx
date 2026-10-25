@@ -8,7 +8,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { PLATFORM_CONFIG, PlatformType } from "@/config/platform.config"
 import { useExtensionState } from "@/context/ExtensionStateContext"
 import { useProviderListings } from "@/hooks/useProviderListings"
-import { ClinePassHint } from "./ClinePassHint"
+import { IndusCodePassHint } from "./IndusCodePassHint"
 import { OPENROUTER_MODEL_PICKER_Z_INDEX } from "./OpenRouterModelPicker"
 import { AIhubmixProvider } from "./providers/AihubmixProvider"
 import { AnthropicProvider } from "./providers/AnthropicProvider"
@@ -16,8 +16,8 @@ import { AskSageProvider } from "./providers/AskSageProvider"
 import { BasetenProvider } from "./providers/BasetenProvider"
 import { BedrockProvider } from "./providers/BedrockProvider"
 import { ClaudeCodeProvider } from "./providers/ClaudeCodeProvider"
-import { ClinePassProvider } from "./providers/ClinePassProvider"
-import { ClineProvider } from "./providers/ClineProvider"
+import { IndusCodePassProvider } from "./providers/IndusCodePassProvider"
+import { IndusCodeProvider } from "./providers/IndusCodeProvider"
 import { DifyProvider } from "./providers/DifyProvider"
 import { GenericProviderSettings } from "./providers/GenericProviderSettings"
 import { GroqProvider } from "./providers/GroqProvider"
@@ -349,14 +349,14 @@ const ApiOptions = ({
 				</ProviderDropdownWrapper>
 			</DropdownContainer>
 
-			{!isPopup && <ClinePassHint currentMode={currentMode} selectedProvider={selectedProvider} />}
+			{!isPopup && <IndusCodePassHint currentMode={currentMode} selectedProvider={selectedProvider} />}
 
 			{apiConfiguration && selectedProvider === "hicap" && (
 				<HicapProvider currentMode={currentMode} isPopup={isPopup} showModelOptions={showModelOptions} />
 			)}
 
-			{apiConfiguration && selectedProvider === "cline" && (
-				<ClineProvider
+			{apiConfiguration && selectedProvider === "induscode" && (
+				<IndusCodeProvider
 					currentMode={currentMode}
 					initialModelTab={initialModelTab}
 					isPopup={isPopup}
@@ -364,8 +364,8 @@ const ApiOptions = ({
 				/>
 			)}
 
-			{apiConfiguration && selectedProvider === "cline-pass" && (
-				<ClinePassProvider currentMode={currentMode} isPopup={isPopup} showModelOptions={showModelOptions} />
+			{apiConfiguration && selectedProvider === "induscode-pass" && (
+				<IndusCodePassProvider currentMode={currentMode} isPopup={isPopup} showModelOptions={showModelOptions} />
 			)}
 
 			{apiConfiguration && selectedProvider === "asksage" && (

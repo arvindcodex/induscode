@@ -1,4 +1,4 @@
-import type { GatewayProviderManifest } from "@cline/shared";
+import type { GatewayProviderManifest } from "@induscode/shared";
 import { describe, expect, it } from "vitest";
 import {
 	providerManifestSupportsModelTool,
@@ -8,8 +8,8 @@ import {
 
 describe("supportsModelTool", () => {
 	it.each([
-		["cline", undefined],
-		["cline-pass", undefined],
+		["induscode", undefined],
+		["induscode-pass", undefined],
 		["anthropic", undefined],
 		["openai-native", undefined],
 		["openai-codex", undefined],

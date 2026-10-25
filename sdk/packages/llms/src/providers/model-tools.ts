@@ -2,7 +2,7 @@ import type {
 	GatewayProviderManifest,
 	ModelOperation,
 	ModelToolName,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { BUILTIN_PROVIDER_MANIFESTS_BY_ID } from "./builtins";
 import { normalizeProviderId } from "./ids";
 import { modelRouteMatches } from "./model-facts";
@@ -20,7 +20,7 @@ function resolveModelRouteContext(
 	family?: string;
 	capabilities?: readonly string[];
 	operation?: ModelOperation;
-	modalities?: import("@cline/shared").ModelModalities;
+	modalities?: import("@induscode/shared").ModelModalities;
 } {
 	const resolvedModelId = modelId?.trim() || manifest.defaultModelId;
 	const model = manifest.models.find((entry) => entry.id === resolvedModelId);
@@ -61,7 +61,7 @@ export function providerManifestSupportsModelTool(
 }
 
 /**
- * Resolve stable native model-tool support for a configured Cline provider.
+ * Resolve stable native model-tool support for a configured IndusCode provider.
  * This intentionally describes provider execution support, not ordinary
  * function/tool calling support. Builtin specs are the source of truth; vendor
  * modules only translate supported portable tools into AI SDK tool objects.

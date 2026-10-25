@@ -8,7 +8,7 @@ export const DIRECT_PUBLISH_GUARD_MESSAGE = [
 ].join("\n");
 
 export function shouldAllowDirectPublish(env: NodeJS.ProcessEnv): boolean {
-	return env.CLINE_ALLOW_DIRECT_PUBLISH === "1";
+	return env.INDUSCODE_ALLOW_DIRECT_PUBLISH === "1";
 }
 
 if (import.meta.main && !shouldAllowDirectPublish(process.env)) {

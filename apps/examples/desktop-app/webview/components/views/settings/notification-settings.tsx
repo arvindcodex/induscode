@@ -1,4 +1,4 @@
-import { Switch } from "@cline/ui";
+import { Switch } from "@induscode/ui";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {

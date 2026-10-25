@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest";
 import {
-	ClineNotSubscribedError,
-	ClineOrgIndividualInferenceSubscriptionError,
-	ClinePassLimitError,
-	getClineNotSubscribedMessage,
-	getClineOrgIndividualInferenceSubscriptionMessage,
-	isClineNotSubscribedMessage,
-	isClineOrgIndividualInferenceSubscriptionMessage,
-	isClinePassLimitMessage,
+	IndusCodeNotSubscribedError,
+	IndusCodeOrgIndividualInferenceSubscriptionError,
+	IndusCodePassLimitError,
+	getIndusCodeNotSubscribedMessage,
+	getIndusCodeOrgIndividualInferenceSubscriptionMessage,
+	isIndusCodeNotSubscribedMessage,
+	isIndusCodeOrgIndividualInferenceSubscriptionMessage,
+	isIndusCodePassLimitMessage,
 } from "./errors";
 import { extractErrorMessage } from "./format";
 
@@ -108,16 +108,16 @@ describe("extractErrorMessage", () => {
 	});
 });
 
-describe("ClineNotSubscribedError", () => {
+describe("IndusCodeNotSubscribedError", () => {
 	it("uses the user-facing subscription message", () => {
-		expect(new ClineNotSubscribedError("cline-pass").message).toBe(
-			getClineNotSubscribedMessage(),
+		expect(new IndusCodeNotSubscribedError("induscode-pass").message).toBe(
+			getIndusCodeNotSubscribedMessage(),
 		);
 	});
 
-	it("detects the ClinePass required-plan message", () => {
+	it("detects the IndusCodePass required-plan message", () => {
 		expect(
-			isClineNotSubscribedMessage(
+			isIndusCodeNotSubscribedMessage(
 				JSON.stringify({
 					error: {
 						message: "the user is not subscribed to required model plan",
@@ -125,30 +125,30 @@ describe("ClineNotSubscribedError", () => {
 				}),
 			),
 		).toBe(true);
-		expect(isClineNotSubscribedMessage("different forbidden error")).toBe(
+		expect(isIndusCodeNotSubscribedMessage("different forbidden error")).toBe(
 			false,
 		);
 	});
 
-	it("detects the formatted ClinePass subscription message regardless of URL", () => {
+	it("detects the formatted IndusCodePass subscription message regardless of URL", () => {
 		expect(
-			isClineNotSubscribedMessage(
-				"No access to ClinePass subscription models yet. Subscribe to ClinePass, the low cost open weights model coding plan:",
+			isIndusCodeNotSubscribedMessage(
+				"No access to IndusCodePass subscription models yet. Subscribe to IndusCodePass, the low cost open weights model coding plan:",
 			),
 		).toBe(true);
 	});
 });
 
-describe("ClineOrgIndividualInferenceSubscriptionError", () => {
+describe("IndusCodeOrgIndividualInferenceSubscriptionError", () => {
 	it("uses the user-facing organization account message", () => {
 		expect(
-			new ClineOrgIndividualInferenceSubscriptionError("cline").message,
-		).toBe(getClineOrgIndividualInferenceSubscriptionMessage());
+			new IndusCodeOrgIndividualInferenceSubscriptionError("induscode").message,
+		).toBe(getIndusCodeOrgIndividualInferenceSubscriptionMessage());
 	});
 
 	it("detects the organization individual-subscription entitlement message", () => {
 		expect(
-			isClineOrgIndividualInferenceSubscriptionMessage(
+			isIndusCodeOrgIndividualInferenceSubscriptionMessage(
 				JSON.stringify({
 					error: {
 						code: "ENTITLEMENT_ERROR",
@@ -159,40 +159,40 @@ describe("ClineOrgIndividualInferenceSubscriptionError", () => {
 			),
 		).toBe(true);
 		expect(
-			isClineOrgIndividualInferenceSubscriptionMessage(
+			isIndusCodeOrgIndividualInferenceSubscriptionMessage(
 				"the user is not subscribed to required model plan",
 			),
 		).toBe(false);
 	});
 });
 
-describe("ClinePassLimitError", () => {
+describe("IndusCodePassLimitError", () => {
 	it("preserves the dynamic backend limit message", () => {
 		const message =
-			"You have reached your weekly Clinepass limit. The limit resets in 7d, please try again later.";
-		expect(new ClinePassLimitError(message, "cline-pass").message).toBe(
+			"You have reached your weekly IndusCodepass limit. The limit resets in 7d, please try again later.";
+		expect(new IndusCodePassLimitError(message, "induscode-pass").message).toBe(
 			message,
 		);
 	});
 
-	it("detects ClinePass period limit messages with variable period and reset", () => {
+	it("detects IndusCodePass period limit messages with variable period and reset", () => {
 		expect(
-			isClinePassLimitMessage(
-				"You have reached your weekly Clinepass limit. The limit resets in 7d, please try again later.",
+			isIndusCodePassLimitMessage(
+				"You have reached your weekly IndusCodepass limit. The limit resets in 7d, please try again later.",
 			),
 		).toBe(true);
 		expect(
-			isClinePassLimitMessage(
-				"You have reached your monthly Clinepass limit. The limit resets in 12h, please try again later.",
+			isIndusCodePassLimitMessage(
+				"You have reached your monthly IndusCodepass limit. The limit resets in 12h, please try again later.",
 			),
 		).toBe(true);
 		expect(
-			isClinePassLimitMessage(
-				`You have reached your\t-\tClinepass limit.The limit resets in\t${"\t".repeat(10_000)}`,
+			isIndusCodePassLimitMessage(
+				`You have reached your\t-\tIndusCodepass limit.The limit resets in\t${"\t".repeat(10_000)}`,
 			),
 		).toBe(false);
 		expect(
-			isClinePassLimitMessage(
+			isIndusCodePassLimitMessage(
 				"the user is not subscribed to required model plan",
 			),
 		).toBe(false);

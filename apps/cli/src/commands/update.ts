@@ -6,8 +6,8 @@ import {
 	readHubDiscovery,
 	resolveProductionHubOwnerContext,
 	resolveSharedHubOwnerContext,
-} from "@cline/core";
-import { resolveClineBuildEnv } from "@cline/shared";
+} from "@induscode/core";
+import { resolveIndusCodeBuildEnv } from "@induscode/shared";
 import { version } from "../../package.json";
 import { c, writeErr, writeln } from "../utils/output";
 import {
@@ -17,7 +17,7 @@ import {
 	spawnKanbanInstallProcess,
 } from "./kanban";
 
-const DEFAULT_PACKAGE_NAME = "cline";
+const DEFAULT_PACKAGE_NAME = "induscode";
 
 type CliPackageName = typeof DEFAULT_PACKAGE_NAME;
 
@@ -89,7 +89,7 @@ export function getInstallationInfo(currentVersion: string): InstallationInfo {
 	const tag = getNpmTag(currentVersion);
 	try {
 		const scriptPath = realpathSync(
-			process.env.CLINE_WRAPPER_PATH || process.argv[1] || "",
+			process.env.INDUSCODE_WRAPPER_PATH || process.argv[1] || "",
 		).replace(/\\/g, "/");
 
 		if (scriptPath.includes("/.npm/_npx") || scriptPath.includes("/npm/_npx")) {
@@ -272,7 +272,7 @@ export function getPreferredKanbanInstaller(
 }
 
 export function resolveCliHubOwnerContext() {
-	return resolveClineBuildEnv() === "production"
+	return resolveIndusCodeBuildEnv() === "production"
 		? resolveProductionHubOwnerContext()
 		: resolveSharedHubOwnerContext();
 }
@@ -296,7 +296,7 @@ const CLIENT_COUNT_EXIT_TIMEOUT_MS = 3_000;
  * Non-blocking auto-update check for CLI startup.
  *
  * Deliberately does NOT install right away: replacing the npm package while
- * cline processes are running swaps the binary under them — their respawn
+ * induscode processes are running swaps the binary under them — their respawn
  * paths break on the new build fingerprint — and historically also restarted
  * the hub daemon out from under live sessions. The check only records that an
  * update is available; the CLI entrypoint calls applyDeferredUpdate() from
@@ -305,11 +305,11 @@ const CLIENT_COUNT_EXIT_TIMEOUT_MS = 3_000;
  * to the hub — at that point nothing is running that the swap could hurt.
  * The next launch picks up the new binary and a fresh hub.
  *
- * Skipped for npx, dev, unknown installs. Disable with CLINE_NO_AUTO_UPDATE=1.
+ * Skipped for npx, dev, unknown installs. Disable with INDUSCODE_NO_AUTO_UPDATE=1.
  */
 export function autoUpdateOnStartup(): void {
 	if (process.env.IS_DEV === "true") return;
-	if (process.env.CLINE_NO_AUTO_UPDATE === "1") return;
+	if (process.env.INDUSCODE_NO_AUTO_UPDATE === "1") return;
 	if (!isAutoUpdateEnabledGlobally()) return;
 
 	const { packageName, packageManager, updateCommand } =
@@ -350,7 +350,7 @@ async function otherCliClientsAttached(): Promise<boolean> {
 		url: discovery.url,
 		authToken: discovery.authToken,
 		clientType: "cli-update-check",
-		displayName: "cline update check",
+		displayName: "induscode update check",
 	});
 	try {
 		const reply = await client.command("client.list", {}, undefined, {
@@ -454,7 +454,7 @@ export async function checkForUpdates(
 	const currentVersion = version;
 	const includeKanban = options.includeKanban ?? true;
 	writeln(
-		`${c.cyan}Checking for updates${includeKanban ? " to Cline CLI and kanban" : ""}…${c.reset}`,
+		`${c.cyan}Checking for updates${includeKanban ? " to IndusCode CLI and kanban" : ""}…${c.reset}`,
 	);
 
 	const { packageName, updateCommand, packageManager } =
@@ -540,7 +540,7 @@ export async function checkForUpdates(
 		if (cliUpdateAvailable && latestVersion) {
 			if (!updateCommand) {
 				writeln(
-					`${c.dim}Unable to determine Cline update command. Please update manually with your package manager.${c.reset}`,
+					`${c.dim}Unable to determine IndusCode update command. Please update manually with your package manager.${c.reset}`,
 				);
 				hadFailure = true;
 			} else {
@@ -556,11 +556,11 @@ export async function checkForUpdates(
 					if (exitCode === 0) {
 						installedUpdates.push(`${packageName}@${latestVersion}`);
 						writeln(
-							`${c.dim}The update takes effect the next time cline starts.${c.reset}`,
+							`${c.dim}The update takes effect the next time induscode starts.${c.reset}`,
 						);
 					} else {
 						writeErr(
-							`Cline update failed (exit code ${exitCode}). Try running: ${manualUpdateCommand.command}`,
+							`IndusCode update failed (exit code ${exitCode}). Try running: ${manualUpdateCommand.command}`,
 						);
 						hadFailure = true;
 					}
@@ -568,7 +568,7 @@ export async function checkForUpdates(
 					const message =
 						error instanceof Error ? error.message : String(error);
 					writeErr(
-						`Failed to run Cline update command ${manualUpdateCommand.command}: ${message}`,
+						`Failed to run IndusCode update command ${manualUpdateCommand.command}: ${message}`,
 					);
 					hadFailure = true;
 				}

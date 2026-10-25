@@ -13,7 +13,7 @@ import {
 } from "./mermaid-diagram.js";
 
 /**
- * Browser-only glue for the owned Mermaid block: samples the live Cline design
+ * Browser-only glue for the owned Mermaid block: samples the live IndusCode design
  * tokens (oklch CSS custom properties) as concrete sRGB, watches for light/dark
  * and accent changes, and rasterizes/saves diagrams. All entry points are safe
  * to import in Node; DOM access happens only inside the functions.
@@ -32,12 +32,12 @@ const TOKEN_VARIABLES = {
 
 const FONT_VARIABLE = "--font-sans";
 
-// Attributes that change the resolved tokens: `.dark` (@cline/ui theme),
+// Attributes that change the resolved tokens: `.dark` (@induscode/ui theme),
 // the desktop theme/accent data attributes, and inline style overrides.
 const THEME_ATTRIBUTES = [
 	"class",
-	"data-cline-accent",
-	"data-cline-hub-theme",
+	"data-induscode-accent",
+	"data-induscode-hub-theme",
 	"data-theme",
 	"style",
 ];
@@ -57,7 +57,7 @@ export function detectColorMode(root?: Element): MermaidColorMode {
 	const scope = root ?? html;
 	if (scope.closest(".dark") || html.classList.contains("dark")) return "dark";
 	const declared =
-		html.getAttribute("data-cline-hub-theme") ?? html.dataset.theme;
+		html.getAttribute("data-induscode-hub-theme") ?? html.dataset.theme;
 	return declared === "dark" ? "dark" : "light";
 }
 

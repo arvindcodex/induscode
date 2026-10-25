@@ -1,7 +1,7 @@
 {
 	"$schema": "https://mintlify.com/docs.json",
 	"theme": "mint",
-	"name": "Cline",
+	"name": "IndusCode",
 	"description": "AI-powered coding agent for complex work",
 	"colors": {
 		"primary": "#9D4EDD",
@@ -9,13 +9,13 @@
 		"dark": "#000000"
 	},
 	"logo": {
-		"light": "/assets/cline-wordmark-black.svg",
-		"dark": "/assets/cline-wordmark-white.svg",
-		"href": "https://cline.bot/"
+		"light": "/assets/induscode-wordmark-black.svg",
+		"dark": "/assets/induscode-wordmark-white.svg",
+		"href": "https://induscode.bot/"
 	},
 	"favicon": {
-		"light": "/assets/cline-icon-dark.svg",
-		"dark": "/assets/cline-icon-white.svg"
+		"light": "/assets/induscode-icon-dark.svg",
+		"dark": "/assets/induscode-icon-white.svg"
 	},
 	"background": {
 		"color": {
@@ -40,38 +40,38 @@
 			{
 				"label": "GitHub",
 				"icon": "github",
-				"href": "https://github.com/cline/cline"
+				"href": "https://github.com/induscode/induscode"
 			},
 			{
 				"label": "Discord",
 				"icon": "discord",
-				"href": "https://discord.gg/cline"
+				"href": "https://discord.gg/induscode"
 			}
 		],
 		"primary": {
 			"type": "button",
-			"label": "Install Cline",
-			"href": "https://cline.bot/install?utm_source=website&utm_medium=header"
+			"label": "Install IndusCode",
+			"href": "https://induscode.bot/install?utm_source=website&utm_medium=header"
 		}
 	},
 	"navigation": {
 		"tabs": [
 			{
-				"tab": "Cline",
+				"tab": "IndusCode",
 				"icon": "robot",
 				"groups": [
 					{
 						"group": "Getting Started",
 						"pages": [
-							"cline-overview",
-							"getting-started/installing-cline",
-							"getting-started/cline-provider",
-							"getting-started/clinepass",
+							"induscode-overview",
+							"getting-started/installing-induscode",
+							"getting-started/induscode-provider",
+							"getting-started/induscodepass",
 							"getting-started/free-models",
 							{
 								"group": "Other Models & Providers",
 								"pages": [
-									"getting-started/authorizing-with-cline",
+									"getting-started/authorizing-with-induscode",
 									"running-models-locally/overview",
 									{
 										"group": "Cloud Providers",
@@ -106,10 +106,10 @@
 						"group": "Usage",
 						"pages": [
 							{
-								"group": "Cline Desktop",
+								"group": "IndusCode Desktop",
 								"pages": [
-									"usage/cline-desktop",
-									"usage/cline-desktop-ssh"
+									"usage/induscode-desktop",
+									"usage/induscode-desktop-ssh"
 								]
 							},
 							"usage/cloud-agents",
@@ -146,15 +146,15 @@
 					{
 						"group": "Configurations",
 						"pages": [
-							"tools-reference/all-cline-tools",
-							"customization/cline-rules",
+							"tools-reference/all-induscode-tools",
+							"customization/induscode-rules",
 							"customization/skills",
 							"customization/plugins",
 							"mcp/mcp-overview",
 							"customization/hooks",
 							"cli/scheduling",
 							"cli/connectors",
-							"customization/clineignore"
+							"customization/induscodeignore"
 						]
 					},
 					{
@@ -229,7 +229,7 @@
 							"sdk/guides/scheduled-agents",
 							"sdk/events",
 							"sdk/model-providers",
-							"sdk/clinecore"
+							"sdk/induscodecore"
 						]
 					},
 					{
@@ -251,7 +251,7 @@
 					{
 						"group": "API Reference",
 						"pages": [
-							"sdk/reference/cline-core",
+							"sdk/reference/induscode-core",
 							"sdk/reference/agent",
 							"sdk/reference/gateway",
 							"sdk/reference/tools-api",
@@ -314,10 +314,10 @@
 								]
 							},
 							{
-								"group": "Control Other Cline Features",
+								"group": "Control Other IndusCode Features",
 								"pages": [
-									"enterprise-solutions/configuration/infrastructure-configuration/control-other-cline-features/yolo-mode",
-									"enterprise-solutions/configuration/infrastructure-configuration/control-other-cline-features/mcp-server-controls"
+									"enterprise-solutions/configuration/infrastructure-configuration/control-other-induscode-features/yolo-mode",
+									"enterprise-solutions/configuration/infrastructure-configuration/control-other-induscode-features/mcp-server-controls"
 								]
 							},
 							{
@@ -341,7 +341,7 @@
 				"icon": "code",
 				"groups": [
 					{
-						"group": "Cline API",
+						"group": "IndusCode API",
 						"pages": [
 							"api/overview",
 							"api/getting-started",
@@ -368,38 +368,38 @@
 	},
 	"footer": {
 		"socials": {
-			"x": "https://x.com/cline",
-			"github": "https://github.com/cline/cline",
-			"discord": "https://discord.gg/cline"
+			"x": "https://x.com/induscode",
+			"github": "https://github.com/induscode/induscode",
+			"discord": "https://discord.gg/induscode"
 		}
 	},
 	"anchors": [
 		{
 			"name": "Overview",
 			"icon": "house",
-			"url": "cline-overview"
+			"url": "induscode-overview"
 		}
 	],
 	"redirects": [
 		{
-			"source": "/enterprise-solutions/configuration/infrastructure-configuration/control-other-cline-features/mcp-marketplace",
-			"destination": "/enterprise-solutions/configuration/infrastructure-configuration/control-other-cline-features/mcp-server-controls"
+			"source": "/enterprise-solutions/configuration/infrastructure-configuration/control-other-induscode-features/mcp-marketplace",
+			"destination": "/enterprise-solutions/configuration/infrastructure-configuration/control-other-induscode-features/mcp-server-controls"
 		},
 		{
 			"source": "/usage/cli",
 			"destination": "/usage/cli-overview"
 		},
 		{
-			"source": "/getting-started/installing-cline-jetbrains",
-			"destination": "/getting-started/installing-cline"
+			"source": "/getting-started/installing-induscode-jetbrains",
+			"destination": "/getting-started/installing-induscode"
 		},
 		{
 			"source": "/getting-started/for-new-coders",
-			"destination": "/getting-started/installing-cline"
+			"destination": "/getting-started/installing-induscode"
 		},
 		{
 			"source": "/getting-started/overview",
-			"destination": "/cline-overview"
+			"destination": "/induscode-overview"
 		},
 		{
 			"source": "/getting-started/your-first-project",
@@ -407,19 +407,19 @@
 		},
 		{
 			"source": "/introduction",
-			"destination": "/cline-overview"
+			"destination": "/induscode-overview"
 		},
 		{
 			"source": "/introduction/welcome",
-			"destination": "/cline-overview"
+			"destination": "/induscode-overview"
 		},
 		{
 			"source": "/introduction/overview",
-			"destination": "/cline-overview"
+			"destination": "/induscode-overview"
 		},
 		{
 			"source": "/getting-started/model-selection-guide",
-			"destination": "/getting-started/cline-provider"
+			"destination": "/getting-started/induscode-provider"
 		},
 		{
 			"source": "/provider-config/ollama",
@@ -439,30 +439,30 @@
 		},
 		{
 			"source": "/getting-started/understanding-context-management",
-			"destination": "/getting-started/cline-provider"
+			"destination": "/getting-started/induscode-provider"
 		},
 		{
 			"source": "/best-practices/understanding-context-management",
-			"destination": "/getting-started/cline-provider"
+			"destination": "/getting-started/induscode-provider"
 		},
 		{
 			"source": "/prompting/understanding-context-management",
-			"destination": "/getting-started/cline-provider"
+			"destination": "/getting-started/induscode-provider"
 		},
 		{
 			"source": "/model-config/context-windows",
-			"destination": "/getting-started/cline-provider"
+			"destination": "/getting-started/induscode-provider"
 		},
 		{
 			"source": "/core-features/model-selection-guide",
-			"destination": "/getting-started/cline-provider"
+			"destination": "/getting-started/induscode-provider"
 		},
 		{
 			"source": "/prompting/prompt-engineering-guide",
-			"destination": "/customization/cline-rules"
+			"destination": "/customization/induscode-rules"
 		},
 		{
-			"source": "/prompting/cline-memory-bank",
+			"source": "/prompting/induscode-memory-bank",
 			"destination": "/best-practices/memory-bank"
 		},
 		{
@@ -562,16 +562,16 @@
 			"destination": "/features/auto-approve"
 		},
 		{
-			"source": "/features/cline-rules",
-			"destination": "/customization/cline-rules"
+			"source": "/features/induscode-rules",
+			"destination": "/customization/induscode-rules"
 		},
 		{
-			"source": "/features/cline-rules/overview",
-			"destination": "/customization/cline-rules"
+			"source": "/features/induscode-rules/overview",
+			"destination": "/customization/induscode-rules"
 		},
 		{
-			"source": "/features/cline-rules/conditional-rules",
-			"destination": "/customization/cline-rules"
+			"source": "/features/induscode-rules/conditional-rules",
+			"destination": "/customization/induscode-rules"
 		},
 		{
 			"source": "/features/commands-and-shortcuts/overview",
@@ -598,16 +598,16 @@
 			"destination": "/core-workflows/using-commands"
 		},
 		{
-			"source": "/exploring-clines-tools/cline-tools-guide",
-			"destination": "/tools-reference/all-cline-tools"
+			"source": "/exploring-induscodes-tools/induscode-tools-guide",
+			"destination": "/tools-reference/all-induscode-tools"
 		},
 		{
-			"source": "/exploring-clines-tools/new-task-tool",
-			"destination": "/tools-reference/all-cline-tools"
+			"source": "/exploring-induscodes-tools/new-task-tool",
+			"destination": "/tools-reference/all-induscode-tools"
 		},
 		{
-			"source": "/exploring-clines-tools/remote-browser-support",
-			"destination": "/tools-reference/all-cline-tools"
+			"source": "/exploring-induscodes-tools/remote-browser-support",
+			"destination": "/tools-reference/all-induscode-tools"
 		},
 		{
 			"source": "/mcp/adding-mcp-servers-from-github",
@@ -646,20 +646,20 @@
 			"destination": "/enterprise-solutions/team-management/managing-members"
 		},
 		{
-			"source": "/features/customization/opening-cline-in-sidebar",
-			"destination": "/usage/ide#move-cline-to-the-right-sidebar"
+			"source": "/features/customization/opening-induscode-in-sidebar",
+			"destination": "/usage/ide#move-induscode-to-the-right-sidebar"
 		},
 		{
-			"source": "/prompting/prompt-engineering-guide/clineignore-file-guide",
-			"destination": "/customization/clineignore"
+			"source": "/prompting/prompt-engineering-guide/induscodeignore-file-guide",
+			"destination": "/customization/induscodeignore"
 		},
 		{
 			"source": "/getting-started/selecting-your-model",
-			"destination": "/getting-started/authorizing-with-cline"
+			"destination": "/getting-started/authorizing-with-induscode"
 		},
 		{
 			"source": "/model-config/model-comparison",
-			"destination": "/getting-started/cline-provider"
+			"destination": "/getting-started/induscode-provider"
 		},
 		{
 			"source": "/troubleshooting/terminal-integration-guide",
@@ -723,34 +723,34 @@
 		},
 		{
 			"source": "/cli/installation",
-			"destination": "/getting-started/installing-cline"
+			"destination": "/getting-started/installing-induscode"
 		},
 		{
 			"source": "/cli/three-core-flows",
 			"destination": "/usage/cli-overview#headless-mode"
 		},
 		{
-			"source": "/cline-cli/getting-started",
+			"source": "/induscode-cli/getting-started",
 			"destination": "/usage/cli-overview"
 		},
 		{
-			"source": "/cline-cli/installation",
-			"destination": "/getting-started/installing-cline"
+			"source": "/induscode-cli/installation",
+			"destination": "/getting-started/installing-induscode"
 		},
 		{
-			"source": "/cline-cli/three-core-flows",
+			"source": "/induscode-cli/three-core-flows",
 			"destination": "/usage/cli-overview#headless-mode"
 		},
 		{
-			"source": "/cline-cli/connectors",
+			"source": "/induscode-cli/connectors",
 			"destination": "/cli/connectors"
 		},
 		{
-			"source": "/cline-cli/scheduling",
+			"source": "/induscode-cli/scheduling",
 			"destination": "/cli/scheduling"
 		},
 		{
-			"source": "/cline-cli/mcp-servers",
+			"source": "/induscode-cli/mcp-servers",
 			"destination": "/mcp/mcp-overview"
 		},
 		{
@@ -758,15 +758,15 @@
 			"destination": "/mcp/mcp-overview"
 		},
 		{
-			"source": "/cline-cli/agent-teams",
+			"source": "/induscode-cli/agent-teams",
 			"destination": "/cli/agent-teams"
 		},
 		{
-			"source": "/cline-cli/cli-reference",
+			"source": "/induscode-cli/cli-reference",
 			"destination": "/cli/cli-reference"
 		},
 		{
-			"source": "/cline-cli/configuration",
+			"source": "/induscode-cli/configuration",
 			"destination": "/getting-started/config"
 		},
 		{
@@ -782,31 +782,31 @@
 			"destination": "/getting-started/config"
 		},
 		{
-			"source": "/cline-cli/acp-editor-integrations",
+			"source": "/induscode-cli/acp-editor-integrations",
 			"destination": "/usage/acp"
 		},
 		{
-			"source": "/cline-cli/samples/github-issue-rca",
+			"source": "/induscode-cli/samples/github-issue-rca",
 			"destination": "/cli/samples/github-issue-rca"
 		},
 		{
-			"source": "/cline-cli/samples/github-integration",
+			"source": "/induscode-cli/samples/github-integration",
 			"destination": "/cli/samples/github-integration"
 		},
 		{
-			"source": "/cline-cli/samples/github-pr-review",
+			"source": "/induscode-cli/samples/github-pr-review",
 			"destination": "/cli/samples/github-pr-review"
 		},
 		{
-			"source": "/cline-cli/samples/model-orchestration",
+			"source": "/induscode-cli/samples/model-orchestration",
 			"destination": "/cli/samples/model-orchestration"
 		},
 		{
-			"source": "/cline-sdk/overview",
+			"source": "/induscode-sdk/overview",
 			"destination": "/sdk/overview"
 		},
 		{
-			"source": "/cline-sdk/quickstart",
+			"source": "/induscode-sdk/quickstart",
 			"destination": "/sdk/guides/building-an-agent"
 		},
 		{
@@ -814,63 +814,63 @@
 			"destination": "/sdk/guides/building-an-agent"
 		},
 		{
-			"source": "/cline-sdk/examples",
+			"source": "/induscode-sdk/examples",
 			"destination": "/sdk/guides/building-an-agent"
 		},
 		{
-			"source": "/cline-sdk/agents",
-			"destination": "/sdk/clinecore"
+			"source": "/induscode-sdk/agents",
+			"destination": "/sdk/induscodecore"
 		},
 		{
-			"source": "/cline-sdk/sessions",
-			"destination": "/sdk/clinecore"
+			"source": "/induscode-sdk/sessions",
+			"destination": "/sdk/induscodecore"
 		},
 		{
-			"source": "/cline-sdk/tools",
+			"source": "/induscode-sdk/tools",
 			"destination": "/sdk/tools"
 		},
 		{
-			"source": "/cline-sdk/streaming-and-events",
+			"source": "/induscode-sdk/streaming-and-events",
 			"destination": "/sdk/events"
 		},
 		{
-			"source": "/cline-sdk/plugins",
+			"source": "/induscode-sdk/plugins",
 			"destination": "/sdk/plugins"
 		},
 		{
-			"source": "/cline-sdk/hooks",
+			"source": "/induscode-sdk/hooks",
 			"destination": "/sdk/plugins"
 		},
 		{
-			"source": "/cline-sdk/model-providers",
+			"source": "/induscode-sdk/model-providers",
 			"destination": "/sdk/model-providers"
 		},
 		{
-			"source": "/cline-sdk/guides/building-an-agent",
+			"source": "/induscode-sdk/guides/building-an-agent",
 			"destination": "/sdk/guides/building-an-agent"
 		},
 		{
-			"source": "/cline-sdk/guides/creating-custom-tools",
+			"source": "/induscode-sdk/guides/creating-custom-tools",
 			"destination": "/sdk/guides/creating-custom-tools"
 		},
 		{
-			"source": "/cline-sdk/guides/writing-plugins",
+			"source": "/induscode-sdk/guides/writing-plugins",
 			"destination": "/sdk/guides/writing-plugins"
 		},
 		{
-			"source": "/cline-sdk/guides/permission-handling",
+			"source": "/induscode-sdk/guides/permission-handling",
 			"destination": "/sdk/guides/permission-handling"
 		},
 		{
-			"source": "/cline-sdk/guides/scheduled-agents",
+			"source": "/induscode-sdk/guides/scheduled-agents",
 			"destination": "/sdk/guides/scheduled-agents"
 		},
 		{
-			"source": "/cline-sdk/guides/multi-agent-teams",
+			"source": "/induscode-sdk/guides/multi-agent-teams",
 			"destination": "/sdk/guides/multi-agent-teams"
 		},
 		{
-			"source": "/cline-sdk/guides/connectors",
+			"source": "/induscode-sdk/guides/connectors",
 			"destination": "/cli/connectors"
 		},
 		{
@@ -878,47 +878,47 @@
 			"destination": "/cli/connectors"
 		},
 		{
-			"source": "/cline-sdk/guides/going-to-production",
+			"source": "/induscode-sdk/guides/going-to-production",
 			"destination": "/sdk/guides/going-to-production"
 		},
 		{
-			"source": "/cline-sdk/architecture/overview",
+			"source": "/induscode-sdk/architecture/overview",
 			"destination": "/sdk/architecture/overview"
 		},
 		{
-			"source": "/cline-sdk/architecture/hub-spoke",
+			"source": "/induscode-sdk/architecture/hub-spoke",
 			"destination": "/sdk/architecture/hub-spoke"
 		},
 		{
-			"source": "/cline-sdk/architecture/packages",
+			"source": "/induscode-sdk/architecture/packages",
 			"destination": "/sdk/architecture/overview"
 		},
 		{
-			"source": "/cline-sdk/reference/cline-core",
-			"destination": "/sdk/reference/cline-core"
+			"source": "/induscode-sdk/reference/induscode-core",
+			"destination": "/sdk/reference/induscode-core"
 		},
 		{
-			"source": "/cline-sdk/reference/agent",
+			"source": "/induscode-sdk/reference/agent",
 			"destination": "/sdk/reference/agent"
 		},
 		{
-			"source": "/cline-sdk/reference/gateway",
+			"source": "/induscode-sdk/reference/gateway",
 			"destination": "/sdk/reference/gateway"
 		},
 		{
-			"source": "/cline-sdk/reference/tools-api",
+			"source": "/induscode-sdk/reference/tools-api",
 			"destination": "/sdk/reference/tools-api"
 		},
 		{
-			"source": "/cline-sdk/reference/events",
+			"source": "/induscode-sdk/reference/events",
 			"destination": "/sdk/reference/events"
 		},
 		{
-			"source": "/cline-sdk/reference/types",
+			"source": "/induscode-sdk/reference/types",
 			"destination": "/sdk/reference/types"
 		},
 		{
-			"source": "/cline-sdk/extensions",
+			"source": "/induscode-sdk/extensions",
 			"destination": "/sdk/plugins"
 		},
 		{
@@ -926,7 +926,7 @@
 			"destination": "/sdk/guides/writing-plugins"
 		},
 		{
-			"source": "/cline-sdk/guides/writing-extensions",
+			"source": "/induscode-sdk/guides/writing-extensions",
 			"destination": "/sdk/guides/writing-plugins"
 		},
 		{
@@ -951,11 +951,11 @@
 		},
 		{
 			"source": "/sdk/agents",
-			"destination": "/sdk/clinecore"
+			"destination": "/sdk/induscodecore"
 		},
 		{
 			"source": "/sdk/sessions",
-			"destination": "/sdk/clinecore"
+			"destination": "/sdk/induscodecore"
 		},
 		{
 			"source": "/sdk/streaming-and-events",
@@ -974,48 +974,48 @@
 			"destination": "/sdk/guides/building-an-agent"
 		},
 		{
-			"source": "/cline-cli/interactive-mode",
+			"source": "/induscode-cli/interactive-mode",
 			"destination": "/usage/cli-overview"
 		},
 		{
-			"source": "/cline-cli/overview",
+			"source": "/induscode-cli/overview",
 			"destination": "/usage/cli-overview"
 		},
 		{
-			"source": "/cline-cli/samples/overview",
+			"source": "/induscode-cli/samples/overview",
 			"destination": "/usage/cli-overview"
 		},
 		{
-			"source": "/cline-cli/samples/worktree-workflows",
+			"source": "/induscode-cli/samples/worktree-workflows",
 			"destination": "/usage/cli-overview"
 		},
 		{
 			"source": "/contributing/doc-templates",
-			"destination": "/cline-overview"
+			"destination": "/induscode-overview"
 		},
 		{
 			"source": "/contributing/documentation-guide",
-			"destination": "/cline-overview"
+			"destination": "/induscode-overview"
 		},
 		{
 			"source": "/customization/workflows",
-			"destination": "/customization/cline-rules"
+			"destination": "/customization/induscode-rules"
 		},
 		{
 			"source": "/features/web-tools",
-			"destination": "/tools-reference/all-cline-tools"
+			"destination": "/tools-reference/all-induscode-tools"
 		},
 		{
 			"source": "/getting-started/quick-start",
-			"destination": "/cline-overview"
+			"destination": "/induscode-overview"
 		},
 		{
-			"source": "/getting-started/what-is-cline",
-			"destination": "/cline-overview"
+			"source": "/getting-started/what-is-induscode",
+			"destination": "/induscode-overview"
 		},
 		{
 			"source": "/home",
-			"destination": "/cline-overview"
+			"destination": "/induscode-overview"
 		},
 		{
 			"source": "/provider-config/aihubmix",
@@ -1070,7 +1070,7 @@
 			"destination": "/provider-config/other-30-plus-providers#hugging-face"
 		},
 		{
-			"source": "/provider-config/litellm-and-cline-using-codestral",
+			"source": "/provider-config/litellm-and-induscode-using-codestral",
 			"destination": "/provider-config/openai-compatible"
 		},
 		{
@@ -1127,7 +1127,7 @@
 		},
 		{
 			"source": "/tools-reference/browser-automation",
-			"destination": "/tools-reference/all-cline-tools"
+			"destination": "/tools-reference/all-induscode-tools"
 		},
 		{
 			"source": "/troubleshooting/task-history-recovery",
@@ -1139,6 +1139,6 @@
 		}
 	],
 	"search": {
-		"prompt": "Search Cline documentation..."
+		"prompt": "Search IndusCode documentation..."
 	}
 }

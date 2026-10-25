@@ -1,6 +1,6 @@
-# Cline Automation Examples
+# IndusCode Automation Examples
 
-This directory contains example automation specs for file-based and event-driven automation in Cline. Use these as templates to set up your own recurring or event-driven tasks.
+This directory contains example automation specs for file-based and event-driven automation in IndusCode. Use these as templates to set up your own recurring or event-driven tasks.
 
 ## 🚀 Quick Start: Pick Your Automation
 
@@ -22,12 +22,12 @@ This directory contains example automation specs for file-based and event-driven
 
 ## 📋 Overview
 
-Cline automation supports two types of specs:
+IndusCode automation supports two types of specs:
 
 1. **Recurring specs** (`.cron.md`) — Run on a schedule
 2. **Event-driven specs** (`.event.md`) — Run when an event occurs
 
-Both can be enabled in `.cline/cron/` to be picked up by the hub or SDK.
+Both can be enabled in `.induscode/cron/` to be picked up by the hub or SDK.
 
 ## 🔄 Recurring Specs
 
@@ -45,14 +45,14 @@ A production-ready example that runs a code review automation on weekday morning
 
 **Usage:**
 ```bash
-mkdir -p ~/.cline/cron
-cp examples/cron/daily-code-review.cron.md ~/.cline/cron/
+mkdir -p ~/.induscode/cron
+cp examples/cron/daily-code-review.cron.md ~/.induscode/cron/
 # Edit the spec: set workspaceRoot, model, etc.
 # Spec is reconciled on startup; next run enqueued automatically
 ```
 
 **One-off specs:**
-For one-time tasks, save as `.cline/cron/<name>.md` (no `.cron` infix) and omit the `schedule` field.
+For one-time tasks, save as `.induscode/cron/<name>.md` (no `.cron` infix) and omit the `schedule` field.
 
 ### Additional Recurring Spec Examples
 
@@ -130,7 +130,7 @@ Runs every Friday at 5 PM. Collects a week's worth of data: commits, test covera
 
 ## 🎯 Event-Driven Specs
 
-Event-driven specs live in `.cline/cron/events/` and trigger when normalized events are ingested.
+Event-driven specs live in `.induscode/cron/events/` and trigger when normalized events are ingested.
 
 ### [`events/pr-review.event.md`](./events/pr-review.event.md)
 
@@ -146,8 +146,8 @@ Runs a pull request review whenever a new PR opens on the `main` branch.
 
 **Usage:**
 ```bash
-mkdir -p ~/.cline/cron/events
-cp examples/cron/events/pr-review.event.md ~/.cline/cron/events/
+mkdir -p ~/.induscode/cron/events
+cp examples/cron/events/pr-review.event.md ~/.induscode/cron/events/
 # Configure your repository, branch, and workspace
 # Wire up GitHub App or webhook to ingest events
 ```
@@ -157,7 +157,7 @@ Events are ingested via:
 - GitHub App or webhook receiver
 - Plugin-emitted events (see `plugins/automation-events.ts`)
 - Connector adapters
-- `cline.automation.ingestEvent()` in the SDK
+- `induscode.automation.ingestEvent()` in the SDK
 
 ### [`events/local-manual-test.event.md`](./events/local-manual-test.event.md)
 
@@ -171,13 +171,13 @@ Local test spec for verifying event-driven automation without external services.
 
 **Usage:**
 ```bash
-mkdir -p ~/.cline/cron/events
-cp examples/cron/events/local-manual-test.event.md ~/.cline/cron/events/
+mkdir -p ~/.induscode/cron/events
+cp examples/cron/events/local-manual-test.event.md ~/.induscode/cron/events/
 
 # Start the hub with automation enabled
 # In another shell, ingest a test event
 node -e "
-  const { HubWebSocketClient } = require('@cline/core');
+  const { HubWebSocketClient } = require('@induscode/core');
   const client = new HubWebSocketClient('ws://localhost:8000');
   client.send('cron.event.ingest', {
     eventType: 'local.manual_test',
@@ -219,14 +219,14 @@ Triggers when a PR is opened or updated. Runs test coverage against the PR branc
 
 **Usage:**
 ```bash
-mkdir -p ~/.cline/cron/events
-cp examples/cron/events/local-plugin-event.event.md ~/.cline/cron/events/
+mkdir -p ~/.induscode/cron/events
+cp examples/cron/events/local-plugin-event.event.md ~/.induscode/cron/events/
 
 # Load the plugin that emits these events
-cline plugin install https://github.com/cline/cline/blob/main/sdk/examples/plugins/automation-events.ts
+induscode plugin install https://github.com/induscode/induscode/blob/main/sdk/examples/plugins/automation-events.ts
 
 # Run CLI with automation enabled; the plugin emits events
-cline --enable-automation -i "Test automation events"
+induscode --enable-automation -i "Test automation events"
 ```
 
 ## 🚀 Getting Started
@@ -234,7 +234,7 @@ cline --enable-automation -i "Test automation events"
 ### 1. Set up the spec directory
 
 ```bash
-mkdir -p ~/.cline/cron/events
+mkdir -p ~/.induscode/cron/events
 ```
 
 ### 2. Copy a template
@@ -264,7 +264,7 @@ new HubWebSocketServer({
 
 **In the SDK:**
 ```ts
-const cline = await ClineCore.create({
+const induscode = await IndusCodeCore.create({
   automation: true,  // Enable automation
   // ... other options
 });
@@ -272,12 +272,12 @@ const cline = await ClineCore.create({
 
 **In the CLI:**
 ```bash
-cline --enable-automation
+induscode --enable-automation
 ```
 
 ### 5. Monitor runs
 
-Completed and failed runs are reported to `.cline/cron/reports/<run-id>.md` with:
+Completed and failed runs are reported to `.induscode/cron/reports/<run-id>.md` with:
 - YAML frontmatter (run ID, status, timing, token usage)
 - Summary of work performed
 - Tool calls and results
@@ -416,4 +416,4 @@ Summarize the changes, check for security risks, and recommend approval or chang
 
 - [Architecture automation overview](../../ARCHITECTURE.md#automation) — Runtime architecture and flow details
 - [`plugins/automation-events.ts`](../plugins/automation-events.ts) — Plugin event emission
-- [Cline SDK Examples](../) — Other integration examples
+- [IndusCode SDK Examples](../) — Other integration examples

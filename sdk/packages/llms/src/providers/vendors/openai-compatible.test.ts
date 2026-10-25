@@ -2,7 +2,7 @@ import type { LanguageModelV4 } from "@ai-sdk/provider";
 import type {
 	GatewayProviderContext,
 	GatewayResolvedProviderConfig,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { describe, expect, it, vi } from "vitest";
 import { isOpenAIReasoningEraModelId } from "../model-facts";
 import {
@@ -176,7 +176,7 @@ describe("createOpenAICompatibleProviderModule wire format", () => {
 		expect(requestBody()).not.toHaveProperty("max_completion_tokens");
 	});
 
-	// Regression test for cline/cline#13119: LiteLLM's Anthropic passthrough
+	// Regression test for induscode/induscode#13119: LiteLLM's Anthropic passthrough
 	// emits tool_call deltas whose `index` mirrors the Anthropic content-block
 	// index (1 when a text block precedes the tool call). Older
 	// @ai-sdk/provider-utils stored tool calls in a sparse array keyed by that

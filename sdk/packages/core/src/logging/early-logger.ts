@@ -1,11 +1,11 @@
 /**
- * Early SDK logger for components that operate before/outside of `ClineCore`
+ * Early SDK logger for components that operate before/outside of `IndusCodeCore`
  * sessions, plus a secret-hashing helper for credential diagnostics.
  *
- * `ClineCore.create({ logger })` receives a `BasicLogger` but it is only
+ * `IndusCodeCore.create({ logger })` receives a `BasicLogger` but it is only
  * threaded to session-scoped components. `ProviderSettingsManager`,
- * `RuntimeOAuthTokenManager`, and the Cline auth functions in `cline.ts` are
- * constructed or called before `ClineCore` exists or outside a session.
+ * `RuntimeOAuthTokenManager`, and the IndusCode auth functions in `induscode.ts` are
+ * constructed or called before `IndusCodeCore` exists or outside a session.
  * Hosts call `setSdkLogger()` once at startup and every early component picks
  * it up without threading loggers through every constructor.
  *
@@ -16,7 +16,7 @@
  */
 
 import { createHash } from "node:crypto";
-import type { BasicLogger } from "@cline/shared";
+import type { BasicLogger } from "@induscode/shared";
 
 let earlyLogger: BasicLogger | undefined;
 

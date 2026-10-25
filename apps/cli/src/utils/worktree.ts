@@ -3,7 +3,7 @@ import { randomUUID } from "node:crypto";
 import { access, mkdir, rm } from "node:fs/promises";
 import * as path from "node:path";
 import { promisify } from "node:util";
-import { resolveClineDir } from "@cline/shared/storage";
+import { resolveIndusCodeDir } from "@induscode/shared/storage";
 
 const execFileAsync = promisify(execFile);
 const TASK_ID_LENGTH = 5;
@@ -17,7 +17,7 @@ export interface CreateTaskWorktreeResult {
 }
 
 export function getTaskWorktreesHomePath(): string {
-	return path.join(resolveClineDir(), "worktrees");
+	return path.join(resolveIndusCodeDir(), "worktrees");
 }
 
 function getWorkspaceFolderLabelForWorktreePath(repoPath: string): string {

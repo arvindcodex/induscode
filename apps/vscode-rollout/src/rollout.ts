@@ -16,7 +16,7 @@ import {
  * apps/vscode injects TELEMETRY_SERVICE_API_KEY. Local builds without the key
  * skip all network calls, so the loader defaults everyone to legacy.
  */
-const POSTHOG_HOST = "https://data.cline.bot";
+const POSTHOG_HOST = "https://data.induscode.bot";
 const POSTHOG_API_KEY = process.env.TELEMETRY_SERVICE_API_KEY;
 const FETCH_TIMEOUT_MS = 10_000;
 const FEATURE_FLAG_CALLED_EVENT = "$feature_flag_called";
@@ -27,10 +27,10 @@ const FEATURE_FLAG_CALLED_EVENT = "$feature_flag_called";
  * against the same id the bundles report telemetry with — otherwise cohort
  * membership can't be correlated with cohort behavior in dashboards.
  * Falls back to vscode.env.machineId rather than generating + persisting a new
- * id: the loader must never write to the shared ~/.cline state files.
+ * id: the loader must never write to the shared ~/.induscode state files.
  */
 async function getDistinctId(): Promise<string> {
-	const generated = await readSharedGlobalStateKey("cline.generatedMachineId");
+	const generated = await readSharedGlobalStateKey("induscode.generatedMachineId");
 	if (typeof generated === "string" && generated.length > 0) {
 		return generated;
 	}
@@ -48,9 +48,9 @@ async function getDistinctId(): Promise<string> {
 /** Read one key from the file-backed global state both bundles share. */
 async function readSharedGlobalStateKey(key: string): Promise<unknown> {
 	try {
-		const clineDir = process.env.CLINE_DIR || path.join(os.homedir(), ".cline");
+		const induscodeDir = process.env.INDUSCODE_DIR || path.join(os.homedir(), ".induscode");
 		const raw = await readFile(
-			path.join(clineDir, "data", "globalState.json"),
+			path.join(induscodeDir, "data", "globalState.json"),
 			"utf8",
 		);
 		const state = JSON.parse(raw);

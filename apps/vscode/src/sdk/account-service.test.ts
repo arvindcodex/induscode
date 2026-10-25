@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { getUserOrganizations } from "@/core/controller/account/getUserOrganizations"
-import { ClineAccountService } from "./account-service"
+import { IndusCodeAccountService } from "./account-service"
 
 const mocks = vi.hoisted(() => ({ request: vi.fn(), restore: vi.fn(), activeOrganizationId: "org-old" as string | undefined }))
 vi.mock("axios", () => ({ default: { request: mocks.request } }))
@@ -23,8 +23,8 @@ function deferred<T = void>() {
 	})
 	return { promise, resolve, reject }
 }
-vi.mock("@/config", () => ({ ClineEnv: { config: () => ({ apiBaseUrl: "http://127.0.0.1:1" }) } }))
-vi.mock("@/services/EnvUtils", () => ({ buildBasicClineHeaders: async () => ({}) }))
+vi.mock("@/config", () => ({ IndusCodeEnv: { config: () => ({ apiBaseUrl: "http://127.0.0.1:1" }) } }))
+vi.mock("@/services/EnvUtils", () => ({ buildBasicIndusCodeHeaders: async () => ({}) }))
 vi.mock("@/shared/net", () => ({ getAxiosSettings: () => ({}) }))
 
 describe("switchAccount owns the account boundary", () => {
@@ -40,7 +40,7 @@ describe("switchAccount owns the account boundary", () => {
 			order.push("request")
 			return { status: 200, data: { success: true, data: "" } }
 		})
-		const service = new ClineAccountService()
+		const service = new IndusCodeAccountService()
 		service.onAccountChange(async (change) => {
 			order.push("teardown")
 			await change()
@@ -62,7 +62,7 @@ describe("switchAccount owns the account boundary", () => {
 		mocks.restore.mockImplementation(async () => {
 			mocks.activeOrganizationId = "org-new"
 		})
-		const service = new ClineAccountService()
+		const service = new IndusCodeAccountService()
 
 		const first = service.switchAccount("org-new")
 		const second = service.switchAccount(undefined)
@@ -81,7 +81,7 @@ describe("switchAccount owns the account boundary", () => {
 		// scoped by the cached account, which is not changing.
 		mocks.request.mockResolvedValue({ status: 200, data: { success: true, data: "" } })
 		const boundary = vi.fn(async (change: () => Promise<void>) => change())
-		const service = new ClineAccountService()
+		const service = new IndusCodeAccountService()
 		service.onAccountChange(boundary)
 
 		await service.switchAccount("org-old")
@@ -99,13 +99,13 @@ describe("account confirmation", () => {
 	})
 	it("propagates an unavailable profile through the real service and RPC handler", async () => {
 		mocks.request.mockRejectedValue(new Error("offline"))
-		const controller = { accountService: new ClineAccountService() }
+		const controller = { accountService: new IndusCodeAccountService() }
 		await expect(getUserOrganizations(controller as never, {})).rejects.toThrow("Could not confirm")
 		expect(mocks.request).toHaveBeenCalledWith(expect.objectContaining({ timeout: 10_000, method: "GET" }))
 	})
 	it("waits for the server's answer to the mutation and reconciles auth after a transport failure", async () => {
 		mocks.request.mockRejectedValue(new Error("offline"))
-		await expect(new ClineAccountService().switchAccount("org-new")).rejects.toThrow("offline")
+		await expect(new IndusCodeAccountService().switchAccount("org-new")).rejects.toThrow("offline")
 		expect(mocks.request).toHaveBeenCalledWith(
 			expect.objectContaining({ timeout: 0, method: "PUT", data: { organizationId: "org-new" } }),
 		)

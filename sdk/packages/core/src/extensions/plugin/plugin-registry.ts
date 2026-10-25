@@ -17,8 +17,8 @@ import type {
 	PluginSetupContext,
 	PluginStatusRecord,
 	SessionPluginIssue,
-} from "@cline/shared";
-import { getPluginDisplayName } from "@cline/shared/storage";
+} from "@induscode/shared";
+import { getPluginDisplayName } from "@induscode/shared/storage";
 import type {
 	PluginInitializationFailure,
 	PluginInitializationWarning,
@@ -35,7 +35,7 @@ export const DEFAULT_PLUGIN_TOOL_TIMEOUT_MS = 60_000;
 /** Consecutive call failures after which a plugin is turned off. */
 export const DEFAULT_PLUGIN_FAILURE_THRESHOLD = 5;
 
-const PLUGIN_IMPORT_TIMEOUT_ENV = "CLINE_PLUGIN_IMPORT_TIMEOUT_MS";
+const PLUGIN_IMPORT_TIMEOUT_ENV = "INDUSCODE_PLUGIN_IMPORT_TIMEOUT_MS";
 
 export type PluginHookErrorMode = "ignore" | "throw";
 
@@ -190,7 +190,7 @@ function resolvePluginRoot(pluginPath: string): string {
 		if (existsSync(manifestPath)) {
 			try {
 				const pkg = JSON.parse(readFileSync(manifestPath, "utf8"));
-				if (pkg && typeof pkg === "object" && "cline" in pkg) {
+				if (pkg && typeof pkg === "object" && "induscode" in pkg) {
 					return current;
 				}
 			} catch {
@@ -794,9 +794,9 @@ export class PluginRegistry {
 			: undefined;
 		instance.emitEvent = emitEvent;
 		const originalSetup = extension.setup;
-		const wrapped: AgentExtension & { __clinePluginPath?: string } = {
+		const wrapped: AgentExtension & { __induscodePluginPath?: string } = {
 			...extension,
-			__clinePluginPath: entry.pluginPath,
+			__induscodePluginPath: entry.pluginPath,
 			hooks: this.wrapHooks(entry, instance, extension.hooks, input, timeouts),
 			setup: originalSetup
 				? async (api, ctx) => {

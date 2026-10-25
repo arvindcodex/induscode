@@ -3,7 +3,7 @@ import {
 	createGateway,
 	type GatewayProviderSettings,
 	isRetryableProviderError,
-} from "@cline/llms";
+} from "@induscode/llms";
 import type {
 	AgentAfterToolResult,
 	AgentBeforeModelResult,
@@ -31,7 +31,7 @@ import type {
 	TelemetryProperties,
 	ToolApprovalResult,
 	ToolPolicy,
-} from "@cline/shared";
+} from "@induscode/shared";
 import {
 	captureAgentUnexpectedReasoningTokens,
 	captureSdkError,
@@ -48,7 +48,7 @@ import {
 	TASK_PROVIDER_STREAM_STARTED_EVENT,
 	TOOL_REJECTION_SUFFIX,
 	trimNonEmpty,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { nanoid } from "nanoid";
 
 /** A model request after turn preparation, ready to be issued (possibly more than once). */
@@ -132,11 +132,11 @@ class ContextWindowOverflowError extends Error {
 	}
 }
 
-// Local `createUID` helper. The clinee source imports this from
-// `@cline/shared` (see `packages/shared/dist/identifier.ts`), but
+// Local `createUID` helper. The induscodee source imports this from
+// `@induscode/shared` (see `packages/shared/dist/identifier.ts`), but
 // sdk-re's shared package does not expose it yet. Inlining here keeps
 // PLAN.md Step 1 scoped to `packages/agents/src/` and matches the
-// exact clinee implementation (`${prefix}_${nanoid(length)}`).
+// exact induscodee implementation (`${prefix}_${nanoid(length)}`).
 function createUID(prefix: string, length = 8): string {
 	return `${prefix}_${nanoid(length)}`;
 }
@@ -146,7 +146,7 @@ export type AgentEventListener = (event: AgentRuntimeEvent) => void;
 
 /**
  * Advanced form: caller supplies a pre-built `AgentModel`. Used by
- * `@cline/core`, which constructs models itself to share gateway/telemetry
+ * `@induscode/core`, which constructs models itself to share gateway/telemetry
  * wiring with the rest of the session runtime.
  */
 export interface AgentRuntimeConfigWithModel extends BaseAgentRuntimeConfig {
@@ -155,7 +155,7 @@ export interface AgentRuntimeConfigWithModel extends BaseAgentRuntimeConfig {
 
 /**
  * Friendly form: caller supplies provider/model IDs and credentials, and the
- * runtime builds an `AgentModel` internally via `@cline/llms`. This is the
+ * runtime builds an `AgentModel` internally via `@induscode/llms`. This is the
  * entry point most standalone users want.
  */
 export interface AgentRuntimeConfigWithProvider
@@ -178,7 +178,7 @@ export interface AgentRuntimeConfigWithProvider
  * Config accepted by `new AgentRuntime(...)` / `createAgentRuntime(...)` /
  * `new Agent(...)` / `createAgent(...)`. Either supply a pre-built `model`
  * (advanced) or `providerId` + `modelId` (+ credentials) and the runtime will
- * construct the model itself via `@cline/llms`.
+ * construct the model itself via `@induscode/llms`.
  */
 export type AgentRuntimeConfig =
 	| AgentRuntimeConfigWithModel
@@ -1284,7 +1284,7 @@ export class AgentRuntime {
 			await this.emit({
 				type: "status-notice",
 				snapshot: this.snapshot(),
-				message: `provider error — retrying (attempt ${attempt}/${PROVIDER_ERROR_MAX_RETRIES})`,
+				message: `optimizing connection — retrying (attempt ${attempt}/${PROVIDER_ERROR_MAX_RETRIES})`,
 				metadata: {
 					kind: "provider_error_retry",
 					reason: "provider_error_retry",
@@ -1681,7 +1681,7 @@ export class AgentRuntime {
 			distinctId: trimNonEmpty(this.config.distinctId),
 			clientName: trimNonEmpty(this.config.clientName),
 			clientVersion: trimNonEmpty(this.config.clientVersion),
-			clineCoreVersion: trimNonEmpty(this.config.clineCoreVersion),
+			induscodeCoreVersion: trimNonEmpty(this.config.induscodeCoreVersion),
 			sessionId: trimNonEmpty(this.config.sessionId),
 			agentId: this.state.agentId,
 			conversationId: trimNonEmpty(this.config.conversationId),
@@ -1739,7 +1739,7 @@ export class AgentRuntime {
 			}
 		}
 
-		this.config.logger?.debug("Agent model request diagnostics", {
+		this.config.logger?.debug?.("Agent model request diagnostics", {
 			iteration: this.state.iteration,
 			providerId:
 				"providerId" in this.config &&
@@ -2714,10 +2714,10 @@ export class AgentRuntime {
 		const metadata = buildEventMetadata(event);
 		switch (event.type) {
 			case "run-started":
-				// Verbatim clinee calls `logger?.info?.(...)`. sdk-re's
+				// Verbatim induscodee calls `logger?.info?.(...)`. sdk-re's
 				// `BasicLogger` does not declare `info` (it uses `log`), so
 				// we narrow to an optional-info shape at the call site to
-				// preserve the clinee runtime contract without mutating
+				// preserve the induscodee runtime contract without mutating
 				// shared's `BasicLogger` interface.
 				(
 					this.config.logger as
@@ -2931,7 +2931,7 @@ export function createAgentRuntime(config: AgentRuntimeConfig): AgentRuntime {
  *     const agent = new Agent({ providerId, modelId, apiKey });
  *     await agent.run("hello");
  *
- * while `@cline/core` (which owns model construction) continues to use
+ * while `@induscode/core` (which owns model construction) continues to use
  * the `AgentRuntime` name with `{ model, ... }` configs.
  */
 export const Agent = AgentRuntime;

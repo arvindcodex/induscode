@@ -3,7 +3,7 @@ import {
 	type GeneratedMedia,
 	isGeneratedMedia,
 	type ProviderAuthInfo,
-} from "@cline/shared/browser";
+} from "@induscode/shared/browser";
 import type {
 	ChatMessage,
 	ChatSessionConfig,
@@ -218,8 +218,8 @@ export function resolveCredentialError(
 	options?: { hasActiveSession?: boolean },
 ): string | null {
 	if (config.executionTarget === "cloud") {
-		if (config.provider.trim().toLowerCase() !== "cline") {
-			return "Cloud sessions require the Cline provider.";
+		if (config.provider.trim().toLowerCase() !== "induscode") {
+			return "Cloud sessions require the IndusCode provider.";
 		}
 		// Sends into an existing cloud session need no repo URL — the sandbox
 		// was already provisioned with one.
@@ -287,7 +287,7 @@ export function resolveCredentialFailureHint(
 	if (cli) {
 		return `Sign in again with the \`${cli.command}\` CLI in a terminal, then try again.`;
 	}
-	if (normalizeProviderId(providerId) === "cline" || normalizeProviderId(providerId) === "induscode") {
+	if (normalizeProviderId(providerId) === "induscode" || normalizeProviderId(providerId) === "induscode") {
 		return "Please configure your AI API Key in Admin Setup (http://localhost:3000/admin) or in Settings → Providers.";
 	}
 	if (!providerAuth) {
@@ -311,7 +311,7 @@ export function isCredentialFailure(description: string): boolean {
 /**
  * The in-app action that fixes a credential failure for `providerId`, or null
  * when there is none to offer (local-auth providers are fixed in their CLI).
- * Cline goes to the Account page: Settings → Providers keeps reporting a
+ * IndusCode goes to the Account page: Settings → Providers keeps reporting a
  * stale OAuth token as "signed in", while the Account page verifies it against
  * the API and offers to sign in again.
  */
@@ -319,7 +319,7 @@ export function resolveCredentialFailureAction(
 	providerId: string,
 	auth?: ProviderAuthInfo,
 ): { label: string; target: "account" | "models" } | null {
-	if (normalizeProviderId(providerId) === "cline" || normalizeProviderId(providerId) === "induscode") {
+	if (normalizeProviderId(providerId) === "induscode" || normalizeProviderId(providerId) === "induscode") {
 		return { label: "Configure AI Provider", target: "models" };
 	}
 	const providerAuth = matchingProviderAuth(providerId, auth);

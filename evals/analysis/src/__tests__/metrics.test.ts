@@ -212,7 +212,7 @@ describe("MetricsCalculator", () => {
 	})
 
 	describe("Real-world scenarios", () => {
-		it("handles typical cline-bench results", () => {
+		it("handles typical induscode-bench results", () => {
 			// Scenario: Task passed 2/3 times
 			const trials = [true, true, false]
 			const metrics = calc.calculateTaskMetrics(trials)

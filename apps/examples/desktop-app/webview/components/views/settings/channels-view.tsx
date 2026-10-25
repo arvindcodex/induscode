@@ -5,8 +5,8 @@ import {
 	type ConnectorChannel,
 	type ConnectorChannelsResponse,
 	shouldIncludeConnectorField,
-} from "@cline/shared/browser";
-import { Switch } from "@cline/ui";
+} from "@induscode/shared/browser";
+import { Switch } from "@induscode/ui";
 import { Circle, Eye, EyeOff, RefreshCw, Search } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -602,7 +602,7 @@ export function ChannelsContent({
 					description="Connect messaging platforms so you can chat with IndusCode anywhere. Click on a channel name to view or edit its configuration."
 					meta={
 						<span className="rounded-md border border-border bg-background px-2 py-0.5 text-xs text-muted-foreground">
-							cline connect
+							induscode connect
 						</span>
 					}
 					title="Channels"

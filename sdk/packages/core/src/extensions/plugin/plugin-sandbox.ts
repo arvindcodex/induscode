@@ -14,20 +14,20 @@ import type {
 	Message,
 	PluginSetupContext,
 	WorkspaceInfo,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { SubprocessSandbox } from "../../runtime/tools/subprocess-sandbox";
 import { MAX_NODE_TIMER_DELAY_MS } from "../../runtime/tools/subprocess-sandbox-lifecycle";
 import { WorkerSandbox } from "../../runtime/tools/worker-sandbox";
 import type { PluginLoadDiagnostics } from "./plugin-load-report";
 import type { PluginTargeting } from "./plugin-targeting";
 
-export const CLINE_PLUGIN_IDLE_TIMEOUT_MS_ENV = "CLINE_PLUGIN_IDLE_TIMEOUT_MS";
+export const INDUSCODE_PLUGIN_IDLE_TIMEOUT_MS_ENV = "INDUSCODE_PLUGIN_IDLE_TIMEOUT_MS";
 /**
  * Absolute path to a compiled `plugin-sandbox-bootstrap.js`, for hosts that
  * ship it somewhere this module cannot find on its own (an app bundle's
  * resources directory).
  */
-export const CLINE_PLUGIN_BOOTSTRAP_PATH_ENV = "CLINE_PLUGIN_BOOTSTRAP_PATH";
+export const INDUSCODE_PLUGIN_BOOTSTRAP_PATH_ENV = "INDUSCODE_PLUGIN_BOOTSTRAP_PATH";
 export const DEFAULT_PLUGIN_SANDBOX_IDLE_TIMEOUT_MS = 30 * 60 * 1000;
 
 export type SandboxedPluginSetupContext = Pick<
@@ -51,7 +51,7 @@ export interface PluginSandboxOptions extends PluginTargeting {
 	exportName?: string;
 	/**
 	 * Max wall time for plugin module imports. Defaults to 4000 ms; falls back
-	 * to the `CLINE_PLUGIN_IMPORT_TIMEOUT_MS` env var when this option is not
+	 * to the `INDUSCODE_PLUGIN_IMPORT_TIMEOUT_MS` env var when this option is not
 	 * set, allowing slower hosts (Windows cold-start, CI without warm caches)
 	 * to raise the ceiling without touching code.
 	 */
@@ -61,7 +61,7 @@ export interface PluginSandboxOptions extends PluginTargeting {
 	/**
 	 * Reclaim the plugin subprocess after this much time with no calls in
 	 * flight. Defaults to 30 minutes and can be overridden with
-	 * `CLINE_PLUGIN_IDLE_TIMEOUT_MS`.
+	 * `INDUSCODE_PLUGIN_IDLE_TIMEOUT_MS`.
 	 */
 	idleTimeoutMs?: number;
 	onEvent?: (event: { name: string; payload?: unknown }) => void;
@@ -112,7 +112,7 @@ type AgentExtension = NonNullable<AgentConfig["extensions"]>[number];
 type AgentExtensionApi = Parameters<NonNullable<AgentExtension["setup"]>>[0];
 type SandboxedAgentExtension = AgentExtension & {
 	/** Internal metadata used by settings surfaces that need source paths. */
-	__clinePluginPath?: string;
+	__induscodePluginPath?: string;
 };
 
 type SandboxedContributionDescriptor = {
@@ -131,8 +131,8 @@ type SandboxedContributionDescriptor = {
  * Internal sandbox events, never forwarded to the session. Keep in sync with
  * plugin-sandbox-bootstrap.ts.
  */
-const TOOL_UPDATE_EVENT = "__cline_tool_update";
-const SETUP_STARTED_EVENT = "__cline_setup_started";
+const TOOL_UPDATE_EVENT = "__induscode_tool_update";
+const SETUP_STARTED_EVENT = "__induscode_setup_started";
 
 /** Progress callbacks of tool calls in flight, by call id. */
 type ToolUpdateRoutes = Map<string, (update: unknown) => void>;
@@ -200,11 +200,11 @@ function isUnknownPluginIdError(error: unknown): boolean {
 
 function getPlatformPackageName(): string {
 	const platform = process.platform === "win32" ? "windows" : process.platform;
-	return `@cline/cli-${platform}-${process.arch}`;
+	return `@induscode/cli-${platform}-${process.arch}`;
 }
 
 function resolveBootstrapFromWrapper(): string | undefined {
-	const wrapperPath = process.env.CLINE_WRAPPER_PATH?.trim();
+	const wrapperPath = process.env.INDUSCODE_WRAPPER_PATH?.trim();
 	if (!wrapperPath) {
 		return undefined;
 	}
@@ -289,7 +289,7 @@ function resolveBootstrap():
 	// In production, the main bundle is at dist/ and the bootstrap is emitted
 	// under dist/extensions/. Keep the older dist/agents/ fallback for
 	// compatibility with previously built layouts.
-	const configured = process.env[CLINE_PLUGIN_BOOTSTRAP_PATH_ENV]?.trim();
+	const configured = process.env[INDUSCODE_PLUGIN_BOOTSTRAP_PATH_ENV]?.trim();
 	if (configured && existsSync(configured)) {
 		return { file: configured };
 	}
@@ -336,7 +336,7 @@ let bootstrapUnavailableForTests = false;
 
 /**
  * Resolved on first use, not at import, so a host can set
- * `CLINE_PLUGIN_BOOTSTRAP_PATH` after loading this module. A host that ships
+ * `INDUSCODE_PLUGIN_BOOTSTRAP_PATH` after loading this module. A host that ships
  * no bootstrap cannot run plugins at all: plugin code never runs on a host's
  * main thread, so the load fails instead.
  */
@@ -366,7 +366,7 @@ export class PluginBootstrapMissingError extends Error {
 	constructor() {
 		super(
 			"This build does not ship plugin-sandbox-bootstrap.js, so plugins cannot run. " +
-				`Set ${CLINE_PLUGIN_BOOTSTRAP_PATH_ENV} to a copy of the file, or reinstall Cline.`,
+				`Set ${INDUSCODE_PLUGIN_BOOTSTRAP_PATH_ENV} to a copy of the file, or reinstall IndusCode.`,
 		);
 		this.name = "PluginBootstrapMissingError";
 	}
@@ -443,7 +443,7 @@ export async function loadSandboxedPlugins(
 	const idleTimeoutMs = withTimeoutFallback(
 		options.idleTimeoutMs,
 		DEFAULT_PLUGIN_SANDBOX_IDLE_TIMEOUT_MS,
-		CLINE_PLUGIN_IDLE_TIMEOUT_MS_ENV,
+		INDUSCODE_PLUGIN_IDLE_TIMEOUT_MS_ENV,
 	);
 	let resolved: ReturnType<typeof getBootstrap>;
 	try {
@@ -461,7 +461,7 @@ export async function loadSandboxedPlugins(
 	const importTimeoutMs = withTimeoutFallback(
 		options.importTimeoutMs,
 		4000,
-		"CLINE_PLUGIN_IMPORT_TIMEOUT_MS",
+		"INDUSCODE_PLUGIN_IMPORT_TIMEOUT_MS",
 	);
 	const hookTimeoutMs = withTimeoutFallback(options.hookTimeoutMs, 3000);
 	const setupTimeoutMs =
@@ -553,7 +553,7 @@ export async function loadSandboxedPlugins(
 		(descriptor) => {
 			const extension: SandboxedAgentExtension = {
 				name: descriptor.name,
-				__clinePluginPath: descriptor.pluginPath,
+				__induscodePluginPath: descriptor.pluginPath,
 				manifest: descriptor.manifest,
 				setup: (api: AgentExtensionApi) => {
 					registerTools(

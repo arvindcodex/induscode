@@ -1,5 +1,5 @@
 /**
- * Telemetry adapter interface for the @cline/core SDK.
+ * Telemetry adapter interface for the @induscode/core SDK.
  *
  * This is the SDK-side counterpart to the extension's ITelemetryProvider.
  * It is intentionally free of VS Code / host-provider dependencies so that
@@ -7,7 +7,7 @@
  * backend without pulling in the full extension runtime.
  */
 
-import type { TelemetryProperties } from "@cline/shared";
+import type { TelemetryProperties } from "@induscode/shared";
 
 export type {
 	TelemetryArray,
@@ -16,7 +16,7 @@ export type {
 	TelemetryPrimitive,
 	TelemetryProperties,
 	TelemetryValue,
-} from "@cline/shared";
+} from "@induscode/shared";
 
 // ---------------------------------------------------------------------------
 // Adapter interface
@@ -24,7 +24,7 @@ export type {
 
 /**
  * Telemetry adapter that an SDK consumer implements (or uses via the
- * provided {@link OpenTelemetryAdapter}) to receive Cline telemetry events.
+ * provided {@link OpenTelemetryAdapter}) to receive IndusCode telemetry events.
  *
  * The interface intentionally mirrors ITelemetryProvider from the extension
  * so that shared logic can be re-used or compared easily.

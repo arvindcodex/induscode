@@ -319,7 +319,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "cline-menubar"
+name = "induscode-menubar"
 version = "0.1.0"
 dependencies = [
  "serde",

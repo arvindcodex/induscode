@@ -7,20 +7,20 @@ import {
 	NoOpFeatureFlagsProvider,
 	registerDisposable,
 	resolveCoreDistinctId,
-} from "@cline/core";
+} from "@induscode/core";
 import {
-	buildClinePostHogClient,
+	buildIndusCodePostHogClient,
 	PostHogFeatureFlagsProvider,
-} from "@cline/core/services/feature-flags/posthog";
-import { resolveClineDataDir } from "@cline/shared/storage";
+} from "@induscode/core/services/feature-flags/posthog";
+import { resolveIndusCodeDataDir } from "@induscode/shared/storage";
 
-let cliFeatureFlagsContext: FeatureFlagsContext = { clientName: "cline-cli" };
+let cliFeatureFlagsContext: FeatureFlagsContext = { clientName: "induscode-cli" };
 let cliFeatureFlagsService: FeatureFlagsService | undefined;
 
 const CLI_FEATURE_FLAGS_CACHE_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
 
 function resolveCliFeatureFlagsCachePath(): string {
-	return join(resolveClineDataDir(), "cache", "feature-flags.json");
+	return join(resolveIndusCodeDataDir(), "cache", "feature-flags.json");
 }
 
 function ensureCliDistinctId(): string {
@@ -49,7 +49,7 @@ export function getCliFeatureFlagsService(options?: {
 			process.env.IS_TEST !== "true" &&
 			process.env.E2E_TEST !== "true"
 				? new PostHogFeatureFlagsProvider({
-						client: buildClinePostHogClient(apiKey),
+						client: buildIndusCodePostHogClient(apiKey),
 						config: {
 							logger: options?.logger,
 						},

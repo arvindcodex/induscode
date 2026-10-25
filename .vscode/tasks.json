@@ -328,7 +328,7 @@
 			"options": {
 				"cwd": "${workspaceFolder}",
 				"env": {
-					"CLINE_SOURCEMAPS": "1"
+					"INDUSCODE_SOURCEMAPS": "1"
 				}
 			}
 		}

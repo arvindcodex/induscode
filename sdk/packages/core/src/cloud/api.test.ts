@@ -1,4 +1,4 @@
-import type { MessageWithMetadata } from "@cline/shared";
+import type { MessageWithMetadata } from "@induscode/shared";
 import { describe, expect, it, vi } from "vitest";
 import {
 	CloudCreationUnconfirmedError,
@@ -14,7 +14,7 @@ const REMOTE_SESSION: CloudSessionRecord = {
 	id: "ses-outer",
 	status: "ready",
 	sandboxUrl: "https://pod.example/hub",
-	repoContext: { repoUrl: "https://github.com/cline/test" },
+	repoContext: { repoUrl: "https://github.com/induscode/test" },
 	metadata: { modelId: "anthropic/claude-sonnet-5" },
 	createdAt: "2026-08-05T10:00:00.000Z",
 	updatedAt: "2026-08-05T10:01:00.000Z",
@@ -57,7 +57,7 @@ describe("CloudSessionApi", () => {
 		});
 		await api.create({
 			modelId: "model",
-			repoUrl: "https://github.com/cline/test",
+			repoUrl: "https://github.com/induscode/test",
 			sandboxType,
 		});
 		const body = JSON.parse(String(fetch.mock.calls[0]?.[1]?.body));
@@ -213,24 +213,24 @@ describe("CloudSessionApi", () => {
 
 		await api.create({
 			modelId: "anthropic/claude-sonnet-5",
-			repoUrl: "https://github.com/cline/test",
+			repoUrl: "https://github.com/induscode/test",
 			branch: "feature/login-fix",
 		});
 		await api.create({
 			modelId: "anthropic/claude-sonnet-5",
-			repoUrl: "https://github.com/cline/test",
+			repoUrl: "https://github.com/induscode/test",
 		});
 
 		expect(bodies[0]).toMatchObject({
 			modelId: "anthropic/claude-sonnet-5",
-			repoUrl: "https://github.com/cline/test",
+			repoUrl: "https://github.com/induscode/test",
 			branch: "feature/login-fix",
-			title: expect.stringMatching(/^__cline_create_request__:/),
+			title: expect.stringMatching(/^__induscode_create_request__:/),
 		});
 		expect(bodies[1]).toMatchObject({
 			modelId: "anthropic/claude-sonnet-5",
-			repoUrl: "https://github.com/cline/test",
-			title: expect.stringMatching(/^__cline_create_request__:/),
+			repoUrl: "https://github.com/induscode/test",
+			title: expect.stringMatching(/^__induscode_create_request__:/),
 		});
 		expect(bodies[1]).not.toHaveProperty("branch");
 	});
@@ -315,7 +315,7 @@ describe("CloudSessionApi", () => {
 
 			const created = await api.create({
 				modelId: "anthropic/claude-sonnet-5",
-				repoUrl: "https://github.com/cline/test",
+				repoUrl: "https://github.com/induscode/test",
 			});
 			expect(created).toMatchObject({
 				sessionId: "ses-1",
@@ -436,7 +436,7 @@ describe("CloudSessionApi", () => {
 		await expect(
 			api.create({
 				modelId: "anthropic/claude-sonnet-5",
-				repoUrl: "https://github.com/cline/test",
+				repoUrl: "https://github.com/induscode/test",
 			}),
 		).resolves.toMatchObject({
 			sessionId: "ses-recovered",
@@ -496,7 +496,7 @@ describe("CloudSessionApi", () => {
 			const creating = api
 				.create({
 					modelId: "anthropic/claude-sonnet-5",
-					repoUrl: "https://github.com/cline/test",
+					repoUrl: "https://github.com/induscode/test",
 				})
 				.catch((error) => error);
 			await vi.advanceTimersByTimeAsync(100);
@@ -606,7 +606,7 @@ describe("CloudSessionApi", () => {
 								{
 									...REMOTE_SESSION,
 									id: "ses-other-process",
-									title: "__cline_create_request__:other-request",
+									title: "__induscode_create_request__:other-request",
 									createdAt: now,
 									updatedAt: now,
 								},
@@ -634,7 +634,7 @@ describe("CloudSessionApi", () => {
 					data: [
 						{
 							...REMOTE_SESSION,
-							title: "__cline_create_request__:request-a",
+							title: "__induscode_create_request__:request-a",
 						},
 					],
 				}),
@@ -645,7 +645,7 @@ describe("CloudSessionApi", () => {
 				id: "ses-outer",
 				title: undefined,
 				metadata: expect.objectContaining({
-					createRequestTitle: "__cline_create_request__:request-a",
+					createRequestTitle: "__induscode_create_request__:request-a",
 				}),
 			}),
 		]);
@@ -661,7 +661,7 @@ describe("CloudSessionApi", () => {
 		});
 
 		const error = await api
-			.create({ modelId: "model", repoUrl: "https://github.com/cline/test" })
+			.create({ modelId: "model", repoUrl: "https://github.com/induscode/test" })
 			.catch((caught) => caught);
 
 		expect(error).toBeInstanceOf(CloudSessionError);
@@ -683,8 +683,8 @@ describe("CloudSessionApi", () => {
 		const error = await api
 			.create({
 				modelId: "model",
-				repoUrl: "https://github.com/cline/test",
-				organizationId: "org-cline-bot",
+				repoUrl: "https://github.com/induscode/test",
+				organizationId: "org-induscode-bot",
 			})
 			.catch((caught) => caught);
 
@@ -714,10 +714,10 @@ describe("CloudSessionApi", () => {
 					data: [
 						{
 							id: 42,
-							name: "cline",
-							full_name: "cline/cline",
-							html_url: "https://github.com/cline/cline",
-							clone_url: "https://github.com/cline/cline.git",
+							name: "induscode",
+							full_name: "induscode/induscode",
+							html_url: "https://github.com/induscode/induscode",
+							clone_url: "https://github.com/induscode/induscode.git",
 							default_branch: "main",
 						},
 					],
@@ -731,9 +731,9 @@ describe("CloudSessionApi", () => {
 			repositories: [
 				{
 					id: 42,
-					name: "cline",
-					fullName: "cline/cline",
-					url: "https://github.com/cline/cline",
+					name: "induscode",
+					fullName: "induscode/induscode",
+					url: "https://github.com/induscode/induscode",
 					defaultBranch: "main",
 				},
 			],
@@ -834,14 +834,14 @@ describe("CloudSessionApi", () => {
 			},
 		});
 
-		expect(await api.listRepositories("org-cline-bot")).toMatchObject({
+		expect(await api.listRepositories("org-induscode-bot")).toMatchObject({
 			connected: true,
 			connectUrl: "https://app.example/dashboard/organization/integrations",
 		});
-		await api.listBranches(42, "org-cline-bot");
+		await api.listBranches(42, "org-induscode-bot");
 		expect(requestedPaths).toEqual([
-			"/api/v1/organizations/org-cline-bot/integrations/github/repositories",
-			"/api/v1/organizations/org-cline-bot/integrations/github/repositories/42/branches",
+			"/api/v1/organizations/org-induscode-bot/integrations/github/repositories",
+			"/api/v1/organizations/org-induscode-bot/integrations/github/repositories/42/branches",
 		]);
 	});
 
@@ -849,10 +849,10 @@ describe("CloudSessionApi", () => {
 		const now = new Date().toISOString();
 		const record = (id: string, createdAt: string) => ({
 			id,
-			title: "__cline_create_request__:same-request",
+			title: "__induscode_create_request__:same-request",
 			status: "running",
 			sandboxUrl: `pod-${id}`,
-			repoContext: { repoUrl: "https://github.com/cline/test" },
+			repoContext: { repoUrl: "https://github.com/induscode/test" },
 			metadata: { modelId: "anthropic/claude-sonnet-5" },
 			createdAt,
 			updatedAt: createdAt,
@@ -875,7 +875,7 @@ describe("CloudSessionApi", () => {
 		const input = {
 			requestId: "same-request",
 			modelId: "anthropic/claude-sonnet-5",
-			repoUrl: "https://github.com/cline/test",
+			repoUrl: "https://github.com/induscode/test",
 		};
 
 		const error = await api.create(input).catch((caught) => caught);
@@ -926,7 +926,7 @@ describe("CloudSessionApi", () => {
 		});
 
 		const error = await api
-			.create({ modelId: "model", repoUrl: "https://github.com/cline/test" })
+			.create({ modelId: "model", repoUrl: "https://github.com/induscode/test" })
 			.catch((caught) => caught);
 
 		expect(error).toBeInstanceOf(CloudSessionError);
@@ -955,7 +955,7 @@ describe("CloudSessionApi", () => {
 		await expect(
 			api.create({
 				modelId: "anthropic/claude-sonnet-5",
-				repoUrl: "https://github.com/cline/test",
+				repoUrl: "https://github.com/induscode/test",
 			}),
 		).rejects.toThrow(/invalid branch/);
 		expect(listRequests).toBe(0);
@@ -1007,7 +1007,7 @@ describe("seeded cloud provisioning recovery", () => {
 		id: "ses-seeded",
 		status: "ready",
 		sandboxUrl: "",
-		repoContext: { repoUrl: "https://github.com/cline/repo", branch: "main" },
+		repoContext: { repoUrl: "https://github.com/induscode/repo", branch: "main" },
 		metadata: { modelId: "model" },
 		createdAt: "2026-01-01",
 		updatedAt: "2026-01-01",
@@ -1257,7 +1257,7 @@ describe("seeded cloud provisioning recovery", () => {
 		const persist = vi.fn(async () => {});
 		const fetch = vi.fn(async () =>
 			response([
-				{ ...record, title: "__cline_create_request__:handoff:source:sha" },
+				{ ...record, title: "__induscode_create_request__:handoff:source:sha" },
 			]),
 		);
 		const api = createApi(fetch);
@@ -1293,7 +1293,7 @@ describe("seeded cloud provisioning recovery", () => {
 							{
 								...record,
 								status: "failed",
-								title: "__cline_create_request__:handoff:source:sha",
+								title: "__induscode_create_request__:handoff:source:sha",
 							},
 						]
 					: [],
@@ -1386,7 +1386,7 @@ describe("seeded cloud provisioning recovery", () => {
 		const api = createApi(async (_url, init) => {
 			methods.push(init?.method ?? "GET");
 			return response([
-				{ ...record, title: "__cline_create_request__:handoff:source:sha" },
+				{ ...record, title: "__induscode_create_request__:handoff:source:sha" },
 			]);
 		});
 		await expect(

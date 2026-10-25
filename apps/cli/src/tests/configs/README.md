@@ -1,7 +1,7 @@
 # Test Fixture Configs
 
-Each subdirectory here is a **Cline config directory** used by one or more test suites.
-Tests point to a config via `clineEnv("<name>")` in `tests/e2e/cli/helpers/env.ts`.
+Each subdirectory here is a **IndusCode config directory** used by one or more test suites.
+Tests point to a config via `induscodeEnv("<name>")` in `tests/e2e/cli/helpers/env.ts`.
 
 ## Available fixtures
 
@@ -13,8 +13,8 @@ Tests point to a config via `clineEnv("<name>")` in `tests/e2e/cli/helpers/env.t
 ## Adding a new fixture
 
 1. Create `configs/<name>/data/globalState.json` with the desired state.
-2. Create `configs/<name>/data/settings/cline_mcp_settings.json` (can be `{ "mcpServers": {} }`).
-3. Reference it in tests with `clineEnv("<name>")`.
+2. Create `configs/<name>/data/settings/induscode_mcp_settings.json` (can be `{ "mcpServers": {} }`).
+3. Reference it in tests with `induscodeEnv("<name>")`.
 
 ## Secrets
 

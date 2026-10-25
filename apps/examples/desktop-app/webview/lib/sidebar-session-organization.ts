@@ -1,4 +1,4 @@
-import { isChatWorkspacePath } from "@cline/shared/browser";
+import { isChatWorkspacePath } from "@induscode/shared/browser";
 import { normalizeTitle } from "@/components/utils";
 import {
 	parseTimestamp,

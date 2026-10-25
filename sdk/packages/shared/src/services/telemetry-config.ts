@@ -1,7 +1,7 @@
 import { parseKeyPairsIntoRecord } from "../parse/headers/utils";
 import type { OpenTelemetryClientConfig, TelemetryMetadata } from "./telemetry";
 
-export interface ClineTelemetryServiceConfig extends OpenTelemetryClientConfig {
+export interface IndusCodeTelemetryServiceConfig extends OpenTelemetryClientConfig {
 	metadata: TelemetryMetadata;
 }
 
@@ -30,12 +30,12 @@ function getTelemetryBuildTimeConfig(): OpenTelemetryClientConfig {
 	};
 }
 
-export function createClineTelemetryServiceMetadata(
+export function createIndusCodeTelemetryServiceMetadata(
 	overrides: Partial<TelemetryMetadata> = {},
 ): TelemetryMetadata {
 	return {
 		extension_version: "unknown",
-		cline_type: "unknown",
+		induscode_type: "unknown",
 		platform: "terminal",
 		platform_version: process?.version || "unknown",
 		os_type: process?.platform || "unknown",
@@ -47,12 +47,12 @@ export function createClineTelemetryServiceMetadata(
 	};
 }
 
-export function createClineTelemetryServiceConfig(
-	configOverrides: Partial<ClineTelemetryServiceConfig> = {},
-): ClineTelemetryServiceConfig {
+export function createIndusCodeTelemetryServiceConfig(
+	configOverrides: Partial<IndusCodeTelemetryServiceConfig> = {},
+): IndusCodeTelemetryServiceConfig {
 	return {
 		...getTelemetryBuildTimeConfig(),
 		...configOverrides,
-		metadata: createClineTelemetryServiceMetadata(configOverrides.metadata),
+		metadata: createIndusCodeTelemetryServiceMetadata(configOverrides.metadata),
 	};
 }

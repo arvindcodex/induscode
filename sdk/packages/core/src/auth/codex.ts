@@ -5,7 +5,7 @@
  * It is only intended for CLI use, not browser environments.
  */
 
-import { decodeJwtPayload, type ITelemetryService } from "@cline/shared";
+import { decodeJwtPayload, type ITelemetryService } from "@induscode/shared";
 import { nanoid } from "nanoid";
 import {
 	captureAuthFailed,
@@ -321,7 +321,7 @@ export async function loginOpenAICodex(options: {
 	// opening a browser flow that silently dead-ends.
 	if (!server.callbackUrl && !options.onManualCodeInput) {
 		const error = new Error(
-			`Port ${callbackConfig.port} is already in use, so the OpenAI sign-in callback cannot be received. Close the application using that port (for example another Codex or Cline sign-in) and try again.`,
+			`Port ${callbackConfig.port} is already in use, so the OpenAI sign-in callback cannot be received. Close the application using that port (for example another Codex or IndusCode sign-in) and try again.`,
 		);
 		captureAuthFailed(options.telemetry, "openai-codex", error.message);
 		throw error;

@@ -57,7 +57,7 @@ function getTaskStartTemplate(): string {
 #   taskStart: { 
 #     taskMetadata: { taskId: string, ulid: string, initialTask: string } 
 #   }, 
-#   clineVersion, timestamp, ... 
+#   induscodeVersion, timestamp, ... 
 # }
 # Output: { cancel: boolean, contextModification?: string, errorMessage?: string }
 # 
@@ -113,7 +113,7 @@ function getTaskResumeTemplate(): string {
 #     taskMetadata: { taskId: string, ulid: string },
 #     previousState: { lastMessageTs: string, messageCount: string, conversationHistoryDeleted: string }
 #   }, 
-#   clineVersion, timestamp, ... 
+#   induscodeVersion, timestamp, ... 
 # }
 # Output: { cancel: boolean, contextModification?: string, errorMessage?: string }
 # 
@@ -153,7 +153,7 @@ function getTaskCancelTemplate(): string {
 #   taskCancel: { 
 #     taskMetadata: { taskId: string, ulid: string, completionStatus: string } 
 #   }, 
-#   clineVersion, timestamp, ... 
+#   induscodeVersion, timestamp, ... 
 # }
 # Output: { cancel: boolean, contextModification?: string, errorMessage?: string }
 # 
@@ -193,7 +193,7 @@ function getTaskCompleteTemplate(): string {
 #   taskComplete: { 
 #     taskMetadata: { taskId: string, ulid: string, result: string, command: string } 
 #   }, 
-#   clineVersion, timestamp, ... 
+#   induscodeVersion, timestamp, ... 
 # }
 # Output: { cancel: boolean, contextModification?: string, errorMessage?: string }
 # 
@@ -319,9 +319,9 @@ function getUserPromptSubmitTemplate(): string {
 #
 # UserPromptSubmit Hook
 # 
-# Executes when the user submits a prompt to Cline.
+# Executes when the user submits a prompt to IndusCode.
 # 
-# Input: { taskId, userPromptSubmit: { prompt: string, attachments: string[] }, clineVersion, timestamp, ... }
+# Input: { taskId, userPromptSubmit: { prompt: string, attachments: string[] }, induscodeVersion, timestamp, ... }
 # Output: { cancel: boolean, contextModification?: string, errorMessage?: string }
 # 
 # Use cases:
@@ -353,7 +353,7 @@ function getNotificationTemplate(): string {
 #
 # Notification Hook
 #
-# Executes when Cline reaches a user-attention boundary or emits lifecycle notifications.
+# Executes when IndusCode reaches a user-attention boundary or emits lifecycle notifications.
 #
 # Input: {
 #   taskId,
@@ -370,7 +370,7 @@ function getNotificationTemplate(): string {
 #     requiresUserAction: boolean,
 #     severity: string
 #   },
-#   clineVersion,
+#   induscodeVersion,
 #   timestamp,
 #   ...
 # }

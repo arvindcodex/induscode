@@ -1,22 +1,22 @@
-import type { AgentEvent } from "@cline/core";
-import { setClineClientIdentity } from "@cline/shared";
+import type { AgentEvent } from "@induscode/core";
+import { setIndusCodeClientIdentity } from "@induscode/shared";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { registerClineClientIdentity } from "./cline-client-identity";
+import { registerIndusCodeClientIdentity } from "./induscode-client-identity";
 import {
-	clearClineFreeModelCostCache,
-	shouldZeroClineFreeModelCost,
+	clearIndusCodeFreeModelCostCache,
+	shouldZeroIndusCodeFreeModelCost,
 	zeroCliAgentEventCost,
 	zeroCliUsageCost,
 } from "./free-model-cost";
 
 afterEach(() => {
-	clearClineFreeModelCostCache();
-	setClineClientIdentity(undefined);
+	clearIndusCodeFreeModelCostCache();
+	setIndusCodeClientIdentity(undefined);
 	vi.unstubAllGlobals();
 });
 
-describe("shouldZeroClineFreeModelCost", () => {
-	it("uses the Cline free model list", async () => {
+describe("shouldZeroIndusCodeFreeModelCost", () => {
+	it("uses the IndusCode free model list", async () => {
 		const fetchMock = vi.fn(
 			async (_input: Parameters<typeof fetch>[0], _init?: RequestInit) => {
 				return new Response(
@@ -30,15 +30,15 @@ describe("shouldZeroClineFreeModelCost", () => {
 		vi.stubGlobal("fetch", fetchMock);
 
 		await expect(
-			shouldZeroClineFreeModelCost({
-				providerId: "cline",
+			shouldZeroIndusCodeFreeModelCost({
+				providerId: "induscode",
 				modelId: "deepseek/deepseek-v4-flash",
-				baseUrl: "https://cline.test/api/v1",
+				baseUrl: "https://induscode.test/api/v1",
 			}),
 		).resolves.toBe(true);
 
 		expect(fetchMock.mock.calls[0]?.[0]).toBe(
-			"https://cline.test/api/v1/ai/cline/recommended-models",
+			"https://induscode.test/api/v1/ai/induscode/recommended-models",
 		);
 	});
 
@@ -52,26 +52,26 @@ describe("shouldZeroClineFreeModelCost", () => {
 			},
 		);
 		vi.stubGlobal("fetch", fetchMock);
-		registerClineClientIdentity("cline-cli");
+		registerIndusCodeClientIdentity("induscode-cli");
 
-		await shouldZeroClineFreeModelCost({
-			providerId: "cline",
+		await shouldZeroIndusCodeFreeModelCost({
+			providerId: "induscode",
 			modelId: "deepseek/deepseek-v4-flash",
-			baseUrl: "https://cline.test/api/v1",
+			baseUrl: "https://induscode.test/api/v1",
 		});
 
 		expect(fetchMock.mock.calls[0]?.[1]?.headers).toMatchObject({
-			"X-CLIENT-TYPE": "cline-cli",
+			"X-CLIENT-TYPE": "induscode-cli",
 		});
 	});
 
-	it("matches cline-free model ids from the free endpoint bucket exactly", async () => {
+	it("matches induscode-free model ids from the free endpoint bucket exactly", async () => {
 		vi.stubGlobal(
 			"fetch",
 			vi.fn(async () => {
 				return new Response(
 					JSON.stringify({
-						free: [{ id: "cline-free/deepseek-v4-flash" }],
+						free: [{ id: "induscode-free/deepseek-v4-flash" }],
 					}),
 					{ status: 200, headers: { "content-type": "application/json" } },
 				);
@@ -79,37 +79,37 @@ describe("shouldZeroClineFreeModelCost", () => {
 		);
 
 		await expect(
-			shouldZeroClineFreeModelCost({
-				providerId: "cline",
-				modelId: "cline-free/deepseek-v4-flash",
-				baseUrl: "https://cline.test/api/v1",
+			shouldZeroIndusCodeFreeModelCost({
+				providerId: "induscode",
+				modelId: "induscode-free/deepseek-v4-flash",
+				baseUrl: "https://induscode.test/api/v1",
 			}),
 		).resolves.toBe(true);
 
 		await expect(
-			shouldZeroClineFreeModelCost({
-				providerId: "cline-pass",
+			shouldZeroIndusCodeFreeModelCost({
+				providerId: "induscode-pass",
 				modelId: "deepseek-v4-flash",
-				baseUrl: "https://cline.test/api/v1",
+				baseUrl: "https://induscode.test/api/v1",
 			}),
 		).resolves.toBe(false);
 	});
 
-	it("does not zero non-Cline providers", async () => {
+	it("does not zero non-IndusCode providers", async () => {
 		const fetchMock = vi.fn();
 		vi.stubGlobal("fetch", fetchMock);
 
 		await expect(
-			shouldZeroClineFreeModelCost({
+			shouldZeroIndusCodeFreeModelCost({
 				providerId: "openrouter",
 				modelId: "deepseek/deepseek-v4-flash",
-				baseUrl: "https://cline.test/api/v1",
+				baseUrl: "https://induscode.test/api/v1",
 			}),
 		).resolves.toBe(false);
 		expect(fetchMock).not.toHaveBeenCalled();
 	});
 
-	it("zeros cost of free models selected on the cline-pass provider", async () => {
+	it("zeros cost of free models selected on the induscode-pass provider", async () => {
 		vi.stubGlobal(
 			"fetch",
 			vi.fn(async () => {
@@ -123,19 +123,19 @@ describe("shouldZeroClineFreeModelCost", () => {
 		);
 
 		await expect(
-			shouldZeroClineFreeModelCost({
-				providerId: "cline-pass",
+			shouldZeroIndusCodeFreeModelCost({
+				providerId: "induscode-pass",
 				modelId: "deepseek/deepseek-v4-flash",
-				baseUrl: "https://cline.test/api/v1",
+				baseUrl: "https://induscode.test/api/v1",
 			}),
 		).resolves.toBe(true);
 
-		// subscription (cline-pass/...) models are not in the free bucket
+		// subscription (induscode-pass/...) models are not in the free bucket
 		await expect(
-			shouldZeroClineFreeModelCost({
-				providerId: "cline-pass",
-				modelId: "cline-pass/glm-5.1",
-				baseUrl: "https://cline.test/api/v1",
+			shouldZeroIndusCodeFreeModelCost({
+				providerId: "induscode-pass",
+				modelId: "induscode-pass/glm-5.1",
+				baseUrl: "https://induscode.test/api/v1",
 			}),
 		).resolves.toBe(false);
 	});
@@ -154,10 +154,10 @@ describe("shouldZeroClineFreeModelCost", () => {
 		);
 
 		await expect(
-			shouldZeroClineFreeModelCost({
-				providerId: "cline",
+			shouldZeroIndusCodeFreeModelCost({
+				providerId: "induscode",
 				modelId: "acme/deepseek-v4-flash",
-				baseUrl: "https://cline.test/api/v1",
+				baseUrl: "https://induscode.test/api/v1",
 			}),
 		).resolves.toBe(false);
 	});
@@ -177,17 +177,17 @@ describe("shouldZeroClineFreeModelCost", () => {
 		vi.stubGlobal("fetch", fetchMock);
 
 		await expect(
-			shouldZeroClineFreeModelCost({
-				providerId: "cline",
+			shouldZeroIndusCodeFreeModelCost({
+				providerId: "induscode",
 				modelId: "deepseek/deepseek-v4-flash",
-				baseUrl: "https://cline.test/api/v1",
+				baseUrl: "https://induscode.test/api/v1",
 			}),
 		).resolves.toBe(false);
 		await expect(
-			shouldZeroClineFreeModelCost({
-				providerId: "cline",
+			shouldZeroIndusCodeFreeModelCost({
+				providerId: "induscode",
 				modelId: "deepseek/deepseek-v4-flash",
-				baseUrl: "https://cline.test/api/v1",
+				baseUrl: "https://induscode.test/api/v1",
 			}),
 		).resolves.toBe(true);
 		expect(fetchMock).toHaveBeenCalledTimes(2);

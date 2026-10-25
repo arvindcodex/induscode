@@ -1,4 +1,4 @@
-import { CLINE_DEFAULT_MODEL_ID } from "@cline/shared";
+import { INDUSCODE_DEFAULT_MODEL_ID } from "@induscode/shared";
 import { describe, expect, it, vi } from "vitest";
 import type { RuntimeCapabilities } from "../../runtime/capabilities/runtime-capabilities";
 
@@ -169,8 +169,8 @@ describe("hub runtime wiring", () => {
 
 		const runtime = await new DefaultRuntimeBuilder().build({
 			config: {
-				providerId: "cline",
-				modelId: CLINE_DEFAULT_MODEL_ID,
+				providerId: "induscode",
+				modelId: INDUSCODE_DEFAULT_MODEL_ID,
 				cwd: process.cwd(),
 				workspaceRoot: process.cwd(),
 				systemPrompt: "Run unattended.",

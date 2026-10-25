@@ -12,7 +12,7 @@
 import type {
 	GatewayProviderContext,
 	GatewayResolvedProviderConfig,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { wrapLanguageModel } from "ai";
 // The installed package is patched (see
 // `patches/ollama-ai-provider-v2@4.0.1.patch`) to preserve four native wire
@@ -54,7 +54,7 @@ export function normalizeOllamaBaseUrl(
  * large model (or a large `num_ctx`, which this vendor requests) the first
  * request of a session routinely takes minutes before the stream starts.
  * A tight budget here turns every cold load into a user-facing timeout error
- * (see cline/cline#12829 — the legacy handler's 30s default was only
+ * (see induscode/induscode#12829 — the legacy handler's 30s default was only
  * tolerable because its retry decorator silently re-issued the request until
  * the model was loaded). Unreachable servers are not this timeout's job:
  * connection-level failures (refused, DNS) reject on their own immediately,

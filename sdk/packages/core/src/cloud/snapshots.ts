@@ -1,4 +1,4 @@
-import type { HubEventEnvelope } from "@cline/shared";
+import type { HubEventEnvelope } from "@induscode/shared";
 import { isUserRunMessage } from "../session/user-run-messages";
 import type { JsonRecord, CloudQueuedPrompt as PromptInQueue } from "./types";
 

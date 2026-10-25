@@ -1,5 +1,5 @@
 @layer components {
-	.cline-message-scroller {
+	.induscode-message-scroller {
 		position: relative;
 		display: flex;
 		flex-direction: column;
@@ -10,7 +10,7 @@
 		overflow: hidden;
 	}
 
-	.cline-message-scroller-viewport {
+	.induscode-message-scroller-viewport {
 		width: 100%;
 		height: 100%;
 		min-width: 0;
@@ -20,11 +20,11 @@
 		scrollbar-gutter: stable;
 	}
 
-	.cline-message-scroller-viewport[data-pending-scroll] {
+	.induscode-message-scroller-viewport[data-pending-scroll] {
 		visibility: hidden;
 	}
 
-	.cline-message-scroller-content {
+	.induscode-message-scroller-content {
 		display: flex;
 		flex-direction: column;
 		height: max-content;
@@ -32,12 +32,12 @@
 		gap: 1.5rem;
 	}
 
-	.cline-message-scroller-item {
+	.induscode-message-scroller-item {
 		min-width: 0;
 		flex-shrink: 0;
 	}
 
-	.cline-message-scroller-button {
+	.induscode-message-scroller-button {
 		position: absolute;
 		inset-inline-start: 50%;
 		bottom: 1rem;
@@ -60,46 +60,46 @@
 			translate 200ms;
 	}
 
-	.cline-message-scroller-button:hover {
+	.induscode-message-scroller-button:hover {
 		background: var(--popover);
 		opacity: 1;
 	}
 
-	.cline-message-scroller-button:focus-visible {
+	.induscode-message-scroller-button:focus-visible {
 		opacity: 1;
 		outline: 2px solid var(--ring);
 		outline-offset: 2px;
 	}
 
-	.cline-message-scroller-button[data-active="false"] {
+	.induscode-message-scroller-button[data-active="false"] {
 		pointer-events: none;
 		opacity: 0;
 		translate: 0 100%;
 	}
 
-	.cline-message-scroller-button[data-direction="start"] {
+	.induscode-message-scroller-button[data-direction="start"] {
 		top: 1rem;
 		bottom: auto;
 	}
 
-	.cline-message-scroller-button[data-direction="start"][data-active="false"] {
+	.induscode-message-scroller-button[data-direction="start"][data-active="false"] {
 		translate: 0 -100%;
 	}
 
-	.cline-message-scroller-button svg {
+	.induscode-message-scroller-button svg {
 		width: 1rem;
 		height: 1rem;
 	}
 
-	.cline-message-scroller-button[data-direction="start"] svg {
+	.induscode-message-scroller-button[data-direction="start"] svg {
 		rotate: 180deg;
 	}
 
-	.cline-message-scroller-button:dir(rtl) {
+	.induscode-message-scroller-button:dir(rtl) {
 		transform: translateX(50%);
 	}
 
-	.cline-message-scroller-button-label {
+	.induscode-message-scroller-button-label {
 		position: absolute;
 		width: 1px;
 		height: 1px;
@@ -111,7 +111,7 @@
 	}
 
 	@media (prefers-reduced-motion: reduce) {
-		.cline-message-scroller-button {
+		.induscode-message-scroller-button {
 			transition: none;
 		}
 	}

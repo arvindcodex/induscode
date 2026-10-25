@@ -19,8 +19,8 @@ export function SessionStatus({
 	return (
 		<output
 			className={[
-				"cline-ui-session-status inline-flex items-center gap-1.5 text-cline-ui-xs leading-none text-cline-ui-muted-foreground",
-				`cline-ui-session-status--${tone}`,
+				"induscode-ui-session-status inline-flex items-center gap-1.5 text-induscode-ui-xs leading-none text-induscode-ui-muted-foreground",
+				`induscode-ui-session-status--${tone}`,
 				className,
 			]
 				.filter(Boolean)
@@ -29,9 +29,9 @@ export function SessionStatus({
 		>
 			<span
 				aria-hidden="true"
-				className="cline-ui-session-status__dot size-1.5 shrink-0 rounded-full"
+				className="induscode-ui-session-status__dot size-1.5 shrink-0 rounded-full"
 			/>
-			<span className={showLabel ? undefined : "cline-ui-sr-only sr-only"}>
+			<span className={showLabel ? undefined : "induscode-ui-sr-only sr-only"}>
 				{label}
 			</span>
 		</output>

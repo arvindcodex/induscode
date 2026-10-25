@@ -9,7 +9,7 @@ import type {
 	Message,
 	PluginStatusRecord,
 	SessionPluginIssue,
-} from "@cline/shared";
+} from "@induscode/shared";
 import {
 	type PluginExecutionMode,
 	resolvePluginExecutionMode,
@@ -26,7 +26,7 @@ import {
 import { loadSandboxedPlugins } from "./plugin-sandbox";
 import type { PluginTargeting } from "./plugin-targeting";
 
-type AgentExtensionWithPath = AgentExtension & { __clinePluginPath?: string };
+type AgentExtensionWithPath = AgentExtension & { __induscodePluginPath?: string };
 
 export interface CollectedPluginContributions {
 	pluginName: string;
@@ -46,7 +46,7 @@ export interface CollectPluginContributionsInput extends PluginTargeting {
 	cwd?: string;
 	workspacePath?: string;
 	registry?: PluginRegistry;
-	/** Defaults to the configured execution mode (`CLINE_PLUGIN_MODE`). */
+	/** Defaults to the configured execution mode (`INDUSCODE_PLUGIN_MODE`). */
 	mode?: PluginExecutionMode;
 }
 
@@ -95,7 +95,7 @@ function emptyContributions(
  * that list what plugins contribute without starting a session. Plugins load
  * the same way sessions load them: through the shared registry's workers, so
  * failures are recorded there like any other, or through the subprocess
- * sandbox when `CLINE_PLUGIN_MODE=sandbox`.
+ * sandbox when `INDUSCODE_PLUGIN_MODE=sandbox`.
  */
 export async function collectPluginContributions(
 	input: CollectPluginContributionsInput,
@@ -133,7 +133,7 @@ export async function collectPluginContributions(
 	try {
 		for (const extension of loaded.extensions) {
 			const pluginPath = (extension as AgentExtensionWithPath)
-				.__clinePluginPath;
+				.__induscodePluginPath;
 			if (!pluginPath) continue;
 			const collected = emptyContributions(extension, pluginPath);
 			try {
@@ -197,7 +197,7 @@ async function collectSandboxedContributions(
 	try {
 		for (const extension of sandboxed.extensions ?? []) {
 			const pluginPath = (extension as AgentExtensionWithPath)
-				.__clinePluginPath;
+				.__induscodePluginPath;
 			if (!pluginPath) continue;
 			const collected = emptyContributions(extension, pluginPath);
 			try {

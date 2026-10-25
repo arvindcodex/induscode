@@ -68,7 +68,7 @@ export function emitJsonOrText(
 export function resolveAddress(
 	address: string | undefined,
 ): string | undefined {
-	const resolved = address ?? process.env.CLINE_HUB_ADDRESS;
+	const resolved = address ?? process.env.INDUSCODE_HUB_ADDRESS;
 	const trimmed = resolved?.trim();
 	return trimmed ? trimmed : undefined;
 }

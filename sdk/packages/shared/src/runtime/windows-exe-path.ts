@@ -12,7 +12,7 @@ export const NO_DEFAULT_CURRENT_DIRECTORY_IN_EXE_PATH_ENV =
  * When `child_process.spawn("rg", ...)` runs on Windows, libuv resolves the
  * bare name by looking in the child's cwd before walking PATH (it gates that
  * step on `NeedCurrentDirectoryForExePathW`, which reads this variable from
- * the spawning process). Cline spawns `rg`, `git`, `powershell` and
+ * the spawning process). IndusCode spawns `rg`, `git`, `powershell` and
  * model-named programs with the user's workspace as cwd, so a repo that ships
  * an `rg.exe` would get it executed, with the user's privileges, the moment
  * the workspace opened. Bun's spawn (1.4+) honors the same variable, as do

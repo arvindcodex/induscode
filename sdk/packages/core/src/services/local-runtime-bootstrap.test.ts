@@ -7,7 +7,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { setHomeDir } from "@cline/shared/storage";
+import { setHomeDir } from "@induscode/shared/storage";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { version as corePackageVersion } from "../../package.json";
 import type { ProviderSettings } from "../types/provider-settings";
@@ -22,7 +22,7 @@ function createProviderSettingsManager(settings?: ProviderSettings) {
 function createStartInput() {
 	return {
 		config: {
-			providerId: "cline",
+			providerId: "induscode",
 			modelId: "anthropic/claude-haiku-4.5",
 			apiKey: "test-key",
 			cwd: "/tmp/project",
@@ -46,11 +46,11 @@ function createSpawnTool() {
 }
 
 describe("prepareLocalRuntimeBootstrap", () => {
-	const previousGlobalSettingsPath = process.env.CLINE_GLOBAL_SETTINGS_PATH;
+	const previousGlobalSettingsPath = process.env.INDUSCODE_GLOBAL_SETTINGS_PATH;
 	let resetModulesAfterEach = false;
 
 	afterEach(() => {
-		process.env.CLINE_GLOBAL_SETTINGS_PATH = previousGlobalSettingsPath;
+		process.env.INDUSCODE_GLOBAL_SETTINGS_PATH = previousGlobalSettingsPath;
 		vi.doUnmock("../extensions/plugin/plugin-config-loader");
 		if (resetModulesAfterEach) {
 			vi.resetModules();
@@ -97,7 +97,7 @@ describe("prepareLocalRuntimeBootstrap", () => {
 		setHomeDir(homeRoot);
 		try {
 			const globalSettingsPath = join(root, "global-settings.json");
-			process.env.CLINE_GLOBAL_SETTINGS_PATH = globalSettingsPath;
+			process.env.INDUSCODE_GLOBAL_SETTINGS_PATH = globalSettingsPath;
 			const workspaceRoot = join(root, "workspace");
 			mkdirSync(workspaceRoot, { recursive: true });
 			const pluginRoot = join(homeRoot, ".agents", "plugins", "portable");
@@ -251,7 +251,7 @@ describe("prepareLocalRuntimeBootstrap", () => {
 			},
 			sessionId: "sess-1",
 			providerSettingsManager: createProviderSettingsManager({
-				provider: "cline",
+				provider: "induscode",
 				model: "anthropic/claude-haiku-4.5",
 				modelCatalog: {
 					loadLatestOnInit: false,
@@ -367,7 +367,7 @@ describe("prepareLocalRuntimeBootstrap", () => {
 		resetModulesAfterEach = true;
 		const tempRoot = mkdtempSync(join(tmpdir(), "local-bootstrap-global-"));
 		const settingsPath = join(tempRoot, "global-settings.json");
-		process.env.CLINE_GLOBAL_SETTINGS_PATH = settingsPath;
+		process.env.INDUSCODE_GLOBAL_SETTINGS_PATH = settingsPath;
 		writeFileSync(
 			settingsPath,
 			JSON.stringify({ disabledTools: ["blocked_tool"] }, null, 2),
@@ -445,13 +445,13 @@ describe("prepareLocalRuntimeBootstrap", () => {
 					modelId?: string;
 				}) => ({
 					extensions:
-						providerId === "cline" && modelId === "anthropic/claude-haiku-4.5"
+						providerId === "induscode" && modelId === "anthropic/claude-haiku-4.5"
 							? [
 									{
 										name: "plugin-compatible",
 										manifest: {
 											capabilities: ["tools"],
-											providerIds: ["cline"],
+											providerIds: ["induscode"],
 											modelIds: ["anthropic/claude-haiku-4.5"],
 										},
 										setup: (api: {
@@ -478,7 +478,7 @@ describe("prepareLocalRuntimeBootstrap", () => {
 								],
 					failures: [],
 					pluginPaths:
-						providerId === "cline" && modelId === "anthropic/claude-haiku-4.5"
+						providerId === "induscode" && modelId === "anthropic/claude-haiku-4.5"
 							? ["/tmp/compatible-plugin.js"]
 							: [],
 					warnings: [],
@@ -529,7 +529,7 @@ describe("prepareLocalRuntimeBootstrap", () => {
 			mkdtempSync(join(tmpdir(), "core-plugin-policy-bootstrap-")),
 		);
 		setHomeDir(join(root, "home"));
-		process.env.CLINE_GLOBAL_SETTINGS_PATH = join(root, "global-settings.json");
+		process.env.INDUSCODE_GLOBAL_SETTINGS_PATH = join(root, "global-settings.json");
 		const { PluginRegistry, resetProcessPluginRegistryForTests } = await import(
 			"../extensions/plugin/plugin-registry"
 		);
@@ -614,9 +614,9 @@ describe("prepareLocalRuntimeBootstrap", () => {
 			mkdtempSync(join(tmpdir(), "core-plugin-new-sessions-")),
 		);
 		setHomeDir(join(root, "home"));
-		process.env.CLINE_GLOBAL_SETTINGS_PATH = join(root, "global-settings.json");
+		process.env.INDUSCODE_GLOBAL_SETTINGS_PATH = join(root, "global-settings.json");
 		const workspace = join(root, "workspace");
-		const pluginDir = join(workspace, ".cline", "plugins");
+		const pluginDir = join(workspace, ".induscode", "plugins");
 		mkdirSync(pluginDir, { recursive: true });
 		const { PluginRegistry, resetProcessPluginRegistryForTests } = await import(
 			"../extensions/plugin/plugin-registry"
@@ -874,8 +874,8 @@ describe("prepareLocalRuntimeBootstrap", () => {
 	});
 
 	it.each([
-		"cline",
-		"cline-pass",
+		"induscode",
+		"induscode-pass",
 	])("adds required source request headers for %s", async (providerId) => {
 		const { prepareLocalRuntimeBootstrap } = await import(
 			"./local-runtime-bootstrap"
@@ -884,8 +884,8 @@ describe("prepareLocalRuntimeBootstrap", () => {
 		const input = createStartInput();
 		input.config.providerId = providerId;
 		input.config.modelId =
-			providerId === "cline-pass"
-				? "cline-pass/test-model"
+			providerId === "induscode-pass"
+				? "induscode-pass/test-model"
 				: "anthropic/claude-haiku-4.5";
 		const config = input.config as typeof input.config & {
 			headers: Record<string, string>;
@@ -912,10 +912,10 @@ describe("prepareLocalRuntimeBootstrap", () => {
 			input,
 			localRuntime: {
 				extensionContext: {
-					client: { name: "cline-cli", version: "3.0.38" },
+					client: { name: "induscode-cli", version: "3.0.38" },
 				},
 			},
-			sessionId: "sess-cline-headers",
+			sessionId: "sess-induscode-headers",
 			providerSettingsManager: createProviderSettingsManager({
 				provider: providerId,
 				model: input.config.modelId,
@@ -935,16 +935,16 @@ describe("prepareLocalRuntimeBootstrap", () => {
 		});
 
 		expect(bootstrap.providerConfig.headers).toMatchObject({
-			"HTTP-Referer": "https://cline.bot",
-			"X-Title": "Cline",
-			"User-Agent": "Cline/3.0.38",
+			"HTTP-Referer": "https://induscode.bot",
+			"X-Title": "IndusCode",
+			"User-Agent": "IndusCode/3.0.38",
 			"X-IS-MULTIROOT": "false",
-			"X-CLIENT-TYPE": "cline-cli",
+			"X-CLIENT-TYPE": "induscode-cli",
 			"X-CLIENT-VERSION": "3.0.38",
 			"X-PLATFORM": "cli",
 			"X-PLATFORM-VERSION": "3.0.38",
 			"X-CORE-VERSION": corePackageVersion,
-			"X-Task-ID": "sess-cline-headers",
+			"X-Task-ID": "sess-induscode-headers",
 			"x-config": "config",
 			"x-provider-config": "provider-config",
 			"x-shared": "config-wins",
@@ -962,7 +962,7 @@ describe("prepareLocalRuntimeBootstrap", () => {
 			headers: Record<string, string>;
 		};
 		config.headers = {
-			"X-CLIENT-TYPE": "cline-cli",
+			"X-CLIENT-TYPE": "induscode-cli",
 			"X-CLIENT-VERSION": "3.0.38",
 		};
 
@@ -980,12 +980,12 @@ describe("prepareLocalRuntimeBootstrap", () => {
 		});
 
 		expect(bootstrap.config.extensionContext?.client).toEqual({
-			name: "cline-cli",
+			name: "induscode-cli",
 			version: "3.0.38",
 		});
 		expect(bootstrap.providerConfig.headers).toMatchObject({
-			"User-Agent": "Cline/3.0.38",
-			"X-CLIENT-TYPE": "cline-cli",
+			"User-Agent": "IndusCode/3.0.38",
+			"X-CLIENT-TYPE": "induscode-cli",
 			"X-CLIENT-VERSION": "3.0.38",
 		});
 	});
@@ -1008,7 +1008,7 @@ describe("prepareLocalRuntimeBootstrap", () => {
 			input,
 			localRuntime: {
 				extensionContext: {
-					client: { name: "cline-vscode", version: "9.9.9" },
+					client: { name: "induscode-vscode", version: "9.9.9" },
 				},
 			},
 			sessionId: "sess-local-client",
@@ -1023,12 +1023,12 @@ describe("prepareLocalRuntimeBootstrap", () => {
 		});
 
 		expect(bootstrap.config.extensionContext?.client).toEqual({
-			name: "cline-vscode",
+			name: "induscode-vscode",
 			version: "9.9.9",
 		});
 	});
 
-	it("uses host request headers for Cline providers on core sessions", async () => {
+	it("uses host request headers for IndusCode providers on core sessions", async () => {
 		const { prepareLocalRuntimeBootstrap } = await import(
 			"./local-runtime-bootstrap"
 		);
@@ -1057,7 +1057,7 @@ describe("prepareLocalRuntimeBootstrap", () => {
 			},
 			sessionId: "sess-non-cli",
 			providerSettingsManager: createProviderSettingsManager({
-				provider: "cline",
+				provider: "induscode",
 				model: input.config.modelId,
 				headers: {
 					"x-stored": "stored",
@@ -1073,9 +1073,9 @@ describe("prepareLocalRuntimeBootstrap", () => {
 		});
 
 		expect(bootstrap.providerConfig.headers).toMatchObject({
-			"HTTP-Referer": "https://cline.bot",
-			"X-Title": "Cline",
-			"User-Agent": "Cline/9.9.9",
+			"HTTP-Referer": "https://induscode.bot",
+			"X-Title": "IndusCode",
+			"User-Agent": "IndusCode/9.9.9",
 			"X-IS-MULTIROOT": "true",
 			"X-CLIENT-TYPE": "VSCode Extension",
 			"X-CLIENT-VERSION": "9.9.9",
@@ -1122,7 +1122,7 @@ describe("prepareLocalRuntimeBootstrap", () => {
 		});
 
 		expect(bootstrap.providerConfig.headers).toMatchObject({
-			originator: "cline",
+			originator: "induscode",
 			session_id: "sess-codex",
 			"ChatGPT-Account-Id": "acct-123",
 			"x-stored": "stored",
@@ -1179,7 +1179,7 @@ describe("prepareLocalRuntimeBootstrap", () => {
 		});
 
 		expect(bootstrap.providerConfig.headers).toMatchObject({
-			originator: "cline",
+			originator: "induscode",
 			session_id: "sess-codex-invariants",
 			"ChatGPT-Account-Id": "acct-stored",
 			"x-config": "config",
@@ -1187,7 +1187,7 @@ describe("prepareLocalRuntimeBootstrap", () => {
 			"x-shared": "config-wins",
 		});
 		expect(bootstrap.providerConfig.headers?.["User-Agent"]).toMatch(
-			/^Cline\//,
+			/^IndusCode\//,
 		);
 	});
 
@@ -1231,7 +1231,7 @@ describe("prepareLocalRuntimeBootstrap", () => {
 		});
 
 		expect(bootstrap.providerConfig.headers).toMatchObject({
-			originator: "cline",
+			originator: "induscode",
 			session_id: "sess-codex-derived",
 			"ChatGPT-Account-Id": "acct-derived",
 		});

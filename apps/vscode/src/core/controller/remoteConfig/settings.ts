@@ -1,5 +1,5 @@
 import type { Controller } from "@/sdk"
-import { RemoteConfigSetting, RemoteConfigType } from "@/shared/proto/index.cline"
+import { RemoteConfigSetting, RemoteConfigType } from "@/shared/proto/index.induscode"
 
 function getToggles(controller: Controller, type: RemoteConfigType): Record<string, boolean> {
 	switch (type) {

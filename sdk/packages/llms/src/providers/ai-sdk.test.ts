@@ -239,11 +239,11 @@ describe("ai-sdk usage normalization", () => {
 
 	describe("cost extraction with pricing fallback", () => {
 		it.each([
-			["cline-pass", "included-model", { input: 3, output: 15 }],
-			["cline", "cline-pass/included-model", undefined],
-			["cline", "cline-free/free-model", undefined],
-			["cline", "vendor/model:free", undefined],
-			["cline", "vendor/promotional-model", { input: 0, output: 0 }],
+			["induscode-pass", "included-model", { input: 3, output: 15 }],
+			["induscode", "induscode-pass/included-model", undefined],
+			["induscode", "induscode-free/free-model", undefined],
+			["induscode", "vendor/model:free", undefined],
+			["induscode", "vendor/promotional-model", { input: 0, output: 0 }],
 		])("zeros included usage for %s/%s", (providerId, modelId, pricing) => {
 			for (const raw of [
 				undefined,
@@ -265,7 +265,7 @@ describe("ai-sdk usage normalization", () => {
 		});
 
 		it.each([
-			"cline",
+			"induscode",
 			"openrouter",
 		])("preserves paid usage for %s", (providerId) => {
 			expect(

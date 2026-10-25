@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, it, mock } from "bun:test"
 import { InMemoryLogRecordExporter, LoggerProvider, SimpleLogRecordProcessor } from "@opentelemetry/sdk-logs"
 import { expect } from "chai"
 import * as sinon from "sinon"
-import type { ClineAccountUserInfo } from "@/services/auth/AuthService"
+import type { IndusCodeAccountUserInfo } from "@/services/auth/AuthService"
 import * as actualDistinctIdModule from "@/services/logging/distinctId"
 
 // bun loads real ESM, so sinon cannot stub the `@/services/logging/distinctId`
@@ -21,8 +21,8 @@ mock.module("@services/logging/distinctId", distinctIdMock)
 import { OpenTelemetryTelemetryProvider } from "../OpenTelemetryTelemetryProvider"
 
 function makeUserInfo(
-	overrides: Partial<ClineAccountUserInfo> & { orgOverrides?: Record<string, unknown> } = {},
-): ClineAccountUserInfo {
+	overrides: Partial<IndusCodeAccountUserInfo> & { orgOverrides?: Record<string, unknown> } = {},
+): IndusCodeAccountUserInfo {
 	const { orgOverrides, ...rest } = overrides
 	return {
 		id: "user-1",
@@ -199,7 +199,7 @@ describe("OpenTelemetryTelemetryProvider.identifyUser", () => {
 	it("should handle user with no active organization", () => {
 		getDistinctIdStub.returns("user-1")
 
-		const userInfo: ClineAccountUserInfo = {
+		const userInfo: IndusCodeAccountUserInfo = {
 			id: "user-1",
 			displayName: "Solo User",
 			email: "solo@example.com",
@@ -233,7 +233,7 @@ describe("OpenTelemetryTelemetryProvider.identifyUser", () => {
 		logExporter.reset()
 
 		// Second: identify same user but no active org
-		const userNoOrg: ClineAccountUserInfo = {
+		const userNoOrg: IndusCodeAccountUserInfo = {
 			id: "user-1",
 			displayName: "Test User",
 			email: "test@example.com",

@@ -2,14 +2,14 @@ import { mkdtemp, rm, stat } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
-	ClineCore,
+	IndusCodeCore,
 	ProviderSettingsManager,
 	RemoteEnvironmentService,
 	RuntimeOAuthTokenManager,
 	resolveProviderApiKeyFromSettings,
 	SessionSource,
 	toProviderConfig,
-} from "@cline/core";
+} from "@induscode/core";
 
 const required = (name: string): string => {
 	const value = process.env[name]?.trim();
@@ -18,24 +18,24 @@ const required = (name: string): string => {
 };
 
 async function main(): Promise<void> {
-	const temporaryDirectory = await mkdtemp(join(tmpdir(), "cline-ssh-proof-"));
+	const temporaryDirectory = await mkdtemp(join(tmpdir(), "induscode-ssh-proof-"));
 	const service = new RemoteEnvironmentService({
 		profilesPath: join(temporaryDirectory, "remote-environments.json"),
-		helperBinaryPath: required("CLINE_SSH_TEST_HELPER"),
-		knownHostsPath: process.env.CLINE_SSH_TEST_KNOWN_HOSTS?.trim() || undefined,
+		helperBinaryPath: required("INDUSCODE_SSH_TEST_HELPER"),
+		knownHostsPath: process.env.INDUSCODE_SSH_TEST_KNOWN_HOSTS?.trim() || undefined,
 		commandTimeoutMs: 60_000,
 		uploadTimeoutMs: 5 * 60_000,
 	});
-	let core: ClineCore | undefined;
+	let core: IndusCodeCore | undefined;
 
 	try {
-		const helperPath = required("CLINE_SSH_TEST_HELPER");
-		const workspaceRoot = required("CLINE_SSH_TEST_WORKSPACE");
+		const helperPath = required("INDUSCODE_SSH_TEST_HELPER");
+		const workspaceRoot = required("INDUSCODE_SSH_TEST_WORKSPACE");
 		const profile = await service.upsert({
 			name: "SSH proof host",
-			host: required("CLINE_SSH_TEST_HOST"),
-			user: process.env.CLINE_SSH_TEST_USER?.trim() || undefined,
-			identityFile: required("CLINE_SSH_TEST_KEY"),
+			host: required("INDUSCODE_SSH_TEST_HOST"),
+			user: process.env.INDUSCODE_SSH_TEST_USER?.trim() || undefined,
+			identityFile: required("INDUSCODE_SSH_TEST_KEY"),
 		});
 		const connection = await service.connect(profile.id);
 		const marker = await service.run(profile.id, {
@@ -75,8 +75,8 @@ async function main(): Promise<void> {
 		providerConfig.apiKey = apiKey;
 		providerConfig.accessToken = apiKey;
 
-		core = await ClineCore.create({
-			clientName: "cline-code",
+		core = await IndusCodeCore.create({
+			clientName: "induscode-code",
 			backendMode: "remote",
 			remote: {
 				endpoint: connection.endpoint,
@@ -121,8 +121,8 @@ async function main(): Promise<void> {
 		await service.disconnect(profile.id);
 
 		const reconnected = await service.connect(profile.id);
-		core = await ClineCore.create({
-			clientName: "cline-code",
+		core = await IndusCodeCore.create({
+			clientName: "induscode-code",
 			backendMode: "remote",
 			remote: {
 				endpoint: reconnected.endpoint,

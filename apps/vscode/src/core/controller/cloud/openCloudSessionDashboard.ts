@@ -1,5 +1,5 @@
 import { isPersistedCloudSessionId } from "@shared/cloud/cloud-sessions"
-import { Empty, type StringRequest } from "@shared/proto/cline/common"
+import { Empty, type StringRequest } from "@shared/proto/induscode/common"
 import { openExternal } from "@/utils/env"
 import type { Controller } from "../index"
 

@@ -21,16 +21,16 @@ const {
 	mockRequestHubDrain: vi.fn(),
 	mockResolveProductionHubOwnerContext: vi.fn(() => ({
 		ownerId: "hub-production",
-		discoveryPath: "/tmp/cline-data/locks/hub/production.json",
+		discoveryPath: "/tmp/induscode-data/locks/hub/production.json",
 	})),
 	mockResolveSharedHubOwnerContext: vi.fn(() => ({
 		ownerId: "hub-owner",
-		discoveryPath: "/tmp/cline-data/locks/hub/owners/hub-owner.json",
+		discoveryPath: "/tmp/induscode-data/locks/hub/owners/hub-owner.json",
 	})),
 	mockStopLocalHubServerGracefully: vi.fn(),
 }));
 
-vi.mock("@cline/core", () => ({
+vi.mock("@induscode/core", () => ({
 	clearHubDiscovery: mockClearHubDiscovery,
 	ensureDetachedHubServer: mockEnsureDetachedHubServer,
 	ensureLoginShellPath: mockEnsureLoginShellPath,
@@ -46,16 +46,16 @@ vi.mock("@cline/core", () => ({
 import { version as cliVersion } from "../../package.json";
 import { createHubCommand } from "./hub";
 
-const originalBuildEnv = process.env.CLINE_BUILD_ENV;
+const originalBuildEnv = process.env.INDUSCODE_BUILD_ENV;
 
 describe("createHubCommand", () => {
 	afterEach(() => {
 		vi.clearAllMocks();
 		vi.restoreAllMocks();
 		if (originalBuildEnv === undefined) {
-			delete process.env.CLINE_BUILD_ENV;
+			delete process.env.INDUSCODE_BUILD_ENV;
 		} else {
-			process.env.CLINE_BUILD_ENV = originalBuildEnv;
+			process.env.INDUSCODE_BUILD_ENV = originalBuildEnv;
 		}
 	});
 
@@ -177,7 +177,7 @@ describe("createHubCommand", () => {
 		expect(mockRequestHubDrain).toHaveBeenCalledWith(
 			"ws://127.0.0.1:25463/hub",
 			"token",
-			"cline hub drain --off",
+			"induscode hub drain --off",
 			{ off: true },
 		);
 		expect(JSON.parse(output[0] || "")).toEqual({
@@ -200,7 +200,7 @@ describe("createHubCommand", () => {
 		expect(mockRequestHubDrain).toHaveBeenCalledWith(
 			"ws://127.0.0.1:25463/hub",
 			"token",
-			"cline hub drain",
+			"induscode hub drain",
 			{ off: false },
 		);
 		expect(JSON.parse(output[0] || "")).toEqual({
@@ -257,7 +257,7 @@ describe("createHubCommand", () => {
 		expect(mockRequestHubDrain).toHaveBeenLastCalledWith(
 			"ws://127.0.0.1:25463/hub",
 			"token",
-			"cline hub upgrade aborted",
+			"induscode hub upgrade aborted",
 			{ off: true },
 		);
 	});
@@ -279,7 +279,7 @@ describe("createHubCommand", () => {
 		expect(mockRequestHubDrain).toHaveBeenLastCalledWith(
 			"ws://127.0.0.1:25463/hub",
 			"token",
-			"cline hub upgrade aborted",
+			"induscode hub upgrade aborted",
 			{ off: true },
 		);
 	});
@@ -302,7 +302,7 @@ describe("createHubCommand", () => {
 	});
 
 	it("passes the selected owner to graceful stop", async () => {
-		process.env.CLINE_BUILD_ENV = "development";
+		process.env.INDUSCODE_BUILD_ENV = "development";
 		mockReadHubDiscovery.mockResolvedValue({
 			url: "ws://127.0.0.1:25466/hub",
 			port: 25466,
@@ -329,7 +329,7 @@ describe("createHubCommand", () => {
 		expect(exitCode).toBe(0);
 		expect(mockStopLocalHubServerGracefully).toHaveBeenCalledWith({
 			ownerId: "hub-owner",
-			discoveryPath: "/tmp/cline-data/locks/hub/owners/hub-owner.json",
+			discoveryPath: "/tmp/induscode-data/locks/hub/owners/hub-owner.json",
 		});
 		expect(JSON.parse(output[0] || "")).toEqual({ stopped: true });
 	});
@@ -450,10 +450,10 @@ describe("createHubCommand", () => {
 	});
 
 	it("starts a dedicated hub for programmatic clients with ensure --json", async () => {
-		const originalDiscoveryPath = process.env.CLINE_HUB_DISCOVERY_PATH;
+		const originalDiscoveryPath = process.env.INDUSCODE_HUB_DISCOVERY_PATH;
 		mockEnsureDetachedHubServer.mockImplementation(async () => {
-			expect(process.env.CLINE_HUB_DISCOVERY_PATH).toBe(
-				"/home/dev/.cline/data/remote/owner.json",
+			expect(process.env.INDUSCODE_HUB_DISCOVERY_PATH).toBe(
+				"/home/dev/.induscode/data/remote/owner.json",
 			);
 			return { url: "ws://127.0.0.1:41000/hub", authToken: "remote-token" };
 		});
@@ -466,7 +466,7 @@ describe("createHubCommand", () => {
 					"--cwd",
 					"/home/dev",
 					"--discovery-path",
-					"/home/dev/.cline/data/remote/owner.json",
+					"/home/dev/.induscode/data/remote/owner.json",
 					"--host",
 					"127.0.0.1",
 					"--port",
@@ -504,9 +504,9 @@ describe("createHubCommand", () => {
 			});
 		} finally {
 			if (originalDiscoveryPath === undefined) {
-				delete process.env.CLINE_HUB_DISCOVERY_PATH;
+				delete process.env.INDUSCODE_HUB_DISCOVERY_PATH;
 			} else {
-				process.env.CLINE_HUB_DISCOVERY_PATH = originalDiscoveryPath;
+				process.env.INDUSCODE_HUB_DISCOVERY_PATH = originalDiscoveryPath;
 			}
 		}
 	});

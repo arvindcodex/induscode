@@ -1,16 +1,16 @@
-import { Empty, StringRequest } from "@shared/proto/cline/common"
+import { Empty, StringRequest } from "@shared/proto/induscode/common"
 import * as vscode from "vscode"
 
-const CLINE_OUTPUT_CHANNEL = vscode.window.createOutputChannel("Cline")
+const INDUSCODE_OUTPUT_CHANNEL = vscode.window.createOutputChannel("IndusCode")
 
-// Appends a log message to all Cline output channels.
+// Appends a log message to all IndusCode output channels.
 export async function debugLog(request: StringRequest): Promise<Empty> {
-	CLINE_OUTPUT_CHANNEL.appendLine(request.value)
+	INDUSCODE_OUTPUT_CHANNEL.appendLine(request.value)
 	return Empty.create({})
 }
 
-// Register the Cline output channel within the VSCode extension context.
-export function registerClineOutputChannel(context: vscode.ExtensionContext): vscode.OutputChannel {
-	context.subscriptions.push(CLINE_OUTPUT_CHANNEL)
-	return CLINE_OUTPUT_CHANNEL
+// Register the IndusCode output channel within the VSCode extension context.
+export function registerIndusCodeOutputChannel(context: vscode.ExtensionContext): vscode.OutputChannel {
+	context.subscriptions.push(INDUSCODE_OUTPUT_CHANNEL)
+	return INDUSCODE_OUTPUT_CHANNEL
 }

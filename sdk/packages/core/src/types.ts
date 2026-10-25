@@ -9,19 +9,19 @@ export type {
 	IFeatureFlagsProvider,
 	WorkspaceInfo,
 	WorkspaceManifest,
-} from "@cline/shared";
+} from "@induscode/shared";
 export {
 	FEATURE_FLAGS,
 	FeatureFlagDefaultValue,
-} from "@cline/shared";
-export { ClineCore } from "./ClineCore";
+} from "@induscode/shared";
+export { IndusCodeCore } from "./IndusCodeCore";
 export type {
-	ClineCoreListHistoryOptions,
-	ClineCoreOptions,
-	ClineCoreStartInput,
+	IndusCodeCoreListHistoryOptions,
+	IndusCodeCoreOptions,
+	IndusCodeCoreStartInput,
 	HubOptions,
 	RemoteOptions,
-} from "./cline-core/types";
+} from "./induscode-core/types";
 export type {
 	AgentPluginPackageDiagnostic,
 	AgentPluginPackageDiagnosticScope,

@@ -1,16 +1,16 @@
 import {
-	CLINE_CONNECTOR_STARTING_INSTANCE_ENV,
-	CLINE_RUN_AS_HUB_DAEMON_ENV,
-} from "@cline/shared";
+	INDUSCODE_CONNECTOR_STARTING_INSTANCE_ENV,
+	INDUSCODE_RUN_AS_HUB_DAEMON_ENV,
+} from "@induscode/shared";
 
 /**
  * Env markers a connector sets on its own detached child: the shared
- * `CLINE_CONNECTOR_DETACHED_CHILD` plus one per adapter
- * (`CLINE_SLACK_CONNECT_CHILD`, `CLINE_TELEGRAM_CONNECT_CHILD`, ...). They are
+ * `INDUSCODE_CONNECTOR_DETACHED_CHILD` plus one per adapter
+ * (`INDUSCODE_SLACK_CONNECT_CHILD`, `INDUSCODE_TELEGRAM_CONNECT_CHILD`, ...). They are
  * owned by the CLI, so match them by shape rather than importing upward.
  */
 const CONNECTOR_CHILD_MARKER_PATTERN =
-	/^CLINE_(?:CONNECTOR_DETACHED_CHILD|[A-Z0-9]+_CONNECT_CHILD)$/;
+	/^INDUSCODE_(?:CONNECTOR_DETACHED_CHILD|[A-Z0-9]+_CONNECT_CHILD)$/;
 
 /**
  * Environment for a CLI process the hub daemon launches.
@@ -26,8 +26,8 @@ export function buildConnectorChildEnv(
 	env: NodeJS.ProcessEnv = process.env,
 ): NodeJS.ProcessEnv {
 	const childEnv = { ...env };
-	delete childEnv[CLINE_RUN_AS_HUB_DAEMON_ENV];
-	delete childEnv[CLINE_CONNECTOR_STARTING_INSTANCE_ENV];
+	delete childEnv[INDUSCODE_RUN_AS_HUB_DAEMON_ENV];
+	delete childEnv[INDUSCODE_CONNECTOR_STARTING_INSTANCE_ENV];
 	for (const key of Object.keys(childEnv)) {
 		if (CONNECTOR_CHILD_MARKER_PATTERN.test(key)) {
 			delete childEnv[key];

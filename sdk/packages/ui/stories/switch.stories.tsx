@@ -48,7 +48,7 @@ export const WithLabel: Story = {
 		return (
 			<div className="flex items-center gap-2">
 				<Switch {...args} aria-label={undefined} id={id} />
-				<label className="cursor-pointer text-cline-ui-md" htmlFor={id}>
+				<label className="cursor-pointer text-induscode-ui-md" htmlFor={id}>
 					Enable notifications
 				</label>
 			</div>
@@ -70,7 +70,7 @@ export const Controlled: Story = {
 						args.onCheckedChange?.(value);
 					}}
 				/>
-				<span className="text-cline-ui-md">{checked ? "On" : "Off"}</span>
+				<span className="text-induscode-ui-md">{checked ? "On" : "Off"}</span>
 			</div>
 		);
 	},

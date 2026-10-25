@@ -43,7 +43,7 @@ describe("AgentApprovalCard", () => {
 		expect(onApprove).toHaveBeenCalledOnce();
 		expect(onReject).toHaveBeenCalledOnce();
 		expect(
-			container.querySelector(".cline-ui-agent-approval-card__title")?.tagName,
+			container.querySelector(".induscode-ui-agent-approval-card__title")?.tagName,
 		).toBe("DIV");
 	});
 

@@ -88,7 +88,7 @@ export interface CoreSettingsListInput {
 	workspaceRoot?: string;
 	/** Optional explicit portable Agent Plugin roots, resolved by the host. */
 	agentPluginPaths?: string[];
-	/** Whether inspecting Cline plugins should execute their setup for tool metadata. */
+	/** Whether inspecting IndusCode plugins should execute their setup for tool metadata. */
 	includePluginTools?: boolean;
 	userInstructionService?: UserInstructionConfigService;
 	availabilityContext?: BuiltinToolAvailabilityContext;
@@ -107,7 +107,7 @@ export interface CoreSettingsMutationResult {
 	changedTypes: CoreSettingsType[];
 }
 
-export interface ClineCoreSettingsApi {
+export interface IndusCodeCoreSettingsApi {
 	list(input?: CoreSettingsListInput): Promise<CoreSettingsSnapshot>;
 	toggle(input: CoreSettingsToggleInput): Promise<CoreSettingsMutationResult>;
 }

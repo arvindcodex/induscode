@@ -1,15 +1,15 @@
 {
-	"name": "@cline/agents",
+	"name": "@induscode/agents",
 	"version": "0.0.95",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/cline/cline",
+		"url": "https://github.com/induscode/induscode",
 		"directory": "sdk/packages/agents"
 	},
 	"main": "dist/index.js",
 	"dependencies": {
-		"@cline/llms": "workspace:*",
-		"@cline/shared": "workspace:*",
+		"@induscode/llms": "workspace:*",
+		"@induscode/shared": "workspace:*",
 		"nanoid": "^5.1.7"
 	},
 	"exports": {
@@ -19,7 +19,7 @@
 			"import": "./dist/index.js"
 		}
 	},
-	"description": "Browser-safe agent runtime for the next-generation Cline SDK",
+	"description": "Browser-safe agent runtime for the next-generation IndusCode SDK",
 	"files": [
 		"dist"
 	],

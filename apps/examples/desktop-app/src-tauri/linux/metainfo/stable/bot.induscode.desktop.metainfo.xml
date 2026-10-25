@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  AppStream metadata for the .deb/.rpm packages. Software centers (GNOME
+  Software, KDE Discover) read this from /usr/share/metainfo to show the app's
+  icon, screenshots, and description; without it the app shows a placeholder
+  icon, "No screenshots", and is missing from the Installed list.
+
+  The launchable must match the .desktop file tauri-bundler generates, which is
+  named after productName. Each channel installs side by side, so each ships its
+  own copy of this file under linux/metainfo/<channel>/.
+-->
+<component type="desktop-application">
+	<id>bot.induscode.desktop</id>
+	<launchable type="desktop-id">IndusCode.desktop</launchable>
+	<name>IndusCode</name>
+	<summary>AI coding agent</summary>
+	<developer id="bot.induscode">
+		<name>IndusCode Inc.</name>
+	</developer>
+	<metadata_license>CC0-1.0</metadata_license>
+	<project_license>Apache-2.0</project_license>
+	<description>
+		<p>IndusCode is an AI coding agent. It reads your code, edits files, runs commands, and works through tasks with you in any project on your machine.</p>
+	</description>
+	<url type="homepage">https://induscode.ai</url>
+	<content_rating type="oars-1.1" />
+</component>

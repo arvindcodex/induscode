@@ -2,10 +2,10 @@ import {
 	getFileIndex,
 	type ProviderSettings,
 	type UserInstructionConfigService,
-} from "@cline/core";
+} from "@induscode/core";
 import { byLengthAsc, Fzf, type FzfResultItem } from "fzf";
 import type { Config } from "../utils/types";
-import { formatClineCredits, loadClineAccountSnapshot } from "./cline-account";
+import { formatIndusCodeCredits, loadIndusCodeAccountSnapshot } from "./induscode-account";
 
 export interface InteractiveSlashCommand {
 	name: string;
@@ -167,19 +167,19 @@ export async function searchWorkspaceFilesForMention(input: {
 	return rankMentionPaths(index, input.query, limit);
 }
 
-export async function resolveClineWelcomeLine(input: {
+export async function resolveIndusCodeWelcomeLine(input: {
 	config: Config;
-	clineApiBaseUrl?: string;
-	clineProviderSettings?: ProviderSettings;
+	induscodeApiBaseUrl?: string;
+	induscodeProviderSettings?: ProviderSettings;
 }): Promise<string | undefined> {
-	if (input.config.providerId !== "cline") {
+	if (input.config.providerId !== "induscode") {
 		return undefined;
 	}
 	try {
-		const snapshot = await loadClineAccountSnapshot(input);
+		const snapshot = await loadIndusCodeAccountSnapshot(input);
 		const parts = [
 			snapshot.user.email,
-			`Credits: ${formatClineCredits(snapshot.displayedBalance)}`,
+			`Credits: ${formatIndusCodeCredits(snapshot.displayedBalance)}`,
 		];
 		if (snapshot.activeOrganization?.name.trim()) {
 			parts.push(snapshot.activeOrganization.name);

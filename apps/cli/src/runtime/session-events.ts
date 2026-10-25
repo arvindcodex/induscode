@@ -4,7 +4,7 @@ import type {
 	CoreSessionEvent,
 	RuntimeHostSubscribeOptions,
 	TeamEvent,
-} from "@cline/core";
+} from "@induscode/core";
 
 export const getUIEventEmitter = () =>
 	new EventEmitter() as InteractiveEventBridge;

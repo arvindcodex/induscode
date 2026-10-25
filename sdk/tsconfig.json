@@ -10,34 +10,34 @@
 		"forceConsistentCasingInFileNames": true,
 		"resolveJsonModule": true,
 		"paths": {
-			"@cline/agents": ["./packages/agents/src/index.ts"],
-			"@cline/agents/*": [
+			"@induscode/agents": ["./packages/agents/src/index.ts"],
+			"@induscode/agents/*": [
 				"./packages/agents/src/*",
 				"./packages/agents/src/*/index.ts"
 			],
-			"@cline/cline-hub": ["./apps/cline-hub/src/server.ts"],
-			"@cline/core": ["./packages/core/src/index.ts"],
-			"@cline/core/hub": ["./packages/core/src/hub/index.ts"],
-			"@cline/core/hub/daemon-entry": [
+			"@induscode/induscode-hub": ["./apps/induscode-hub/src/server.ts"],
+			"@induscode/core": ["./packages/core/src/index.ts"],
+			"@induscode/core/hub": ["./packages/core/src/hub/index.ts"],
+			"@induscode/core/hub/daemon-entry": [
 				"./packages/core/src/hub/daemon/entry.ts"
 			],
-			"@cline/core/telemetry": [
+			"@induscode/core/telemetry": [
 				"./packages/core/src/services/telemetry/index.ts"
 			],
-			"@cline/core/*": [
+			"@induscode/core/*": [
 				"./packages/core/src/*",
 				"./packages/core/src/*/index.ts"
 			],
-			"@cline/llms": ["./packages/llms/src/index.ts"],
-			"@cline/llms/browser": ["./packages/llms/src/index.browser.ts"],
-			"@cline/sdk": ["./packages/sdk/src/index.ts"],
-			"@cline/shared": ["./packages/shared/src/index.ts"],
-			"@cline/shared/automation": ["./packages/shared/src/automation/index.ts"],
-			"@cline/shared/browser": ["./packages/shared/src/index.browser.ts"],
-			"@cline/shared/db": ["./packages/shared/src/db/index.ts"],
-			"@cline/shared/storage": ["./packages/shared/src/storage/index.ts"],
-			"@cline/shared/types": ["./packages/shared/src/types/index.ts"],
-			"@cline/shared/*": [
+			"@induscode/llms": ["./packages/llms/src/index.ts"],
+			"@induscode/llms/browser": ["./packages/llms/src/index.browser.ts"],
+			"@induscode/sdk": ["./packages/sdk/src/index.ts"],
+			"@induscode/shared": ["./packages/shared/src/index.ts"],
+			"@induscode/shared/automation": ["./packages/shared/src/automation/index.ts"],
+			"@induscode/shared/browser": ["./packages/shared/src/index.browser.ts"],
+			"@induscode/shared/db": ["./packages/shared/src/db/index.ts"],
+			"@induscode/shared/storage": ["./packages/shared/src/storage/index.ts"],
+			"@induscode/shared/types": ["./packages/shared/src/types/index.ts"],
+			"@induscode/shared/*": [
 				"./packages/shared/src/*",
 				"./packages/shared/src/*/index.ts"
 			]

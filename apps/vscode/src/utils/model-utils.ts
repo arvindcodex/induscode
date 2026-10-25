@@ -1,4 +1,4 @@
-import { MODEL_COLLECTIONS_BY_PROVIDER_ID } from "@cline/llms"
+import { MODEL_COLLECTIONS_BY_PROVIDER_ID } from "@induscode/llms"
 import { ApiHandlerModel } from "@core/api"
 import type { AnthropicModelId } from "@/shared/api"
 

@@ -202,14 +202,14 @@ describe("buildEffectiveProviderConfig", () => {
 		})
 	})
 
-	it("keeps Cline account auth in the auth envelope", async () => {
+	it("keeps IndusCode account auth in the auth envelope", async () => {
 		const { buildEffectiveProviderConfig } = await import("./effective-config")
-		mocks.setApiConfiguration({ clineApiKey: "cline-access-token", clineAccountId: "account-123" })
+		mocks.setApiConfiguration({ induscodeApiKey: "induscode-access-token", induscodeAccountId: "account-123" })
 
-		expect(buildEffectiveProviderConfig(parseProviderId("cline"))).toEqual({
-			providerId: parseProviderId("cline"),
-			apiKey: "cline-access-token",
-			auth: { accessToken: "cline-access-token", accountId: "account-123" },
+		expect(buildEffectiveProviderConfig(parseProviderId("induscode"))).toEqual({
+			providerId: parseProviderId("induscode"),
+			apiKey: "induscode-access-token",
+			auth: { accessToken: "induscode-access-token", accountId: "account-123" },
 		})
 	})
 })

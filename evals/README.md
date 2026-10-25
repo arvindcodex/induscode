@@ -1,8 +1,8 @@
-# Cline Evaluation Framework
+# IndusCode Evaluation Framework
 
-A layered testing system for measuring Cline's performance at different levels.
+A layered testing system for measuring IndusCode's performance at different levels.
 
-> Note: Smoke tests (Layer 2) are partially disabled while the eval framework is repointed at the new SDK CLI. The scenarios under `evals/smoke-tests/` are preserved and `npm run eval:smoke:run` still works against whatever `cline` is on `$PATH` (install with `npm i -g cline`). The old build-and-link helpers and the auto-running `cline-evals-regression.yml` workflow are off until someone wires the build step at the new SDK CLI.
+> Note: Smoke tests (Layer 2) are partially disabled while the eval framework is repointed at the new SDK CLI. The scenarios under `evals/smoke-tests/` are preserved and `npm run eval:smoke:run` still works against whatever `induscode` is on `$PATH` (install with `npm i -g induscode`). The old build-and-link helpers and the auto-running `induscode-evals-regression.yml` workflow are off until someone wires the build step at the new SDK CLI.
 
 ## Directory Structure
 
@@ -12,10 +12,10 @@ evals/
 │   ├── run-smoke-tests.ts
 │   └── scenarios/         # 5 curated test scenarios
 │
-├── e2e/                   # Full E2E with cline-bench (hours)
-│   └── run-cline-bench.ts
+├── e2e/                   # Full E2E with induscode-bench (hours)
+│   └── run-induscode-bench.ts
 │
-├── cline-bench/           # Real-world tasks (git submodule)
+├── induscode-bench/           # Real-world tasks (git submodule)
 │   └── tasks/             # 12 production bug fixes
 │
 ├── analysis/              # Metrics and reporting framework
@@ -24,7 +24,7 @@ evals/
 │   │   ├── classifier.ts  # Failure pattern matching
 │   │   └── reporters/     # Markdown, JSON output
 │   └── patterns/
-│       └── cline-failures.yaml
+│       └── induscode-failures.yaml
 │
 └── baselines/             # Performance baselines for regression detection
 ```
@@ -51,11 +51,11 @@ Location: `evals/smoke-tests/`
 Quick validation across providers with real LLM calls:
 - 5 curated scenarios
 - 3 trials per test for pass@k metrics
-- Runs the `cline` CLI with `--config`, `-y`, `-t`, and `-m`
+- Runs the `induscode` CLI with `--config`, `-y`, `-t`, and `-m`
 
 ```bash
-# Set API key (Cline provider)
-export CLINE_API_KEY=sk-...
+# Set API key (IndusCode provider)
+export INDUSCODE_API_KEY=sk-...
 
 # Run smoke tests
 npm run eval:smoke:run
@@ -69,7 +69,7 @@ npm run eval:smoke:run -- --model anthropic/claude-sonnet-4.5
 
 ### Layer 3: E2E Tests (Hours)
 
-Location: `evals/e2e/` + `evals/cline-bench/`
+Location: `evals/e2e/` + `evals/induscode-bench/`
 
 Full agent tests on production-grade tasks:
 - 12 real-world coding problems
@@ -106,7 +106,7 @@ With 3 trials:
 
 - Current PR gate: contract tests only
 - Smoke test CI: temporarily disabled while the workflow is repointed at the SDK CLI
-- Nightly: E2E tests with cline-bench are not yet implemented, see TODO
+- Nightly: E2E tests with induscode-bench are not yet implemented, see TODO
 
 ## Quick Start
 
@@ -116,7 +116,7 @@ npm run test:unit
 npm run eval:smoke:run
 
 # Run E2E (requires setup)
-cd evals/cline-bench
+cd evals/induscode-bench
 # Follow README.md for Harbor setup
 npm run eval:e2e
 ```
@@ -136,16 +136,16 @@ npm run eval:e2e
 
 ### E2E Task
 
-Contribute to [cline/cline-bench](https://github.com/cline/cline-bench)
+Contribute to [induscode/induscode-bench](https://github.com/induscode/induscode-bench)
 
 ## Resources
 
-- [cline-bench tasks](evals/cline-bench/README.md)
+- [induscode-bench tasks](evals/induscode-bench/README.md)
 - [Smoke test scenarios](evals/smoke-tests/README.md)
 
 ## TODO
 
-- [ ] **Nightly E2E CI**: Add scheduled workflow for cline-bench tests
+- [ ] **Nightly E2E CI**: Add scheduled workflow for induscode-bench tests
   - Requires: Docker runner, Harbor setup, ~1-2 hour timeout
   - Should run on schedule (e.g., nightly) not per-PR
   - Separate secrets for E2E environment

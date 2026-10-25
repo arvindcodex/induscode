@@ -2,7 +2,7 @@ import * as p from "@clack/prompts";
 import {
 	authorizeMcpServerOAuth,
 	resolveDefaultMcpSettingsPath,
-} from "@cline/core";
+} from "@induscode/core";
 import open from "../../utils/open";
 
 function toErrorMessage(error: unknown): string {

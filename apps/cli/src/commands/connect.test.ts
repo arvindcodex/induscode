@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
-	CLINE_CONNECTOR_DETACHED_CHILD_ENV,
+	INDUSCODE_CONNECTOR_DETACHED_CHILD_ENV,
 	CONNECT_ALREADY_RUNNING_EXIT_CODE,
 } from "../connectors/common";
 import type { ConnectIo, ConnectRunContext } from "../connectors/types";
@@ -27,7 +27,7 @@ const mocks = vi.hoisted(() => ({
 	validate: vi.fn(),
 }));
 
-vi.mock("@cline/core", () => ({
+vi.mock("@induscode/core", () => ({
 	disableConnectorAutostart: mocks.disableConnectorAutostart,
 	getPersistedConnectorConnection: mocks.getPersistedConnectorConnection,
 	getProcessStartToken: mocks.getProcessStartToken,
@@ -47,7 +47,7 @@ vi.mock("./connect-via-hub", () => ({
 }));
 
 describe("runConnectAdapter", () => {
-	const previousDetachedChild = process.env[CLINE_CONNECTOR_DETACHED_CHILD_ENV];
+	const previousDetachedChild = process.env[INDUSCODE_CONNECTOR_DETACHED_CHILD_ENV];
 	const io: ConnectIo = {
 		writeln: vi.fn(),
 		writeErr: vi.fn(),
@@ -59,7 +59,7 @@ describe("runConnectAdapter", () => {
 		mocks.listActiveConnectors.mockReturnValue([]);
 		mocks.run.mockImplementation(
 			async (_args: string[], _io: ConnectIo, context: ConnectRunContext) => {
-				context.setPersistenceInstanceId("cline_bot");
+				context.setPersistenceInstanceId("induscode_bot");
 				return 0;
 			},
 		);
@@ -75,9 +75,9 @@ describe("runConnectAdapter", () => {
 
 	afterEach(() => {
 		if (previousDetachedChild === undefined) {
-			delete process.env[CLINE_CONNECTOR_DETACHED_CHILD_ENV];
+			delete process.env[INDUSCODE_CONNECTOR_DETACHED_CHILD_ENV];
 		} else {
-			process.env[CLINE_CONNECTOR_DETACHED_CHILD_ENV] = previousDetachedChild;
+			process.env[INDUSCODE_CONNECTOR_DETACHED_CHILD_ENV] = previousDetachedChild;
 		}
 	});
 
@@ -88,7 +88,7 @@ describe("runConnectAdapter", () => {
 
 		expect(mocks.persistConnectorConnection).toHaveBeenCalledWith(
 			"telegram",
-			"cline_bot",
+			"induscode_bot",
 			["-k", "token"],
 		);
 		expect(mocks.disableConnectorAutostart).not.toHaveBeenCalled();
@@ -99,7 +99,7 @@ describe("runConnectAdapter", () => {
 
 		expect(mocks.persistConnectorConnection).toHaveBeenCalledWith(
 			"telegram",
-			"cline_bot",
+			"induscode_bot",
 			[],
 		);
 		expect(mocks.disableConnectorAutostart).not.toHaveBeenCalled();
@@ -152,7 +152,7 @@ describe("runConnectAdapter", () => {
 		expect(mocks.persistConnectorConnection).not.toHaveBeenCalled();
 		expect(mocks.disableConnectorAutostart).toHaveBeenCalledWith(
 			"telegram",
-			"cline_bot",
+			"induscode_bot",
 		);
 	});
 
@@ -179,7 +179,7 @@ describe("runConnectAdapter", () => {
 	});
 
 	it("leaves persistence unchanged when an internal detached child exits", async () => {
-		process.env[CLINE_CONNECTOR_DETACHED_CHILD_ENV] = "1";
+		process.env[INDUSCODE_CONNECTOR_DETACHED_CHILD_ENV] = "1";
 
 		await expect(
 			runConnectAdapter("telegram", ["-k", "token", "-i"], io),
@@ -258,12 +258,12 @@ describe("runConnectAdapter", () => {
 		mocks.validate.mockResolvedValue(1);
 		mocks.listActiveConnectors.mockReturnValue([
 			{
-				id: "telegram:cline_bot",
+				id: "telegram:induscode_bot",
 				type: "telegram",
-				instanceId: "cline_bot",
+				instanceId: "induscode_bot",
 				pid: 123,
 				hubUrl: "ws://127.0.0.1:4317",
-				botUsername: "cline_bot",
+				botUsername: "induscode_bot",
 			},
 		]);
 		mocks.getConnector.mockResolvedValue({
@@ -292,12 +292,12 @@ describe("runConnectAdapter", () => {
 		});
 		mocks.listActiveConnectors.mockReturnValue([
 			{
-				id: "telegram:cline_bot",
+				id: "telegram:induscode_bot",
 				type: "telegram",
-				instanceId: "cline_bot",
+				instanceId: "induscode_bot",
 				pid: 123,
 				hubUrl: "ws://127.0.0.1:4317",
-				botUsername: "cline_bot",
+				botUsername: "induscode_bot",
 			},
 		]);
 		mocks.getConnector.mockResolvedValue({
@@ -326,17 +326,17 @@ describe("runConnectAdapter", () => {
 		});
 		mocks.listActiveConnectors.mockReturnValue([
 			{
-				id: "telegram:cline_bot",
+				id: "telegram:induscode_bot",
 				type: "telegram",
-				instanceId: "cline_bot",
+				instanceId: "induscode_bot",
 				pid: 123,
 				hubUrl: "ws://127.0.0.1:4317",
-				botUsername: "cline_bot",
+				botUsername: "induscode_bot",
 			},
 		]);
 		mocks.getPersistedConnectorConnection.mockReturnValue({
 			channel: "telegram",
-			instanceId: "cline_bot",
+			instanceId: "induscode_bot",
 			connectArgs: ["-k", "new-token"],
 			lastSuccessfulArgs: ["-k", "old-token"],
 			enabled: true,
@@ -347,7 +347,7 @@ describe("runConnectAdapter", () => {
 			.mockResolvedValueOnce(1)
 			.mockImplementationOnce(
 				async (_args: string[], _io: ConnectIo, context: ConnectRunContext) => {
-					context.setPersistenceInstanceId("cline_bot");
+					context.setPersistenceInstanceId("induscode_bot");
 					return 0;
 				},
 			);
@@ -364,7 +364,7 @@ describe("runConnectAdapter", () => {
 			runRestartConnector("telegram", ["-k", "new-token"], io),
 		).resolves.toBe(1);
 
-		expect(stopInstance).toHaveBeenCalledWith("cline_bot", io);
+		expect(stopInstance).toHaveBeenCalledWith("induscode_bot", io);
 		expect(mocks.run).toHaveBeenNthCalledWith(
 			1,
 			["-k", "new-token"],
@@ -380,7 +380,7 @@ describe("runConnectAdapter", () => {
 		expect(mocks.disableConnectorAutostart).not.toHaveBeenCalled();
 		expect(mocks.persistConnectorConnection).toHaveBeenCalledWith(
 			"telegram",
-			"cline_bot",
+			"induscode_bot",
 			["-k", "old-token"],
 		);
 	});
@@ -393,12 +393,12 @@ describe("runConnectAdapter", () => {
 		});
 		mocks.listActiveConnectors.mockReturnValue([
 			{
-				id: "telegram:cline_bot",
+				id: "telegram:induscode_bot",
 				type: "telegram",
-				instanceId: "cline_bot",
+				instanceId: "induscode_bot",
 				pid: 123,
 				hubUrl: "ws://127.0.0.1:4317",
-				botUsername: "cline_bot",
+				botUsername: "induscode_bot",
 			},
 		]);
 		mocks.getPersistedConnectorConnection.mockReturnValue(undefined);
@@ -415,7 +415,7 @@ describe("runConnectAdapter", () => {
 			runRestartConnector("telegram", ["-k", "new-token"], io),
 		).resolves.toBe(0);
 
-		expect(stopInstance).toHaveBeenCalledWith("cline_bot", io);
+		expect(stopInstance).toHaveBeenCalledWith("induscode_bot", io);
 		expect(mocks.run).toHaveBeenCalledWith(
 			["-k", "new-token"],
 			io,
@@ -431,12 +431,12 @@ describe("runConnectAdapter", () => {
 		});
 		mocks.listActiveConnectors.mockReturnValue([
 			{
-				id: "telegram:cline_bot",
+				id: "telegram:induscode_bot",
 				type: "telegram",
-				instanceId: "cline_bot",
+				instanceId: "induscode_bot",
 				pid: 123,
 				hubUrl: "ws://127.0.0.1:4317",
-				botUsername: "cline_bot",
+				botUsername: "induscode_bot",
 			},
 		]);
 		mocks.getConnector.mockResolvedValue({
@@ -452,7 +452,7 @@ describe("runConnectAdapter", () => {
 			runRestartConnector("telegram", ["-k", "new-token"], io),
 		).resolves.toBe(1);
 
-		expect(stopInstance).toHaveBeenCalledWith("cline_bot", io);
+		expect(stopInstance).toHaveBeenCalledWith("induscode_bot", io);
 		expect(mocks.run).not.toHaveBeenCalled();
 	});
 
@@ -464,17 +464,17 @@ describe("runConnectAdapter", () => {
 		});
 		mocks.listActiveConnectors.mockReturnValue([
 			{
-				id: "telegram:cline_bot",
+				id: "telegram:induscode_bot",
 				type: "telegram",
-				instanceId: "cline_bot",
+				instanceId: "induscode_bot",
 				pid: 123,
 				hubUrl: "ws://127.0.0.1:4317",
-				botUsername: "cline_bot",
+				botUsername: "induscode_bot",
 			},
 		]);
 		mocks.getPersistedConnectorConnection.mockReturnValue({
 			channel: "telegram",
-			instanceId: "cline_bot",
+			instanceId: "induscode_bot",
 			connectArgs: ["-k", "new-token"],
 			lastSuccessfulArgs: ["-k", "old-token"],
 			enabled: true,
@@ -497,7 +497,7 @@ describe("runConnectAdapter", () => {
 
 		expect(mocks.run).toHaveBeenCalledTimes(1);
 		expect(io.writeErr).toHaveBeenCalledWith(
-			"[connect] replacement was not started because telegram instance cline_bot is still running",
+			"[connect] replacement was not started because telegram instance induscode_bot is still running",
 		);
 		expect(mocks.persistConnectorConnection).not.toHaveBeenCalled();
 	});
@@ -529,10 +529,10 @@ describe("runCleanupConnectorInstance", () => {
 		});
 
 		await expect(
-			runCleanupConnectorInstance("slack", "cline-slack", io),
+			runCleanupConnectorInstance("slack", "induscode-slack", io),
 		).resolves.toBe(0);
 
-		expect(stopInstance).toHaveBeenCalledWith("cline-slack", io);
+		expect(stopInstance).toHaveBeenCalledWith("induscode-slack", io);
 		// The instance crashed; it was not retired. Disabling autostart here would
 		// make every crash silently opt the connector out of supervision.
 		expect(mocks.disableConnectorAutostart).not.toHaveBeenCalled();
@@ -553,7 +553,7 @@ describe("runCleanupConnectorInstance", () => {
 		});
 
 		await expect(
-			runCleanupConnectorInstance("slack", "cline-slack", io),
+			runCleanupConnectorInstance("slack", "induscode-slack", io),
 		).resolves.toBe(1);
 	});
 
@@ -567,7 +567,7 @@ describe("runCleanupConnectorInstance", () => {
 		});
 
 		await expect(
-			runCleanupConnectorInstance("slack", "cline-slack", io),
+			runCleanupConnectorInstance("slack", "induscode-slack", io),
 		).resolves.toBe(1);
 		expect(io.writeErr).toHaveBeenCalledWith(
 			'connect adapter "slack" does not support per-instance stop',
@@ -599,7 +599,7 @@ describe("hub-delegated connector starts", () => {
 			run: mocks.run,
 			validate: mocks.validate,
 			showHelp: vi.fn(),
-			resolveInstanceId: () => "cline-slack",
+			resolveInstanceId: () => "induscode-slack",
 		});
 		mocks.startConnectorViaHub.mockResolvedValue({
 			delegated: true,
@@ -608,7 +608,7 @@ describe("hub-delegated connector starts", () => {
 	});
 
 	afterEach(() => {
-		delete process.env.CLINE_CONNECTOR_SUPERVISED;
+		delete process.env.INDUSCODE_CONNECTOR_SUPERVISED;
 	});
 
 	it("asks the hub to own a background connector and records the intent", async () => {
@@ -619,7 +619,7 @@ describe("hub-delegated connector starts", () => {
 		expect(mocks.startConnectorViaHub).toHaveBeenCalledWith(
 			expect.objectContaining({
 				channel: "slack",
-				instanceId: "cline-slack",
+				instanceId: "induscode-slack",
 				args: ["--bot-token", "xoxb"],
 			}),
 		);
@@ -627,7 +627,7 @@ describe("hub-delegated connector starts", () => {
 		expect(mocks.run).not.toHaveBeenCalled();
 		expect(mocks.persistConnectorConnection).toHaveBeenCalledWith(
 			"slack",
-			"cline-slack",
+			"induscode-slack",
 			["--bot-token", "xoxb"],
 		);
 	});
@@ -640,7 +640,7 @@ describe("hub-delegated connector starts", () => {
 	});
 
 	it("runs locally inside a supervised process instead of asking the hub again", async () => {
-		process.env.CLINE_CONNECTOR_SUPERVISED = "1";
+		process.env.INDUSCODE_CONNECTOR_SUPERVISED = "1";
 
 		await runConnectAdapter("slack", ["--bot-token", "xoxb"], io);
 

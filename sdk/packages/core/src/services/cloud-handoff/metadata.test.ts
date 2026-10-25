@@ -10,7 +10,7 @@ import {
 
 describe("cloud handoff metadata", () => {
 	const fingerprint = createCloudHandoffFingerprint({
-		repoUrl: " https://github.com/cline/cline ",
+		repoUrl: " https://github.com/induscode/induscode ",
 		branch: " main ",
 		headSha: "A".repeat(40),
 		modelId: " cloud/model ",
@@ -31,7 +31,7 @@ describe("cloud handoff metadata", () => {
 				handedOffAt: "2026-08-18T12:00:00.000Z",
 				status: "complete",
 				innerSessionId: "inner-1",
-				dashboardUrl: "https://staging-app.cline.bot/agents?sessionId=ses-1",
+				dashboardUrl: "https://staging-app.induscode.bot/agents?sessionId=ses-1",
 				fingerprint,
 			},
 		);
@@ -41,7 +41,7 @@ describe("cloud handoff metadata", () => {
 			handedOffAt: "2026-08-18T12:00:00.000Z",
 			status: "complete",
 			innerSessionId: "inner-1",
-			dashboardUrl: "https://staging-app.cline.bot/agents?sessionId=ses-1",
+			dashboardUrl: "https://staging-app.induscode.bot/agents?sessionId=ses-1",
 			fingerprint,
 		});
 		expect(clearCloudHandoffMetadata(merged)).toEqual({
@@ -101,7 +101,7 @@ describe("cloud handoff metadata", () => {
 	it("preserves significant whitespace in workspace paths", () => {
 		expect(
 			createCloudHandoffFingerprint({
-				repoUrl: "https://github.com/cline/cline",
+				repoUrl: "https://github.com/induscode/induscode",
 				branch: "main",
 				headSha: "a".repeat(40),
 				modelId: "cloud/model",
@@ -113,10 +113,10 @@ describe("cloud handoff metadata", () => {
 	it("builds an environment-specific dashboard URL", () => {
 		expect(
 			buildCloudHandoffDashboardUrl(
-				"https://staging-app.cline.bot/base",
+				"https://staging-app.induscode.bot/base",
 				"ses-1",
 			),
-		).toBe("https://staging-app.cline.bot/agents?sessionId=ses-1");
+		).toBe("https://staging-app.induscode.bot/agents?sessionId=ses-1");
 	});
 
 	it("rejects empty required fingerprint and session id fields", () => {
@@ -129,7 +129,7 @@ describe("cloud handoff metadata", () => {
 			}),
 		).toThrow("cannot be empty");
 		expect(() =>
-			buildCloudHandoffDashboardUrl("https://app.cline.bot", " "),
+			buildCloudHandoffDashboardUrl("https://app.induscode.bot", " "),
 		).toThrow("cannot be empty");
 	});
 });

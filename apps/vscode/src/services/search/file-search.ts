@@ -1,4 +1,4 @@
-import { toPosixSeparators } from "@cline/shared"
+import { toPosixSeparators } from "@induscode/shared"
 import type { WorkspaceRoot } from "@shared/multi-root/types"
 import * as childProcess from "child_process"
 import * as fs from "fs"

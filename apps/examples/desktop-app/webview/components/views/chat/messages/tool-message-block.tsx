@@ -1,15 +1,15 @@
 "use client";
 
-import { AgentCommandOutput, GeneratedMediaContent } from "@cline/ui";
+import { AgentCommandOutput, GeneratedMediaContent } from "@induscode/ui";
 import {
 	ToolActivity,
 	ToolActivityCode,
 	ToolActivityContent,
 	ToolActivityDetails,
 	ToolActivityTrigger,
-} from "@cline/ui/components/agent-chat";
-import { ToolFileDiff } from "@cline/ui/components/agent-chat/tool-diff";
-import type { ToolLabelPart } from "@cline/ui/components/agent-chat/tool-summary";
+} from "@induscode/ui/components/agent-chat";
+import { ToolFileDiff } from "@induscode/ui/components/agent-chat/tool-diff";
+import type { ToolLabelPart } from "@induscode/ui/components/agent-chat/tool-summary";
 import Ansi from "ansi-to-react";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { memo, useCallback, useEffect, useState } from "react";

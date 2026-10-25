@@ -1,9 +1,9 @@
-// CloudSessionHost — an SdkSessionHost backed by a Cline Cloud sandbox.
+// CloudSessionHost — an SdkSessionHost backed by a IndusCode Cloud sandbox.
 //
-// A cloud session has two ids: the outer `ses-…` record owned by the Cline
+// A cloud session has two ids: the outer `ses-…` record owned by the IndusCode
 // Cloud control plane (what extension history and the task view use as their
 // identifier), and the canonical `tsk-…` Hub session named by the control plane. This host dials the
-// pod's Hub through the api.cline.bot WebSocket proxy with the user's Cline
+// pod's Hub through the api.induscode.bot WebSocket proxy with the user's IndusCode
 // account token, maps outer <-> inner ids, and re-emits Hub events under the
 // outer id so the rest of the extension (session lifecycle, event coordinator,
 // message translator, chat view) works exactly as it does for local sessions.
@@ -34,9 +34,9 @@ import {
 	type SessionRecord,
 	type StartSessionInput,
 	type StartSessionResult,
-} from "@cline/core"
-import { buildCloudSessionSystemPrompt } from "@cline/core/cloud"
-import type { AgentResult, ToolApprovalRequest, ToolApprovalResult } from "@cline/shared"
+} from "@induscode/core"
+import { buildCloudSessionSystemPrompt } from "@induscode/core/cloud"
+import type { AgentResult, ToolApprovalRequest, ToolApprovalResult } from "@induscode/shared"
 import { CLOUD_SESSION_MODE, CLOUD_WORKSPACE_ROOT, type CloudSessionStatus } from "@shared/cloud/cloud-sessions"
 import { Logger } from "@/shared/services/Logger"
 import type { SdkInitialMessages, SdkSessionHost } from "./session-host"
@@ -142,7 +142,7 @@ export class CloudSessionHost implements SdkSessionHost {
 		const host = new RemoteRuntimeHost({
 			endpoint: options.socketUrl,
 			clientType: "vscode-cloud-session",
-			displayName: "Cline for VS Code (cloud session)",
+			displayName: "IndusCode for VS Code (cloud session)",
 			workspaceRoot,
 			cwd: workspaceRoot,
 			telemetry: options.telemetry,
@@ -150,7 +150,7 @@ export class CloudSessionHost implements SdkSessionHost {
 			resolveConnectionHeaders: async () => {
 				const token = (await options.getAuthToken())?.trim()
 				if (!token) {
-					throw new Error("Sign in to Cline to connect to this cloud session.")
+					throw new Error("Sign in to IndusCode to connect to this cloud session.")
 				}
 				return { Authorization: `Bearer ${token}` }
 			},

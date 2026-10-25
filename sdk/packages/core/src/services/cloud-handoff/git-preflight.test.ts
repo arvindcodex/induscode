@@ -18,7 +18,7 @@ function fakeGit(overrides: Record<string, string | Error> = {}): GitCommand {
 		"config --get branch.feature/handoff.remote": "origin\n",
 		"config --get branch.feature/handoff.merge": "refs/heads/feature/handoff\n",
 		"rev-parse HEAD": `${HEAD}\n`,
-		"remote get-url origin": "git@github.com:cline/cline.git\n",
+		"remote get-url origin": "git@github.com:induscode/induscode.git\n",
 		"ls-remote --exit-code origin refs/heads/feature/handoff": `${HEAD}\trefs/heads/feature/handoff\n`,
 		...overrides,
 	};
@@ -32,17 +32,17 @@ function fakeGit(overrides: Record<string, string | Error> = {}): GitCommand {
 
 describe("normalizeGitHubRemoteUrl", () => {
 	it.each([
-		["git@github.com:cline/cline.git", "https://github.com/cline/cline"],
-		["https://github.com/cline/cline.git", "https://github.com/cline/cline"],
-		["ssh://git@github.com/cline/cline.git", "https://github.com/cline/cline"],
-		["git://github.com/cline/cline", "https://github.com/cline/cline"],
+		["git@github.com:induscode/induscode.git", "https://github.com/induscode/induscode"],
+		["https://github.com/induscode/induscode.git", "https://github.com/induscode/induscode"],
+		["ssh://git@github.com/induscode/induscode.git", "https://github.com/induscode/induscode"],
+		["git://github.com/induscode/induscode", "https://github.com/induscode/induscode"],
 	])("normalizes %s", (remote, expected) => {
 		expect(normalizeGitHubRemoteUrl(remote)).toBe(expected);
 	});
 
 	it("rejects non-GitHub and nested paths", () => {
 		expect(
-			normalizeGitHubRemoteUrl("git@gitlab.com:cline/cline.git"),
+			normalizeGitHubRemoteUrl("git@gitlab.com:induscode/induscode.git"),
 		).toBeNull();
 		expect(normalizeGitHubRemoteUrl("https://github.com/a/b/c.git")).toBeNull();
 	});
@@ -54,7 +54,7 @@ describe("preflightCloudHandoffGit", () => {
 		await expect(
 			preflightCloudHandoffGit({ cwd: "/repo", git }),
 		).resolves.toEqual({
-			repoUrl: "https://github.com/cline/cline",
+			repoUrl: "https://github.com/induscode/induscode",
 			branch: "feature/handoff",
 			headSha: HEAD,
 		});
@@ -228,7 +228,7 @@ describe("preflightCloudHandoffGit", () => {
 		const error = await preflightCloudHandoffGit({
 			cwd: "/repo",
 			git: fakeGit({
-				"remote get-url origin": "git@gitlab.com:cline/cline.git\n",
+				"remote get-url origin": "git@gitlab.com:induscode/induscode.git\n",
 			}),
 		}).catch((caught) => caught);
 
@@ -238,7 +238,7 @@ describe("preflightCloudHandoffGit", () => {
 	it("does not echo credential-bearing remotes from git stderr", async () => {
 		const secret = "github_pat_secret";
 		const failed = Object.assign(new Error("bad remote"), {
-			stderr: `fatal: No such remote 'https://${secret}@github.com/cline/cline.git'`,
+			stderr: `fatal: No such remote 'https://${secret}@github.com/induscode/induscode.git'`,
 		});
 		const error = await preflightCloudHandoffGit({
 			cwd: "/repo",
@@ -268,7 +268,7 @@ describe("preflightCloudHandoffGit", () => {
 	});
 
 	it("supports a GitHub URL configured directly as the branch remote", async () => {
-		const remote = "https://github_pat_secret@github.com/cline/cline.git";
+		const remote = "https://github_pat_secret@github.com/induscode/induscode.git";
 		await expect(
 			preflightCloudHandoffGit({
 				cwd: "/repo",
@@ -279,7 +279,7 @@ describe("preflightCloudHandoffGit", () => {
 			}),
 		).resolves.toEqual(
 			expect.objectContaining({
-				repoUrl: "https://github.com/cline/cline",
+				repoUrl: "https://github.com/induscode/induscode",
 			}),
 		);
 	});

@@ -9,8 +9,8 @@ import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import { createInterface } from "node:readline";
 import { Readable } from "node:stream";
-import type { AgentToolContext } from "@cline/shared";
-import { resolveExistingFilePath } from "@cline/shared/storage";
+import type { AgentToolContext } from "@induscode/shared";
+import { resolveExistingFilePath } from "@induscode/shared/storage";
 import {
 	TOOL_RESULT_CACHE_MISS,
 	ToolResultCache,
@@ -215,7 +215,7 @@ export function createFileReadExecutor(
 
 	return async (request: ReadFileRequest, context: AgentToolContext) => {
 		const { path: filePath, start_line, end_line } = request;
-		if (filePath.startsWith("cline://")) {
+		if (filePath.startsWith("induscode://")) {
 			context.signal?.throwIfAborted();
 			const cache = context.metadata?.toolResultCache;
 			if (!(cache instanceof ToolResultCache))

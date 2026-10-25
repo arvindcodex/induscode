@@ -1,4 +1,4 @@
-import { CLINE_BUILD_ENV_ENV } from "@cline/shared";
+import { INDUSCODE_BUILD_ENV_ENV } from "@induscode/shared";
 import { describe, expect, it } from "vitest";
 import {
 	DEFAULT_HUB_PORT,
@@ -9,19 +9,19 @@ import {
 const DEV_HUB_PORT = 25466;
 
 describe("resolveDefaultHubPort", () => {
-	it("returns the dev hub port when CLINE_BUILD_ENV is development and CLINE_HUB_PORT is unset", () => {
+	it("returns the dev hub port when INDUSCODE_BUILD_ENV is development and INDUSCODE_HUB_PORT is unset", () => {
 		expect(
 			resolveDefaultHubPort({
-				env: { [CLINE_BUILD_ENV_ENV]: "development" },
+				env: { [INDUSCODE_BUILD_ENV_ENV]: "development" },
 				execArgv: [],
 			}),
 		).toBe(DEV_HUB_PORT);
 	});
 
-	it("returns the production hub port when CLINE_BUILD_ENV is production and CLINE_HUB_PORT is unset", () => {
+	it("returns the production hub port when INDUSCODE_BUILD_ENV is production and INDUSCODE_HUB_PORT is unset", () => {
 		expect(
 			resolveDefaultHubPort({
-				env: { [CLINE_BUILD_ENV_ENV]: "production" },
+				env: { [INDUSCODE_BUILD_ENV_ENV]: "production" },
 				execArgv: [],
 			}),
 		).toBe(DEFAULT_HUB_PORT);
@@ -42,48 +42,48 @@ describe("resolveDefaultHubPort", () => {
 		).toBe(DEV_HUB_PORT);
 	});
 
-	it("honors an explicit CLINE_HUB_PORT override in development", () => {
+	it("honors an explicit INDUSCODE_HUB_PORT override in development", () => {
 		expect(
 			resolveDefaultHubPort({
 				env: {
-					[CLINE_BUILD_ENV_ENV]: "development",
-					CLINE_HUB_PORT: "31000",
+					[INDUSCODE_BUILD_ENV_ENV]: "development",
+					INDUSCODE_HUB_PORT: "31000",
 				},
 				execArgv: [],
 			}),
 		).toBe(31000);
 	});
 
-	it("honors an explicit CLINE_HUB_PORT override in production", () => {
+	it("honors an explicit INDUSCODE_HUB_PORT override in production", () => {
 		expect(
 			resolveDefaultHubPort({
 				env: {
-					[CLINE_BUILD_ENV_ENV]: "production",
-					CLINE_HUB_PORT: "31000",
+					[INDUSCODE_BUILD_ENV_ENV]: "production",
+					INDUSCODE_HUB_PORT: "31000",
 				},
 				execArgv: [],
 			}),
 		).toBe(31000);
 	});
 
-	it("falls back to the dev default when CLINE_HUB_PORT is invalid in development", () => {
+	it("falls back to the dev default when INDUSCODE_HUB_PORT is invalid in development", () => {
 		expect(
 			resolveDefaultHubPort({
 				env: {
-					[CLINE_BUILD_ENV_ENV]: "development",
-					CLINE_HUB_PORT: "not-a-port",
+					[INDUSCODE_BUILD_ENV_ENV]: "development",
+					INDUSCODE_HUB_PORT: "not-a-port",
 				},
 				execArgv: [],
 			}),
 		).toBe(DEV_HUB_PORT);
 	});
 
-	it("falls back to the production default when CLINE_HUB_PORT is invalid in production", () => {
+	it("falls back to the production default when INDUSCODE_HUB_PORT is invalid in production", () => {
 		expect(
 			resolveDefaultHubPort({
 				env: {
-					[CLINE_BUILD_ENV_ENV]: "production",
-					CLINE_HUB_PORT: "0",
+					[INDUSCODE_BUILD_ENV_ENV]: "production",
+					INDUSCODE_HUB_PORT: "0",
 				},
 				execArgv: [],
 			}),
@@ -97,7 +97,7 @@ describe("resolveHubEndpointOptions", () => {
 			resolveHubEndpointOptions(
 				{},
 				{
-					env: { [CLINE_BUILD_ENV_ENV]: "development" },
+					env: { [INDUSCODE_BUILD_ENV_ENV]: "development" },
 					execArgv: [],
 				},
 			),
@@ -113,7 +113,7 @@ describe("resolveHubEndpointOptions", () => {
 			resolveHubEndpointOptions(
 				{ port: 40000 },
 				{
-					env: { [CLINE_BUILD_ENV_ENV]: "development" },
+					env: { [INDUSCODE_BUILD_ENV_ENV]: "development" },
 					execArgv: [],
 				},
 			).port,

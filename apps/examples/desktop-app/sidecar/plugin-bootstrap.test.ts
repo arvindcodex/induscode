@@ -1,7 +1,7 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { CLINE_PLUGIN_BOOTSTRAP_PATH_ENV } from "@cline/core";
+import { INDUSCODE_PLUGIN_BOOTSTRAP_PATH_ENV } from "@induscode/core";
 import { expect, it } from "vitest";
 import {
 	configurePluginBootstrap,
@@ -13,7 +13,7 @@ function withLayout(
 	execPath: (root: string) => string,
 	check: (bootstrap: string, execPath: string) => void,
 ): void {
-	const root = mkdtempSync(join(tmpdir(), "cline-plugin-bootstrap-"));
+	const root = mkdtempSync(join(tmpdir(), "induscode-plugin-bootstrap-"));
 	try {
 		const directory = join(resourceDirectory(root), "bin", "extensions");
 		mkdirSync(directory, { recursive: true });
@@ -27,8 +27,8 @@ function withLayout(
 
 it("finds the bootstrap in the macOS app bundle resources", () => {
 	withLayout(
-		(root) => join(root, "Cline.app", "Contents", "Resources"),
-		(root) => join(root, "Cline.app", "Contents", "MacOS", "cline-cli"),
+		(root) => join(root, "IndusCode.app", "Contents", "Resources"),
+		(root) => join(root, "IndusCode.app", "Contents", "MacOS", "induscode-cli"),
 		(bootstrap, execPath) => {
 			expect(resolveDesktopPluginBootstrap({ execPath, cwd: tmpdir() })).toBe(
 				bootstrap,
@@ -39,8 +39,8 @@ it("finds the bootstrap in the macOS app bundle resources", () => {
 
 it("finds the bootstrap in the Linux and Windows resource layouts", () => {
 	withLayout(
-		(root) => join(root, "usr", "lib", "Cline"),
-		(root) => join(root, "usr", "bin", "cline-cli"),
+		(root) => join(root, "usr", "lib", "IndusCode"),
+		(root) => join(root, "usr", "bin", "induscode-cli"),
 		(bootstrap, execPath) => {
 			expect(resolveDesktopPluginBootstrap({ execPath, cwd: tmpdir() })).toBe(
 				bootstrap,
@@ -49,7 +49,7 @@ it("finds the bootstrap in the Linux and Windows resource layouts", () => {
 	);
 	withLayout(
 		(root) => root,
-		(root) => join(root, "cline-cli.exe"),
+		(root) => join(root, "induscode-cli.exe"),
 		(bootstrap, execPath) => {
 			expect(resolveDesktopPluginBootstrap({ execPath, cwd: tmpdir() })).toBe(
 				bootstrap,
@@ -59,7 +59,7 @@ it("finds the bootstrap in the Linux and Windows resource layouts", () => {
 });
 
 it("keeps an explicitly configured bootstrap path", () => {
-	const env = { [CLINE_PLUGIN_BOOTSTRAP_PATH_ENV]: "/custom/bootstrap.js" };
+	const env = { [INDUSCODE_PLUGIN_BOOTSTRAP_PATH_ENV]: "/custom/bootstrap.js" };
 	configurePluginBootstrap(env);
-	expect(env[CLINE_PLUGIN_BOOTSTRAP_PATH_ENV]).toBe("/custom/bootstrap.js");
+	expect(env[INDUSCODE_PLUGIN_BOOTSTRAP_PATH_ENV]).toBe("/custom/bootstrap.js");
 });

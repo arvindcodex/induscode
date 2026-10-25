@@ -73,7 +73,7 @@ describe("createHubDaemonTelemetry", () => {
 		providerSettingsManagerConstructions.count = 0;
 	});
 
-	it("identifies the cached cline account at startup", () => {
+	it("identifies the cached induscode account at startup", () => {
 		mockGetProviderSettings.mockReturnValue({
 			auth: { accountId: " usr-123 " },
 		});
@@ -82,14 +82,14 @@ describe("createHubDaemonTelemetry", () => {
 		expect(mockCreateConfiguredTelemetryHandle).toHaveBeenCalledWith(
 			expect.objectContaining({
 				metadata: expect.objectContaining({
-					cline_type: "hub",
-					platform: "cline-hub-daemon",
+					induscode_type: "hub",
+					platform: "induscode-hub-daemon",
 				}),
 			}),
 		);
 		expect(mockIdentifyAccount).toHaveBeenCalledExactlyOnceWith(
 			mockTelemetryService,
-			{ id: "usr-123", provider: "cline" },
+			{ id: "usr-123", provider: "induscode" },
 		);
 	});
 
@@ -101,7 +101,7 @@ describe("createHubDaemonTelemetry", () => {
 		// CLI-local ones.
 		expect(mockCreateConfiguredTelemetryHandle).toHaveBeenCalledWith(
 			expect.objectContaining({
-				serviceName: "cline-hub-daemon",
+				serviceName: "induscode-hub-daemon",
 				serviceVersion: expect.any(String),
 			}),
 		);
@@ -109,13 +109,13 @@ describe("createHubDaemonTelemetry", () => {
 
 	it("publishes who launched the daemon as resource attributes", () => {
 		mockGetProviderSettings.mockReturnValue(undefined);
-		vi.stubEnv("CLINE_HUB_LAUNCHER_CLIENT", "cline-desktop");
-		vi.stubEnv("CLINE_HUB_LAUNCHER_VERSION", "0.0.46");
-		vi.stubEnv("CLINE_HUB_LAUNCHER_TRANSPORT", "local");
+		vi.stubEnv("INDUSCODE_HUB_LAUNCHER_CLIENT", "induscode-desktop");
+		vi.stubEnv("INDUSCODE_HUB_LAUNCHER_VERSION", "0.0.46");
+		vi.stubEnv("INDUSCODE_HUB_LAUNCHER_TRANSPORT", "local");
 		try {
 			const daemonTelemetry = createHubDaemonTelemetry();
 			expect(daemonTelemetry.launcher).toEqual({
-				client: "cline-desktop",
+				client: "induscode-desktop",
 				version: "0.0.46",
 				transport: "local",
 			});
@@ -123,17 +123,17 @@ describe("createHubDaemonTelemetry", () => {
 			// is only attributable through the daemon's resource, since the
 			// span's clientName describes the session's client, not the host.
 			// Claimed, not read: hosted sessions must not inherit the stamp.
-			expect(process.env.CLINE_HUB_LAUNCHER_CLIENT).toBeUndefined();
-			expect(process.env.CLINE_HUB_LAUNCHER_VERSION).toBeUndefined();
-			expect(process.env.CLINE_HUB_LAUNCHER_TRANSPORT).toBeUndefined();
+			expect(process.env.INDUSCODE_HUB_LAUNCHER_CLIENT).toBeUndefined();
+			expect(process.env.INDUSCODE_HUB_LAUNCHER_VERSION).toBeUndefined();
+			expect(process.env.INDUSCODE_HUB_LAUNCHER_TRANSPORT).toBeUndefined();
 			expect(mockCreateConfiguredTelemetryHandle).toHaveBeenCalledWith(
 				expect.objectContaining({
 					resourceAttributes: expect.objectContaining({
-						"cline.hub.launcher.client": "cline-desktop",
-						"cline.hub.launcher.version": "0.0.46",
-						"cline.hub.launcher.transport": "local",
-						"cline.hub.build_id": expect.any(String),
-						"cline.hub.runtime": expect.any(String),
+						"induscode.hub.launcher.client": "induscode-desktop",
+						"induscode.hub.launcher.version": "0.0.46",
+						"induscode.hub.launcher.transport": "local",
+						"induscode.hub.build_id": expect.any(String),
+						"induscode.hub.runtime": expect.any(String),
 					}),
 				}),
 			);
@@ -153,7 +153,7 @@ describe("createHubDaemonTelemetry", () => {
 		vi.advanceTimersByTime(5 * 60 * 1000);
 		expect(mockIdentifyAccount).toHaveBeenCalledExactlyOnceWith(
 			mockTelemetryService,
-			{ id: "usr-456", provider: "cline" },
+			{ id: "usr-456", provider: "induscode" },
 		);
 	});
 
@@ -181,7 +181,7 @@ describe("createHubDaemonTelemetry", () => {
 			mockTelemetryService,
 			{
 				id: "usr-123",
-				provider: "cline",
+				provider: "induscode",
 				organizationId: "org-1",
 				organizationName: "Acme",
 				memberId: "member-9",
@@ -274,25 +274,25 @@ describe("hubDaemonResourceAttributes", () => {
 		expect(
 			hubDaemonResourceAttributes(undefined, {
 				buildId: "build-1",
-				execPath: "C:\\Program Files\\Cline\\cline-cli.exe",
+				execPath: "C:\\Program Files\\IndusCode\\induscode-cli.exe",
 			}),
 		).toEqual({
-			"cline.hub.build_id": "build-1",
-			"cline.hub.runtime": "cline-cli",
-			"cline.hub.launcher.client": "unknown",
-			"cline.hub.launcher.version": "unknown",
-			"cline.hub.launcher.transport": "local",
+			"induscode.hub.build_id": "build-1",
+			"induscode.hub.runtime": "induscode-cli",
+			"induscode.hub.launcher.client": "unknown",
+			"induscode.hub.launcher.version": "unknown",
+			"induscode.hub.launcher.transport": "local",
 		});
 		expect(
 			hubDaemonResourceAttributes(
-				{ client: "cline-cli", version: "3.0.72", transport: "ssh" },
-				{ buildId: "build-2", execPath: "/home/dev/.cline/remote/cline" },
+				{ client: "induscode-cli", version: "3.0.72", transport: "ssh" },
+				{ buildId: "build-2", execPath: "/home/dev/.induscode/remote/induscode" },
 			),
 		).toMatchObject({
-			"cline.hub.runtime": "cline",
-			"cline.hub.launcher.client": "cline-cli",
-			"cline.hub.launcher.version": "3.0.72",
-			"cline.hub.launcher.transport": "ssh",
+			"induscode.hub.runtime": "induscode",
+			"induscode.hub.launcher.client": "induscode-cli",
+			"induscode.hub.launcher.version": "3.0.72",
+			"induscode.hub.launcher.transport": "ssh",
 		});
 	});
 });

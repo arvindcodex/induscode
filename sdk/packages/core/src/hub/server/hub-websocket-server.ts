@@ -6,7 +6,7 @@ import {
 	HUB_CAPABILITIES,
 	MAX_CLIENT_HUB_PROTOCOL_VERSION,
 	MIN_CLIENT_HUB_PROTOCOL_VERSION,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { WebSocketServer } from "ws";
 import corePackage from "../../../package.json";
 import { rememberRecoverableLocalHubUrl, verifyHubConnection } from "../client";
@@ -245,7 +245,7 @@ interface SharedHubServerEntry {
 }
 
 const SHARED_SERVERS = new Map<string, SharedHubServerEntry>();
-const HUB_AUTH_PROTOCOL_PREFIX = "cline-hub-auth.";
+const HUB_AUTH_PROTOCOL_PREFIX = "induscode-hub-auth.";
 const HUB_SOCKET_HEARTBEAT_INTERVAL_MS = 30_000;
 const HUB_STARTUP_ROLLBACK_TIMEOUT_MS = 2_000;
 /** How long ensure waits for a retiring predecessor's endpoint and lock. */
@@ -838,7 +838,7 @@ export async function ensureHubWebSocketServer(
 		options.host !== undefined ||
 		options.port !== undefined ||
 		options.pathname !== undefined ||
-		!!process.env.CLINE_HUB_PORT?.trim();
+		!!process.env.INDUSCODE_HUB_PORT?.trim();
 	const host = options.host ?? "127.0.0.1";
 	const port = options.port ?? resolveDefaultHubPort();
 	const pathname = options.pathname ?? "/hub";

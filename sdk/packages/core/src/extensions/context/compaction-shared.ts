@@ -1,11 +1,11 @@
-import type { ModelInfo, ToolResultContent } from "@cline/llms";
+import type { ModelInfo, ToolResultContent } from "@induscode/llms";
 import {
 	CHARS_PER_TOKEN,
 	createImageAwareReplacer,
 	ESTIMATED_TOKENS_PER_IMAGE,
 	estimateTokens,
 	type MessageWithMetadata,
-} from "@cline/shared";
+} from "@induscode/shared";
 
 export { CHARS_PER_TOKEN, estimateTokens };
 

@@ -1,4 +1,4 @@
-import type { ClineMessage } from "@shared/ExtensionMessage"
+import type { IndusCodeMessage } from "@shared/ExtensionMessage"
 import type React from "react"
 import { useCallback, useEffect, useMemo, useRef } from "react"
 import { Virtuoso } from "react-virtuoso"
@@ -16,7 +16,7 @@ import { createMessageRenderer } from "../messages/MessageRenderer"
 const WAITING_ROW_TS = Number.MIN_SAFE_INTEGER
 
 // Synthetic placeholder rendered while waiting for the model with no visible rows streaming.
-const WAITING_ROW: ClineMessage = {
+const WAITING_ROW: IndusCodeMessage = {
 	ts: WAITING_ROW_TS,
 	type: "say",
 	say: "reasoning",
@@ -25,9 +25,9 @@ const WAITING_ROW: ClineMessage = {
 }
 
 interface MessagesAreaProps {
-	task: ClineMessage
-	groupedMessages: (ClineMessage | ClineMessage[])[]
-	modifiedMessages: ClineMessage[]
+	task: IndusCodeMessage
+	groupedMessages: (IndusCodeMessage | IndusCodeMessage[])[]
+	modifiedMessages: IndusCodeMessage[]
 	scrollBehavior: ScrollBehavior
 	chatState: ChatState
 	messageHandlers: MessageHandlers
@@ -45,8 +45,8 @@ export const MessagesArea: React.FC<MessagesAreaProps> = ({
 	chatState,
 	messageHandlers,
 }) => {
-	const { clineMessages, turnState } = useExtensionState()
-	const lastRawMessage = useMemo(() => clineMessages.at(-1), [clineMessages])
+	const { induscodeMessages, turnState } = useExtensionState()
+	const lastRawMessage = useMemo(() => induscodeMessages.at(-1), [induscodeMessages])
 
 	const {
 		virtuosoRef,
@@ -68,8 +68,8 @@ export const MessagesArea: React.FC<MessagesAreaProps> = ({
 		if (!scrolledPastUserMessage) {
 			return -1
 		}
-		return clineMessages.findIndex((msg) => msg.ts === scrolledPastUserMessage.ts)
-	}, [clineMessages, scrolledPastUserMessage])
+		return induscodeMessages.findIndex((msg) => msg.ts === scrolledPastUserMessage.ts)
+	}, [induscodeMessages, scrolledPastUserMessage])
 
 	// Handler to scroll to the scrolled past user message
 	const handleScrollToUserMessage = useCallback(() => {
@@ -91,7 +91,7 @@ export const MessagesArea: React.FC<MessagesAreaProps> = ({
 	// streaming TurnState has not round-tripped yet, so the replica's turnState is stale
 	// (idle/completed/awaiting_*). Let the loader show optimistically so "Thinking..." renders
 	// the moment the send happens instead of popping in after the state post.
-	const forcePendingResponseLoader = isPendingResponseUnconfirmed(chatState.pendingResponse, turnState, clineMessages.length)
+	const forcePendingResponseLoader = isPendingResponseUnconfirmed(chatState.pendingResponse, turnState, induscodeMessages.length)
 
 	// Keep loader in the message flow (not footer). Show/hide logic (waiting heuristic,
 	// waiting -> reasoning handoff guard, and anti-flash debounce on turn end) lives in the hook.
@@ -112,7 +112,7 @@ export const MessagesArea: React.FC<MessagesAreaProps> = ({
 	// goes back to being an in-list row (unchanged behavior).
 	const showEmptyListLoader = showThinkingLoaderRow && groupedMessages.length === 0
 
-	const displayedGroupedMessages = useMemo<(ClineMessage | ClineMessage[])[]>(() => {
+	const displayedGroupedMessages = useMemo<(IndusCodeMessage | IndusCodeMessage[])[]>(() => {
 		if (!showThinkingLoaderRow || showEmptyListLoader) {
 			return groupedMessages
 		}

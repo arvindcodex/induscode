@@ -1,4 +1,4 @@
-import type { AgentEvent, TeamEvent } from "@cline/core";
+import type { AgentEvent, TeamEvent } from "@induscode/core";
 import type React from "react";
 import { createContext, useEffect, useRef } from "react";
 import type {

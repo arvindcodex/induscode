@@ -1,4 +1,4 @@
-// Cline SDK `ApiHandler` (from `@cline/llms`) backed by the VS Code Language
+// IndusCode SDK `ApiHandler` (from `@induscode/llms`) backed by the VS Code Language
 // Model API (`vscode.lm`). Registered via `registerHandler("vscode-lm", ...)`
 // (see ./register-vscode-lm.ts) so the SDK routes "vscode-lm" inference here.
 //
@@ -8,7 +8,7 @@
 // uses) and is parsed back into a `LanguageModelChatSelector` here. See
 // parseVsCodeLmSelector / apps/vscode/src/shared/vsCodeSelectorUtils.ts.
 
-import type { ApiHandler, ApiStreamChunk, HandlerModelInfo, Message, ProviderConfig, ToolDefinition } from "@cline/llms"
+import type { ApiHandler, ApiStreamChunk, HandlerModelInfo, Message, ProviderConfig, ToolDefinition } from "@induscode/llms"
 import { nanoid } from "nanoid"
 import * as vscode from "vscode"
 import { Logger } from "@/shared/services/Logger"
@@ -82,7 +82,7 @@ export class VsCodeLmHandler implements ApiHandler {
 			)
 		} catch (error) {
 			const message = error instanceof Error ? error.message : "Unknown error"
-			throw new Error(`Cline <Language Model API>: Failed to select model: ${message}`)
+			throw new Error(`IndusCode <Language Model API>: Failed to select model: ${message}`)
 		}
 	}
 
@@ -117,7 +117,7 @@ export class VsCodeLmHandler implements ApiHandler {
 
 		try {
 			const requestOptions: vscode.LanguageModelChatRequestOptions = {
-				justification: `Cline would like to use '${client.name}' from '${client.vendor}', Click 'Allow' to proceed.`,
+				justification: `IndusCode would like to use '${client.name}' from '${client.vendor}', Click 'Allow' to proceed.`,
 			}
 
 			// Native tool calling: the VS Code LM API (finalized in VS Code 1.95)
@@ -191,13 +191,13 @@ export class VsCodeLmHandler implements ApiHandler {
 		} catch (error) {
 			this.ensureCleanState()
 			if (error instanceof vscode.CancellationError) {
-				throw new Error("Cline <Language Model API>: Request cancelled by user")
+				throw new Error("IndusCode <Language Model API>: Request cancelled by user")
 			}
 			if (error instanceof Error) {
-				Logger.error("Cline <Language Model API>: Stream error:", error)
+				Logger.error("IndusCode <Language Model API>: Stream error:", error)
 				throw error
 			}
-			throw new Error(`Cline <Language Model API>: Response stream error: ${String(error)}`)
+			throw new Error(`IndusCode <Language Model API>: Response stream error: ${String(error)}`)
 		} finally {
 			this.ensureCleanState()
 		}

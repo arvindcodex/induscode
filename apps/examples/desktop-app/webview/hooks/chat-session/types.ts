@@ -109,7 +109,7 @@ export type ChatApiResult = {
 		totalCost?: number;
 	};
 	iterations?: number;
-	/** The sidecar rebuilt the session after Cline Hub restarted mid-turn. */
+	/** The sidecar rebuilt the session after IndusCode Hub restarted mid-turn. */
 	hubInterrupted?: boolean;
 	finishReason?:
 		| "completed"

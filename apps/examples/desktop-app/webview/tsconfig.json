@@ -3,14 +3,14 @@
 	"compilerOptions": {
 		"paths": {
 			"@/*": ["./*"],
-			"@cline/agents": ["../../../../sdk/packages/agents/src/index.ts"],
-			"@cline/core": ["../../../../sdk/packages/core/src/index.ts"],
-			"@cline/shared": ["../../../../sdk/packages/shared/src/index.ts"],
-			"@cline/shared/storage": [
+			"@induscode/agents": ["../../../../sdk/packages/agents/src/index.ts"],
+			"@induscode/core": ["../../../../sdk/packages/core/src/index.ts"],
+			"@induscode/shared": ["../../../../sdk/packages/shared/src/index.ts"],
+			"@induscode/shared/storage": [
 				"../../../../sdk/packages/shared/src/storage/index.ts"
 			],
-			"@cline/shared/db": ["../../../../sdk/packages/shared/src/db/index.ts"],
-			"@cline/shared/*": [
+			"@induscode/shared/db": ["../../../../sdk/packages/shared/src/db/index.ts"],
+			"@induscode/shared/*": [
 				"../../../../sdk/packages/shared/src/*",
 				"../../../../sdk/packages/shared/src/*/index.ts"
 			]

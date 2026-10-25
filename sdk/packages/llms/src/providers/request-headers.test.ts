@@ -6,14 +6,14 @@ function jwtWithPayload(payload: Record<string, unknown>): string {
 }
 
 describe("resolveProviderRequestHeaders", () => {
-	it("adds required Cline billing headers after stored, config, and session layers", () => {
+	it("adds required IndusCode billing headers after stored, config, and session layers", () => {
 		const headers = resolveProviderRequestHeaders({
-			providerId: "cline",
+			providerId: "induscode",
 			sessionId: "sess-1",
 			source: "cli",
 			defaultSource: "core",
 			client: {
-				name: "cline-cli",
+				name: "induscode-cli",
 				version: "3.0.38",
 			},
 			coreVersion: "0.2.0",
@@ -36,11 +36,11 @@ describe("resolveProviderRequestHeaders", () => {
 		});
 
 		expect(headers).toMatchObject({
-			"HTTP-Referer": "https://cline.bot",
-			"X-Title": "Cline",
-			"User-Agent": "Cline/3.0.38",
+			"HTTP-Referer": "https://induscode.bot",
+			"X-Title": "IndusCode",
+			"User-Agent": "IndusCode/3.0.38",
 			"X-IS-MULTIROOT": "false",
-			"X-CLIENT-TYPE": "cline-cli",
+			"X-CLIENT-TYPE": "induscode-cli",
 			"X-CLIENT-VERSION": "3.0.38",
 			"X-PLATFORM": "cli",
 			"X-PLATFORM-VERSION": "3.0.38",
@@ -53,9 +53,9 @@ describe("resolveProviderRequestHeaders", () => {
 		});
 	});
 
-	it("uses host client context for Cline billing headers when provided", () => {
+	it("uses host client context for IndusCode billing headers when provided", () => {
 		const headers = resolveProviderRequestHeaders({
-			providerId: "cline-pass",
+			providerId: "induscode-pass",
 			sessionId: "sess-vscode",
 			source: "core",
 			defaultSource: "core",
@@ -70,7 +70,7 @@ describe("resolveProviderRequestHeaders", () => {
 		});
 
 		expect(headers).toMatchObject({
-			"User-Agent": "Cline/9.9.9",
+			"User-Agent": "IndusCode/9.9.9",
 			"X-IS-MULTIROOT": "true",
 			"X-CLIENT-TYPE": "VSCode Extension",
 			"X-CLIENT-VERSION": "9.9.9",
@@ -110,9 +110,9 @@ describe("resolveProviderRequestHeaders", () => {
 		});
 
 		expect(headers).toMatchObject({
-			originator: "cline",
+			originator: "induscode",
 			session_id: "sess-codex",
-			"User-Agent": "Cline/3.0.38",
+			"User-Agent": "IndusCode/3.0.38",
 			"ChatGPT-Account-Id": "acct-derived",
 			"x-config": "config",
 			"x-stored": "stored",
@@ -121,7 +121,7 @@ describe("resolveProviderRequestHeaders", () => {
 
 	it("omits X-Task-ID when the request is not part of a session", () => {
 		const headers = resolveProviderRequestHeaders({
-			providerId: "cline",
+			providerId: "induscode",
 			source: "vscode",
 			defaultSource: "vscode",
 			client: {
@@ -132,9 +132,9 @@ describe("resolveProviderRequestHeaders", () => {
 		});
 
 		expect(headers).toMatchObject({
-			"HTTP-Referer": "https://cline.bot",
-			"X-Title": "Cline",
-			"User-Agent": "Cline/4.1.16",
+			"HTTP-Referer": "https://induscode.bot",
+			"X-Title": "IndusCode",
+			"User-Agent": "IndusCode/4.1.16",
 			"X-CLIENT-TYPE": "VSCode Extension",
 			"X-CLIENT-VERSION": "4.1.16",
 			"X-PLATFORM": "vscode",
@@ -152,7 +152,7 @@ describe("resolveProviderRequestHeaders", () => {
 			openAiCodex: { userAgentVersion: "3.0.38" },
 		});
 
-		expect(headers).toMatchObject({ originator: "cline" });
+		expect(headers).toMatchObject({ originator: "induscode" });
 		expect(headers && "session_id" in headers).toBe(false);
 	});
 
@@ -202,7 +202,7 @@ describe("resolveProviderRequestHeaders", () => {
 				}),
 			).toEqual({
 				"x-opencode-session": sessionId,
-				"User-Agent": "Cline/1.2.3",
+				"User-Agent": "IndusCode/1.2.3",
 				"x-stored": "kept",
 				"x-config": "kept",
 				"x-session": "kept",

@@ -1,13 +1,13 @@
 import {
-	completeClineDeviceAuth,
+	completeIndusCodeDeviceAuth,
 	type ITelemetryService,
 	isOAuthProvider,
 	loginLocalProvider,
 	type ProviderSettingsManager,
 	saveLocalProviderOAuthCredentials,
-	startClineDeviceAuth,
-} from "@cline/core";
-import { getClineEnvironmentConfig } from "@cline/shared";
+	startIndusCodeDeviceAuth,
+} from "@induscode/core";
+import { getIndusCodeEnvironmentConfig } from "@induscode/shared";
 import { identifyFeatureFlagsAccount } from "../../../utils/feature-flags";
 import open from "../../../utils/open";
 
@@ -19,8 +19,8 @@ export function isOnboardingOAuthProviderId(
 	return isOAuthProvider(providerId);
 }
 
-function isClineAccountOAuthProvider(providerId: string): boolean {
-	return providerId === "cline" || providerId === "cline-pass";
+function isIndusCodeAccountOAuthProvider(providerId: string): boolean {
+	return providerId === "induscode" || providerId === "induscode-pass";
 }
 
 export function runOAuthAuthFlow(input: {
@@ -61,7 +61,7 @@ export function runOAuthAuthFlow(input: {
 				existing,
 				credentials,
 			);
-			if (isClineAccountOAuthProvider(input.providerId)) {
+			if (isIndusCodeAccountOAuthProvider(input.providerId)) {
 				void identifyFeatureFlagsAccount({
 					id: credentials.accountId,
 					email: credentials.email,
@@ -91,13 +91,13 @@ export function runDeviceCodeAuthFlow(input: {
 		input.providerId,
 	);
 	const apiBaseUrl =
-		existing?.baseUrl?.trim() || getClineEnvironmentConfig().apiBaseUrl;
+		existing?.baseUrl?.trim() || getIndusCodeEnvironmentConfig().apiBaseUrl;
 
-	// `startClineDeviceAuth` only requests the user/device code pair; the
-	// `auth_started` telemetry event is emitted by `completeClineDeviceAuth`
+	// `startIndusCodeDeviceAuth` only requests the user/device code pair; the
+	// `auth_started` telemetry event is emitted by `completeIndusCodeDeviceAuth`
 	// (which owns the actual login lifecycle), so we intentionally do NOT
-	// pass telemetry into `startClineDeviceAuth` here.
-	startClineDeviceAuth()
+	// pass telemetry into `startIndusCodeDeviceAuth` here.
+	startIndusCodeDeviceAuth()
 		.then((result) => {
 			if (input.isAborted()) return;
 			const verifyUrl =
@@ -113,7 +113,7 @@ export function runDeviceCodeAuthFlow(input: {
 				input.setStatus("Could not open browser. Visit the URL below.");
 			}
 
-			completeClineDeviceAuth({
+			completeIndusCodeDeviceAuth({
 				deviceCode: result.deviceCode,
 				expiresInSeconds: result.expiresInSeconds,
 				pollIntervalSeconds: result.pollIntervalSeconds,
@@ -129,7 +129,7 @@ export function runDeviceCodeAuthFlow(input: {
 						existing,
 						credentials,
 					);
-					if (isClineAccountOAuthProvider(input.providerId)) {
+					if (isIndusCodeAccountOAuthProvider(input.providerId)) {
 						void identifyFeatureFlagsAccount({
 							id: credentials.accountId,
 							email: credentials.email,

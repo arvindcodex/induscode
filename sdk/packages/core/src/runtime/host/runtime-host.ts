@@ -1,9 +1,9 @@
-import type * as LlmsProviders from "@cline/llms";
+import type * as LlmsProviders from "@induscode/llms";
 import type {
 	AgentMode,
 	AgentResult,
 	RuntimeConfigExtensionKind,
-} from "@cline/shared";
+} from "@induscode/shared";
 import type { HookEventPayload } from "../../hooks";
 import type { CheckpointEntry } from "../../hooks/checkpoint-hooks";
 import type { ProviderSettings } from "../../services/llms/provider-settings";
@@ -11,7 +11,7 @@ import type { SessionCompactionState } from "../../session/models/session-compac
 import type { SessionManifest } from "../../session/models/session-manifest";
 import type { SessionSource } from "../../types/common";
 import type {
-	ClineCoreStartConfig,
+	IndusCodeCoreStartConfig,
 	CoreSessionConfig,
 } from "../../types/config";
 import type {
@@ -168,13 +168,13 @@ export interface StartSessionInput {
 	 */
 	localRuntime?: LocalRuntimeStartOptions;
 	capabilities?: RuntimeCapabilities;
-	toolPolicies?: import("@cline/shared").AgentConfig["toolPolicies"];
+	toolPolicies?: import("@induscode/shared").AgentConfig["toolPolicies"];
 	/**
 	 * Which plugins this session uses, shaped like `toolPolicies`:
 	 * `{ "*": { enabled: true }, "my-plugin": { enabled: false } }`. Plugins
 	 * are enabled by default. Plugin tools still go through `toolPolicies`.
 	 */
-	plugins?: import("@cline/shared").PluginPolicies;
+	plugins?: import("@induscode/shared").PluginPolicies;
 }
 
 /** Session input after the execution host has resolved a concrete workspace. */
@@ -183,7 +183,7 @@ export interface ResolvedStartSessionInput
 	config: RuntimeSessionConfig;
 }
 
-export function splitCoreSessionConfig(config: ClineCoreStartConfig): {
+export function splitCoreSessionConfig(config: IndusCodeCoreStartConfig): {
 	config: StartSessionConfig;
 	localRuntime?: LocalRuntimeStartOptions;
 } {
@@ -255,7 +255,7 @@ export interface StartSessionResult {
 	 * Plugins the session asked for but does not have because they failed or
 	 * are disabled. Clients should show these to the user.
 	 */
-	pluginIssues?: import("@cline/shared").SessionPluginIssue[];
+	pluginIssues?: import("@induscode/shared").SessionPluginIssue[];
 }
 
 export interface SendSessionInput {

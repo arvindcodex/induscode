@@ -1,12 +1,12 @@
 # E2E Agent Tests
 
-Full end-to-end tests using real-world tasks from cline-bench.
+Full end-to-end tests using real-world tasks from induscode-bench.
 
 ## Overview
 
-These tests run Cline against production-grade coding problems derived from actual user sessions. Each task:
+These tests run IndusCode against production-grade coding problems derived from actual user sessions. Each task:
 - Starts with a broken codebase in Docker
-- Gives Cline the task description
+- Gives IndusCode the task description
 - Verifies the fix with pytest
 
 ## Prerequisites
@@ -40,20 +40,20 @@ These tests run Cline against production-grade coding problems derived from actu
 
 ```bash
 # Run all tasks with default settings (Anthropic, Docker)
-npx tsx evals/e2e/run-cline-bench.ts
+npx tsx evals/e2e/run-induscode-bench.ts
 
 # Run specific task
-npx tsx evals/e2e/run-cline-bench.ts --tasks discord
+npx tsx evals/e2e/run-induscode-bench.ts --tasks discord
 
 # Use different provider/model
-npx tsx evals/e2e/run-cline-bench.ts --provider openai --model gpt-4o
+npx tsx evals/e2e/run-induscode-bench.ts --provider openai --model gpt-4o
 
 # Run on Daytona cloud (faster, parallel)
 export DAYTONA_API_KEY=dtn_...
-npx tsx evals/e2e/run-cline-bench.ts --env daytona
+npx tsx evals/e2e/run-induscode-bench.ts --env daytona
 
 # Output to JSON
-npx tsx evals/e2e/run-cline-bench.ts --output results.json
+npx tsx evals/e2e/run-induscode-bench.ts --output results.json
 ```
 
 ## CLI Options
@@ -69,7 +69,7 @@ npx tsx evals/e2e/run-cline-bench.ts --output results.json
 
 ## Tasks
 
-Current tasks from cline-bench (12 total):
+Current tasks from induscode-bench (12 total):
 
 1. **every-plugin-api-migration** - Migrate API calls in plugin
 2. **police-sync-segfault** - Fix segmentation fault
@@ -95,7 +95,7 @@ See `.github/workflows/nightly-evals.yml` for CI configuration.
 
 ## Results
 
-Results are written to `evals/cline-bench/jobs/` directory by Harbor:
+Results are written to `evals/induscode-bench/jobs/` directory by Harbor:
 
 ```
 jobs/
@@ -103,7 +103,7 @@ jobs/
     ├── result.json              # Aggregate results
     └── <task-id>__<hash>/
         ├── result.json          # Trial result
-        ├── agent/cline.txt      # Conversation log
+        ├── agent/induscode.txt      # Conversation log
         └── verifier/reward.txt  # 1 (pass) or 0 (fail)
 ```
 

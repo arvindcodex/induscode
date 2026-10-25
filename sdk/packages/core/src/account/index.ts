@@ -1,29 +1,29 @@
 export {
-	ClineAccountService,
-	type ClineAccountServiceOptions,
-} from "./cline-account-service";
+	IndusCodeAccountService,
+	type IndusCodeAccountServiceOptions,
+} from "./induscode-account-service";
 export {
-	type ClineAccountOperations,
-	executeClineAccountAction,
-	isClineAccountActionRequest,
+	type IndusCodeAccountOperations,
+	executeIndusCodeAccountAction,
+	isIndusCodeAccountActionRequest,
 	type ProviderActionExecutor,
-	RpcClineAccountService,
+	RpcIndusCodeAccountService,
 } from "./rpc";
 export {
-	type ClineAccountTelemetryIdentity,
-	persistClineAccountTelemetryIdentity,
-	resolveClineAccountTelemetryIdentity,
+	type IndusCodeAccountTelemetryIdentity,
+	persistIndusCodeAccountTelemetryIdentity,
+	resolveIndusCodeAccountTelemetryIdentity,
 } from "./telemetry";
 export type {
-	ClineAccountBalance,
-	ClineAccountOrganization,
-	ClineAccountOrganizationBalance,
-	ClineAccountOrganizationUsageTransaction,
-	ClineAccountPaymentTransaction,
-	ClineAccountUsageTransaction,
-	ClineAccountUser,
-	ClineOrganization,
-	ClineSubscriptionPlan,
+	IndusCodeAccountBalance,
+	IndusCodeAccountOrganization,
+	IndusCodeAccountOrganizationBalance,
+	IndusCodeAccountOrganizationUsageTransaction,
+	IndusCodeAccountPaymentTransaction,
+	IndusCodeAccountUsageTransaction,
+	IndusCodeAccountUser,
+	IndusCodeOrganization,
+	IndusCodeSubscriptionPlan,
 	FeaturebaseTokenResponse,
 	UserCurrentPlan,
 	UserRemoteConfigOrganization,

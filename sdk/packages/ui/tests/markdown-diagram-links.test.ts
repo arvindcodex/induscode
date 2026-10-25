@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 //
-// `@cline/ui` keeps its tests in this package-level `tests/` directory (see
+// `@induscode/ui` keeps its tests in this package-level `tests/` directory (see
 // `vitest.config.ts`'s `include`), unlike the product webviews, which colocate
 // test files beside their source. jsdom is requested per-file because the
 // package default is `node`; that default exercises the pattern-based fallback
@@ -15,13 +15,13 @@ import {
  * Captured from Mermaid 11.16.1 rendering, under `securityLevel: "strict"`:
  *
  *   flowchart LR
- *     A[Official Cline Docs] --> B[End]
+ *     A[Official IndusCode Docs] --> B[End]
  *     click A "https://evil.example.com/harvest?t=1"
  *
  * Strict mode blocks scripts and dangerous schemes but still emits a live
  * `<a xlink:href>` for an http(s) `click` directive, with no target and no rel.
  */
-const RENDERED_DIAGRAM = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="d1" viewBox="0 0 240 80"><g class="nodes"><a xlink:href="https://evil.example.com/harvest?t=1" data-look="classic" transform="translate(119.87890625, 35)"><g class="node default clickable"><text>Official Cline Docs</text></g></a></g></svg>`;
+const RENDERED_DIAGRAM = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="d1" viewBox="0 0 240 80"><g class="nodes"><a xlink:href="https://evil.example.com/harvest?t=1" data-look="classic" transform="translate(119.87890625, 35)"><g class="node default clickable"><text>Official IndusCode Docs</text></g></a></g></svg>`;
 
 describe("neutralizeDiagramLinks (DOM parser path)", () => {
 	test("strips the navigable href from a rendered diagram link", () => {
@@ -33,7 +33,7 @@ describe("neutralizeDiagramLinks (DOM parser path)", () => {
 			`${DIAGRAM_LINK_HREF_ATTRIBUTE}="https://evil.example.com/harvest?t=1"`,
 		);
 		// The diagram itself must survive intact.
-		expect(sanitized).toContain("Official Cline Docs");
+		expect(sanitized).toContain("Official IndusCode Docs");
 	});
 
 	test("leaves the anchor unable to navigate once parsed back into the DOM", () => {

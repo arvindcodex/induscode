@@ -29,7 +29,7 @@ describe("disableCurrentDirectoryExecutableSearch", () => {
 	it.runIf(process.platform === "win32")(
 		"keeps a cmd.exe planted in the working directory from shadowing the real one",
 		async () => {
-			const cwd = await mkdtemp(join(tmpdir(), "cline-planted-exe-"));
+			const cwd = await mkdtemp(join(tmpdir(), "induscode-planted-exe-"));
 			const previous =
 				process.env[NO_DEFAULT_CURRENT_DIRECTORY_IN_EXE_PATH_ENV];
 			try {

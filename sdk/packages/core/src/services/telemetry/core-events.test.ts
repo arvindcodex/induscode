@@ -8,7 +8,7 @@ import {
 	TASK_PROVIDER_REQUEST_STARTED_EVENT,
 	TASK_PROVIDER_STREAM_FAILED_EVENT,
 	TASK_PROVIDER_STREAM_STARTED_EVENT,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { describe, expect, test, vi } from "vitest";
 import {
 	CORE_TELEMETRY_EVENTS,
@@ -40,7 +40,7 @@ const gitSnapshot: GitSnapshotProperties = {
 	schema_version: 1,
 	sessionId: "session-1",
 	ulid: "session-1",
-	providerId: "cline",
+	providerId: "induscode",
 	workspace_id: "opaque-workspace",
 	workspace_root_count: 2,
 	observation_window_id: "window-1",
@@ -937,7 +937,7 @@ describe("identifyAccount", () => {
 		identifyAccount(stub.telemetry, {
 			id: "usr-123",
 			email: "test@example.com",
-			provider: "cline",
+			provider: "induscode",
 		});
 		expect(vi.mocked(stub.telemetry.setDistinctId)).toHaveBeenCalledWith(
 			"usr-123",
@@ -949,7 +949,7 @@ describe("identifyAccount", () => {
 				user_id: "usr-123",
 				account_id: "usr-123",
 				account_email: "test@example.com",
-				provider: "cline",
+				provider: "induscode",
 			}),
 		);
 	});
@@ -959,7 +959,7 @@ describe("identifyAccount", () => {
 		identifyAccount(stub.telemetry, {
 			id: "usr-456",
 			email: "alice@example.com",
-			provider: "cline",
+			provider: "induscode",
 			organizationId: "org-1",
 			organizationName: "Acme",
 			memberId: "member-9",
@@ -979,7 +979,7 @@ describe("identifyAccount", () => {
 
 	test("user_id and account_id are set to the same value", () => {
 		const stub = createTelemetryStub();
-		identifyAccount(stub.telemetry, { id: "usr-789", provider: "cline" });
+		identifyAccount(stub.telemetry, { id: "usr-789", provider: "induscode" });
 		const call = vi.mocked(stub.telemetry.updateCommonProperties).mock
 			.calls[0]?.[0] as Record<string, unknown> | undefined;
 		expect(call?.user_id).toBe("usr-789");
@@ -991,7 +991,7 @@ describe("identifyAccount", () => {
 		const stub = createTelemetryStub();
 		identifyAccount(stub.telemetry, {
 			email: "anon@example.com",
-			provider: "cline",
+			provider: "induscode",
 		});
 		expect(stub.telemetry.setDistinctId).not.toHaveBeenCalled();
 	});
@@ -1012,7 +1012,7 @@ describe("identifyAccount", () => {
 
 	test("no-ops when telemetry is undefined", () => {
 		expect(() =>
-			identifyAccount(undefined, { id: "usr-123", provider: "cline" }),
+			identifyAccount(undefined, { id: "usr-123", provider: "induscode" }),
 		).not.toThrow();
 	});
 });

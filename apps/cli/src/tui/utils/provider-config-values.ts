@@ -1,4 +1,4 @@
-import type { ProviderConfigFieldKey } from "@cline/core";
+import type { ProviderConfigFieldKey } from "@induscode/core";
 import { resolveAwsRegion } from "../../utils/aws-region";
 
 export type ProviderConfigValues = Partial<

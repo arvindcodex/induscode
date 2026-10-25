@@ -1,9 +1,9 @@
 import { relative, sep } from "node:path";
 import {
-	resolveClineDataDir,
-	resolveClineDir,
+	resolveIndusCodeDataDir,
+	resolveIndusCodeDir,
 	setHomeDir,
-} from "@cline/shared/storage";
+} from "@induscode/shared/storage";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { CLI_DEFAULT_MAX_CONSECUTIVE_MISTAKES } from "../runtime/defaults";
 import { createProgram } from "./program";
@@ -14,13 +14,13 @@ function tildePath(absolutePath: string, home: string): string {
 }
 
 describe("root option help text", () => {
-	const FAKE_HOME = "/home/cline-help-test";
+	const FAKE_HOME = "/home/induscode-help-test";
 	const savedEnv: Record<string, string | undefined> = {};
 
 	beforeAll(() => {
 		// Pin the resolver inputs so the defaults below are the true defaults
-		// (no CLINE_DIR/CLINE_DATA_DIR overrides, known home directory).
-		for (const key of ["CLINE_DIR", "CLINE_DATA_DIR"]) {
+		// (no INDUSCODE_DIR/INDUSCODE_DATA_DIR overrides, known home directory).
+		for (const key of ["INDUSCODE_DIR", "INDUSCODE_DATA_DIR"]) {
 			savedEnv[key] = process.env[key];
 			delete process.env[key];
 		}
@@ -44,13 +44,13 @@ describe("root option help text", () => {
 			.configureHelp({ helpWidth: 500 })
 			.helpInformation();
 
-		const configDefault = tildePath(resolveClineDir(), FAKE_HOME);
-		const dataDirDefault = tildePath(resolveClineDataDir(), FAKE_HOME);
+		const configDefault = tildePath(resolveIndusCodeDir(), FAKE_HOME);
+		const dataDirDefault = tildePath(resolveIndusCodeDataDir(), FAKE_HOME);
 
 		// Sanity-check the resolvers themselves so the assertions below can't
 		// silently drift along with a resolver regression.
-		expect(configDefault).toBe("~/.cline");
-		expect(dataDirDefault).toBe("~/.cline/data");
+		expect(configDefault).toBe("~/.induscode");
+		expect(dataDirDefault).toBe("~/.induscode/data");
 
 		expect(help).toContain(
 			`Configuration directory (default: ${configDefault})`,

@@ -1,4 +1,4 @@
-import { CORE_BUILD_VERSION } from "@cline/core"
+import { CORE_BUILD_VERSION } from "@induscode/core"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { version as extensionVersion } from "../../package.json"
 import { buildSdkProviderConfig } from "./sdk-api-handler"
@@ -28,15 +28,15 @@ describe("buildSdkProviderConfig", () => {
 		vi.clearAllMocks()
 	})
 
-	it("uses shared Cline OAuth credentials for ClinePass direct handlers", () => {
+	it("uses shared IndusCode OAuth credentials for IndusCodePass direct handlers", () => {
 		mocks.providerSettingsManager.getProviderSettings.mockImplementation((providerId: string) => {
-			if (providerId !== "cline") {
+			if (providerId !== "induscode") {
 				return undefined
 			}
 			return {
-				provider: "cline",
+				provider: "induscode",
 				auth: {
-					accessToken: "workos:shared-cline-token",
+					accessToken: "workos:shared-induscode-token",
 					refreshToken: "refresh-token",
 				},
 			}
@@ -44,18 +44,18 @@ describe("buildSdkProviderConfig", () => {
 
 		const providerConfig = buildSdkProviderConfig(
 			{
-				actModeApiProvider: "cline-pass",
-				actModeClinePassModelId: "cline-pass/glm-5.2",
+				actModeApiProvider: "induscode-pass",
+				actModeIndusCodePassModelId: "induscode-pass/glm-5.2",
 			},
 			"act",
 		)
 
 		expect(providerConfig).toMatchObject({
-			providerId: "cline-pass",
-			modelId: "cline-pass/glm-5.2",
-			apiKey: "workos:shared-cline-token",
+			providerId: "induscode-pass",
+			modelId: "induscode-pass/glm-5.2",
+			apiKey: "workos:shared-induscode-token",
 		})
-		expect(mocks.providerSettingsManager.getProviderSettings).toHaveBeenCalledWith("cline")
+		expect(mocks.providerSettingsManager.getProviderSettings).toHaveBeenCalledWith("induscode")
 	})
 
 	it("uses provider-specific settings for SDK-backed direct handlers", () => {
@@ -106,15 +106,15 @@ describe("buildSdkProviderConfig", () => {
 		})
 	})
 
-	it("attaches the Cline surface headers for Cline billing providers", () => {
+	it("attaches the IndusCode surface headers for IndusCode billing providers", () => {
 		mocks.providerSettingsManager.getProviderSettings.mockReturnValue({
-			provider: "cline",
-			apiKey: "cline-token",
+			provider: "induscode",
+			apiKey: "induscode-token",
 		})
 
 		const providerConfig = buildSdkProviderConfig(
 			{
-				actModeApiProvider: "cline",
+				actModeApiProvider: "induscode",
 				actModeApiModelId: "deepseek/deepseek-v4-flash",
 			},
 			"act",
@@ -130,9 +130,9 @@ describe("buildSdkProviderConfig", () => {
 		)
 
 		expect(providerConfig.headers).toMatchObject({
-			"HTTP-Referer": "https://cline.bot",
-			"X-Title": "Cline",
-			"User-Agent": "Cline/4.1.16",
+			"HTTP-Referer": "https://induscode.bot",
+			"X-Title": "IndusCode",
+			"User-Agent": "IndusCode/4.1.16",
 			"X-IS-MULTIROOT": "false",
 			"X-CLIENT-TYPE": "VSCode Extension",
 			"X-CLIENT-VERSION": "4.1.16",
@@ -143,16 +143,16 @@ describe("buildSdkProviderConfig", () => {
 		expect(providerConfig.headers && "X-Task-ID" in providerConfig.headers).toBe(false)
 	})
 
-	it("attaches the Cline surface headers for ClinePass", () => {
+	it("attaches the IndusCode surface headers for IndusCodePass", () => {
 		mocks.providerSettingsManager.getProviderSettings.mockReturnValue({
-			provider: "cline",
-			auth: { accessToken: "workos:shared-cline-token" },
+			provider: "induscode",
+			auth: { accessToken: "workos:shared-induscode-token" },
 		})
 
 		const providerConfig = buildSdkProviderConfig(
 			{
-				actModeApiProvider: "cline-pass",
-				actModeClinePassModelId: "cline-pass/glm-5.2",
+				actModeApiProvider: "induscode-pass",
+				actModeIndusCodePassModelId: "induscode-pass/glm-5.2",
 			},
 			"act",
 		)
@@ -162,11 +162,11 @@ describe("buildSdkProviderConfig", () => {
 			"X-CLIENT-TYPE": "VSCode Extension",
 			"X-CLIENT-VERSION": extensionVersion,
 			"X-CORE-VERSION": CORE_BUILD_VERSION,
-			"User-Agent": `Cline/${extensionVersion}`,
+			"User-Agent": `IndusCode/${extensionVersion}`,
 		})
 	})
 
-	it("does not attach Cline surface headers to other providers, but keeps their stored headers", () => {
+	it("does not attach IndusCode surface headers to other providers, but keeps their stored headers", () => {
 		mocks.providerSettingsManager.getProviderSettings.mockReturnValue({
 			provider: "anthropic",
 			apiKey: "sk-ant",

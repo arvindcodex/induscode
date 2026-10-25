@@ -2,9 +2,9 @@ import {
 	agentMarkdownControls,
 	DIAGRAM_LINK_HREF_ATTRIBUTE,
 	markdownCodeHighlighter,
-} from "@cline/ui/components/markdown";
-import { createMermaidRenderer } from "@cline/ui/components/mermaid-block";
-import type { MermaidModuleLoader } from "@cline/ui/components/mermaid-diagram";
+} from "@induscode/ui/components/markdown";
+import { createMermaidRenderer } from "@induscode/ui/components/mermaid-block";
+import type { MermaidModuleLoader } from "@induscode/ui/components/mermaid-diagram";
 import { cjk } from "@streamdown/cjk";
 import type {
 	ComponentProps,
@@ -64,7 +64,7 @@ export function MarkdownLinkSafetyModal({
 				<AlertDialogHeader>
 					<AlertDialogTitle>Open external link?</AlertDialogTitle>
 					<AlertDialogDescription>
-						You are about to leave Cline and visit this address.
+						You are about to leave IndusCode and visit this address.
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<div className="max-h-32 overflow-y-auto wrap-break-word rounded-md bg-muted p-3 font-mono text-sm">
@@ -317,7 +317,7 @@ const markdownComponents = {
 /**
  * Diagram links never reach {@link SafeMarkdownLink}: Streamdown injects the
  * rendered Mermaid SVG with `dangerouslySetInnerHTML`, so React component
- * overrides do not apply inside it. `@cline/ui` strips the navigable href from
+ * overrides do not apply inside it. `@induscode/ui` strips the navigable href from
  * those anchors and leaves the destination on
  * {@link DIAGRAM_LINK_HREF_ATTRIBUTE}, so they cannot navigate the webview on
  * their own. Re-attach them here to the same confirmation the deceptive-link
@@ -399,7 +399,7 @@ export const MemoizedMarkdown = memo(
 				onPointerDownCapture={recordDiagramLinkPress}
 			>
 				<Streamdown
-					className={cn("cline-markdown", classNames)}
+					className={cn("induscode-markdown", classNames)}
 					components={markdownComponents}
 					controls={agentMarkdownControls}
 					dir="auto"

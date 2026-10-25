@@ -17,7 +17,7 @@ const ALL_SETTINGS_SECTIONS = [
 	"About",
 ] as const;
 
-// Customize is the unified hub for everything that extends Cline — skills,
+// Customize is the unified hub for everything that extends IndusCode — skills,
 // MCP servers, plugins, rules, hooks, and tools. "Customize" is the installed
 // inventory (labeled "Installed" in the sidebar group); "Marketplace" is the
 // dedicated browse-and-install directory.

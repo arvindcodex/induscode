@@ -236,7 +236,7 @@ export function useLocalCommandActions(input: {
 				clearConversation: onClearConversation,
 				openHelp,
 				openHistory,
-				exitCline: onExit,
+				exitIndusCode: onExit,
 			});
 		},
 		[

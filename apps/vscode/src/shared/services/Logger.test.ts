@@ -33,8 +33,8 @@ describe("Logger", () => {
 
 	describe("without IS_DEV (production)", () => {
 		it("appends the message of an Error argument", () => {
-			Logger.error("[SdkAuthService] Cline OAuth login failed:", new Error("access_denied"))
-			expect(last()).toBe("ERROR [SdkAuthService] Cline OAuth login failed: Error: access_denied")
+			Logger.error("[SdkAuthService] IndusCode OAuth login failed:", new Error("access_denied"))
+			expect(last()).toBe("ERROR [SdkAuthService] IndusCode OAuth login failed: Error: access_denied")
 		})
 
 		it("keeps the error type so non-Error subclasses stay distinguishable", () => {

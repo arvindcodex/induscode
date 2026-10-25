@@ -87,7 +87,7 @@ export function AgentConversationLayout({
 		<div
 			className={
 				welcome
-					? "relative h-full min-h-0 overflow-hidden bg-cline-ui-background"
+					? "relative h-full min-h-0 overflow-hidden bg-induscode-ui-background"
 					: "contents"
 			}
 		>

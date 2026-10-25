@@ -2,8 +2,8 @@ import type {
 	HubClientRegistration,
 	HubCommandEnvelope,
 	HubReplyEnvelope,
-} from "@cline/shared";
-import { createSessionId } from "@cline/shared";
+} from "@induscode/shared";
+import { createSessionId } from "@induscode/shared";
 import {
 	asPlainRecord,
 	errorReply,

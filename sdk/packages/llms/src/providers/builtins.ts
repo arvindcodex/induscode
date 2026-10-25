@@ -1,18 +1,18 @@
 import {
-	CLINE_DEFAULT_MODEL_ID,
+	INDUSCODE_DEFAULT_MODEL_ID,
 	type GatewayModelDefinition,
 	type GatewayModelOperationCapability,
 	type GatewayModelToolCapability,
 	type GatewayProviderManifest,
 	type GatewayProviderMetadata,
 	type GatewayProviderSettings,
-	getClineEnvironmentConfig,
+	getIndusCodeEnvironmentConfig,
 	type JsonValue,
 	type ProviderCapability,
 	type ProviderConfigField,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { getGeneratedModelsForProvider } from "../catalog/catalog.generated-access";
-import { GENERATED_CLINE_RECOMMENDED_MODELS } from "../catalog/cline-recommended.generated";
+import { GENERATED_INDUSCODE_RECOMMENDED_MODELS } from "../catalog/induscode-recommended.generated";
 import { filterImageOutputModels } from "../catalog/model-filters";
 import {
 	isCanonicalModelIdForAliasRules,
@@ -31,14 +31,14 @@ import type {
 	ProviderFamily,
 } from "./builtin-types";
 import {
-	ClineFreeModelLimitError,
-	ClineNotSubscribedError,
-	ClineOrgIndividualInferenceSubscriptionError,
-	ClinePassLimitError,
-	extractClinePassLimitMessage,
-	isClineFreeModelLimitMessage,
-	isClineNotSubscribedMessage,
-	isClineOrgIndividualInferenceSubscriptionMessage,
+	IndusCodeFreeModelLimitError,
+	IndusCodeNotSubscribedError,
+	IndusCodeOrgIndividualInferenceSubscriptionError,
+	IndusCodePassLimitError,
+	extractIndusCodePassLimitMessage,
+	isIndusCodeFreeModelLimitMessage,
+	isIndusCodeNotSubscribedMessage,
+	isIndusCodeOrgIndividualInferenceSubscriptionMessage,
 } from "./errors";
 import { BUILT_IN_PROVIDER, normalizeProviderId } from "./ids";
 import { toGatewayModelCapabilities } from "./model-capabilities";
@@ -62,7 +62,7 @@ export const DEFAULT_INTERNAL_OCA_BASE_URL =
 	"https://code-internal.aiservice.us-chicago-1.oci.oraclecloud.com/20250206/app/litellm";
 export const DEFAULT_EXTERNAL_OCA_BASE_URL =
 	"https://code.aiservice.us-chicago-1.oci.oraclecloud.com/20250206/app/litellm";
-const CLINE_PASS_PROVIDER_ID = "cline-pass";
+const INDUSCODE_PASS_PROVIDER_ID = "induscode-pass";
 const OPENAI_CODEX_DEFAULT_MODEL_ID = "gpt-5.6-terra";
 const NATIVE_WEB_SEARCH_MODEL_TOOL_CAPABILITIES: readonly GatewayModelToolCapability[] =
 	[{ name: "web_search" }];
@@ -96,7 +96,7 @@ const OPENROUTER_STICKY_SESSION_METADATA: GatewayProviderMetadata = {
  * Context window requested from Ollama when neither the resolved model nor
  * the user's configuration supplies one. Matches the pre-SDK-migration
  * handler default; deliberately larger than Ollama's 4096 server default,
- * which cannot fit Cline's agentic prompts. Single source of truth — the
+ * which cannot fit IndusCode's agentic prompts. Single source of truth — the
  * vendor, the VS Code session factory, and the settings UI all import this.
  */
 export const OLLAMA_DEFAULT_CONTEXT_WINDOW = 32768;
@@ -399,8 +399,8 @@ function generatedModels(providerId: string): Record<string, ModelInfo> {
 }
 
 function firstGeneratedModelId(providerId: string): string {
-	// The generated list is release-date ordered and mixes tiers (cline-pass/*,
-	// cline-free/*, :free). Only a subscribed-tier model is a safe default;
+	// The generated list is release-date ordered and mixes tiers (induscode-pass/*,
+	// induscode-free/*, :free). Only a subscribed-tier model is a safe default;
 	// fall back to the first entry only when the catalog has none.
 	const generatedModelList = Object.keys(
 		getGeneratedModelsForProvider(providerId),
@@ -472,10 +472,10 @@ export function getGeneratedModelsForRuntimeProvider(
 		: models;
 }
 
-// Vercel-only model ids surfaced for the Cline provider while the OpenRouter
-// catalog lacks them (Cline's backend routes these to Vercel AI Gateway).
+// Vercel-only model ids surfaced for the IndusCode provider while the OpenRouter
+// catalog lacks them (IndusCode's backend routes these to Vercel AI Gateway).
 // Remove an id once the OpenRouter catalog lists it.
-const VERCEL_ONLY_CLINE_MODEL_IDS: readonly string[] = [
+const VERCEL_ONLY_INDUSCODE_MODEL_IDS: readonly string[] = [
 	"meta/muse-spark-1.2-contributor",
 ];
 
@@ -557,13 +557,14 @@ const APINEX_FREE_MODELS: Record<string, ModelInfo> = {
 		maxTokens: 8192,
 		capabilities: ["streaming", "tools"],
 	},
+	"free/muse-spark-1.3": {
+		id: "free/muse-spark-1.3",
+		name: "Muse Spark 1.3",
+		contextWindow: 1_048_576,
+		maxTokens: 8192,
+		capabilities: ["streaming", "tools", "reasoning"],
+	},
 };
-
-function buildOpenAINativeModels(): Record<string, ModelInfo> {
-	return {
-		...APINEX_FREE_MODELS,
-	};
-}
 
 function buildElevenLabsModels(): Record<string, ModelInfo> {
 	return {
@@ -583,8 +584,8 @@ function buildElevenLabsModels(): Record<string, ModelInfo> {
 	};
 }
 
-function buildClineModels(): Record<string, ModelInfo> {
-	// Cline is OpenRouter-backed generally, but its recommended-model endpoint
+function buildIndusCodeModels(): Record<string, ModelInfo> {
+	// IndusCode is OpenRouter-backed generally, but its recommended-model endpoint
 	// can return Vercel-style ids. Include those exact ids so runtime metadata
 	// resolves without adding duplicate OpenRouter aliases to the picker.
 	const vercelAliasModels = Object.fromEntries(
@@ -593,18 +594,43 @@ function buildClineModels(): Record<string, ModelInfo> {
 				isCanonicalModelIdForAliasRules(
 					modelId,
 					VERCEL_OPENROUTER_MODEL_ID_ALIAS_RULES,
-				) || VERCEL_ONLY_CLINE_MODEL_IDS.includes(modelId),
+				) || VERCEL_ONLY_INDUSCODE_MODEL_IDS.includes(modelId),
 		),
 	);
 	const models = preferCanonicalModelIds(
 		{
 			...generatedModels("openrouter"),
+			...generatedModels("groq"),
+			...generatedModels("gemini"),
+			...generatedModels("cloudflare-workers-ai"),
+			...generatedModels("nvidia"),
 			...vercelAliasModels,
 		},
 		VERCEL_OPENROUTER_MODEL_ID_ALIAS_RULES,
 	);
 
-	// Cline's inference backend currently rejects image-output models. Keep
+	for (const freeModel of GENERATED_INDUSCODE_RECOMMENDED_MODELS.free ?? []) {
+		if (!models[freeModel.id]) {
+			models[freeModel.id] = {
+				id: freeModel.id,
+				name: freeModel.name || freeModel.id,
+				description: freeModel.description,
+				capabilities: ["streaming", "tools"],
+				contextWindow: 128_000,
+				maxInputTokens: 128_000,
+			};
+		}
+	}
+
+	for (const [id, apinexModel] of Object.entries(APINEX_FREE_MODELS)) {
+		if (!models[id]) {
+			models[id] = {
+				...apinexModel,
+			};
+		}
+	}
+
+	// IndusCode's inference backend currently rejects image-output models. Keep
 	// those models in their native OpenRouter and Vercel catalogs. This filter
 	// is also applied to the merged runtime catalog in mergeKnownModels; remove
 	// both call sites together when the backend gains image-output support.
@@ -738,7 +764,7 @@ function inferClient(spec: BuiltinSpec): ProviderClient {
 	}
 }
 
-function createClineLikeSpec(
+function createIndusCodeLikeSpec(
 	input: Pick<BuiltinSpec, "id" | "name" | "defaultModelId"> & {
 		family?: ProviderFamily;
 	} & Partial<
@@ -756,7 +782,7 @@ function createClineLikeSpec(
 	return {
 		id: input.id,
 		name: input.name,
-		description: input.description ?? "Cline API endpoint",
+		description: input.description ?? "IndusCode API endpoint",
 		family: input.family ?? "openai-compatible",
 		popular: input.popular,
 		modelToolCapabilities: NATIVE_WEB_SEARCH_MODEL_TOOL_CAPABILITIES,
@@ -764,10 +790,10 @@ function createClineLikeSpec(
 		modelsProviderId: input.modelsProviderId,
 		modelsFactory: input.modelsFactory,
 		defaultModelId: input.defaultModelId,
-		apiKeyEnv: ["CLINE_API_KEY"],
+		apiKeyEnv: ["INDUSCODE_API_KEY"],
 		defaults: {
 			get baseUrl(): string {
-				return `${getClineEnvironmentConfig().apiBaseUrl}/api/v1`;
+				return `${getIndusCodeEnvironmentConfig().apiBaseUrl}/api/v1`;
 			},
 			...input.defaults,
 		},
@@ -780,7 +806,7 @@ function createClineLikeSpec(
 	};
 }
 
-async function handleClineResponseError(
+async function handleIndusCodeResponseError(
 	response: Response,
 	providerId: string,
 ): Promise<void> {
@@ -793,62 +819,62 @@ async function handleClineResponseError(
 		.text()
 		.catch(() => "");
 
-	if (isClineOrgIndividualInferenceSubscriptionMessage(body)) {
-		throw new ClineOrgIndividualInferenceSubscriptionError(providerId);
+	if (isIndusCodeOrgIndividualInferenceSubscriptionMessage(body)) {
+		throw new IndusCodeOrgIndividualInferenceSubscriptionError(providerId);
 	}
 
-	if (isClineFreeModelLimitMessage(body)) {
-		throw new ClineFreeModelLimitError(body, providerId);
+	if (isIndusCodeFreeModelLimitMessage(body)) {
+		throw new IndusCodeFreeModelLimitError(body, providerId);
 	}
 
-	const clinePassLimitMessage = extractClinePassLimitMessage(body);
-	if (clinePassLimitMessage) {
-		throw new ClinePassLimitError(clinePassLimitMessage, providerId);
+	const induscodePassLimitMessage = extractIndusCodePassLimitMessage(body);
+	if (induscodePassLimitMessage) {
+		throw new IndusCodePassLimitError(induscodePassLimitMessage, providerId);
 	}
 
-	if (isClineNotSubscribedMessage(body)) {
-		throw new ClineNotSubscribedError(providerId);
+	if (isIndusCodeNotSubscribedMessage(body)) {
+		throw new IndusCodeNotSubscribedError(providerId);
 	}
 }
 
-const cline = createClineLikeSpec({
-	id: "cline",
-	family: "cline",
-	name: "Cline Usage-Billing",
+const induscode = createIndusCodeLikeSpec({
+	id: "induscode",
+	family: "induscode",
+	name: "IndusCode Usage-Billing",
 	popular: 1,
-	modelsFactory: buildClineModels,
+	modelsFactory: buildIndusCodeModels,
 	defaultModelId:
-		GENERATED_CLINE_RECOMMENDED_MODELS.recommended?.[0]?.id ??
-		CLINE_DEFAULT_MODEL_ID,
+		GENERATED_INDUSCODE_RECOMMENDED_MODELS.recommended?.[0]?.id ??
+		INDUSCODE_DEFAULT_MODEL_ID,
 	defaults: {
 		options: {
 			onResponseError: async (response: Response) => {
-				await handleClineResponseError(response, "cline");
+				await handleIndusCodeResponseError(response, "induscode");
 			},
 		},
 	},
 });
 
-const clinePass = createClineLikeSpec({
-	id: CLINE_PASS_PROVIDER_ID,
-	family: "cline",
-	name: "ClinePass",
+const induscodePass = createIndusCodeLikeSpec({
+	id: INDUSCODE_PASS_PROVIDER_ID,
+	family: "induscode",
+	name: "IndusCodePass",
 	popular: 2,
-	description: "Cline API endpoint with ClinePass models",
-	modelsProviderId: CLINE_PASS_PROVIDER_ID,
-	defaultModelId: firstGeneratedModelId(CLINE_PASS_PROVIDER_ID),
+	description: "IndusCode API endpoint with IndusCodePass models",
+	modelsProviderId: INDUSCODE_PASS_PROVIDER_ID,
+	defaultModelId: firstGeneratedModelId(INDUSCODE_PASS_PROVIDER_ID),
 	metadata: { usageCostDisplay: "subscription" },
 	defaults: {
 		options: {
 			onResponseError: async (response: Response) => {
-				await handleClineResponseError(response, CLINE_PASS_PROVIDER_ID);
+				await handleIndusCodeResponseError(response, INDUSCODE_PASS_PROVIDER_ID);
 			},
 		},
 	},
 });
 
 /**
- * Handwritten providers plus generated providers that require Cline-specific
+ * Handwritten providers plus generated providers that require IndusCode-specific
  * runtime or product policy. Providers fully described by models.dev must not
  * be duplicated here.
  */
@@ -869,7 +895,7 @@ const OPENAI_COMPATIBLE_SPEC_OVERRIDES: BuiltinSpecOverride[] = [
 			// which 404s on /messages. Routing appends per-model protocol
 			// endpoints, so pin the shared root that serves all of them.
 			baseUrl: "https://opencode.ai/inference/go/v1",
-			headers: { "User-Agent": "Cline/SDK" },
+			headers: { "User-Agent": "IndusCode/SDK" },
 		},
 		metadata: {
 			routing: { modelApiProtocol: true },
@@ -893,8 +919,8 @@ const OPENAI_COMPATIBLE_SPEC_OVERRIDES: BuiltinSpecOverride[] = [
 		// Self-hosted endpoints (vLLM, llama.cpp, LM Studio) run without a key.
 		metadata: { apiKeyOptional: true },
 	},
-	cline,
-	clinePass,
+	induscode,
+	induscodePass,
 	{
 		id: "deepseek",
 		name: "DeepSeek",
@@ -1081,7 +1107,7 @@ const OPENAI_COMPATIBLE_SPEC_OVERRIDES: BuiltinSpecOverride[] = [
 	},
 	{
 		// Fully described by models.dev except for the regional endpoint
-		// routing policy (`apiLineBaseUrls`), which is Cline-specific.
+		// routing policy (`apiLineBaseUrls`), which is IndusCode-specific.
 		id: "moonshot",
 		apiLineBaseUrls: {
 			china: "https://api.moonshot.cn/v1",
@@ -1221,20 +1247,20 @@ const OPENAI_COMPATIBLE_SPEC_OVERRIDES: BuiltinSpecOverride[] = [
 
 /**
  * Non-OpenAI-compatible runtime/product overrides. Keep generated catalog facts
- * in providers.generated.ts and only retain Cline-owned behavior here.
+ * in providers.generated.ts and only retain IndusCode-owned behavior here.
  */
 const BUILTIN_SPEC_OVERRIDES: BuiltinSpecOverride[] = [
 	{
 		id: "openai-native",
-		name: "IndusCode",
-		description: "IndusCode AI models",
+		name: "OpenAI",
+		description: "Creator of GPT and ChatGPT",
 		family: "openai",
 		modelToolCapabilities: OPENAI_NATIVE_MODEL_TOOL_CAPABILITIES,
 		capabilities: ["reasoning"],
-		defaultModelId: "free/deepseek-v4.1-flash",
-		modelsFactory: buildOpenAINativeModels,
+		modelsProviderId: "openai-native",
+		defaultModelId: "gpt-5.4",
 		apiKeyEnv: ["OPENAI_API_KEY"],
-		defaults: { baseUrl: "https://api.apinex.bond/v1" },
+		defaults: { baseUrl: "https://api.openai.com/v1" },
 	},
 	{
 		id: "openai-codex",
@@ -1304,7 +1330,7 @@ const BUILTIN_SPEC_OVERRIDES: BuiltinSpecOverride[] = [
 		// provider-tools: the Claude Code CLI executes its own native tools
 		// (Read/Write/Bash/...) inside the spawned agent session and cannot
 		// bridge externally-executed AI SDK tools. Without this capability the
-		// gateway sends Cline's tool definitions (which the provider drops)
+		// gateway sends IndusCode's tool definitions (which the provider drops)
 		// while the CLI's own tools stay enabled with no approval plumbing —
 		// every write is refused and no prompt can appear (#13146).
 		// local-auth: the spawned CLI authenticates from its own credential
@@ -1402,7 +1428,7 @@ const BUILTIN_SPEC_OVERRIDES: BuiltinSpecOverride[] = [
 		description: "OpenCode SDK multi-provider runtime",
 		family: "opencode",
 		// local-auth: the spawned `opencode` server authenticates from the
-		// credentials `opencode auth login` stores on this machine. Cline has
+		// credentials `opencode auth login` stores on this machine. IndusCode has
 		// no OAuth flow or API key for it.
 		capabilities: ["reasoning", "local-auth"],
 		defaultModelId: "openai/gpt-5.6-sol",

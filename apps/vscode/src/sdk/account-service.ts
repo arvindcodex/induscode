@@ -1,7 +1,7 @@
-// Replaces classic src/services/account/ClineAccountService.ts (see origin/main)
+// Replaces classic src/services/account/IndusCodeAccountService.ts (see origin/main)
 //
 // SDK-backed account service. Handles credits, organizations, and user data
-// by making authenticated requests to the Cline API.
+// by making authenticated requests to the IndusCode API.
 
 import type {
 	BalanceResponse,
@@ -11,17 +11,17 @@ import type {
 	UsageTransaction,
 	UserRemoteConfigDiscoveryResponse,
 	UserResponse,
-} from "@shared/ClineAccount"
+} from "@shared/IndusCodeAccount"
 import axios, { type AxiosRequestConfig, type AxiosResponse } from "axios"
-import { ClineEnv } from "@/config"
-import { buildBasicClineHeaders } from "@/services/EnvUtils"
-import { CLINE_API_ENDPOINT } from "@/shared/cline/api"
+import { IndusCodeEnv } from "@/config"
+import { buildBasicIndusCodeHeaders } from "@/services/EnvUtils"
+import { INDUSCODE_API_ENDPOINT } from "@/shared/induscode/api"
 import { getAxiosSettings } from "@/shared/net"
 import { Logger } from "@/shared/services/Logger"
 import { AuthService } from "./auth-service"
 
-export class ClineAccountService {
-	private static instance: ClineAccountService
+export class IndusCodeAccountService {
+	private static instance: IndusCodeAccountService
 	private _authService: AuthService
 	private accountChangeBoundary: ((change: () => Promise<void>) => Promise<void>) | undefined
 	private pendingSwitch: Promise<void> | undefined
@@ -35,31 +35,31 @@ export class ClineAccountService {
 	 * uses it to tear down the previous account's cloud task and connections
 	 * before `change` sends the request, and to hold cloud reads until it has
 	 * settled. Owned here so that every path that changes the account (the
-	 * Account view, ClinePass selection, remote-config discovery) runs it.
+	 * Account view, IndusCodePass selection, remote-config discovery) runs it.
 	 */
 	onAccountChange(boundary: (change: () => Promise<void>) => Promise<void>): void {
 		this.accountChangeBoundary = boundary
 	}
 
 	/**
-	 * Returns the singleton instance of ClineAccountService
+	 * Returns the singleton instance of IndusCodeAccountService
 	 */
-	public static getInstance(): ClineAccountService {
-		if (!ClineAccountService.instance) {
-			ClineAccountService.instance = new ClineAccountService()
+	public static getInstance(): IndusCodeAccountService {
+		if (!IndusCodeAccountService.instance) {
+			IndusCodeAccountService.instance = new IndusCodeAccountService()
 		}
-		return ClineAccountService.instance
+		return IndusCodeAccountService.instance
 	}
 
 	/**
-	 * Returns the base URL for the Cline API
+	 * Returns the base URL for the IndusCode API
 	 */
 	get baseUrl(): string {
-		return ClineEnv.config().apiBaseUrl
+		return IndusCodeEnv.config().apiBaseUrl
 	}
 
 	/**
-	 * Helper function to make authenticated requests to the Cline API.
+	 * Helper function to make authenticated requests to the IndusCode API.
 	 * Uses the SDK-backed AuthService for token management.
 	 */
 	private async authenticatedRequest<T>(
@@ -69,17 +69,17 @@ export class ClineAccountService {
 	): Promise<T> {
 		const url = new URL(endpoint, this.baseUrl).toString()
 		// IMPORTANT: Prefixed with 'workos:' so backend can route verification to WorkOS provider
-		const clineAccountAuthToken = options?.authToken ?? (await this._authService.getAuthToken())
-		if (!clineAccountAuthToken) {
-			throw new Error("No Cline account auth token found")
+		const induscodeAccountAuthToken = options?.authToken ?? (await this._authService.getAuthToken())
+		if (!induscodeAccountAuthToken) {
+			throw new Error("No IndusCode account auth token found")
 		}
 		const requestConfig: AxiosRequestConfig = {
 			timeout: 10_000,
 			...config,
 			headers: {
-				Authorization: `Bearer ${clineAccountAuthToken}`,
+				Authorization: `Bearer ${induscodeAccountAuthToken}`,
 				"Content-Type": "application/json",
-				...(await buildBasicClineHeaders()),
+				...(await buildBasicIndusCodeHeaders()),
 				...config.headers,
 			},
 			...getAxiosSettings(),
@@ -171,7 +171,7 @@ export class ClineAccountService {
 	 */
 	async fetchMe(): Promise<UserResponse | undefined> {
 		try {
-			const data = await this.authenticatedRequest<UserResponse>(CLINE_API_ENDPOINT.USER_INFO)
+			const data = await this.authenticatedRequest<UserResponse>(INDUSCODE_API_ENDPOINT.USER_INFO)
 			return data
 		} catch (error) {
 			Logger.error("Failed to fetch user data (RPC):", error)
@@ -249,7 +249,7 @@ export class ClineAccountService {
 		}
 
 		return await this.authenticatedRequest<UserRemoteConfigDiscoveryResponse | null>(
-			CLINE_API_ENDPOINT.USER_REMOTE_CONFIG,
+			INDUSCODE_API_ENDPOINT.USER_REMOTE_CONFIG,
 			{},
 			{ allowNullData: true, authToken: token },
 		)
@@ -298,7 +298,7 @@ export class ClineAccountService {
 		const changesCachedAccount = (this._authService.getActiveOrganizationId() ?? undefined) !== (organizationId || undefined)
 		const change = async () => {
 			try {
-				await this.authenticatedRequest<string>(CLINE_API_ENDPOINT.ACTIVE_ACCOUNT, {
+				await this.authenticatedRequest<string>(INDUSCODE_API_ENDPOINT.ACTIVE_ACCOUNT, {
 					method: "PUT",
 					// No client deadline: the server can still commit a PUT the client gave
 					// up on, and only its answer triggers the auth refresh below that brings

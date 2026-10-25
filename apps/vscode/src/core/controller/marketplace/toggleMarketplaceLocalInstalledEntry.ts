@@ -1,7 +1,7 @@
 import type {
 	MarketplaceLocalInstalledEntries,
 	ToggleMarketplaceLocalInstalledEntryRequest,
-} from "@shared/proto/cline/marketplace"
+} from "@shared/proto/induscode/marketplace"
 import type { Controller } from "../index"
 import { toggleLocalMarketplaceInstalledEntry } from "./marketplace-helpers"
 

@@ -11,23 +11,23 @@ import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 /**
- * The sidecar reaches Composio only through the Cline API connectors proxy
- * (`./cline-connectors-api`). Tests mock that module and drive its behavior
+ * The sidecar reaches Composio only through the IndusCode API connectors proxy
+ * (`./induscode-connectors-api`). Tests mock that module and drive its behavior
  * per test, so no network — and no Composio key — is involved. `ConnectorsApiError`
  * is kept real so status-code handling (401/403/404) is exercised faithfully.
  */
 const identity = vi.hoisted(() => ({
 	accountId: "account-a" as string | undefined,
 }));
-vi.mock("./cline-auth", async () => ({
-	...(await vi.importActual<typeof import("./cline-auth")>("./cline-auth")),
-	getClineAccountId: () => identity.accountId,
+vi.mock("./induscode-auth", async () => ({
+	...(await vi.importActual<typeof import("./induscode-auth")>("./induscode-auth")),
+	getIndusCodeAccountId: () => identity.accountId,
 }));
 
 const beta = vi.hoisted(() => ({ enabled: true }));
-vi.mock("@cline/core", async () => ({
-	...(await vi.importActual<typeof import("@cline/core")>("@cline/core")),
-	isClineAccountFeatureEnabled: async () => beta.enabled,
+vi.mock("@induscode/core", async () => ({
+	...(await vi.importActual<typeof import("@induscode/core")>("@induscode/core")),
+	isIndusCodeAccountFeatureEnabled: async () => beta.enabled,
 }));
 
 const proxy = vi.hoisted(() => ({
@@ -38,9 +38,9 @@ const proxy = vi.hoisted(() => ({
 	waitForConnectionActive: vi.fn(),
 }));
 
-vi.mock("./cline-connectors-api", async () => {
-	const actual = await vi.importActual<typeof import("./cline-connectors-api")>(
-		"./cline-connectors-api",
+vi.mock("./induscode-connectors-api", async () => {
+	const actual = await vi.importActual<typeof import("./induscode-connectors-api")>(
+		"./induscode-connectors-api",
 	);
 	return {
 		ConnectorsApiError: actual.ConnectorsApiError,
@@ -52,7 +52,7 @@ vi.mock("./cline-connectors-api", async () => {
 	};
 });
 
-import { ConnectorsApiError } from "./cline-connectors-api";
+import { ConnectorsApiError } from "./induscode-connectors-api";
 import {
 	__resetComposioCachesForTesting,
 	cancelComposioConnect,
@@ -63,15 +63,15 @@ import {
 	parseComposioToolkitSlug,
 } from "./composio";
 
-const originalDataDir = process.env.CLINE_DATA_DIR;
-const originalClineDir = process.env.CLINE_DIR;
+const originalDataDir = process.env.INDUSCODE_DATA_DIR;
+const originalIndusCodeDir = process.env.INDUSCODE_DIR;
 const cleanupPaths: string[] = [];
 
 function useTempDataDir(): string {
 	const dir = mkdtempSync(join(tmpdir(), "composio-proxy-test-"));
 	cleanupPaths.push(dir);
-	process.env.CLINE_DATA_DIR = dir;
-	process.env.CLINE_DIR = dir;
+	process.env.INDUSCODE_DATA_DIR = dir;
+	process.env.INDUSCODE_DIR = dir;
 	return dir;
 }
 
@@ -122,10 +122,10 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-	if (originalDataDir === undefined) delete process.env.CLINE_DATA_DIR;
-	else process.env.CLINE_DATA_DIR = originalDataDir;
-	if (originalClineDir === undefined) delete process.env.CLINE_DIR;
-	else process.env.CLINE_DIR = originalClineDir;
+	if (originalDataDir === undefined) delete process.env.INDUSCODE_DATA_DIR;
+	else process.env.INDUSCODE_DATA_DIR = originalDataDir;
+	if (originalIndusCodeDir === undefined) delete process.env.INDUSCODE_DIR;
+	else process.env.INDUSCODE_DIR = originalIndusCodeDir;
 	for (const path of cleanupPaths.splice(0)) {
 		rmSync(path, { recursive: true, force: true });
 	}
@@ -253,7 +253,7 @@ describe("availability gating (proxy entitlement)", () => {
 			new ConnectorsApiError("sign in", 401),
 		);
 		await expect(connectComposioToolkit("gmail")).rejects.toThrow(
-			/Sign in to your Cline account/,
+			/Sign in to your IndusCode account/,
 		);
 		expect(proxy.initiateConnection).not.toHaveBeenCalled();
 	});

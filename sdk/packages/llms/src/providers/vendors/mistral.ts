@@ -1,6 +1,6 @@
 import { createMistral } from "@ai-sdk/mistral";
 import type { LanguageModelV4 } from "@ai-sdk/provider";
-import type { GatewayResolvedProviderConfig } from "@cline/shared";
+import type { GatewayResolvedProviderConfig } from "@induscode/shared";
 import { wrapLanguageModel } from "ai";
 import { resolveApiKey } from "../http";
 import { splitToolImagesMiddleware } from "../middleware/split-tool-images";

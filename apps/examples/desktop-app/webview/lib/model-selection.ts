@@ -1,4 +1,4 @@
-export const MODEL_SELECTION_STORAGE_KEY = "cline.code.model-selection.v1";
+export const MODEL_SELECTION_STORAGE_KEY = "induscode.code.model-selection.v1";
 
 export type ModelSelectionStorage = {
 	lastProvider: string;
@@ -46,10 +46,18 @@ export function parseModelSelectionStorage(
 				typeof shaped.lastProvider === "string"
 					? shaped.lastProvider.trim()
 					: "";
-			const lastProvider =
-				rawProvider === "cline" || rawProvider === "induscode"
-					? ""
-					: rawProvider;
+			const isSystemProvider =
+				rawProvider === "induscode" ||
+				rawProvider === "induscode" ||
+				rawProvider === "openai-native" ||
+				rawProvider === "openai" ||
+				rawProvider === "openrouter" ||
+				rawProvider === "cloudflare" ||
+				rawProvider === "cohere" ||
+				rawProvider === "gemini-apinex" ||
+				rawProvider === "groq" ||
+				rawProvider === "nvidia";
+			const lastProvider = isSystemProvider ? "" : rawProvider;
 			return {
 				lastProvider,
 				lastModelByProvider: sanitizeStringRecord(shaped.lastModelByProvider),
@@ -93,7 +101,7 @@ export function writeModelSelectionStorageToWindow(
 }
 
 export const REASONING_SELECTION_STORAGE_KEY =
-	"cline.code.reasoning-selection.v1";
+	"induscode.code.reasoning-selection.v1";
 
 export const REASONING_SELECTION_VALUES = [
 	"none",
@@ -151,12 +159,12 @@ export function writeReasoningSelectionToWindow(
 }
 
 export type ExecutionTarget = "local" | "cloud";
-export const EXECUTION_TARGET_STORAGE_KEY = "cline.code.execution-target.v1";
+export const EXECUTION_TARGET_STORAGE_KEY = "induscode.code.execution-target.v1";
 
 function modelSelectionStorageKey(scope: ExecutionTarget): string {
 	// Cloud has a different model catalog; keep the local provider/model intact.
 	return scope === "cloud"
-		? "cline.code.cloud-model-selection.v1"
+		? "induscode.code.cloud-model-selection.v1"
 		: MODEL_SELECTION_STORAGE_KEY;
 }
 

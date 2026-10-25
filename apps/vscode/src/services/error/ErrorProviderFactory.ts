@@ -1,7 +1,7 @@
-import { ClineEndpoint } from "@/config"
+import { IndusCodeEndpoint } from "@/config"
 import { isPostHogConfigValid, PostHogClientConfig, posthogConfig } from "@/shared/services/config/posthog-config"
 import { Logger } from "@/shared/services/Logger"
-import { ClineError } from "./ClineError"
+import { IndusCodeError } from "./IndusCodeError"
 import { IErrorProvider } from "./providers/IErrorProvider"
 import { PostHogErrorProvider } from "./providers/PostHogErrorProvider"
 
@@ -54,7 +54,7 @@ export class ErrorProviderFactory {
 	 */
 	public static getDefaultConfig(): ErrorProviderConfig {
 		// Use no-op provider in self-hosted mode to avoid external network calls
-		if (ClineEndpoint.isSelfHosted()) {
+		if (IndusCodeEndpoint.isSelfHosted()) {
 			return {
 				type: "no-op",
 				config: posthogConfig,
@@ -72,11 +72,11 @@ export class ErrorProviderFactory {
  * or for testing purposes
  */
 class NoOpErrorProvider implements IErrorProvider {
-	async captureException(error: Error | ClineError, properties?: Record<string, unknown>): Promise<void> {
+	async captureException(error: Error | IndusCodeError, properties?: Record<string, unknown>): Promise<void> {
 		Logger.error("[NoOpErrorProvider] captureException called", { error: error.message || String(error), properties })
 	}
 
-	public logException(error: Error | ClineError, _properties?: Record<string, unknown>): void {
+	public logException(error: Error | IndusCodeError, _properties?: Record<string, unknown>): void {
 		// Use Logger.error directly to avoid potential infinite recursion through Logger
 		Logger.error("[NoOpErrorProvider]", error.message || String(error))
 	}

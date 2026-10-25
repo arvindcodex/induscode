@@ -63,17 +63,17 @@ function createCliEnv(): NodeJS.ProcessEnv {
 	return {
 		...process.env,
 		HOME: homeDir,
-		CLINE_DATA_DIR: dataDir,
-		CLINE_DB_DATA_DIR: path.join(dataDir, "db"),
-		CLINE_SESSION_DATA_DIR: sessionDir,
-		CLINE_TEAM_DATA_DIR: teamDir,
-		CLINE_SESSION_BACKEND_MODE: "local",
-		CLINE_PROVIDER_SETTINGS_PATH: path.join(
+		INDUSCODE_DATA_DIR: dataDir,
+		INDUSCODE_DB_DATA_DIR: path.join(dataDir, "db"),
+		INDUSCODE_SESSION_DATA_DIR: sessionDir,
+		INDUSCODE_TEAM_DATA_DIR: teamDir,
+		INDUSCODE_SESSION_BACKEND_MODE: "local",
+		INDUSCODE_PROVIDER_SETTINGS_PATH: path.join(
 			dataDir,
 			"settings",
 			"providers.json",
 		),
-		CLINE_HOOKS_LOG_PATH: path.join(dataDir, "logs", "hooks.jsonl"),
+		INDUSCODE_HOOKS_LOG_PATH: path.join(dataDir, "logs", "hooks.jsonl"),
 	};
 }
 
@@ -260,7 +260,7 @@ describe("cli interactive e2e", () => {
 		expect(result.status).toBe(0);
 	});
 
-	it("launches config view directly with `cline config`", () => {
+	it("launches config view directly with `induscode config`", () => {
 		const result = runInteractiveCli(
 			[{ delaySeconds: INITIAL_RENDER_DELAY_SECONDS, input: "" }],
 			{

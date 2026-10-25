@@ -11,8 +11,8 @@ import {
 	type ScheduleExecutionRecord,
 	type ScheduleExecutionStatus,
 	type ScheduleRecord,
-} from "@cline/shared";
-import type { ResolveCronSpecsDirOptions } from "@cline/shared/storage";
+} from "@induscode/shared";
+import type { ResolveCronSpecsDirOptions } from "@induscode/shared/storage";
 import { CronMaterializer } from "../runner/cron-materializer";
 import { CronRunner } from "../runner/cron-runner";
 import { validateCronPattern, validateTimezone } from "../schedule/scheduler";
@@ -93,7 +93,7 @@ export interface HubScheduleServiceOptions {
 	dbPath?: string;
 	/**
 	 * Cron spec source/report location forwarded to the runner. Defaults to
-	 * the global `~/.cline/cron` directory — tests must override this so run
+	 * the global `~/.induscode/cron` directory — tests must override this so run
 	 * reports land in a temp directory instead of the user's real one.
 	 */
 	specs?: ResolveCronSpecsDirOptions;

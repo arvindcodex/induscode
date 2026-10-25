@@ -56,7 +56,7 @@ describe("formatStatusBarUsageText", () => {
 			formatStatusBarUsageText({
 				totalTokens: 12_345,
 				totalCost: 0.123,
-				providerId: "cline",
+				providerId: "induscode",
 			}),
 		).toBe("(12,345) $0.12");
 	});
@@ -66,7 +66,7 @@ describe("formatStatusBarUsageText", () => {
 			formatStatusBarUsageText({
 				totalTokens: 12_345,
 				totalCost: 0.0004,
-				providerId: "cline",
+				providerId: "induscode",
 			}),
 		).toBe("(12,345) $0.00");
 	});
@@ -76,38 +76,38 @@ describe("formatStatusBarUsageText", () => {
 			formatStatusBarUsageText({
 				totalTokens: 12_345,
 				totalCost: 0.123,
-				providerId: "cline-pass",
+				providerId: "induscode-pass",
 			}),
 		).toBe("(12,345)");
 	});
 });
 
 describe("resolveModelDisplayName", () => {
-	it("uses the friendly model name with a ClinePass prefix", () => {
+	it("uses the friendly model name with a IndusCodePass prefix", () => {
 		expect(
 			resolveModelDisplayName({
-				providerId: "cline-pass",
+				providerId: "induscode-pass",
 				modelId: "zai/glm-5.2",
 				knownModels: {
 					"zai/glm-5.2": { name: "GLM 5.2" },
 				},
 			}),
-		).toBe("ClinePass: GLM 5.2");
+		).toBe("IndusCodePass: GLM 5.2");
 	});
 
-	it("falls back to the bare model id with a ClinePass prefix when unknown", () => {
+	it("falls back to the bare model id with a IndusCodePass prefix when unknown", () => {
 		expect(
 			resolveModelDisplayName({
-				providerId: "cline-pass",
+				providerId: "induscode-pass",
 				modelId: "zai/glm-5.2",
 			}),
-		).toBe("ClinePass: glm-5.2");
+		).toBe("IndusCodePass: glm-5.2");
 	});
 
 	it("keeps the reasoning effort next to the model name", () => {
 		expect(
 			resolveModelDisplayName({
-				providerId: "cline-pass",
+				providerId: "induscode-pass",
 				modelId: "zai/glm-5.2",
 				knownModels: {
 					"zai/glm-5.2": { name: "GLM 5.2" },
@@ -115,13 +115,13 @@ describe("resolveModelDisplayName", () => {
 				thinking: true,
 				reasoningEffort: "high",
 			}),
-		).toBe("ClinePass: GLM 5.2 (high)");
+		).toBe("IndusCodePass: GLM 5.2 (high)");
 	});
 
-	it("uses the friendly model name for non-ClinePass providers", () => {
+	it("uses the friendly model name for non-IndusCodePass providers", () => {
 		expect(
 			resolveModelDisplayName({
-				providerId: "cline",
+				providerId: "induscode",
 				modelId: "zai/glm-5.2",
 				knownModels: {
 					"zai/glm-5.2": { name: "GLM 5.2" },

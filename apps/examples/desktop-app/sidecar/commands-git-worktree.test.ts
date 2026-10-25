@@ -8,7 +8,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
-import { SqliteSessionStore } from "@cline/core";
+import { SqliteSessionStore } from "@induscode/core";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { handleCommand } from "./commands";
 import type { SidecarContext } from "./types";
@@ -25,11 +25,11 @@ function git(cwd: string, ...args: string[]): string {
 }
 
 beforeEach(() => {
-	sandbox = mkdtempSync(join(tmpdir(), "cline-worktree-"));
+	sandbox = mkdtempSync(join(tmpdir(), "induscode-worktree-"));
 	repo = join(sandbox, "my-app");
 	git(sandbox, "init", "-q", "-b", "main", repo);
 	git(repo, "commit", "-q", "--allow-empty", "-m", "init");
-	vi.stubEnv("CLINE_DIR", join(sandbox, "cline-dir"));
+	vi.stubEnv("INDUSCODE_DIR", join(sandbox, "induscode-dir"));
 });
 
 afterEach(() => {
@@ -46,14 +46,14 @@ async function run(cwd: string) {
 }
 
 describe("create_git_worktree command", () => {
-	it("creates a worktree on a new branch under ~/.cline/worktrees/<id>/<repo>", async () => {
+	it("creates a worktree on a new branch under ~/.induscode/worktrees/<id>/<repo>", async () => {
 		const result = await run(repo);
 
 		expect(
-			result.path.startsWith(join(sandbox, "cline-dir", "worktrees")),
+			result.path.startsWith(join(sandbox, "induscode-dir", "worktrees")),
 		).toBe(true);
 		expect(result.path.endsWith(join("my-app"))).toBe(true);
-		expect(result.branch).toMatch(/^cline\/[0-9a-f]{5}$/);
+		expect(result.branch).toMatch(/^induscode\/[0-9a-f]{5}$/);
 		expect(existsSync(join(result.path, ".git"))).toBe(true);
 		expect(git(result.path, "branch", "--show-current")).toBe(result.branch);
 		// The original checkout is untouched.
@@ -91,9 +91,9 @@ describe("create_git_worktree command", () => {
 		};
 
 		// The webview matches task worktrees against this root, so it must be
-		// the same CLINE_DIR-aware location the worktree was created under.
+		// the same INDUSCODE_DIR-aware location the worktree was created under.
 		expect(context.taskWorktreeRoot).toBe(
-			join(sandbox, "cline-dir", "worktrees"),
+			join(sandbox, "induscode-dir", "worktrees"),
 		);
 		expect(dirname(dirname(result.path))).toBe(context.taskWorktreeRoot);
 	});
@@ -131,7 +131,7 @@ describe("remove_git_worktree command", () => {
 		expect(git(repo, "branch", "--list", worktree.branch)).toBe("");
 	});
 
-	it("refuses paths outside ~/.cline/worktrees/<id>/<repo>", async () => {
+	it("refuses paths outside ~/.induscode/worktrees/<id>/<repo>", async () => {
 		await expect(
 			handleCommand(ctx, "remove_git_worktree", { path: repo }),
 		).rejects.toThrow("Not a task worktree");
@@ -148,7 +148,7 @@ describe("delete_chat_session worktree cleanup", () => {
 			startedAt: new Date().toISOString(),
 			status: "completed",
 			interactive: true,
-			provider: "cline",
+			provider: "induscode",
 			model: "test",
 			cwd,
 			workspaceRoot: cwd,
@@ -216,7 +216,7 @@ describe("delete_chat_session worktree cleanup", () => {
 		expect(git(repo, "branch", "--list", worktree.branch)).toBe("");
 	});
 
-	it("keeps a branch the task switched to, deleting only cline/<id>", async () => {
+	it("keeps a branch the task switched to, deleting only induscode/<id>", async () => {
 		const worktree = await run(repo);
 		git(worktree.path, "checkout", "-q", "-b", "feature/keep-me");
 		git(worktree.path, "commit", "-q", "--allow-empty", "-m", "task work");

@@ -1,8 +1,8 @@
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { TeamRuntimeState } from "@cline/shared";
-import { loadSqliteDb } from "@cline/shared/db";
+import type { TeamRuntimeState } from "@induscode/shared";
+import { loadSqliteDb } from "@induscode/shared/db";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { SqliteTeamStore } from "./sqlite-team-store";
 import {
@@ -18,7 +18,7 @@ describe("SqliteTeamStore v1 -> v2 migration", () => {
 	let dir: string;
 
 	beforeEach(() => {
-		dir = mkdtempSync(join(tmpdir(), "cline-team-store-mig-"));
+		dir = mkdtempSync(join(tmpdir(), "induscode-team-store-mig-"));
 	});
 
 	afterEach(() => {

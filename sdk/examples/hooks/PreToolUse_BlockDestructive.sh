@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Cline Hook: PreToolUse (Block Destructive)
+# IndusCode Hook: PreToolUse (Block Destructive)
 # Blocks dangerous operations
-# Copy to ~/.cline/hooks/PreToolUse.sh and chmod +x
+# Copy to ~/.induscode/hooks/PreToolUse.sh and chmod +x
 
 input=$(cat)
 tool=$(echo "$input" | jq -r '.tool_call.name // ""')

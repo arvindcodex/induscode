@@ -1,5 +1,5 @@
 #!/bin/bash
-# Launch the Cline CLI in ACP mode from source, for use as a Zed custom agent.
+# Launch the IndusCode CLI in ACP mode from source, for use as a Zed custom agent.
 #
 # Zed spawns agents without your interactive shell's PATH, so `bun` (installed
 # via mise/asdf/nvm/homebrew) is usually not resolvable. This wrapper finds bun

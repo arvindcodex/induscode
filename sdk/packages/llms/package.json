@@ -1,10 +1,10 @@
 {
-	"name": "@cline/llms",
+	"name": "@induscode/llms",
 	"version": "0.0.95",
 	"description": "Config-driven SDK for selecting, extending, and instantiating LLM providers and models",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/cline/cline",
+		"url": "https://github.com/induscode/induscode",
 		"directory": "sdk/packages/llms"
 	},
 	"main": "./dist/index.js",
@@ -62,7 +62,7 @@
 		"@ai-sdk/provider": "^4.0.19",
 		"@ai-sdk/provider-utils": "^5.0.50",
 		"@aws-sdk/credential-providers": "^3.922.0",
-		"@cline/shared": "workspace:*",
+		"@induscode/shared": "workspace:*",
 		"@jerome-benoit/sap-ai-provider": "4.8.0",
 		"@langfuse/core": "5.10.1",
 		"@langfuse/otel": "5.10.1",

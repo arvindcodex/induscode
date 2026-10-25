@@ -11,11 +11,11 @@ import {
 	type AgentPlugin,
 	type AgentTool,
 	type AgentToolContext,
-	ClineCore,
+	IndusCodeCore,
 	createTool,
 	type ITelemetryService,
 	stripUtf8Bom,
-} from "@cline/core";
+} from "@induscode/core";
 import YAML from "yaml";
 import { z } from "zod";
 
@@ -23,15 +23,15 @@ import { z } from "zod";
 // Types
 // ---------------------------------------------------------------------------
 
-type SessionManager = ClineCore;
+type SessionManager = IndusCodeCore;
 
 /** Minimal plugin host interface injected by the runtime via globalThis. */
-interface ClinePluginHost {
+interface IndusCodePluginHost {
 	emitEvent?: (name: string, payload?: unknown) => void;
 }
 
 declare global {
-	var __clinePluginHost: ClinePluginHost | undefined;
+	var __induscodePluginHost: IndusCodePluginHost | undefined;
 }
 
 // ---------------------------------------------------------------------------
@@ -59,33 +59,33 @@ function resolveDefaultHomeDir(): string {
 	return "~";
 }
 
-function resolveClineDirPath(): string {
-	const explicitDir = process.env.CLINE_DIR?.trim();
+function resolveIndusCodeDirPath(): string {
+	const explicitDir = process.env.INDUSCODE_DIR?.trim();
 	if (explicitDir) {
 		return explicitDir;
 	}
-	return join(resolveDefaultHomeDir(), ".cline");
+	return join(resolveDefaultHomeDir(), ".induscode");
 }
 
-function resolveClineDataDirPath(): string {
-	const explicitDir = process.env.CLINE_DATA_DIR?.trim();
+function resolveIndusCodeDataDirPath(): string {
+	const explicitDir = process.env.INDUSCODE_DATA_DIR?.trim();
 	if (explicitDir) {
 		return explicitDir;
 	}
-	return join(resolveClineDirPath(), "data");
+	return join(resolveIndusCodeDirPath(), "data");
 }
 
 function resolveGlobalAgentsDirPath(): string {
-	return join(resolveClineDataDirPath(), "settings", "agents");
+	return join(resolveIndusCodeDataDirPath(), "settings", "agents");
 }
 
 const HANDOFFS_DIR = join(
-	resolveClineDataDirPath(),
+	resolveIndusCodeDataDirPath(),
 	"plugins",
 	"subagents",
 	"handoffs",
 );
-const GLOBAL_SKILLS_DIR = join(resolveClineDataDirPath(), "settings", "skills");
+const GLOBAL_SKILLS_DIR = join(resolveIndusCodeDataDirPath(), "settings", "skills");
 
 // Agent and skill definitions live in the `agents/` and `skills/`
 // directories alongside this file. They are loaded at runtime from disk.
@@ -98,15 +98,15 @@ const HANDOFF_PATH_MAX_LENGTH = 240;
 const envOr = (key: string, fallback: string): string =>
 	process.env[key]?.trim() || fallback;
 
-const DEFAULT_PROVIDER_ID = envOr("CLINE_SUBAGENT_PROVIDER_ID", "cline");
+const DEFAULT_PROVIDER_ID = envOr("INDUSCODE_SUBAGENT_PROVIDER_ID", "induscode");
 const DEFAULT_MODEL_ID = envOr(
-	"CLINE_SUBAGENT_MODEL_ID",
+	"INDUSCODE_SUBAGENT_MODEL_ID",
 	"anthropic/claude-sonnet-4.6",
 );
 type SubagentBackendMode = "auto" | "hub" | "local";
 
-const DEFAULT_BACKEND_MODE = envOr("CLINE_SUBAGENTS_BACKEND_MODE", "auto");
-const DEFAULT_AGENT_PRESET = envOr("CLINE_SUBAGENT_DEFAULT_PRESET", "phantom");
+const DEFAULT_BACKEND_MODE = envOr("INDUSCODE_SUBAGENTS_BACKEND_MODE", "auto");
+const DEFAULT_AGENT_PRESET = envOr("INDUSCODE_SUBAGENT_DEFAULT_PRESET", "phantom");
 
 // ---------------------------------------------------------------------------
 // Agent & Skill Definitions
@@ -182,7 +182,7 @@ function parseFrontmatter(md: string): {
 	body: string;
 } {
 	// stripUtf8Bom keeps the frontmatter match below working for files saved with a leading
-	// UTF-8 BOM (see cline/cline#12151).
+	// UTF-8 BOM (see induscode/induscode#12151).
 	md = stripUtf8Bom(md);
 	const m = md.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
 	if (!m) return { data: {}, body: md.trim() };
@@ -237,7 +237,7 @@ function readAgentDefinitions(baseCwd: string): AgentDefinition[] {
 	const dirs: Array<{ path: string; source: AgentDefinition["source"] }> = [
 		{ path: BUNDLED_AGENTS_DIR, source: "bundled" },
 		{ path: resolveGlobalAgentsDirPath(), source: "global" },
-		{ path: join(baseCwd, ".cline", "agents"), source: "project" },
+		{ path: join(baseCwd, ".induscode", "agents"), source: "project" },
 	];
 	const defs = new Map<string, AgentDefinition>();
 	for (const { path, source } of dirs) {
@@ -261,7 +261,7 @@ function readSkillDefinitions(baseCwd: string): SkillDefinition[] {
 	const dirs: Array<{ path: string; source: SkillDefinition["source"] }> = [
 		{ path: BUNDLED_SKILLS_DIR, source: "bundled" },
 		{ path: GLOBAL_SKILLS_DIR, source: "global" },
-		{ path: join(baseCwd, ".cline", "skills"), source: "project" },
+		{ path: join(baseCwd, ".induscode", "skills"), source: "project" },
 	];
 	const defs = new Map<string, SkillDefinition>();
 	for (const { path, source } of dirs) {
@@ -346,7 +346,7 @@ function validateHandoffRelativePath(relativePath: string): string {
 
 function emitSteer(sessionId: string | undefined, prompt: string): void {
 	if (sessionId && prompt.trim()) {
-		globalThis.__clinePluginHost?.emitEvent?.("steer_message", {
+		globalThis.__induscodePluginHost?.emitEvent?.("steer_message", {
 			sessionId,
 			prompt,
 		});
@@ -354,7 +354,7 @@ function emitSteer(sessionId: string | undefined, prompt: string): void {
 }
 
 async function getSessionManager(): Promise<SessionManager> {
-	sessionManagerPromise ??= ClineCore.create({
+	sessionManagerPromise ??= IndusCodeCore.create({
 		backendMode: resolveSubagentBackendMode(DEFAULT_BACKEND_MODE),
 	}).catch((err) => {
 		// Clear the cached promise so subsequent calls can retry.
@@ -597,7 +597,7 @@ const plugin: AgentPlugin = {
 					retryable: false,
 					async execute(input, ctx) {
 						const mgr = await getSessionManager();
-						const baseCwd = envOr("CLINE_SUBAGENT_CWD", process.cwd());
+						const baseCwd = envOr("INDUSCODE_SUBAGENT_CWD", process.cwd());
 						const defs = readAgentDefinitions(baseCwd);
 						const presetName = input.preset ?? DEFAULT_AGENT_PRESET;
 						const def = defs.find((d) => d.name === presetName);
@@ -689,7 +689,7 @@ const plugin: AgentPlugin = {
 						"List the available subagent presets, including bundled, global, and project-level definitions.",
 					inputSchema: z.object({}).strict(),
 					async execute(_input, _ctx) {
-						const baseCwd = envOr("CLINE_SUBAGENT_CWD", process.cwd());
+						const baseCwd = envOr("INDUSCODE_SUBAGENT_CWD", process.cwd());
 						const agents = readAgentDefinitions(baseCwd).map((a) => ({
 							name: a.name,
 							description: a.description,
@@ -849,7 +849,7 @@ const plugin: AgentPlugin = {
 						"List the available skill definitions from bundled, global, and project-level directories.",
 					inputSchema: z.object({}).strict(),
 					async execute(_input, _ctx) {
-						const baseCwd = envOr("CLINE_SUBAGENT_CWD", process.cwd());
+						const baseCwd = envOr("INDUSCODE_SUBAGENT_CWD", process.cwd());
 						const skills = readSkillDefinitions(baseCwd);
 						return {
 							skills: skills.map((s) => ({
@@ -880,7 +880,7 @@ const plugin: AgentPlugin = {
 						"Get a skill by name, including the instructions that should be followed for that specialization.",
 					inputSchema: GetSkillInput,
 					async execute(input, _ctx) {
-						const baseCwd = envOr("CLINE_SUBAGENT_CWD", process.cwd());
+						const baseCwd = envOr("INDUSCODE_SUBAGENT_CWD", process.cwd());
 						const skills = readSkillDefinitions(baseCwd);
 						const skill = skills.find((s) => s.name === input.name);
 						if (!skill) {

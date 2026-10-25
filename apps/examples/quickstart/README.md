@@ -1,6 +1,6 @@
 # Quickstart
 
-The simplest possible Cline SDK example. Creates one agent, sends a single prompt, and streams the response to stdout.
+The simplest possible IndusCode SDK example. Creates one agent, sends a single prompt, and streams the response to stdout.
 
 ## Getting started
 
@@ -16,7 +16,7 @@ bun run build:sdk
 Set an API key:
 
 ```bash
-export CLINE_API_KEY="cline_..."
+export INDUSCODE_API_KEY="induscode_..."
 ```
 
 Run:

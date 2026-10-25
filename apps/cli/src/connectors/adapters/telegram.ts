@@ -1,13 +1,13 @@
 import { createTelegramAdapter } from "@chat-adapter/telegram";
-import type { ChatStartSessionRequest } from "@cline/core";
+import type { ChatStartSessionRequest } from "@induscode/core";
 import {
 	createUserInstructionConfigService,
 	HubSessionClient,
-} from "@cline/core";
+} from "@induscode/core";
 import type {
 	ConnectTelegramOptions,
 	TelegramConnectorState,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { Chat, ConsoleLogger, type Thread } from "chat";
 import type { Command } from "commander";
 import type { CliLoggerAdapter } from "../../logging/adapter";
@@ -498,7 +498,7 @@ class TelegramConnector extends ConnectorBase<
 				.option(
 					"--rpc-address <host:port>",
 					"RPC address",
-					process.env.CLINE_RPC_ADDRESS?.trim() ||
+					process.env.INDUSCODE_RPC_ADDRESS?.trim() ||
 						resolveDefaultCliRpcAddress(),
 				)
 				.addHelpText(
@@ -508,7 +508,7 @@ class TelegramConnector extends ConnectorBase<
 						"Notes:",
 						"  - Without -i, the connector is launched in the background.",
 						"  - Tools are enabled by default for Telegram sessions.",
-						"  - Use --allowed-user-id or `cline connect` to restrict Telegram access.",
+						"  - Use --allowed-user-id or `induscode connect` to restrict Telegram access.",
 						"  - Bot username is discovered from the Telegram bot token when omitted.",
 						"  - Provider/model default to the CLI's last-used provider settings.",
 					].join("\n"),
@@ -544,7 +544,7 @@ class TelegramConnector extends ConnectorBase<
 		}
 		const hookCommand =
 			opts.hookCommand?.trim() ||
-			process.env.CLINE_CONNECT_HOOK_COMMAND?.trim();
+			process.env.INDUSCODE_CONNECT_HOOK_COMMAND?.trim();
 		const allowedUserId = opts.allowedUserId?.trim();
 		if (hookCommand && allowedUserId) {
 			throw new Error(
@@ -564,7 +564,7 @@ class TelegramConnector extends ConnectorBase<
 			enableTools: opts.tools !== false,
 			rpcAddress:
 				opts.rpcAddress?.trim() ||
-				process.env.CLINE_RPC_ADDRESS?.trim() ||
+				process.env.INDUSCODE_RPC_ADDRESS?.trim() ||
 				resolveDefaultCliRpcAddress(),
 			hookCommand: allowedUserId
 				? buildTelegramAllowedUserHookCommand(
@@ -707,7 +707,7 @@ class TelegramConnector extends ConnectorBase<
 		if (
 			!inputOptions.botUsername &&
 			!inputOptions.interactive &&
-			process.env.CLINE_TELEGRAM_CONNECT_CHILD !== "1"
+			process.env.INDUSCODE_TELEGRAM_CONNECT_CHILD !== "1"
 		) {
 			const runningState = this.findRunningConnectorStateByBotId(
 				readTelegramBotId(inputOptions.botToken),
@@ -749,7 +749,7 @@ class TelegramConnector extends ConnectorBase<
 			rawArgs: backgroundArgs,
 			io,
 			interactive: options.interactive,
-			childEnvVar: "CLINE_TELEGRAM_CONNECT_CHILD",
+			childEnvVar: "INDUSCODE_TELEGRAM_CONNECT_CHILD",
 			statePath,
 			readState: (path) => this.readConnectorState(path),
 			isRunning: (state) => isProcessRunning(state.pid),
@@ -758,7 +758,7 @@ class TelegramConnector extends ConnectorBase<
 			formatBackgroundStartMessage: (pid) =>
 				`[telegram] starting background connector pid=${pid} bot=@${options.botUsername}`,
 			foregroundHint:
-				"[telegram] use `cline connect telegram -i ...` to run in the foreground",
+				"[telegram] use `induscode connect telegram -i ...` to run in the foreground",
 			launchFailureMessage: "failed to launch Telegram connector in background",
 		});
 		if (backgroundExitCode !== undefined) {

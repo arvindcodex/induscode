@@ -2,7 +2,7 @@ import type {
 	ContentBlock,
 	MessageWithMetadata,
 	ToolResultContent,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { isTurnStartMessage } from "../compaction-shared";
 import type {
 	BudgetAction,

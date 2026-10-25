@@ -55,7 +55,7 @@ function inspection(
 	prefix = "",
 ): RemoteCommandResult {
 	return success(
-		`${prefix}\0CLINE_REMOTE_INSPECT_V1\0${platform}\0${arch}\0${home}\0`,
+		`${prefix}\0INDUSCODE_REMOTE_INSPECT_V1\0${platform}\0${arch}\0${home}\0`,
 	);
 }
 
@@ -64,7 +64,7 @@ describe("RemoteEnvironmentService", () => {
 	let profilesPath: string;
 
 	beforeEach(async () => {
-		testDirectory = await mkdtemp(join(tmpdir(), "cline-remote-environments-"));
+		testDirectory = await mkdtemp(join(tmpdir(), "induscode-remote-environments-"));
 		profilesPath = join(
 			testDirectory,
 			"data",
@@ -287,8 +287,8 @@ describe("RemoteEnvironmentService", () => {
 		});
 		const profile = await service.upsert({ name: "Old", host: "old-host" });
 		const legacyHelper =
-			"/home/dev/.cline/remote/cline-remote-helper-linux-x64-0123456789abcdef";
-		const discoveryPath = "/home/dev/.cline/data/remote/owner.json";
+			"/home/dev/.induscode/remote/induscode-remote-helper-linux-x64-0123456789abcdef";
+		const discoveryPath = "/home/dev/.induscode/data/remote/owner.json";
 		await mkdir(`${profilesPath}.cleanup`, { recursive: true });
 		await writeFile(
 			join(`${profilesPath}.cleanup`, "legacy.json"),
@@ -467,7 +467,7 @@ describe("RemoteEnvironmentService", () => {
 					platform: "linux",
 					arch: "arm64",
 				});
-				return "/opt/cline/code-sidecar-linux-arm64";
+				return "/opt/induscode/code-sidecar-linux-arm64";
 			},
 			fileReadable: async () => true,
 			hashFile: async () => "abcdef0123456789fedcba9876543210",
@@ -508,7 +508,7 @@ describe("RemoteEnvironmentService", () => {
 		);
 		expect(upload).toMatchObject({
 			executable: "ssh",
-			options: { inputFile: "/opt/cline/code-sidecar-linux-arm64" },
+			options: { inputFile: "/opt/induscode/code-sidecar-linux-arm64" },
 		});
 		expect(upload?.args.at(-1)).toContain("umask 077; cat >");
 		const ensure = invocations.find((invocation) =>
@@ -516,10 +516,10 @@ describe("RemoteEnvironmentService", () => {
 		);
 		expect(ensure?.args.at(-1)).toContain("'/home/dev'");
 		expect(ensure?.args.at(-1)).toMatch(
-			/\/home\/dev\/\.cline\/data\/remote\/[a-f0-9-]+\.json/,
+			/\/home\/dev\/\.induscode\/data\/remote\/[a-f0-9-]+\.json/,
 		);
 		expect(ensure?.args.at(-1)).toContain(
-			"exec 'env' 'CLINE_NO_AUTO_UPDATE=1' 'CLINE_HUB_LAUNCHER_CLIENT=cline' 'CLINE_HUB_LAUNCHER_TRANSPORT=ssh' '/home/dev/.cline/remote/cline-linux-arm64-abcdef0123456789' 'hub' 'ensure' '--json' '--allow-port-fallback' '--no-connectors' '--login-shell-path' '--cwd' '/home/dev' '--host' '127.0.0.1' '--port' '0' '--pathname' '/hub' '--discovery-path' ",
+			"exec 'env' 'INDUSCODE_NO_AUTO_UPDATE=1' 'INDUSCODE_HUB_LAUNCHER_CLIENT=induscode' 'INDUSCODE_HUB_LAUNCHER_TRANSPORT=ssh' '/home/dev/.induscode/remote/induscode-linux-arm64-abcdef0123456789' 'hub' 'ensure' '--json' '--allow-port-fallback' '--no-connectors' '--login-shell-path' '--cwd' '/home/dev' '--host' '127.0.0.1' '--port' '0' '--pathname' '/hub' '--discovery-path' ",
 		);
 		expect(spawnTunnel).toHaveBeenCalledWith(
 			"ssh",
@@ -608,7 +608,7 @@ describe("RemoteEnvironmentService", () => {
 					}
 					return success();
 				},
-				resolveHelperBinary: async () => "/opt/cline/helper",
+				resolveHelperBinary: async () => "/opt/induscode/helper",
 				fileReadable: async () => true,
 				hashFile: async () => "0123456789abcdef",
 				reservePort: async () => 43_000,
@@ -642,7 +642,7 @@ describe("RemoteEnvironmentService", () => {
 				}
 				return success();
 			},
-			resolveHelperBinary: async () => "/Applications/Cline.app/sidecar",
+			resolveHelperBinary: async () => "/Applications/IndusCode.app/sidecar",
 			fileReadable: async () => true,
 			hashFile: async () => "0123456789abcdef",
 			reservePort: async () => 40000,
@@ -676,7 +676,7 @@ describe("RemoteEnvironmentService", () => {
 				}
 				return success();
 			},
-			resolveHelperBinary: async () => "/opt/cline/helper",
+			resolveHelperBinary: async () => "/opt/induscode/helper",
 			fileReadable: async () => true,
 			hashFile: async () => "0123456789abcdef",
 			reservePort: async () => 42_000,
@@ -751,7 +751,7 @@ describe("RemoteEnvironmentService", () => {
 		});
 
 		await expect(service.connect(profile.id)).rejects.toThrow(
-			"unsupported in SSH: no compatible Cline CLI binary",
+			"unsupported in SSH: no compatible IndusCode CLI binary",
 		);
 		expect(invocations.some((invocation) => invocation.options.inputFile)).toBe(
 			false,
@@ -777,7 +777,7 @@ describe("RemoteEnvironmentService", () => {
 				}
 				return success();
 			},
-			resolveHelperBinary: async () => "/opt/cline/helper",
+			resolveHelperBinary: async () => "/opt/induscode/helper",
 			fileReadable: async () => true,
 			hashFile: async () => "0123456789abcdef",
 			reservePort: async () => nextPort++,
@@ -823,7 +823,7 @@ describe("RemoteEnvironmentService", () => {
 				}
 				return success();
 			},
-			resolveHelperBinary: async () => "/opt/cline/helper",
+			resolveHelperBinary: async () => "/opt/induscode/helper",
 			fileReadable: async () => true,
 			hashFile: async () => "0123456789abcdef",
 			reservePort: async () => nextPort++,
@@ -882,7 +882,7 @@ describe("RemoteEnvironmentService", () => {
 					}
 					return success();
 				},
-				resolveHelperBinary: async () => "/opt/cline/helper",
+				resolveHelperBinary: async () => "/opt/induscode/helper",
 				fileReadable: async () => true,
 				hashFile: async () => "0123456789abcdef",
 				reservePort: async () => 41_000,

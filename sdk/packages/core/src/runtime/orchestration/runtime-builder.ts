@@ -1,4 +1,4 @@
-import { supportsModelTool } from "@cline/llms";
+import { supportsModelTool } from "@induscode/llms";
 import type {
 	AgentTool,
 	BasicLogger,
@@ -6,11 +6,11 @@ import type {
 	ModelTool,
 	RuntimeConfigExtensionKind,
 	TeamTeammateSpec,
-} from "@cline/shared";
+} from "@induscode/shared";
 import {
 	hasRuntimeConfigExtension,
 	resolveMcpTimeoutSeconds,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { nanoid } from "nanoid";
 import type { AgentPluginPackageMcpServer } from "../../extensions/agent-plugin";
 import {

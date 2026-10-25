@@ -2,8 +2,8 @@ import type {
 	ChatMessage as CoreChatMessage,
 	ProviderListItem,
 	ProviderModel,
-} from "@cline/core";
-import type { GeneratedMedia } from "@cline/shared";
+} from "@induscode/core";
+import type { GeneratedMedia } from "@induscode/shared";
 
 export type WebviewUsage = {
 	inputTokens?: number;

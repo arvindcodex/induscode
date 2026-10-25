@@ -1,7 +1,7 @@
 import { mentionRegex, mentionRegexGlobal } from "@shared/context-mentions"
-import { StringRequest } from "@shared/proto/cline/common"
-import { FileSearchRequest, FileSearchType, RelativePathsRequest } from "@shared/proto/cline/file"
-import { PlanActMode, TogglePlanActModeRequest } from "@shared/proto/cline/state"
+import { StringRequest } from "@shared/proto/induscode/common"
+import { FileSearchRequest, FileSearchType, RelativePathsRequest } from "@shared/proto/induscode/file"
+import { PlanActMode, TogglePlanActModeRequest } from "@shared/proto/induscode/state"
 import { type SlashCommand } from "@shared/slashCommands"
 import { Mode } from "@shared/storage/types"
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react"
@@ -42,7 +42,7 @@ import {
 	slashCommandRegexGlobal,
 	validateSlashCommand,
 } from "@/utils/slash-commands"
-import ClineRulesToggleModal from "../cline-rules/ClineRulesToggleModal"
+import IndusCodeRulesToggleModal from "../induscode-rules/IndusCodeRulesToggleModal"
 import { getModeToggleDraftAction } from "./chat-textarea-mode-toggle"
 import ServersToggleModal from "./ServersToggleModal"
 
@@ -225,7 +225,7 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 			remoteConfigSettings,
 			navigateToSettingsModelPicker,
 			mcpServers,
-			clineMessages = [],
+			induscodeMessages = [],
 			cloudSessionsEnabled,
 			cloudTaskTarget,
 			currentCloudTask,
@@ -235,7 +235,7 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 		// While a cloud task is shown, or a new task is about to run in the cloud,
 		// the toggle is pinned to Act and disabled; the stored mode is untouched.
 		const cloudActOnly =
-			!!currentCloudTask || (clineMessages.length === 0 && !!cloudSessionsEnabled && cloudTaskTarget?.target === "cloud")
+			!!currentCloudTask || (induscodeMessages.length === 0 && !!cloudSessionsEnabled && cloudTaskTarget?.target === "cloud")
 		const mode = cloudActOnly ? "act" : selectedMode
 		const [isTextAreaFocused, setIsTextAreaFocused] = useState(false)
 		const [isDraggingOver, setIsDraggingOver] = useState(false)
@@ -1156,23 +1156,23 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 			} = getModeSpecificFields(apiConfiguration, mode)
 			const unknownModel = "unknown"
 
-			// A cloud task runs on a Cline model in the sandbox, whatever the
+			// A cloud task runs on a IndusCode model in the sandbox, whatever the
 			// local provider is; the extension reports which one.
 			if (cloudActOnly) {
-				return `cline:${cloudModelId || unknownModel}`
+				return `induscode:${cloudModelId || unknownModel}`
 			}
 			if (!apiConfiguration) {
 				return unknownModel
 			}
 			switch (selectedProvider) {
-				case "cline":
+				case "induscode":
 					return `${selectedProvider}:${selectedModelId}`
-				case "cline-pass":
-					// Free models selected on ClinePass go through Cline usage billing,
-					// so label them the same way as the cline provider
-					return selectedModelId.startsWith("cline-pass/")
-						? `${selectedProvider}:${selectedModelId.replace(/^cline-pass\//, "")}`
-						: `cline:${selectedModelId}`
+				case "induscode-pass":
+					// Free models selected on IndusCodePass go through IndusCode usage billing,
+					// so label them the same way as the induscode provider
+					return selectedModelId.startsWith("induscode-pass/")
+						? `${selectedProvider}:${selectedModelId.replace(/^induscode-pass\//, "")}`
+						: `induscode:${selectedModelId}`
 				case "openai":
 					return `openai-compat:${selectedModelId}`
 				case "vscode-lm":
@@ -1682,7 +1682,7 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 
 							<ServersToggleModal />
 
-							<ClineRulesToggleModal />
+							<IndusCodeRulesToggleModal />
 
 							<ModelContainer>
 								<ModelButtonWrapper>
@@ -1708,7 +1708,7 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 								"Cloud sessions only support Act mode for now."
 							) : (
 								<>
-									{`In ${shownTooltipMode === "act" ? "Act" : "Plan"}  mode, Cline will ${shownTooltipMode === "act" ? "complete the task immediately" : "gather information to architect a plan"}`}
+									{`In ${shownTooltipMode === "act" ? "Act" : "Plan"}  mode, IndusCode will ${shownTooltipMode === "act" ? "complete the task immediately" : "gather information to architect a plan"}`}
 									<p className="text-description/80 text-xs mb-0">
 										Toggle w/ <kbd className="text-muted-foreground mx-1">{togglePlanActKeys}</kbd>
 									</p>

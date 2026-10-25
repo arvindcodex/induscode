@@ -2,8 +2,8 @@ import { type ChildProcess, spawn } from "node:child_process";
 import { basename } from "node:path";
 import {
 	augmentNodeCommandForDebug,
-	withResolvedClineBuildEnv,
-} from "@cline/shared";
+	withResolvedIndusCodeBuildEnv,
+} from "@induscode/shared";
 import {
 	MAX_NODE_TIMER_DELAY_MS,
 	normalizeIdleTimeoutMs,
@@ -74,7 +74,7 @@ function isChildAvailable(child: ChildProcess): boolean {
 	return isChildRunning(child) && child.connected;
 }
 
-export const CLINE_JS_RUNTIME_PATH_ENV = "CLINE_JS_RUNTIME_PATH";
+export const INDUSCODE_JS_RUNTIME_PATH_ENV = "INDUSCODE_JS_RUNTIME_PATH";
 
 function isRuntimeExecutable(value: string | undefined): boolean {
 	const trimmed = value?.trim();
@@ -99,7 +99,7 @@ export function resolveSubprocessRuntimeExecutable(
 ): string {
 	const env = options.env ?? process.env;
 	const explicit =
-		options.runtimeExecutable?.trim() || env[CLINE_JS_RUNTIME_PATH_ENV]?.trim();
+		options.runtimeExecutable?.trim() || env[INDUSCODE_JS_RUNTIME_PATH_ENV]?.trim();
 	if (explicit) {
 		return explicit;
 	}
@@ -267,7 +267,7 @@ export class SubprocessSandbox {
 			command.slice(1),
 			{
 				stdio: ["ignore", "ignore", "pipe", "ipc"],
-				env: withResolvedClineBuildEnv(process.env),
+				env: withResolvedIndusCodeBuildEnv(process.env),
 				// Prevent a console window from flashing on Windows.
 				windowsHide: true,
 			},

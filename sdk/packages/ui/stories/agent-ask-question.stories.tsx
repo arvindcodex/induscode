@@ -72,7 +72,7 @@ export const LongOptions: Story = {
 					"Keep the existing behavior and only update the visual presentation",
 					"Replace the existing flow with the new shared component",
 				],
-				question: "Which implementation strategy should Cline use?",
+				question: "Which implementation strategy should IndusCode use?",
 			},
 		],
 	},

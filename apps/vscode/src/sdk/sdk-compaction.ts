@@ -15,8 +15,8 @@ import {
 	createContextCompactionPrepareTurn,
 	createSessionCompactionState,
 	type SessionCompactionState,
-} from "@cline/core"
-import type { Message as SdkMessage, ModelInfo as SdkModelInfo } from "@cline/llms"
+} from "@induscode/core"
+import type { Message as SdkMessage, ModelInfo as SdkModelInfo } from "@induscode/llms"
 import { Logger } from "@/shared/services/Logger"
 
 // When the active model does not declare a context window, fall back to a
@@ -95,7 +95,7 @@ export async function compactSessionMessages(input: CompactSessionMessagesInput)
 	}
 
 	const result = await compact({
-		agentId: "cline-vscode",
+		agentId: "induscode-vscode",
 		conversationId: input.sessionId,
 		parentAgentId: null,
 		iteration: 0,

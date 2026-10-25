@@ -4,7 +4,7 @@ import type {
 	AgendaTaskRecord,
 	AgendaTaskRunRecord,
 	AgendaTaskUpdateInput,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { HubSessionClient } from "./session-client";
 
@@ -107,7 +107,7 @@ describe("HubSessionClient", () => {
 
 		await client.startRuntimeSession({
 			workspaceRoot: "/hub/workspace",
-			provider: "cline",
+			provider: "induscode",
 			model: "test-model",
 			enableTools: true,
 			agentPluginPaths: ["./portable-plugin"],

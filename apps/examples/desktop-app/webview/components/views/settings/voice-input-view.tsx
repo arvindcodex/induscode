@@ -1,6 +1,6 @@
 "use client";
 
-import { Switch } from "@cline/ui";
+import { Switch } from "@induscode/ui";
 import { Mic } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";

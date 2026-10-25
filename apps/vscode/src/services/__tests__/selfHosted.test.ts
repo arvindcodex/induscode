@@ -1,12 +1,12 @@
 import { afterEach, describe, it } from "bun:test"
 /**
  * Tests for selfHosted mode behavior across PostHog-based services.
- * When ClineEndpoint.isSelfHosted() returns true, all PostHog functionality should be disabled.
+ * When IndusCodeEndpoint.isSelfHosted() returns true, all PostHog functionality should be disabled.
  */
 
 import * as assert from "assert"
 import * as sinon from "sinon"
-import { ClineEndpoint } from "@/config"
+import { IndusCodeEndpoint } from "@/config"
 import { ErrorProviderFactory } from "../error/ErrorProviderFactory"
 import { FeatureFlagsProviderFactory } from "../feature-flags/FeatureFlagsProviderFactory"
 
@@ -21,7 +21,7 @@ describe("SelfHosted Mode - PostHog Disabling", () => {
 
 	describe("FeatureFlagsProviderFactory", () => {
 		it("should return no-op config when in selfHosted mode", () => {
-			isSelfHostedStub = sinon.stub(ClineEndpoint, "isSelfHosted").returns(true)
+			isSelfHostedStub = sinon.stub(IndusCodeEndpoint, "isSelfHosted").returns(true)
 
 			const config = FeatureFlagsProviderFactory.getDefaultConfig()
 
@@ -29,7 +29,7 @@ describe("SelfHosted Mode - PostHog Disabling", () => {
 		})
 
 		it("should return posthog config when NOT in selfHosted mode (if PostHog config is valid)", () => {
-			isSelfHostedStub = sinon.stub(ClineEndpoint, "isSelfHosted").returns(false)
+			isSelfHostedStub = sinon.stub(IndusCodeEndpoint, "isSelfHosted").returns(false)
 
 			const config = FeatureFlagsProviderFactory.getDefaultConfig()
 
@@ -39,7 +39,7 @@ describe("SelfHosted Mode - PostHog Disabling", () => {
 		})
 
 		it("should create NoOp provider when in selfHosted mode", () => {
-			isSelfHostedStub = sinon.stub(ClineEndpoint, "isSelfHosted").returns(true)
+			isSelfHostedStub = sinon.stub(IndusCodeEndpoint, "isSelfHosted").returns(true)
 
 			const config = FeatureFlagsProviderFactory.getDefaultConfig()
 			const provider = FeatureFlagsProviderFactory.createProvider(config)
@@ -51,7 +51,7 @@ describe("SelfHosted Mode - PostHog Disabling", () => {
 
 	describe("ErrorProviderFactory", () => {
 		it("should return no-op config when in selfHosted mode", () => {
-			isSelfHostedStub = sinon.stub(ClineEndpoint, "isSelfHosted").returns(true)
+			isSelfHostedStub = sinon.stub(IndusCodeEndpoint, "isSelfHosted").returns(true)
 
 			const config = ErrorProviderFactory.getDefaultConfig()
 
@@ -59,7 +59,7 @@ describe("SelfHosted Mode - PostHog Disabling", () => {
 		})
 
 		it("should return posthog config when NOT in selfHosted mode", () => {
-			isSelfHostedStub = sinon.stub(ClineEndpoint, "isSelfHosted").returns(false)
+			isSelfHostedStub = sinon.stub(IndusCodeEndpoint, "isSelfHosted").returns(false)
 
 			const config = ErrorProviderFactory.getDefaultConfig()
 
@@ -67,7 +67,7 @@ describe("SelfHosted Mode - PostHog Disabling", () => {
 		})
 
 		it("should create NoOp provider when in selfHosted mode", async () => {
-			isSelfHostedStub = sinon.stub(ClineEndpoint, "isSelfHosted").returns(true)
+			isSelfHostedStub = sinon.stub(IndusCodeEndpoint, "isSelfHosted").returns(true)
 
 			const config = ErrorProviderFactory.getDefaultConfig()
 			const provider = await ErrorProviderFactory.createProvider(config)
@@ -81,7 +81,7 @@ describe("SelfHosted Mode - PostHog Disabling", () => {
 
 	describe("Integration - selfHosted should disable all PostHog services", () => {
 		it("should return no-op for all PostHog-based factories when selfHosted", () => {
-			isSelfHostedStub = sinon.stub(ClineEndpoint, "isSelfHosted").returns(true)
+			isSelfHostedStub = sinon.stub(IndusCodeEndpoint, "isSelfHosted").returns(true)
 
 			const featureFlagsConfig = FeatureFlagsProviderFactory.getDefaultConfig()
 			const errorConfig = ErrorProviderFactory.getDefaultConfig()

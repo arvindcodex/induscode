@@ -1,4 +1,4 @@
-import { readModelsFileSync, writeModelsFileSync } from "@cline/core"
+import { readModelsFileSync, writeModelsFileSync } from "@induscode/core"
 import { describe, expect, it } from "vitest"
 
 type StoredModelsFile = ReturnType<typeof readModelsFileSync>
@@ -17,7 +17,7 @@ const storedModelsFile = (): StoredModelsFile => ({
 	},
 })
 
-describe("cline core model-file test stub", () => {
+describe("induscode core model-file test stub", () => {
 	it("isolates paths and returns defensive copies", () => {
 		const input = storedModelsFile()
 		writeModelsFileSync(firstPath, input)

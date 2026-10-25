@@ -1,7 +1,7 @@
 # VS Code Language Model provider (`vscode-lm`)
 
-Routes Cline inference through the [VS Code Language Model API](https://code.visualstudio.com/api/extension-guides/language-model)
-(`vscode.lm`), letting Cline use models contributed by any extension that
+Routes IndusCode inference through the [VS Code Language Model API](https://code.visualstudio.com/api/extension-guides/language-model)
+(`vscode.lm`), letting IndusCode use models contributed by any extension that
 registers a language model chat provider (a `vendor`) with VS Code. GitHub
 Copilot is the most common such vendor, but the implementation is
 vendor-agnostic — it selects models via `vscode.lm.selectChatModels` and has no
@@ -10,8 +10,8 @@ other hosts (e.g. JetBrains), so the provider is gated on the API being present.
 
 ## Files
 
-- **`vscode-lm-handler.ts`** — `VsCodeLmHandler`, a Cline SDK `ApiHandler`
-  (`@cline/llms`) backed by `vscode.lm`. Selects a chat model, streams the
+- **`vscode-lm-handler.ts`** — `VsCodeLmHandler`, a IndusCode SDK `ApiHandler`
+  (`@induscode/llms`) backed by `vscode.lm`. Selects a chat model, streams the
   response, forwards tool definitions, and surfaces tool calls and usage.
 - **`vscode-lm-format.ts`** — converts SDK `Message`s to
   `vscode.LanguageModelChatMessage`s and back-converts tool results.
@@ -20,7 +20,7 @@ other hosts (e.g. JetBrains), so the provider is gated on the API being present.
 
 ## How it plugs into the SDK
 
-The SDK's `@cline/llms` handler registry (`registerHandler`) exists for providers
+The SDK's `@induscode/llms` handler registry (`registerHandler`) exists for providers
 that need host-only dependencies — here, `vscode.lm` — which cannot live in the
 host-agnostic SDK package. `registerVsCodeLmHandler()` (called during extension
 activation) registers the factory for the `vscode-lm` provider id when the API is

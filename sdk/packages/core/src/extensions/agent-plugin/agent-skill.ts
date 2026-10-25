@@ -1,4 +1,4 @@
-import { stripUtf8Bom } from "@cline/shared";
+import { stripUtf8Bom } from "@induscode/shared";
 import YAML from "yaml";
 
 const AGENT_SKILL_FIELDS = new Set([
@@ -119,7 +119,7 @@ function parseMetadata(value: unknown): Record<string, string> | undefined {
 /**
  * Parse and validate one Agent Skills specification `SKILL.md` document.
  *
- * Cline's own skill files intentionally remain backwards-compatible and more
+ * IndusCode's own skill files intentionally remain backwards-compatible and more
  * permissive. Agent Plugin skills go through this strict path because the
  * Agent Plugins contract requires an invalid skill to be skipped in isolation.
  */

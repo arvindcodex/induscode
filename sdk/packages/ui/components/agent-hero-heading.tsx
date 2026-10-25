@@ -22,14 +22,14 @@ export function AgentHeroHeading() {
 	return (
 		<h1
 			aria-label="What would you like to build?"
-			className="cline-ui-agent-hero-heading"
+			className="induscode-ui-agent-hero-heading"
 		>
 			<span aria-hidden="true">
 				What would you like to{" "}
-				<span className="cline-ui-agent-hero-heading__word" key={verb}>
+				<span className="induscode-ui-agent-hero-heading__word" key={verb}>
 					{verb.split("").map((character, index) => (
 						<span
-							className="cline-ui-agent-hero-heading__character"
+							className="induscode-ui-agent-hero-heading__character"
 							// biome-ignore lint/suspicious/noArrayIndexKey: the keyed word remounts as a unit and character positions never reorder
 							key={`${verb}-${index}`}
 							style={{ animationDelay: `${index * 45}ms` }}

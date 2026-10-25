@@ -95,7 +95,7 @@ export interface CaptureTaskLifecycleEventInput {
 
 /**
  * Why an out-of-process host spawned this core. The JetBrains plugin sets it via
- * `CLINE_CORE_SPAWN_REASON`; keep in sync with its `SpawnReason`.
+ * `INDUSCODE_CORE_SPAWN_REASON`; keep in sync with its `SpawnReason`.
  */
 export const CORE_SPAWN_REASONS = [
 	"initial",
@@ -109,12 +109,12 @@ export type CoreSpawnReason = (typeof CORE_SPAWN_REASONS)[number];
 export interface TelemetryMetadata {
 	extension_version: string;
 	/**
-	 * The version of the host-side Cline distribution package: the JetBrains plugin version
+	 * The version of the host-side IndusCode distribution package: the JetBrains plugin version
 	 * (e.g. 1.1.61) on JetBrains, the extension version on VSCode (where it matches
 	 * `extension_version`). Absent when the host does not report one.
 	 */
 	host_plugin_version?: string;
-	cline_type: string;
+	induscode_type: string;
 	platform: string;
 	platform_version: string;
 	os_type: string;
@@ -486,7 +486,7 @@ function numberValue(value: unknown): number | undefined {
  * global) survives bundled module duplication, which a module-level registry
  * would not.
  */
-export const OTLP_TRACE_RELAY_MARKER = "_clineOtlpTraceRelay";
+export const OTLP_TRACE_RELAY_MARKER = "_induscodeOtlpTraceRelay";
 
 export function markOtlpTraceRelayProvider(provider: object): void {
 	(provider as Record<string, unknown>)[OTLP_TRACE_RELAY_MARKER] = true;
@@ -525,7 +525,7 @@ export interface OpenTelemetryClientConfig {
 	tracesExporter?: string;
 
 	/**
-	 * OTel resource `service.name` (default "cline"). Distinguishes processes
+	 * OTel resource `service.name` (default "induscode"). Distinguishes processes
 	 * that ship in the same binary — e.g. the CLI vs the detached hub daemon.
 	 */
 	serviceName?: string;

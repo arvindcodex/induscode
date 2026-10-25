@@ -1,4 +1,4 @@
-import type { MessageWithMetadata } from "@cline/shared";
+import type { MessageWithMetadata } from "@induscode/shared";
 import { describe, expect, it } from "vitest";
 import { ConversationStore } from "./conversation-store";
 

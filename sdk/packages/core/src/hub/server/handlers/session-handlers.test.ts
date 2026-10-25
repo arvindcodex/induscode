@@ -13,16 +13,16 @@ describe("readHubClientContext", () => {
 	it("accepts the serializable client identity used for telemetry", () => {
 		expect(
 			readHubClientContext({
-				name: " cline-desktop ",
+				name: " induscode-desktop ",
 				version: " 0.0.23 ",
-				platform: " Cline Desktop ",
+				platform: " IndusCode Desktop ",
 				platformVersion: " 0.0.23 ",
 				isMultiRoot: false,
 			}),
 		).toEqual({
-			name: "cline-desktop",
+			name: "induscode-desktop",
 			version: "0.0.23",
-			platform: "Cline Desktop",
+			platform: "IndusCode Desktop",
 			platformVersion: "0.0.23",
 			isMultiRoot: false,
 		});
@@ -84,7 +84,7 @@ describe("selectSessionTools", () => {
 			selectSessionTools(tools, "act", "cli").map(({ name }) => name),
 		).toEqual(["read_files"]);
 		expect(
-			selectSessionTools(tools, "act", "cline-cli-zen").map(({ name }) => name),
+			selectSessionTools(tools, "act", "induscode-cli-zen").map(({ name }) => name),
 		).toEqual(["read_files"]);
 		expect(
 			selectSessionTools(tools, "act", "vscode").map(({ name }) => name),

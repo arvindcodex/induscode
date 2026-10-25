@@ -24,8 +24,8 @@ describe("checkpoint workspace comparison", () => {
 		dir = mkdtempSync(join(tmpdir(), "core-checkpoint-diff-"));
 		mkdirSync(dir, { recursive: true });
 		git(dir, ["init"]);
-		git(dir, ["config", "user.name", "Cline Test"]);
-		git(dir, ["config", "user.email", "cline@example.com"]);
+		git(dir, ["config", "user.name", "IndusCode Test"]);
+		git(dir, ["config", "user.email", "induscode@example.com"]);
 		writeFileSync(join(dir, "tracked.txt"), "base\n", "utf8");
 		writeFileSync(join(dir, "deleted.txt"), "delete me\n", "utf8");
 		git(dir, ["add", "."]);
@@ -76,7 +76,7 @@ describe("checkpoint workspace comparison", () => {
 
 	it("uses the worktree snapshot stored in SDK stash checkpoints", async () => {
 		writeFileSync(join(dir, "tracked.txt"), "checkpoint dirty\n", "utf8");
-		const stashRef = git(dir, ["stash", "create", "cline checkpoint test"]);
+		const stashRef = git(dir, ["stash", "create", "induscode checkpoint test"]);
 		writeFileSync(join(dir, "tracked.txt"), "current dirty\n", "utf8");
 
 		const diffs = await buildCheckpointWorkspaceDiff(dir, {
@@ -121,9 +121,9 @@ describe("checkpoint workspace comparison", () => {
 			"commit-tree",
 			untrackedTree,
 			"-m",
-			"untracked files on cline checkpoint",
+			"untracked files on induscode checkpoint",
 		]);
-		const stashRef = git(dir, ["stash", "create", "cline checkpoint test"]);
+		const stashRef = git(dir, ["stash", "create", "induscode checkpoint test"]);
 		const snapshotRef = git(dir, [
 			"commit-tree",
 			`${stashRef}^{tree}`,
@@ -134,7 +134,7 @@ describe("checkpoint workspace comparison", () => {
 			"-p",
 			untrackedParent,
 			"-m",
-			"cline checkpoint test",
+			"induscode checkpoint test",
 		]);
 
 		writeFileSync(join(dir, "edited-later.txt"), "changed\n", "utf8");

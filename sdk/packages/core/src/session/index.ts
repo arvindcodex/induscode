@@ -3,7 +3,7 @@ export {
 	type WorkspaceInfo,
 	type WorkspaceManifest,
 	WorkspaceManifestSchema,
-} from "@cline/shared";
+} from "@induscode/shared";
 export type {
 	WorkspaceManager,
 	WorkspaceManagerEvent,

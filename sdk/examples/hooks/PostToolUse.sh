@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Cline Hook: PostToolUse
+# IndusCode Hook: PostToolUse
 # Logs tool results after execution
-# Copy to ~/.cline/hooks/PostToolUse.sh and chmod +x
+# Copy to ~/.induscode/hooks/PostToolUse.sh and chmod +x
 
 input=$(cat)
 tool=$(echo "$input" | jq -r '.tool_result.name // "unknown"')

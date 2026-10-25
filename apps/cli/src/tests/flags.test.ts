@@ -1,6 +1,6 @@
 import { test } from "@microsoft/tui-test";
-import { CLINE_BIN } from "./helpers/constants.js";
-import { clineEnv } from "./helpers/env.js";
+import { INDUSCODE_BIN } from "./helpers/constants.js";
+import { induscodeEnv } from "./helpers/env.js";
 import { expectVisible } from "./helpers/terminal.js";
 
 // Wide enough that long option descriptions (e.g. --thinking) render on a
@@ -14,8 +14,8 @@ const HELP_TERMINAL = { columns: 200, rows: 50 };
 // ===========================================================================
 test.describe("root flag descriptions", () => {
 	test.use({
-		program: { file: CLINE_BIN, args: ["--help"] },
-		env: clineEnv("default"),
+		program: { file: INDUSCODE_BIN, args: ["--help"] },
+		env: induscodeEnv("default"),
 		...HELP_TERMINAL,
 	});
 
@@ -48,8 +48,8 @@ test.describe("root flag descriptions", () => {
 // ===========================================================================
 test.describe("history flag descriptions", () => {
 	test.use({
-		program: { file: CLINE_BIN, args: ["history", "--help"] },
-		env: clineEnv("default"),
+		program: { file: INDUSCODE_BIN, args: ["history", "--help"] },
+		env: induscodeEnv("default"),
 		...HELP_TERMINAL,
 	});
 
@@ -64,8 +64,8 @@ test.describe("history flag descriptions", () => {
 // ===========================================================================
 test.describe("auth flag descriptions", () => {
 	test.use({
-		program: { file: CLINE_BIN, args: ["auth", "--help"] },
-		env: clineEnv("default"),
+		program: { file: INDUSCODE_BIN, args: ["auth", "--help"] },
+		env: induscodeEnv("default"),
 		...HELP_TERMINAL,
 	});
 
@@ -85,8 +85,8 @@ test.describe("auth flag descriptions", () => {
 // ===========================================================================
 test.describe("config flag descriptions", () => {
 	test.use({
-		program: { file: CLINE_BIN, args: ["config", "--help"] },
-		env: clineEnv("default"),
+		program: { file: INDUSCODE_BIN, args: ["config", "--help"] },
+		env: induscodeEnv("default"),
 		...HELP_TERMINAL,
 	});
 
@@ -100,8 +100,8 @@ test.describe("config flag descriptions", () => {
 // ===========================================================================
 test.describe("update flag descriptions", () => {
 	test.use({
-		program: { file: CLINE_BIN, args: ["update", "--help"] },
-		env: clineEnv("default"),
+		program: { file: INDUSCODE_BIN, args: ["update", "--help"] },
+		env: induscodeEnv("default"),
 		...HELP_TERMINAL,
 	});
 

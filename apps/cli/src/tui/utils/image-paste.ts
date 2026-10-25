@@ -155,7 +155,7 @@ async function runCommand(
 }
 
 async function readMacClipboardImage(): Promise<string | undefined> {
-	const dir = await mkdtemp(join(tmpdir(), "cline-clipboard-"));
+	const dir = await mkdtemp(join(tmpdir(), "induscode-clipboard-"));
 	const filePath = join(dir, "clipboard.png");
 	try {
 		const escapedPath = filePath.replace(/\\/g, "\\\\").replace(/"/g, '\\"');

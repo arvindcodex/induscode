@@ -1,17 +1,17 @@
 "use client";
 
-import { GitHubIcon } from "@cline/ui";
+import { GitHubIcon } from "@induscode/ui";
 import { Loader2, Lock } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-	type ClineGitHubRepository,
+	type IndusCodeGitHubRepository,
 	fetchGitHubInstallUrl,
 	findGitHubIntegration,
-	listClineGitHubRepositories,
-	listClineIntegrations,
-} from "@/lib/cline-integrations";
+	listIndusCodeGitHubRepositories,
+	listIndusCodeIntegrations,
+} from "@/lib/induscode-integrations";
 import { openExternalUrl } from "@/lib/desktop-client";
 
 export const GITHUB_INSTALL_POLL_INTERVAL_MS = 3_000;
@@ -21,7 +21,7 @@ type GitHubStepPhase = "checking" | "connect" | "waiting" | "connected";
 export function GitHubConnectStep({ onContinue }: { onContinue: () => void }) {
 	const [phase, setPhase] = useState<GitHubStepPhase>("checking");
 	const [connectError, setConnectError] = useState<string | null>(null);
-	const [repos, setRepos] = useState<ClineGitHubRepository[] | null>(null);
+	const [repos, setRepos] = useState<IndusCodeGitHubRepository[] | null>(null);
 
 	const onContinueRef = useRef(onContinue);
 	useEffect(() => {
@@ -32,7 +32,7 @@ export function GitHubConnectStep({ onContinue }: { onContinue: () => void }) {
 		let cancelled = false;
 		void (async () => {
 			try {
-				const result = await listClineIntegrations();
+				const result = await listIndusCodeIntegrations();
 				if (cancelled) {
 					return;
 				}
@@ -74,7 +74,7 @@ export function GitHubConnectStep({ onContinue }: { onContinue: () => void }) {
 
 		async function poll() {
 			try {
-				const result = await listClineIntegrations();
+				const result = await listIndusCodeIntegrations();
 				if (cancelled) {
 					return;
 				}
@@ -115,7 +115,7 @@ export function GitHubConnectStep({ onContinue }: { onContinue: () => void }) {
 			return;
 		}
 		let cancelled = false;
-		listClineGitHubRepositories()
+		listIndusCodeGitHubRepositories()
 			.then((result) => {
 				if (!cancelled) {
 					setRepos(result);

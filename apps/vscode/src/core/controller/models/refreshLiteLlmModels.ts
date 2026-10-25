@@ -1,5 +1,5 @@
 import type { ModelInfo } from "@shared/api"
-import { OpenRouterCompatibleModelInfo } from "@shared/proto/cline/models"
+import { OpenRouterCompatibleModelInfo } from "@shared/proto/induscode/models"
 import { toProtobufModels } from "@/shared/proto-conversions/models/typeConversion"
 import { Logger } from "@/shared/services/Logger"
 import { type ProviderCatalogController, resolveProviderModelsRecord } from "./providerCatalogShared"

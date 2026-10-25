@@ -27,11 +27,11 @@ describe("legacyApiHistoryToSdkMessages", () => {
 	})
 
 	it("replays the classic truncation range instead of resurrecting the full history", () => {
-		// Classic Cline sent [first user-assistant pair, ...messages after the
+		// Classic IndusCode sent [first user-assistant pair, ...messages after the
 		// range end] to the API while keeping the full history on disk.
 		// Migration must produce the same working context, or a long task
 		// resumes with millions of tokens the classic extension had already
-		// truncated away (cline/cline#12996).
+		// truncated away (induscode/induscode#12996).
 		const apiHistory = [
 			textMessage("user", "first task"),
 			textMessage("assistant", "first answer"),

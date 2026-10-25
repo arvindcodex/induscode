@@ -1,5 +1,5 @@
-import { HubCommandError, HubTransportError } from "@cline/core";
-import type { HubEventEnvelope } from "@cline/shared";
+import { HubCommandError, HubTransportError } from "@induscode/core";
+import type { HubEventEnvelope } from "@induscode/shared";
 import { describe, expect, it, vi } from "vitest";
 import {
 	CloudSessionApi,
@@ -24,7 +24,7 @@ async function createFixture() {
 		id: "ses-outer",
 		status: "ready",
 		sandboxUrl: "https://pod.example/hub",
-		repoContext: { repoUrl: "https://github.com/cline/test" },
+		repoContext: { repoUrl: "https://github.com/induscode/test" },
 		metadata: { modelId: "test-model" },
 		createdAt: "2026-08-05T10:00:00.000Z",
 		updatedAt: "2026-08-05T10:01:00.000Z",

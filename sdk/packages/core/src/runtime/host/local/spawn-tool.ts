@@ -1,4 +1,4 @@
-import type { AgentEvent, AgentTool } from "@cline/shared";
+import type { AgentEvent, AgentTool } from "@induscode/shared";
 import {
 	createBuiltinTools,
 	resolveToolPresetName,

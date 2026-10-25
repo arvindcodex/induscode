@@ -107,7 +107,7 @@ describe("ContributionRegistry automation event contributions", () => {
 		const registry = createContributionRegistry({
 			setupContext: {
 				session: { sessionId: "sess-1" },
-				client: { name: "cline-sdk", version: "1.0.0" },
+				client: { name: "induscode-sdk", version: "1.0.0" },
 				user: { distinctId: "user-1" },
 				workspaceInfo: { rootPath: "/tmp/workspace" },
 				logger,
@@ -130,7 +130,7 @@ describe("ContributionRegistry automation event contributions", () => {
 
 		expect(logger.log).toHaveBeenCalledWith("plugin setup", {
 			sessionId: "sess-1",
-			client: "cline-sdk",
+			client: "induscode-sdk",
 		});
 	});
 

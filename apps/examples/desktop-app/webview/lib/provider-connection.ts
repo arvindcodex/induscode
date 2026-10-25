@@ -9,10 +9,10 @@ import type { Provider } from "@/lib/provider-schema";
  * entries whose capability metadata is incomplete.
  */
 export const OAUTH_PROVIDER_IDS = new Set([
-	"cline",
-	// ClinePass shares the Cline account OAuth credentials (its auth handler
-	// stores under the "cline" provider), so it never has its own API key.
-	"cline-pass",
+	"induscode",
+	// IndusCodePass shares the IndusCode account OAuth credentials (its auth handler
+	// stores under the "induscode" provider), so it never has its own API key.
+	"induscode-pass",
 	"oca",
 	"openai-codex",
 ]);
@@ -22,34 +22,34 @@ export type ProviderAuthKind = "oauth" | "local" | "api-key";
 /**
  * Client-side deadline for `run_provider_oauth_login` invokes. The browser
  * round-trip legitimately takes minutes — the user may still be choosing a
- * browser or confirming a device code, and Cline device codes stay valid for
+ * browser or confirming a device code, and IndusCode device codes stay valid for
  * many minutes — so the transport's default 120s command deadline would fail
  * a sign-in that is still perfectly viable (observed while verifying
- * cline/cline#14201). The sidecar already bounds the flow by the device-code
+ * induscode/induscode#14201). The sidecar already bounds the flow by the device-code
  * expiry; this is only a backstop against a wedged command.
  */
 export const OAUTH_LOGIN_TIMEOUT_MS = 15 * 60_000;
 
 // Cancellation targets the provider, so it must finish before another screen signs in.
-let pendingClineCancellation: Promise<unknown> | null = null;
+let pendingIndusCodeCancellation: Promise<unknown> | null = null;
 
-export function cancelClineOAuthLogin(): Promise<unknown> {
-	if (!pendingClineCancellation) {
-		pendingClineCancellation = desktopClient
-			.invoke("cancel_provider_oauth_login", { provider: "cline" })
+export function cancelIndusCodeOAuthLogin(): Promise<unknown> {
+	if (!pendingIndusCodeCancellation) {
+		pendingIndusCodeCancellation = desktopClient
+			.invoke("cancel_provider_oauth_login", { provider: "induscode" })
 			.finally(() => {
-				pendingClineCancellation = null;
+				pendingIndusCodeCancellation = null;
 			});
 	}
-	return pendingClineCancellation;
+	return pendingIndusCodeCancellation;
 }
 
 export async function runProviderOAuthLogin(
 	provider: string,
 	signal?: AbortSignal,
 ): Promise<{ provider: string; accessToken: string }> {
-	if (provider === "cline" && pendingClineCancellation) {
-		await pendingClineCancellation.catch(() => undefined);
+	if (provider === "induscode" && pendingIndusCodeCancellation) {
+		await pendingIndusCodeCancellation.catch(() => undefined);
 	}
 	return desktopClient.invoke(
 		"run_provider_oauth_login",
@@ -88,6 +88,13 @@ export function getProviderAuthKind(provider: Provider): ProviderAuthKind {
  * providers the user never actually configured.
  */
 export function isProviderConnected(provider: Provider): boolean {
+	if (
+		provider.id === "induscode" ||
+		provider.id === "induscode" ||
+		provider.name === "IndusCode"
+	) {
+		return true;
+	}
 	if (provider.apiKey?.trim()) {
 		return true;
 	}

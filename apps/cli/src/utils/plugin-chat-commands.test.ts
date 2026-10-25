@@ -17,7 +17,7 @@ describe("plugin chat commands", () => {
 	it("bridges plugin extension commands onto the chat command host", async () => {
 		const tempRoot = await mkdtemp(join(tmpdir(), "cli-plugin-commands-"));
 		tempRoots.push(tempRoot);
-		const pluginsDir = join(tempRoot, ".cline", "plugins");
+		const pluginsDir = join(tempRoot, ".induscode", "plugins");
 		await mkdir(pluginsDir, { recursive: true });
 		await writeFile(
 			join(pluginsDir, "echo.js"),
@@ -69,7 +69,7 @@ describe("plugin chat commands", () => {
 	it("bridges plugin command submit prompts onto the chat command context", async () => {
 		const tempRoot = await mkdtemp(join(tmpdir(), "cli-plugin-commands-"));
 		tempRoots.push(tempRoot);
-		const pluginsDir = join(tempRoot, ".cline", "plugins");
+		const pluginsDir = join(tempRoot, ".induscode", "plugins");
 		await mkdir(pluginsDir, { recursive: true });
 		await writeFile(
 			join(pluginsDir, "submit.js"),

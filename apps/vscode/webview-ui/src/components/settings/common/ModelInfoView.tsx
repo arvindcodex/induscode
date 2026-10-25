@@ -171,7 +171,7 @@ interface ModelInfoViewProps {
 	selectedModelId: string
 	modelInfo: ModelInfo
 	isPopup?: boolean
-	// Provider routing props (optional - only shown for Cline provider)
+	// Provider routing props (optional - only shown for IndusCode provider)
 	providerSorting?: string
 	onProviderSortingChange?: (value: string) => void
 	showProviderRouting?: boolean
@@ -180,7 +180,7 @@ interface ModelInfoViewProps {
 	 * pricing in Advanced, and tiered pricing). Set this for providers whose
 	 * billing is subscription-based or otherwise not per-token — any
 	 * `ProviderInfo.metadata.usageCostDisplay` other than `"show"` (see
-	 * `resolveProviderUsageCostDisplay` in `@cline/llms`).
+	 * `resolveProviderUsageCostDisplay` in `@induscode/llms`).
 	 */
 	hideUsageCost?: boolean
 }

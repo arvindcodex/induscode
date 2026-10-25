@@ -5,11 +5,11 @@ import type {
 	HubScheduleCreateInput,
 	HubScheduleUpdateInput,
 	ScheduleRecord,
-} from "@cline/shared";
+} from "@induscode/shared";
 import {
 	ONE_TIME_SCHEDULE_CRON_PATTERN,
 	ONE_TIME_SCHEDULE_RUN_AT_METADATA_KEY,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { describe, expect, it, vi } from "vitest";
 import {
 	type AgentScheduleServiceApi,
@@ -30,7 +30,7 @@ function schedule(overrides: Partial<ScheduleRecord> = {}): ScheduleRecord {
 		prompt: "Review open pull requests.",
 		workspaceRoot: WORKSPACE_ROOT,
 		cwd: WORKSPACE_ROOT,
-		modelSelection: { providerId: "cline", modelId: "model-1" },
+		modelSelection: { providerId: "induscode", modelId: "model-1" },
 		enabled: true,
 		mode: "yolo",
 		maxParallel: 1,
@@ -105,7 +105,7 @@ describe("schedule agent tool", () => {
 			resolveSessionDefaults: async () => ({
 				workspaceRoot: WORKSPACE_ROOT,
 				cwd: WORKSPACE_ROOT,
-				modelSelection: { providerId: "cline", modelId: "model-current" },
+				modelSelection: { providerId: "induscode", modelId: "model-current" },
 				interactive: true,
 			}),
 		});
@@ -136,7 +136,7 @@ describe("schedule agent tool", () => {
 				workspaceRoot: WORKSPACE_ROOT,
 				cwd: WORKSPACE_ROOT,
 				modelSelection: {
-					providerId: "cline",
+					providerId: "induscode",
 					modelId: "model-current",
 				},
 				createdBy: "agent:agent_1",
@@ -263,7 +263,7 @@ describe("schedule agent tool", () => {
 	});
 
 	it("rejects a symlink and parent-segment workspace escape", async () => {
-		const root = mkdtempSync(join(tmpdir(), "cline-schedule-scope-"));
+		const root = mkdtempSync(join(tmpdir(), "induscode-schedule-scope-"));
 		try {
 			const sessionWorkspace = join(root, "workspace");
 			const outside = join(root, "outside");

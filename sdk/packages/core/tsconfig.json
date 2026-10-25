@@ -4,17 +4,17 @@
 		"rootDir": "..",
 		"noEmit": true,
 		"paths": {
-			"@cline/agents": ["../agents/src/index.ts"],
-			"@cline/agents/*": ["../agents/src/*", "../agents/src/*/index.ts"],
-			"@cline/llms": ["../llms/src/index.ts"],
-			"@cline/llms/browser": ["../llms/src/index.browser.ts"],
-			"@cline/shared": ["../shared/src/index.ts"],
-			"@cline/shared/automation": ["../shared/src/automation/index.ts"],
-			"@cline/shared/browser": ["../shared/src/index.browser.ts"],
-			"@cline/shared/db": ["../shared/src/db/index.ts"],
-			"@cline/shared/storage": ["../shared/src/storage/index.ts"],
-			"@cline/shared/types": ["../shared/src/types/index.ts"],
-			"@cline/shared/*": ["../shared/src/*", "../shared/src/*/index.ts"]
+			"@induscode/agents": ["../agents/src/index.ts"],
+			"@induscode/agents/*": ["../agents/src/*", "../agents/src/*/index.ts"],
+			"@induscode/llms": ["../llms/src/index.ts"],
+			"@induscode/llms/browser": ["../llms/src/index.browser.ts"],
+			"@induscode/shared": ["../shared/src/index.ts"],
+			"@induscode/shared/automation": ["../shared/src/automation/index.ts"],
+			"@induscode/shared/browser": ["../shared/src/index.browser.ts"],
+			"@induscode/shared/db": ["../shared/src/db/index.ts"],
+			"@induscode/shared/storage": ["../shared/src/storage/index.ts"],
+			"@induscode/shared/types": ["../shared/src/types/index.ts"],
+			"@induscode/shared/*": ["../shared/src/*", "../shared/src/*/index.ts"]
 		}
 	},
 	"include": ["src/**/*"],

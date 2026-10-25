@@ -11,13 +11,13 @@ import {
 	resolveProductionHubOwnerContext,
 	resolveSharedHubOwnerContext,
 	stopLocalHubServerGracefully,
-} from "@cline/core";
+} from "@induscode/core";
 import {
 	type ActiveConnectorRecord,
 	formatUptime,
-	resolveClineBuildEnv,
+	resolveIndusCodeBuildEnv,
 	type SupervisedConnectorRecord,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { Command } from "commander";
 import { version as cliVersion } from "../../package.json";
 import { isProcessRunning } from "../connectors/common";
@@ -166,7 +166,7 @@ function listMatchingProcesses(pattern: string): ProcessRecord[] {
 		return [];
 	}
 	// "--" stops pgrep's option parsing so patterns that start with dashes
-	// (e.g. the "--cline-hub-daemon" marker) are treated as patterns.
+	// (e.g. the "--induscode-hub-daemon" marker) are treated as patterns.
 	const result = spawnSync("pgrep", ["-fal", "--", pattern], {
 		encoding: "utf8",
 	});
@@ -221,7 +221,7 @@ function listStaleCliPids(): number[] {
 	const patterns = [
 		"/apps/cli/src/index.ts",
 		"/apps/cli/dist/index.js",
-		"/dist/cline",
+		"/dist/induscode",
 	];
 	const records = new Map<number, ProcessRecord>();
 	for (const pattern of patterns) {
@@ -241,7 +241,7 @@ function listStaleHubPids(currentHubPids: number[]): number[] {
 	const patterns = [
 		"/sdk/packages/core/src/hub/daemon/entry.ts",
 		"/sdk/packages/core/dist/hub/daemon/entry.js",
-		"--cline-hub-daemon",
+		"--induscode-hub-daemon",
 	];
 	const records = new Map<number, ProcessRecord>();
 	for (const pattern of patterns) {
@@ -259,7 +259,7 @@ function listStaleSidecarPids(): number[] {
 	const patterns = [
 		"/apps/examples/desktop-app/sidecar/index.ts",
 		"/apps/examples/desktop-app/dist/sidecar/index.js",
-		// The packaged desktop backend runs on the bundled Cline CLI.
+		// The packaged desktop backend runs on the bundled IndusCode CLI.
 		"/bin/desktop-backend/index.js",
 		// Keep the pre-example-reorg paths so `doctor --fix` can still clean up
 		// stale sidecars that were launched from older checkouts.
@@ -408,7 +408,7 @@ function formatHubUptimeFromStartedAt(
 }
 
 function resolveCliHubOwnerContext() {
-	return resolveClineBuildEnv() === "production"
+	return resolveIndusCodeBuildEnv() === "production"
 		? resolveProductionHubOwnerContext()
 		: resolveSharedHubOwnerContext();
 }
@@ -684,7 +684,7 @@ export async function runDoctorCommand(
 			before.staleSidecarPids.length > 0
 		) {
 			io.writeln(
-				"\nRun `cline doctor fix` to kill all stale local processes, including stale sidecars.",
+				"\nRun `induscode doctor fix` to kill all stale local processes, including stale sidecars.",
 			);
 		}
 		return 0;

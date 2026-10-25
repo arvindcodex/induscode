@@ -1,20 +1,20 @@
 import { CLOUD_CREATION_UNCONFIRMED_ERROR_CODE } from "@shared/cloud/cloud-sessions"
-import type { ClineMessage, TurnState } from "@shared/ExtensionMessage"
-import { GetTaskHistoryRequest } from "@shared/proto/cline/task"
+import type { IndusCodeMessage, TurnState } from "@shared/ExtensionMessage"
+import { GetTaskHistoryRequest } from "@shared/proto/induscode/task"
 import { describe, expect, it, vi } from "vitest"
-import { ClineError } from "@/services/error/ClineError"
+import { IndusCodeError } from "@/services/error/IndusCodeError"
 import { telemetryService } from "@/services/telemetry"
-import { isClineManagedProvider } from "@/shared/utils/cline"
+import { isIndusCodeManagedProvider } from "@/shared/utils/induscode"
 import { Controller as SdkController } from "./SdkController"
 import { createTaskProxy, type TaskProxy } from "./task-proxy"
 import { resolveWorkspaceManagerPaths, resolveWorkspaceRootPath } from "./workspace-root"
 
-describe("isClineManagedProvider", () => {
-	it("treats both Cline account providers as Cline providers", () => {
-		expect(isClineManagedProvider("cline")).toBe(true)
-		expect(isClineManagedProvider("cline-pass")).toBe(true)
-		expect(isClineManagedProvider("anthropic")).toBe(false)
-		expect(isClineManagedProvider(undefined)).toBe(false)
+describe("isIndusCodeManagedProvider", () => {
+	it("treats both IndusCode account providers as IndusCode providers", () => {
+		expect(isIndusCodeManagedProvider("induscode")).toBe(true)
+		expect(isIndusCodeManagedProvider("induscode-pass")).toBe(true)
+		expect(isIndusCodeManagedProvider("anthropic")).toBe(false)
+		expect(isIndusCodeManagedProvider(undefined)).toBe(false)
 	})
 })
 
@@ -148,7 +148,7 @@ describe("SDK remote-config coordination", () => {
 			postStateToWebview: vi.fn(async () => events.push("post")),
 		}
 
-		await SdkController.prototype.handleAuthCallback.call(controller as never, "token", "cline")
+		await SdkController.prototype.handleAuthCallback.call(controller as never, "token", "induscode")
 
 		expect(events).toEqual(["auth", "refresh", "post"])
 	})
@@ -290,7 +290,7 @@ describe("SDK remote-config coordination", () => {
 		expect(initTask).toHaveBeenCalledWith("start immediately", undefined, undefined, undefined, undefined)
 	})
 
-	describe("after a Cline sign-in error offers to retry a prompt", () => {
+	describe("after a IndusCode sign-in error offers to retry a prompt", () => {
 		function controllerShowingSignInError(options: { existingTask?: boolean } = {}) {
 			const controller = {
 				task: undefined as TaskProxy | undefined,
@@ -314,7 +314,7 @@ describe("SDK remote-config coordination", () => {
 			if (options.existingTask) {
 				openTask("existing-task")
 			}
-			SdkController.prototype["emitClineAuthError"].call(controller as never, "original prompt")
+			SdkController.prototype["emitIndusCodeAuthError"].call(controller as never, "original prompt")
 			const errorTask = controller.task
 			if (!errorTask) {
 				throw new Error("The sign-in error did not leave a task to answer")
@@ -397,10 +397,10 @@ describe("SDK remote-config coordination", () => {
 	})
 
 	describe("after a cloud start fails before it has a session", () => {
-		const input = { prompt: "cloud prompt", images: ["img"], repoUrl: "https://github.com/cline/fixture", branch: "main" }
+		const input = { prompt: "cloud prompt", images: ["img"], repoUrl: "https://github.com/induscode/fixture", branch: "main" }
 		const cloudTarget = { repoUrl: input.repoUrl, branch: input.branch }
 
-		function controllerShowingCloudStartError(unconfirmedAsk?: ClineMessage) {
+		function controllerShowingCloudStartError(unconfirmedAsk?: IndusCodeMessage) {
 			const controller = {
 				task: undefined as TaskProxy | undefined,
 				turnStateTracker: {
@@ -428,11 +428,11 @@ describe("SDK remote-config coordination", () => {
 
 		it("keeps unconfirmed-create guidance and its anchor when a stale Retry reaches the controller", async () => {
 			const message = "Cloud session creation could not be confirmed. Check History or the cloud dashboard."
-			const ask: ClineMessage = {
+			const ask: IndusCodeMessage = {
 				ts: Date.now() + 1_000,
 				type: "ask",
 				ask: "api_req_failed",
-				text: new ClineError({ message, code: CLOUD_CREATION_UNCONFIRMED_ERROR_CODE }).serialize(),
+				text: new IndusCodeError({ message, code: CLOUD_CREATION_UNCONFIRMED_ERROR_CODE }).serialize(),
 			}
 			const { controller, errorTask } = controllerShowingCloudStartError(ask)
 			await errorTask.handleWebviewAskResponse("yesButtonClicked")
@@ -535,7 +535,7 @@ describe("hasWorkspaceCheckpointForMessage", () => {
 		const readLiveMessages = vi.fn().mockResolvedValue(sdkMessages)
 		const readMessages = vi.fn().mockResolvedValue([])
 		const controller = {
-			task: { taskId: "task-a", messageStateHandler: { getClineMessages: () => messages } },
+			task: { taskId: "task-a", messageStateHandler: { getIndusCodeMessages: () => messages } },
 			sessions: {
 				getActiveSession: () => ({
 					sessionId: "task-a",
@@ -563,7 +563,7 @@ describe("hasWorkspaceCheckpointForMessage", () => {
 		const readMessages = vi.fn().mockResolvedValue(sdkMessages.slice(0, 2))
 		const restore = vi.fn().mockRejectedValue(new Error("stop at restore"))
 		const controller = {
-			task: { taskId: "task-a", messageStateHandler: { getClineMessages: () => messages } },
+			task: { taskId: "task-a", messageStateHandler: { getIndusCodeMessages: () => messages } },
 			sessions: {
 				getActiveSession: () => ({
 					sessionId: "task-a",
@@ -607,7 +607,7 @@ describe("hasWorkspaceCheckpointForMessage", () => {
 			dispose: vi.fn().mockRejectedValue(new Error("cleanup failed")),
 		}
 		const controller = {
-			task: { taskId: "task-a", messageStateHandler: { getClineMessages: () => messages } },
+			task: { taskId: "task-a", messageStateHandler: { getIndusCodeMessages: () => messages } },
 			sessions: { getActiveSession: () => undefined },
 			createRemoteConfigAwareSessionHost: vi.fn().mockResolvedValue(tempHost),
 		}
@@ -619,7 +619,7 @@ describe("hasWorkspaceCheckpointForMessage", () => {
 
 	it("reports no checkpoint when the host cannot be read", async () => {
 		const controller = {
-			task: { taskId: "task-a", messageStateHandler: { getClineMessages: () => messages } },
+			task: { taskId: "task-a", messageStateHandler: { getIndusCodeMessages: () => messages } },
 			sessions: { getActiveSession: () => undefined },
 			createRemoteConfigAwareSessionHost: vi.fn().mockRejectedValue(new Error("host unavailable")),
 		}
@@ -635,7 +635,7 @@ describe("hasWorkspaceCheckpointForMessage", () => {
 		]
 		const createRemoteConfigAwareSessionHost = vi.fn()
 		const controller = {
-			task: { taskId: "task-a", messageStateHandler: { getClineMessages: () => answerMessages } },
+			task: { taskId: "task-a", messageStateHandler: { getIndusCodeMessages: () => answerMessages } },
 			sessions: { getActiveSession: () => undefined },
 			createRemoteConfigAwareSessionHost,
 		}
@@ -682,7 +682,7 @@ describe("starting a cloud task", () => {
 		}
 
 		await SdkController.prototype.initTask.call(controller as never, "prompt", undefined, undefined, undefined, undefined, {
-			repoUrl: "https://github.com/cline/fixture",
+			repoUrl: "https://github.com/induscode/fixture",
 		})
 
 		expect(controller.cloud.beginCloudTask.mock.invocationCallOrder[0]).toBeLessThan(
@@ -800,7 +800,7 @@ describe("cloud tasks stay in the cloud", () => {
 	it("refuses to rebuild a cloud task's conversation as a local session", async () => {
 		const startNewSession = vi.fn()
 		const controller = {
-			task: { taskId: "ses-cloud", messageStateHandler: { getClineMessages: () => [] } },
+			task: { taskId: "ses-cloud", messageStateHandler: { getIndusCodeMessages: () => [] } },
 			sessions: { getActiveSession: () => undefined, startNewSession },
 			stateManager,
 		}

@@ -2,7 +2,7 @@ import type {
 	GatewayModelCapability,
 	ModelCapability,
 	ModelInfo,
-} from "@cline/shared";
+} from "@induscode/shared";
 
 /**
  * The one mapping from catalog capabilities to gateway capabilities.

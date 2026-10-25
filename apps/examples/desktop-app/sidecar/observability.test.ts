@@ -3,7 +3,7 @@ import { version } from "../package.json";
 
 const mocks = vi.hoisted(() => ({
 	captureExtensionActivated: vi.fn(),
-	createClineTelemetryServiceConfig: vi.fn((config: unknown) => config),
+	createIndusCodeTelemetryServiceConfig: vi.fn((config: unknown) => config),
 	createConfiguredTelemetryHandle: vi.fn(),
 	disposeTelemetry: vi.fn(async () => {}),
 	disposeLogger: vi.fn(),
@@ -18,13 +18,13 @@ const logger = {
 };
 const telemetry = { capture: vi.fn() };
 
-vi.mock("@cline/core", async () => {
+vi.mock("@induscode/core", async () => {
 	const actual =
-		await vi.importActual<typeof import("@cline/core")>("@cline/core");
+		await vi.importActual<typeof import("@induscode/core")>("@induscode/core");
 	return {
 		...actual,
 		captureExtensionActivated: mocks.captureExtensionActivated,
-		createClineTelemetryServiceConfig: mocks.createClineTelemetryServiceConfig,
+		createIndusCodeTelemetryServiceConfig: mocks.createIndusCodeTelemetryServiceConfig,
 		createConfiguredTelemetryHandle: mocks.createConfiguredTelemetryHandle,
 		identifyAccount: mocks.identifyAccount,
 		ProviderSettingsManager: class {
@@ -63,11 +63,11 @@ describe("desktop observability", () => {
 		const { createDesktopObservability } = await import("./observability");
 		const observability = createDesktopObservability();
 
-		expect(mocks.createClineTelemetryServiceConfig).toHaveBeenCalledWith({
+		expect(mocks.createIndusCodeTelemetryServiceConfig).toHaveBeenCalledWith({
 			metadata: expect.objectContaining({
 				extension_version: version,
-				cline_type: "desktop",
-				platform: "Cline Desktop",
+				induscode_type: "desktop",
+				platform: "IndusCode Desktop",
 				platform_version: version,
 			}),
 		});
@@ -76,7 +76,7 @@ describe("desktop observability", () => {
 		);
 		expect(mocks.identifyAccount).toHaveBeenCalledWith(telemetry, {
 			id: "account-1",
-			provider: "cline",
+			provider: "induscode",
 			organizationId: "org-1",
 			organizationName: "Acme",
 			memberId: "member-1",

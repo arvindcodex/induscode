@@ -10,11 +10,11 @@ As a team member, you can connect your local development environment to your org
 
 To successfully connect to your organization's OpenAI-compatible endpoint, you'll need a few things ready.
 
-**Cline extension installed and configured**  
-The Cline extension must be installed in VS Code and you need to be signed into your organization account. If you haven't installed Cline yet, follow our [installation guide](/getting-started/installing-cline).
+**IndusCode extension installed and configured**  
+The IndusCode extension must be installed in VS Code and you need to be signed into your organization account. If you haven't installed IndusCode yet, follow our [installation guide](/getting-started/installing-induscode).
 
 <Info>
-**Quick Check**: Open the Cline panel in VS Code. If you see your organization name in the bottom left, you're signed in correctly.
+**Quick Check**: Open the IndusCode panel in VS Code. If you see your organization name in the bottom left, you're signed in correctly.
 </Info>
 
 **API key or credentials for your endpoint**  
@@ -27,10 +27,10 @@ If you're unsure what credentials to use, check with your administrator or IT te
 ## Configuration Steps
 
 <Steps>
-<Step title="Open Cline Settings">
-Open VS Code and access the Cline settings panel using either of these methods:
+<Step title="Open IndusCode Settings">
+Open VS Code and access the IndusCode settings panel using either of these methods:
 
-- Click the settings icon (⚙️) in the Cline panel
+- Click the settings icon (⚙️) in the IndusCode panel
 - Click on the API Provider dropdown located directly below the chat area
 
 </Step>
@@ -48,7 +48,7 @@ For most OpenAI-compatible endpoints:
 4. Click **Save** to store your credentials
 
 <Tip>
-API keys are stored locally and are only used by the Cline extension.
+API keys are stored locally and are only used by the IndusCode extension.
 </Tip>
 </Accordion>
 
@@ -76,7 +76,7 @@ After configuring your credentials, administrator-controlled settings will be lo
 </Step>
 
 <Step title="Test the Connection">
-Send a test message in Cline to verify your credentials work correctly with the configured endpoint.
+Send a test message in IndusCode to verify your credentials work correctly with the configured endpoint.
 
 <Tip>
 **Testing Recommendation**
@@ -89,7 +89,7 @@ Try a simple test like "Hello" first to verify basic connectivity before startin
 ## Troubleshooting
 
 **OpenAI Compatible not available as provider option**  
-Confirm you're signed into the correct Cline organization. Verify your administrator has saved the configuration and that you have the latest version of the Cline extension.
+Confirm you're signed into the correct IndusCode organization. Verify your administrator has saved the configuration and that you have the latest version of the IndusCode extension.
 
 **Authentication errors ("Access Denied" or "Invalid API Key")**  
 Verify your API key is correct and active. For Azure Foundry with Azure Identity Authentication, ensure you are signed into Azure in your development environment and that your account has the appropriate role assignments on the Azure OpenAI resource.

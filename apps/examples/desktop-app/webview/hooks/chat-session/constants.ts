@@ -1,4 +1,4 @@
-import { CLINE_DEFAULT_MODEL_ID } from "@cline/shared/browser";
+import { INDUSCODE_DEFAULT_MODEL_ID } from "@induscode/shared/browser";
 import type { ChatSessionConfig } from "@/lib/chat-schema";
 import {
 	type ExecutionTarget,
@@ -20,6 +20,19 @@ export const CHAT_WS_RECONNECT_MAX_DELAY_MS = 3000;
 export const CHAT_WS_REQUEST_TIMEOUT_MS = 120000;
 export { OAUTH_PROVIDER_IDS as OAUTH_MANAGED_PROVIDERS } from "@/lib/provider-connection";
 
+export const SYSTEM_BACKEND_PROVIDER_IDS = new Set([
+	"openai-native",
+	"openai",
+	"openrouter",
+	"cloudflare",
+	"cohere",
+	"gemini-apinex",
+	"groq",
+	"nvidia",
+	"induscode",
+	"induscode",
+]);
+
 export const DEFAULT_CHAT_CONFIG: ChatSessionConfig = {
 	sessionId: undefined,
 	executionTarget: "local",
@@ -27,9 +40,9 @@ export const DEFAULT_CHAT_CONFIG: ChatSessionConfig = {
 	workspaceRoot: "",
 	cwd: "",
 	environmentId: LOCAL_WORKSPACE_ENVIRONMENT_ID,
-	provider: "openai-native",
+	provider: "induscode",
 	model: "free/deepseek-v4.1-flash",
-	apiKey: process.env.CLINE_API_KEY || "",
+	apiKey: process.env.INDUSCODE_API_KEY || "",
 	mode: "act",
 	systemPrompt: undefined,
 	maxIterations: undefined,
@@ -50,8 +63,7 @@ export function getInitialChatConfig(
 	const rememberedProvider = normalizeProviderId(selection.lastProvider);
 	const validRememberedProvider =
 		rememberedProvider &&
-		rememberedProvider !== "cline" &&
-		rememberedProvider !== "induscode"
+		!SYSTEM_BACKEND_PROVIDER_IDS.has(rememberedProvider)
 			? rememberedProvider
 			: undefined;
 	const rememberedModelForProvider = validRememberedProvider
@@ -90,7 +102,7 @@ export function getInitialChatConfig(
 		executionTarget: "cloud",
 		provider: DEFAULT_CHAT_CONFIG.provider,
 		model:
-			readModelSelectionStorageFromWindow("cloud").lastModelByProvider.cline ||
+			readModelSelectionStorageFromWindow("cloud").lastModelByProvider.induscode ||
 			(provider === DEFAULT_CHAT_CONFIG.provider
 				? model
 				: DEFAULT_CHAT_CONFIG.model),

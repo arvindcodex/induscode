@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import {
 	formatDisplayUserInput,
 	type MessageWithMetadata,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { z } from "zod";
 
 function isMessageWithMetadata(value: unknown): value is MessageWithMetadata {
@@ -128,7 +128,7 @@ function sourcePrefixHash(
 	// v2: dropped volatile id/ts from the per-message hash input. Sidecars
 	// written with v1 fail projection once and are replaced by the next
 	// compaction (the stale-write guard permits replacing unprojectable state).
-	hash.update("cline-session-compaction-source-v2\n");
+	hash.update("induscode-session-compaction-source-v2\n");
 	hash.update(`${count}\n`);
 	for (const message of messages.slice(0, count)) {
 		hash.update(JSON.stringify(sourceMessageHashInput(message)));

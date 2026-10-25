@@ -1,6 +1,6 @@
-import type { CoreSessionConfig } from "@cline/core"
+import type { CoreSessionConfig } from "@induscode/core"
 import type { StateManager } from "@/core/storage/StateManager"
-import { buildSessionConfig, type SessionConfigInput } from "./cline-session-factory"
+import { buildSessionConfig, type SessionConfigInput } from "./induscode-session-factory"
 import { buildAgentHooks, type HookMessageEmitter } from "./hooks-adapter"
 
 export interface SdkSessionConfigBuilderOptions {

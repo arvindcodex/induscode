@@ -1,14 +1,14 @@
 "use client";
 
 import type {
-	ClineAccountBalance,
-	ClineAccountOrganization,
-	ClineAccountOrganizationBalance,
-	ClineAccountOrganizationUsageTransaction,
-	ClineAccountPaymentTransaction,
-	ClineAccountUsageTransaction,
-	ClineAccountUser,
-} from "@cline/core";
+	IndusCodeAccountBalance,
+	IndusCodeAccountOrganization,
+	IndusCodeAccountOrganizationBalance,
+	IndusCodeAccountOrganizationUsageTransaction,
+	IndusCodeAccountPaymentTransaction,
+	IndusCodeAccountUsageTransaction,
+	IndusCodeAccountUser,
+} from "@induscode/core";
 import {
 	AlertCircle,
 	Building,
@@ -25,9 +25,9 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useAccount } from "@/contexts/account-context";
-import { useClineSignIn } from "@/hooks/use-cline-sign-in";
+import { useIndusCodeSignIn } from "@/hooks/use-induscode-sign-in";
 import { useOAuthUserCode } from "@/hooks/use-oauth-user-code";
-import { isClineAccountNotAuthenticatedResult } from "@/lib/cline-account-state";
+import { isIndusCodeAccountNotAuthenticatedResult } from "@/lib/induscode-account-state";
 import { desktopClient, openExternalUrl } from "@/lib/desktop-client";
 import { invalidateProviderCatalogCache } from "@/lib/provider-model-catalog";
 import { cn } from "@/lib/utils";
@@ -45,7 +45,7 @@ const CREATE_ACCOUNT_URL =
 
 function normalizeAccountViewError(error: unknown): Error {
 	const message = error instanceof Error ? error.message : String(error);
-	if (message.includes("unsupported desktop command: cline_account")) {
+	if (message.includes("unsupported desktop command: induscode_account")) {
 		return new Error(
 			"The desktop sidecar is running an older build that does not support account commands. Restart the sidecar or reload the app, then try again.",
 		);
@@ -59,7 +59,7 @@ function isAccountAuthError(message: string): boolean {
 	// failures and org-permission errors into a sign-in card with no retry.
 	const normalized = message.toLowerCase();
 	return (
-		normalized.includes("no cline account auth token found") ||
+		normalized.includes("no induscode account auth token found") ||
 		normalized.includes("requires re-authentication") ||
 		normalized.includes("failed with status 401")
 	);
@@ -69,27 +69,27 @@ function isAccountAuthError(message: string): boolean {
 // Data fetching helpers via sidecar command
 // ---------------------------------------------------------------------------
 
-async function fetchAccountUser(): Promise<ClineAccountUser> {
-	return await desktopClient.invoke<ClineAccountUser>("cline_account", {
-		action: "clineAccount",
+async function fetchAccountUser(): Promise<IndusCodeAccountUser> {
+	return await desktopClient.invoke<IndusCodeAccountUser>("induscode_account", {
+		action: "induscodeAccount",
 		operation: "fetchMe",
 	});
 }
 
-async function fetchAccountBalance(): Promise<ClineAccountBalance> {
-	return await desktopClient.invoke<ClineAccountBalance>("cline_account", {
-		action: "clineAccount",
+async function fetchAccountBalance(): Promise<IndusCodeAccountBalance> {
+	return await desktopClient.invoke<IndusCodeAccountBalance>("induscode_account", {
+		action: "induscodeAccount",
 		operation: "fetchBalance",
 	});
 }
 
 async function fetchAccountOrganizations(): Promise<
-	ClineAccountOrganization[]
+	IndusCodeAccountOrganization[]
 > {
-	return await desktopClient.invoke<ClineAccountOrganization[]>(
-		"cline_account",
+	return await desktopClient.invoke<IndusCodeAccountOrganization[]>(
+		"induscode_account",
 		{
-			action: "clineAccount",
+			action: "induscodeAccount",
 			operation: "fetchUserOrganizations",
 		},
 	);
@@ -97,11 +97,11 @@ async function fetchAccountOrganizations(): Promise<
 
 async function fetchOrganizationBalance(
 	organizationId: string,
-): Promise<ClineAccountOrganizationBalance> {
-	return await desktopClient.invoke<ClineAccountOrganizationBalance>(
-		"cline_account",
+): Promise<IndusCodeAccountOrganizationBalance> {
+	return await desktopClient.invoke<IndusCodeAccountOrganizationBalance>(
+		"induscode_account",
 		{
-			action: "clineAccount",
+			action: "induscodeAccount",
 			operation: "fetchOrganizationBalance",
 			organizationId,
 		},
@@ -109,12 +109,12 @@ async function fetchOrganizationBalance(
 }
 
 async function fetchUsageTransactions(): Promise<
-	ClineAccountUsageTransaction[]
+	IndusCodeAccountUsageTransaction[]
 > {
-	return await desktopClient.invoke<ClineAccountUsageTransaction[]>(
-		"cline_account",
+	return await desktopClient.invoke<IndusCodeAccountUsageTransaction[]>(
+		"induscode_account",
 		{
-			action: "clineAccount",
+			action: "induscodeAccount",
 			operation: "fetchUsageTransactions",
 		},
 	);
@@ -123,11 +123,11 @@ async function fetchUsageTransactions(): Promise<
 async function fetchOrganizationUsageTransactions(
 	organizationId: string,
 	memberId?: string,
-): Promise<ClineAccountOrganizationUsageTransaction[]> {
-	return await desktopClient.invoke<ClineAccountOrganizationUsageTransaction[]>(
-		"cline_account",
+): Promise<IndusCodeAccountOrganizationUsageTransaction[]> {
+	return await desktopClient.invoke<IndusCodeAccountOrganizationUsageTransaction[]>(
+		"induscode_account",
 		{
-			action: "clineAccount",
+			action: "induscodeAccount",
 			operation: "fetchOrganizationUsageTransactions",
 			organizationId,
 			...(memberId?.trim() ? { memberId: memberId.trim() } : {}),
@@ -136,12 +136,12 @@ async function fetchOrganizationUsageTransactions(
 }
 
 async function fetchPaymentTransactions(): Promise<
-	ClineAccountPaymentTransaction[]
+	IndusCodeAccountPaymentTransaction[]
 > {
-	return await desktopClient.invoke<ClineAccountPaymentTransaction[]>(
-		"cline_account",
+	return await desktopClient.invoke<IndusCodeAccountPaymentTransaction[]>(
+		"induscode_account",
 		{
-			action: "clineAccount",
+			action: "induscodeAccount",
 			operation: "fetchPaymentTransactions",
 		},
 	);
@@ -150,8 +150,8 @@ async function fetchPaymentTransactions(): Promise<
 async function switchActiveAccount(
 	organizationId: string | null,
 ): Promise<void> {
-	await desktopClient.invoke("cline_account", {
-		action: "clineAccount",
+	await desktopClient.invoke("induscode_account", {
+		action: "induscodeAccount",
 		operation: "switchAccount",
 		organizationId,
 	});
@@ -168,12 +168,12 @@ export function AccountView() {
 	const { refreshAccount, user: contextUser } = useAccount();
 
 	// Overview data
-	const [user, setUser] = useState<ClineAccountUser | null>(null);
-	const [balance, setBalance] = useState<ClineAccountBalance | null>(null);
+	const [user, setUser] = useState<IndusCodeAccountUser | null>(null);
+	const [balance, setBalance] = useState<IndusCodeAccountBalance | null>(null);
 	const [organizationBalance, setOrganizationBalance] =
-		useState<ClineAccountOrganizationBalance | null>(null);
+		useState<IndusCodeAccountOrganizationBalance | null>(null);
 	const [organizations, setOrganizations] = useState<
-		ClineAccountOrganization[]
+		IndusCodeAccountOrganization[]
 	>([]);
 	const [overviewLoading, setOverviewLoading] = useState(true);
 	const [overviewError, setOverviewError] = useState<string | null>(null);
@@ -188,7 +188,7 @@ export function AccountView() {
 
 	// Usage data
 	const [usageTransactions, setUsageTransactions] = useState<
-		ClineAccountUsageTransaction[]
+		IndusCodeAccountUsageTransaction[]
 	>([]);
 	const [usageLoading, setUsageLoading] = useState(false);
 	const [usageError, setUsageError] = useState<string | null>(null);
@@ -197,7 +197,7 @@ export function AccountView() {
 
 	// Billing data
 	const [paymentTransactions, setPaymentTransactions] = useState<
-		ClineAccountPaymentTransaction[]
+		IndusCodeAccountPaymentTransaction[]
 	>([]);
 	const [billingLoading, setBillingLoading] = useState(false);
 	const [billingError, setBillingError] = useState<string | null>(null);
@@ -219,12 +219,14 @@ export function AccountView() {
 
 	// -- Overview fetch --
 	const loadOverview = useCallback(async () => {
-		setOverviewLoading(true);
+		if (!user) {
+			setOverviewLoading(true);
+		}
 		setOverviewError(null);
 		try {
 			// Resolve the auth state first
 			let userData = await fetchAccountUser();
-			if (isClineAccountNotAuthenticatedResult(userData)) {
+			if (isIndusCodeAccountNotAuthenticatedResult(userData)) {
 				if (contextUser) {
 					userData = contextUser;
 				} else {
@@ -234,23 +236,23 @@ export function AccountView() {
 				}
 			}
 			const [balanceData, orgsData] = await Promise.all([
-				fetchAccountBalance().catch(() => ({ balance: 100_000_000, currency: "USD" })),
+				fetchAccountBalance().catch(() => ({ balance: 0, currency: "INR" })),
 				fetchAccountOrganizations().catch(() => []),
 			]);
-			const validBalance = isClineAccountNotAuthenticatedResult(balanceData)
-				? { balance: 100_000_000, currency: "USD" }
+			const validBalance = isIndusCodeAccountNotAuthenticatedResult(balanceData)
+				? { balance: 0, currency: "INR" }
 				: balanceData;
-			const validOrgs = isClineAccountNotAuthenticatedResult(orgsData)
+			const validOrgs = isIndusCodeAccountNotAuthenticatedResult(orgsData)
 				? []
 				: (Array.isArray(orgsData) ? orgsData : []);
 
 			const nextActiveOrganization =
 				validOrgs.find((organization) => organization.active) ?? null;
-			let organizationBalanceData: ClineAccountOrganizationBalance | null = null;
+			let organizationBalanceData: IndusCodeAccountOrganizationBalance | null = null;
 			if (nextActiveOrganization) {
 				try {
 					const res = await fetchOrganizationBalance(nextActiveOrganization.organizationId);
-					if (!isClineAccountNotAuthenticatedResult(res)) {
+					if (!isIndusCodeAccountNotAuthenticatedResult(res)) {
 						organizationBalanceData = res;
 					}
 				} catch {}
@@ -264,7 +266,7 @@ export function AccountView() {
 			if (contextUser) {
 				setSignedOut(false);
 				setUser(contextUser);
-				setBalance({ balance: 100_000_000, currency: "USD" });
+				setBalance({ balance: 0, currency: "INR" });
 				setOrganizations([]);
 			} else {
 				resetAccountData();
@@ -278,7 +280,7 @@ export function AccountView() {
 		} finally {
 			setOverviewLoading(false);
 		}
-	}, [contextUser, resetAccountData]);
+	}, [contextUser?.id, contextUser?.photoUrl, resetAccountData, user]);
 
 	useEffect(() => {
 		void loadOverview();
@@ -290,7 +292,7 @@ export function AccountView() {
 		signingIn,
 		cancelling,
 		error: signInError,
-	} = useClineSignIn({
+	} = useIndusCodeSignIn({
 		onSuccess: async () => {
 			await loadOverview();
 			setActiveTab("overview");
@@ -306,7 +308,7 @@ export function AccountView() {
 		setSigningOut(true);
 		try {
 			await desktopClient.invoke("save_provider_settings", {
-				provider: "cline",
+				provider: "induscode",
 				api_key: "",
 				settings: {
 					auth: {
@@ -362,7 +364,7 @@ export function AccountView() {
 			if (usageGenerationRef.current !== generation) return;
 			// The token can expire mid-session: render the sign-in state
 			// instead of an error toast.
-			if (isClineAccountNotAuthenticatedResult(data)) {
+			if (isIndusCodeAccountNotAuthenticatedResult(data)) {
 				resetAccountData();
 				setSignedOut(true);
 				setActiveTab("overview");
@@ -401,7 +403,7 @@ export function AccountView() {
 		setBillingError(null);
 		try {
 			const data = await fetchPaymentTransactions();
-			if (isClineAccountNotAuthenticatedResult(data)) {
+			if (isIndusCodeAccountNotAuthenticatedResult(data)) {
 				resetAccountData();
 				setSignedOut(true);
 				setActiveTab("overview");
@@ -444,7 +446,7 @@ export function AccountView() {
 	};
 
 	const formatCreditBalance = (value: number, decimalPlaces = 2) => {
-		return new Intl.NumberFormat("en-US", {
+		return new Intl.NumberFormat("en-IN", {
 			minimumFractionDigits: decimalPlaces,
 			maximumFractionDigits: decimalPlaces,
 		}).format(value / 1_000_000);
@@ -646,11 +648,19 @@ export function AccountView() {
 							{/* User Profile Card */}
 							<div className="rounded-lg border border-border p-5">
 								<div className="flex items-start gap-4">
-									<div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-(--accent-a3) text-2xl font-bold text-primary">
-										{user.displayName?.charAt(0) ??
-											user.email?.charAt(0) ??
-											"?"}
-									</div>
+									{user.photoUrl ? (
+										<img
+											src={user.photoUrl}
+											alt={user.displayName || user.email}
+											className="h-16 w-16 shrink-0 rounded-full object-cover border border-border shadow-sm"
+										/>
+									) : (
+										<div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-(--accent-a3) text-2xl font-bold text-primary">
+											{user.displayName?.charAt(0) ??
+												user.email?.charAt(0) ??
+												"?"}
+										</div>
+									)}
 									<div className="min-w-0 flex-1">
 										<h3 className="text-lg font-semibold text-foreground">
 											{user.displayName || user.email}
@@ -702,12 +712,12 @@ export function AccountView() {
 									</div>
 									<div className="flex items-baseline gap-2">
 										<span className="text-3xl font-bold text-foreground">
-											${formatCreditBalance(displayedBalance)}
+											₹{formatCreditBalance(displayedBalance)}
 										</span>
 									</div>
 									{activeOrganization && balance && (
 										<p className="mt-2 text-xs text-muted-foreground">
-											Personal account: {formatCreditBalance(balance.balance)}{" "}
+											Personal account: ₹{formatCreditBalance(balance.balance)}{" "}
 											credits
 										</p>
 									)}
@@ -876,7 +886,7 @@ export function AccountView() {
 												</span>
 											</div>
 											<div className="text-right text-foreground font-medium">
-												${(tx.amountCents / 100).toFixed(2)}
+												₹{(tx.amountCents / 100).toFixed(2)}
 											</div>
 											<div className="text-right text-primary font-medium">
 												+{formatCreditBalance(tx.credits)}

@@ -2,7 +2,7 @@
  * Type definitions for Harbor framework output structure
  * These schemas document Harbor's jobs/ directory format (read-only, we validate against this)
  *
- * Harbor is the execution framework used by cline-bench.
+ * Harbor is the execution framework used by induscode-bench.
  * See: https://harborframework.com
  */
 
@@ -25,7 +25,7 @@ export interface HarborTrialResult {
 
 export interface HarborTrialFiles {
 	agent: {
-		"cline.txt": string // Full conversation log
+		"induscode.txt": string // Full conversation log
 		"setup/stdout.txt": string
 		"setup/stderr.txt": string
 		"setup/return-code.txt": string
@@ -95,7 +95,7 @@ export interface ParsedHarborTrial {
 	cost: number
 	tokensIn?: number
 	tokensOut?: number
-	logs: string // Full cline.txt content
+	logs: string // Full induscode.txt content
 	testOutput: string // Test verification output
 	errors: string[] // Setup or command errors
 }

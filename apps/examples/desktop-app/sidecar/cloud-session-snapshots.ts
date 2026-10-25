@@ -6,4 +6,4 @@ export {
 	sessionRowModelId,
 	submittedPromptsFromEvents,
 	updatedAt,
-} from "@cline/core/cloud";
+} from "@induscode/core/cloud";

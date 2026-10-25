@@ -30,7 +30,7 @@ const KNOWN_API_PROVIDERS = {
 	doubao: true,
 	mistral: true,
 	"vscode-lm": true,
-	cline: true,
+	induscode: true,
 	litellm: true,
 	moonshot: true,
 	nebius: true,
@@ -60,7 +60,7 @@ const KNOWN_API_PROVIDERS = {
 	"tencent-tokenhub": true,
 	chutes: true,
 	aiand: true,
-	"cline-pass": true,
+	"induscode-pass": true,
 } satisfies Record<ApiProvider, true>
 
 /**

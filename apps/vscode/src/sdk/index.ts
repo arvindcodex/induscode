@@ -7,7 +7,7 @@
 
 export * from "./account-service"
 export * from "./auth-service"
-export * from "./cline-session-factory"
+export * from "./induscode-session-factory"
 export * from "./legacy-state-reader"
 export * from "./message-translator"
 export * from "./provider-migration"

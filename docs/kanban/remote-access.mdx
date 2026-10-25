@@ -24,10 +24,10 @@ This makes Kanban available at `http://<your-machine-ip>:3484` from any device o
 ### Using Environment Variable
 
 ```bash
-KANBAN_RUNTIME_HOST=0.0.0.0 cline
+KANBAN_RUNTIME_HOST=0.0.0.0 induscode
 ```
 
-When you run `cline`, it will launch Kanban bound to `0.0.0.0`.
+When you run `induscode`, it will launch Kanban bound to `0.0.0.0`.
 
 <Warning>
 **Security Note**: Binding to `0.0.0.0` exposes Kanban to your entire local network. Only use this on networks you trust, such as your home WiFi.
@@ -44,7 +44,7 @@ Tailscale provides secure remote access without exposing ports to the internet. 
 3. **Launch Kanban** with network binding:
 
 ```bash
-KANBAN_RUNTIME_HOST=0.0.0.0 cline
+KANBAN_RUNTIME_HOST=0.0.0.0 induscode
 ```
 
 4. **Access from your phone**: Navigate to your machine's Tailscale hostname on port 3484:
@@ -204,7 +204,7 @@ export class KanbanEc2Stack extends cdk.Stack {
             "sudo dnf install -y nodejs",
 
             // 4) Clone and build the app
-            "git clone -b main https://github.com/cline/kanban.git /opt/kanban",
+            "git clone -b main https://github.com/induscode/kanban.git /opt/kanban",
 
             // 5) Create systemd service for the kanban app
             `cat > /etc/systemd/system/kanban.service << 'UNIT'

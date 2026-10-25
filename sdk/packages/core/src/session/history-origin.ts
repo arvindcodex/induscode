@@ -1,4 +1,4 @@
-import type { ClientContext } from "@cline/shared";
+import type { ClientContext } from "@induscode/shared";
 import {
 	SessionSource,
 	type SessionSource as SessionSourceValue,
@@ -47,13 +47,13 @@ export function resolveClientSessionSource(
 	if (identity.includes("neovim")) return SessionSource.NEOVIM;
 	if (identity.includes("kanban")) return SessionSource.KANBAN;
 	if (identity.includes("desktop")) return SessionSource.DESKTOP;
-	if (identity.includes("cline-platform")) {
+	if (identity.includes("induscode-platform")) {
 		return SessionSource.WEB;
 	}
-	if (identity.includes("cline-cli") || identity.includes("cline-acp")) {
+	if (identity.includes("induscode-cli") || identity.includes("induscode-acp")) {
 		return SessionSource.CLI;
 	}
-	if (identity.includes("cline-sdk") || identity.includes("cline-core")) {
+	if (identity.includes("induscode-sdk") || identity.includes("induscode-core")) {
 		return SessionSource.CORE;
 	}
 	return undefined;

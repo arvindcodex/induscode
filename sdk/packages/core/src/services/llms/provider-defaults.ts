@@ -1,6 +1,6 @@
 /** biome-ignore-all lint/style/noNonNullAssertion: static */
 
-import * as Llms from "@cline/llms";
+import * as Llms from "@induscode/llms";
 import {
 	fetchModelIdsFromSource,
 	resolveModelsSourceUrl,
@@ -185,7 +185,7 @@ async function mergeKnownModels(
 			...userKnownModels,
 		});
 	}
-	if (providerId === "cline-pass" && Object.keys(liveModels).length > 0) {
+	if (providerId === "induscode-pass" && Object.keys(liveModels).length > 0) {
 		// Keep the catalog's intentional order (pass models first, free models
 		// after) instead of re-sorting by release date: the first live model is
 		// the fallback default when the bundled default id rotates out of the
@@ -203,11 +203,11 @@ async function mergeKnownModels(
 		...publicModels,
 	});
 
-	if (providerId === "cline") {
-		// Cline recommendations can use Vercel-style ids while the broader
+	if (providerId === "induscode") {
+		// IndusCode recommendations can use Vercel-style ids while the broader
 		// catalog includes OpenRouter aliases for the same models. Image-output
-		// models are temporarily unavailable through Cline's inference backend,
-		// so filter them only at the Cline catalog boundary. buildClineModels
+		// models are temporarily unavailable through IndusCode's inference backend,
+		// so filter them only at the IndusCode catalog boundary. buildIndusCodeModels
 		// applies the same restriction to the bundled catalog. User overrides are
 		// also subject to this filter — the backend rejects image output
 		// regardless of where the model was configured. Remove both filter call
@@ -234,7 +234,7 @@ function resolveCatalogModels(
 	modelsByProviderId: Record<string, Record<string, ModelInfo>>,
 ): Record<string, ModelInfo> {
 	// Runtime provider ids do not always match catalog keys. For example,
-	// Cline uses OpenRouter-backed catalog models, so live catalog lookups must
+	// IndusCode uses OpenRouter-backed catalog models, so live catalog lookups must
 	// apply the same key mapping as generated catalog lookups.
 	const catalogKeys = Llms.resolveProviderModelCatalogKeys(providerId);
 	return Object.assign(
@@ -820,7 +820,7 @@ async function getPrivateProviderModels(
 
 async function fetchLiveModelsCatalog(
 	url: string,
-	includeClineCloudModels: boolean,
+	includeIndusCodeCloudModels: boolean,
 ): Promise<Record<string, Record<string, ModelInfo>>> {
 	// Bound both catalog sources, including response-body reads, while keeping
 	// any cancellation supplied by the source fetcher.
@@ -838,20 +838,20 @@ async function fetchLiveModelsCatalog(
 		globalThis.fetch,
 	);
 	return Llms.fetchLiveProviderModels(url, fetchWithTimeout, {
-		includeClineCloudModels,
+		includeIndusCodeCloudModels,
 	});
 }
 
 export async function getLiveModelsCatalog(
 	options: Pick<
 		ModelCatalogConfig,
-		"url" | "cacheTtlMs" | "includeClineCloudModels"
+		"url" | "cacheTtlMs" | "includeIndusCodeCloudModels"
 	> = {},
 ): Promise<Record<string, Record<string, ModelInfo>>> {
 	const url = options.url ?? DEFAULT_MODELS_CATALOG_URL;
 	const cacheTtlMs = options.cacheTtlMs ?? DEFAULT_MODELS_CATALOG_CACHE_TTL_MS;
-	const includeClineCloudModels = options.includeClineCloudModels === true;
-	const cacheKey = `${url}\0cloud=${includeClineCloudModels}`;
+	const includeIndusCodeCloudModels = options.includeIndusCodeCloudModels === true;
+	const cacheKey = `${url}\0cloud=${includeIndusCodeCloudModels}`;
 	const now = Date.now();
 
 	const cached = MODELS_CATALOG_CACHE.get(cacheKey);
@@ -864,7 +864,7 @@ export async function getLiveModelsCatalog(
 		return inFlight;
 	}
 
-	const request = fetchLiveModelsCatalog(url, includeClineCloudModels)
+	const request = fetchLiveModelsCatalog(url, includeIndusCodeCloudModels)
 		.then((data) => {
 			MODELS_CATALOG_CACHE.set(cacheKey, {
 				data,
@@ -882,8 +882,8 @@ export async function getLiveModelsCatalog(
 
 export function clearLiveModelsCatalogCache(url?: string): void {
 	if (url) {
-		for (const includeClineCloudModels of [false, true]) {
-			const cacheKey = `${url}\0cloud=${includeClineCloudModels}`;
+		for (const includeIndusCodeCloudModels of [false, true]) {
+			const cacheKey = `${url}\0cloud=${includeIndusCodeCloudModels}`;
 			MODELS_CATALOG_CACHE.delete(cacheKey);
 			MODELS_CATALOG_IN_FLIGHT.delete(cacheKey);
 		}

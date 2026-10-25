@@ -6,14 +6,14 @@ import type {
 	PluginSetupContext,
 	SessionPluginIssue,
 	WorkspaceInfo,
-} from "@cline/shared";
+} from "@induscode/shared";
 import {
 	discoverPluginModulePaths as discoverPluginModulePathsFromShared,
 	getPluginDisplayName,
 	resolveConfiguredPluginModulePaths,
 	resolvePluginConfigSearchPaths as resolvePluginConfigSearchPathsFromShared,
 	SKILLS_CONFIG_DIRECTORY_NAME,
-} from "@cline/shared/storage";
+} from "@induscode/shared/storage";
 import { filterDisabledPluginPaths } from "../../services/global-settings";
 import type { PluginLoadDiagnostics } from "./plugin-load-report";
 import {
@@ -107,10 +107,10 @@ function readDeclaredPluginEntryPaths(packageRoot: string): string[] {
 		const parsed = JSON.parse(
 			readFileSync(join(packageRoot, PACKAGE_JSON_FILE_NAME), "utf8"),
 		) as unknown;
-		if (!isRecord(parsed) || !isRecord(parsed.cline)) {
+		if (!isRecord(parsed) || !isRecord(parsed.induscode)) {
 			return [];
 		}
-		const entries = parsed.cline.plugins;
+		const entries = parsed.induscode.plugins;
 		if (!Array.isArray(entries)) {
 			return [];
 		}
@@ -281,10 +281,10 @@ export function resolveAgentPluginSkillDirectories(
 
 export type PluginExecutionMode = "sandbox" | "worker";
 
-export const CLINE_PLUGIN_MODE_ENV = "CLINE_PLUGIN_MODE";
+export const INDUSCODE_PLUGIN_MODE_ENV = "INDUSCODE_PLUGIN_MODE";
 
 /**
- * Where plugins run (`CLINE_PLUGIN_MODE`, or `mode`):
+ * Where plugins run (`INDUSCODE_PLUGIN_MODE`, or `mode`):
  * - `worker` (default): each plugin runs in its own worker thread per
  *   session, inside the host runtime. A plugin crash, `process.exit()`, or
  *   hung loop ends only its worker, and no `node`/`bun` is needed on PATH.
@@ -297,7 +297,7 @@ export const CLINE_PLUGIN_MODE_ENV = "CLINE_PLUGIN_MODE";
 export function resolvePluginExecutionMode(
 	mode?: PluginExecutionMode,
 ): PluginExecutionMode {
-	const configured = process.env[CLINE_PLUGIN_MODE_ENV]?.trim();
+	const configured = process.env[INDUSCODE_PLUGIN_MODE_ENV]?.trim();
 	return mode ?? (configured === "sandbox" ? configured : "worker");
 }
 

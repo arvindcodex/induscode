@@ -41,7 +41,7 @@ jobs:
       contents: write
       id-token: write
     if: |
-      github.repository == 'cline/cline' &&
+      github.repository == 'induscode/induscode' &&
       github.ref == 'refs/heads/main' &&
       (
         github.event_name != 'workflow_dispatch' ||
@@ -179,62 +179,62 @@ jobs:
       # Pack with Bun so workspace/catalog protocols are resolved in the tarball,
       # then publish that tarball with npm so npm trusted publishing can use GitHub OIDC.
       # Publish sequentially in dependency order: shared → llms → agents → core → sdk
-      - name: Publish @cline/shared
+      - name: Publish @induscode/shared
         if: steps.check_commits.outputs.skip != 'true'
         env:
           NPM_CONFIG_PROVENANCE: "true"
           CHANNEL: ${{ steps.channel.outputs.channel }}
           VERSION: ${{ steps.version.outputs.version }}
         run: |
-          echo "Publishing @cline/shared@${VERSION} with tag '${CHANNEL}'..."
+          echo "Publishing @induscode/shared@${VERSION} with tag '${CHANNEL}'..."
           cd sdk/packages/shared
           TARBALL=$(bun pm pack --destination "$RUNNER_TEMP/sdk-npm-packs" --quiet)
           npm publish "$RUNNER_TEMP/sdk-npm-packs/$(basename "$TARBALL")" --tag "$CHANNEL" --access public
 
-      - name: Publish @cline/llms
+      - name: Publish @induscode/llms
         if: steps.check_commits.outputs.skip != 'true'
         env:
           NPM_CONFIG_PROVENANCE: "true"
           CHANNEL: ${{ steps.channel.outputs.channel }}
           VERSION: ${{ steps.version.outputs.version }}
         run: |
-          echo "Publishing @cline/llms@${VERSION} with tag '${CHANNEL}'..."
+          echo "Publishing @induscode/llms@${VERSION} with tag '${CHANNEL}'..."
           cd sdk/packages/llms
           TARBALL=$(bun pm pack --destination "$RUNNER_TEMP/sdk-npm-packs" --quiet)
           npm publish "$RUNNER_TEMP/sdk-npm-packs/$(basename "$TARBALL")" --tag "$CHANNEL" --access public
 
-      - name: Publish @cline/agents
+      - name: Publish @induscode/agents
         if: steps.check_commits.outputs.skip != 'true'
         env:
           NPM_CONFIG_PROVENANCE: "true"
           CHANNEL: ${{ steps.channel.outputs.channel }}
           VERSION: ${{ steps.version.outputs.version }}
         run: |
-          echo "Publishing @cline/agents@${VERSION} with tag '${CHANNEL}'..."
+          echo "Publishing @induscode/agents@${VERSION} with tag '${CHANNEL}'..."
           cd sdk/packages/agents
           TARBALL=$(bun pm pack --destination "$RUNNER_TEMP/sdk-npm-packs" --quiet)
           npm publish "$RUNNER_TEMP/sdk-npm-packs/$(basename "$TARBALL")" --tag "$CHANNEL" --access public
 
-      - name: Publish @cline/core
+      - name: Publish @induscode/core
         if: steps.check_commits.outputs.skip != 'true'
         env:
           NPM_CONFIG_PROVENANCE: "true"
           CHANNEL: ${{ steps.channel.outputs.channel }}
           VERSION: ${{ steps.version.outputs.version }}
         run: |
-          echo "Publishing @cline/core@${VERSION} with tag '${CHANNEL}'..."
+          echo "Publishing @induscode/core@${VERSION} with tag '${CHANNEL}'..."
           cd sdk/packages/core
           TARBALL=$(bun pm pack --destination "$RUNNER_TEMP/sdk-npm-packs" --quiet)
           npm publish "$RUNNER_TEMP/sdk-npm-packs/$(basename "$TARBALL")" --tag "$CHANNEL" --access public
 
-      - name: Publish @cline/sdk
+      - name: Publish @induscode/sdk
         if: steps.check_commits.outputs.skip != 'true'
         env:
           NPM_CONFIG_PROVENANCE: "true"
           CHANNEL: ${{ steps.channel.outputs.channel }}
           VERSION: ${{ steps.version.outputs.version }}
         run: |
-          echo "Publishing @cline/sdk@${VERSION} with tag '${CHANNEL}'..."
+          echo "Publishing @induscode/sdk@${VERSION} with tag '${CHANNEL}'..."
           cd sdk/packages/sdk
           TARBALL=$(bun pm pack --destination "$RUNNER_TEMP/sdk-npm-packs" --quiet)
           npm publish "$RUNNER_TEMP/sdk-npm-packs/$(basename "$TARBALL")" --tag "$CHANNEL" --access public
@@ -252,7 +252,7 @@ jobs:
             if git rev-parse -q --verify "refs/tags/${TAG}" >/dev/null; then
               echo "Tag already exists locally: ${TAG}"
             else
-              git tag -a "${TAG}" -m "@cline/${PKG}@${VERSION}"
+              git tag -a "${TAG}" -m "@induscode/${PKG}@${VERSION}"
               echo "Created tag: ${TAG}"
             fi
 
@@ -329,11 +329,11 @@ jobs:
           CHANNEL: ${{ steps.channel.outputs.channel }}
         run: |
           echo "Published SDK packages with tag '${CHANNEL}':"
-          echo "  - @cline/shared@${VERSION}"
-          echo "  - @cline/llms@${VERSION}"
-          echo "  - @cline/agents@${VERSION}"
-          echo "  - @cline/core@${VERSION}"
-          echo "  - @cline/sdk@${VERSION}"
+          echo "  - @induscode/shared@${VERSION}"
+          echo "  - @induscode/llms@${VERSION}"
+          echo "  - @induscode/agents@${VERSION}"
+          echo "  - @induscode/core@${VERSION}"
+          echo "  - @induscode/sdk@${VERSION}"
           if [ "$CHANNEL" = "latest" ]; then
             echo "Created git tags:"
             echo "  - sdk/shared/v${VERSION}"
@@ -351,12 +351,12 @@ jobs:
           token: ${{ secrets.SLACK_RELEASE_BOT_TOKEN }}
           payload: |
             channel: "C0APVKGGZFC"
-            text: "Cline SDK v${{ steps.version.outputs.version }}"
+            text: "IndusCode SDK v${{ steps.version.outputs.version }}"
             blocks:
               - type: "section"
                 text:
                   type: "mrkdwn"
-                  text: "Cline SDK v${{ steps.version.outputs.version }}"
+                  text: "IndusCode SDK v${{ steps.version.outputs.version }}"
               - type: "section"
                 text:
                   type: "mrkdwn"
@@ -364,4 +364,4 @@ jobs:
               - type: "context"
                 elements:
                   - type: "mrkdwn"
-                    text: "<https://www.npmjs.com/package/@cline/sdk/v/${{ steps.version.outputs.version }}|View on npm>${{ steps.prev_tag.outputs.prev_tag != '' && format(' | Full Changelog: https://github.com/{0}/compare/{1}...sdk/sdk/v{2}', github.repository, steps.prev_tag.outputs.prev_tag, steps.version.outputs.version) || '' }}"
+                    text: "<https://www.npmjs.com/package/@induscode/sdk/v/${{ steps.version.outputs.version }}|View on npm>${{ steps.prev_tag.outputs.prev_tag != '' && format(' | Full Changelog: https://github.com/{0}/compare/{1}...sdk/sdk/v{2}', github.repository, steps.prev_tag.outputs.prev_tag, steps.version.outputs.version) || '' }}"

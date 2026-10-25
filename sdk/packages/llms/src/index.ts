@@ -1,9 +1,9 @@
-/** @deprecated Import from `@cline/shared`; kept for compatibility. */
+/** @deprecated Import from `@induscode/shared`; kept for compatibility. */
 export {
-	CLINE_DEFAULT_MODEL_ID,
+	INDUSCODE_DEFAULT_MODEL_ID,
 	type ProviderLocalCli,
 	resolveProviderLocalCli,
-} from "@cline/shared";
+} from "@induscode/shared";
 export type {
 	GetModelsForProviderOptions,
 	ModelCollection,
@@ -23,7 +23,7 @@ export {
 	fetchVercelTranscriptionModels,
 	filterImageOutputModels,
 	filterOpenAICodexModels,
-	GENERATED_CLINE_RECOMMENDED_MODELS,
+	GENERATED_INDUSCODE_RECOMMENDED_MODELS,
 	getAllProviders,
 	getGeneratedModelsForProvider,
 	getGeneratedProviderModels,
@@ -71,32 +71,32 @@ export type {
 export {
 	BUILT_IN_PROVIDER,
 	BUILT_IN_PROVIDER_IDS,
-	ClineFreeModelLimitError,
-	ClineNotSubscribedError,
-	ClineOrgIndividualInferenceSubscriptionError,
-	ClinePassLimitError,
+	IndusCodeFreeModelLimitError,
+	IndusCodeNotSubscribedError,
+	IndusCodeOrgIndividualInferenceSubscriptionError,
+	IndusCodePassLimitError,
 	classifyProviderError,
 	createHandler,
 	createHandlerAsync,
-	extractClineFreeModelLimitResetTime,
-	extractClinePassLimitMessage,
-	getClineNotSubscribedMessage,
-	getClineOrgIndividualInferenceSubscriptionMessage,
-	getClinePassSubscriptionUrl,
+	extractIndusCodeFreeModelLimitResetTime,
+	extractIndusCodePassLimitMessage,
+	getIndusCodeNotSubscribedMessage,
+	getIndusCodeOrgIndividualInferenceSubscriptionMessage,
+	getIndusCodePassSubscriptionUrl,
 	getGeneratedModelsForRuntimeProvider,
 	getRegisteredHandler,
 	getRegisteredHandlerAsync,
 	hasRegisteredHandler,
 	isBuiltInProviderId,
-	isClineFreeModelLimitError,
-	isClineFreeModelLimitMessage,
-	isClineModelNotFoundMessage,
-	isClineNotSubscribedError,
-	isClineNotSubscribedMessage,
-	isClineOrgIndividualInferenceSubscriptionError,
-	isClineOrgIndividualInferenceSubscriptionMessage,
-	isClinePassLimitError,
-	isClinePassLimitMessage,
+	isIndusCodeFreeModelLimitError,
+	isIndusCodeFreeModelLimitMessage,
+	isIndusCodeModelNotFoundMessage,
+	isIndusCodeNotSubscribedError,
+	isIndusCodeNotSubscribedMessage,
+	isIndusCodeOrgIndividualInferenceSubscriptionError,
+	isIndusCodeOrgIndividualInferenceSubscriptionMessage,
+	isIndusCodePassLimitError,
+	isIndusCodePassLimitMessage,
 	isProviderApiLine,
 	isRegisteredHandlerAsync,
 	isRetryableProviderError,
@@ -114,7 +114,7 @@ export {
 	resolveProviderUsageCostDisplay,
 	shouldShowProviderUsageCost,
 } from "./providers/billing";
-export { buildClineClientHeaders } from "./providers/cline-client-headers";
+export { buildIndusCodeClientHeaders } from "./providers/induscode-client-headers";
 export type * from "./providers/gateway";
 export { createGateway, DefaultGateway } from "./providers/gateway";
 export { toGatewayModelCapabilities } from "./providers/model-capabilities";
@@ -140,13 +140,13 @@ export {
 	resolveProviderRequestHeaders,
 } from "./providers/request-headers";
 export {
-	type ClineProvider,
-	type ClineProviderOptions,
-	type ClineWebSearchInput,
-	type ClineWebSearchOptions,
-	type ClineWebSearchResult,
-	createCline,
-} from "./providers/vendors/cline";
+	type IndusCodeProvider,
+	type IndusCodeProviderOptions,
+	type IndusCodeWebSearchInput,
+	type IndusCodeWebSearchOptions,
+	type IndusCodeWebSearchResult,
+	createIndusCode,
+} from "./providers/vendors/induscode";
 export { LangfuseAttributesSpanProcessor } from "./services/LangfuseAttributesSpanProcessor";
 export {
 	disposeLangfuseTelemetry,

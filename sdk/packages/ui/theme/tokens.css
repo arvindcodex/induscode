@@ -1,12 +1,12 @@
 /*
- * Canonical Cline web theme tokens.
+ * Canonical IndusCode web theme tokens.
  *
  * Keep this file framework-neutral: imports and variable blocks only, with no
  * Tailwind directives, resets, font imports, or app-specific selectors.
  * Generate the scoped entry point with `bun run generate:theme` after changes.
  */
 
-@import "@cline/ui/theme/palette.css";
+@import "@induscode/ui/theme/palette.css";
 
 :root {
 	/* Brand extensions for artwork; components should prefer semantic tokens. */

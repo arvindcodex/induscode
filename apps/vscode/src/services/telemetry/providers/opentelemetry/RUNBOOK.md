@@ -1,7 +1,7 @@
 # AI trace relay: disable, replace, and roll back
 
-Scope: the client pipeline in cline/cline#13974 and publish activation in
-cline/cline#13982. The activation PR enables a build-configured exporter; it
+Scope: the client pipeline in induscode/induscode#13974 and publish activation in
+induscode/induscode#13982. The activation PR enables a build-configured exporter; it
 does not turn remote configuration into a universal client kill switch.
 
 ## Choose the control by what must stop
@@ -10,7 +10,7 @@ does not turn remote configuration into a universal client kill switch.
 | --- | --- | --- |
 | Production Langfuse sampler at 0%, or disable the Langfuse pipeline | Stops new forwarding to Langfuse after the collector change takes effect | Staging has no sampler. Clients still send to the collector; other pipelines, existing data, and queued/in-flight exports are not necessarily affected |
 | Remove `openTelemetryTracesExporter` or set `openTelemetryEnabled: false` in extension remote config | Shuts down the **remote-config-owned** tracer when that configuration is fetched and applied | Requires a client with the lifecycle fix and coordinated schema deployment; does not disable build/runtime-configured exporters, CLI/hub processes, or direct Langfuse export |
-| Remove build-time `OTEL_TRACES_EXPORTER`, or set build-time `CLINE_TRACE_SAMPLE_PERCENT: "0"` | Disables the relay for updated packaged clients | Requires a new build/release and users installing it; existing sessions are not remotely changed |
+| Remove build-time `OTEL_TRACES_EXPORTER`, or set build-time `INDUSCODE_TRACE_SAMPLE_PERCENT: "0"` | Disables the relay for updated packaged clients | Requires a new build/release and users installing it; existing sessions are not remotely changed |
 | Change runtime environment for a process you operate | Changes tracing at its next startup | Requires restarting that process; compiled-in values may take precedence |
 
 Collector controls are **no-client-release mitigation**, not instantaneous
@@ -85,14 +85,14 @@ call, so replacing the remote-config provider also redirects subsequent streams.
 
 The integration emits the v7 semantic attributes, including
 `gen_ai.provider.name` and `gen_ai.request.model`, under the instrumentation scope
-`cline-provider-langfuse`. It does not emit the old `ai.model.provider` attribute.
-Before activation, update and validate the collector filter in cline/infra#547
+`induscode-provider-langfuse`. It does not emit the old `ai.model.provider` attribute.
+Before activation, update and validate the collector filter in induscode/infra#547
 against these actual spans. A filter requiring `ai.model.provider` drops them all.
 Preserve child step/tool spans too: they share the dedicated instrumentation
 scope but may not carry the model-provider attribute. Do not enable the publish
 rollout until a real streamed response reaches the intended collector destination.
 
-Direct `LANGFUSE_*` credentials remain supported for `cline` and `cline-pass`
+Direct `LANGFUSE_*` credentials remain supported for `induscode` and `induscode-pass`
 when no host relay is registered. That path uses an isolated tracer provider and
 per-call integration; it neither registers a global AI SDK integration nor alters
 or shuts down another owner's tracer. When a relay is registered it takes
@@ -101,15 +101,15 @@ and content controls still apply, with no fallback to direct export when those
 controls disable a request.
 
 Third-party (BYOK) providers such as `openrouter` are traced only when the
-operator sets `CLINE_LANGFUSE_ALL_PROVIDERS=1` alongside direct `LANGFUSE_*`
+operator sets `INDUSCODE_LANGFUSE_ALL_PROVIDERS=1` alongside direct `LANGFUSE_*`
 credentials. That opt-in uses the isolated direct exporter exclusively and never
 the host relay, so BYOK prompts cannot reach a collector the operator did not
 configure. `LANGFUSE_TRACING_ENVIRONMENT` sets the Langfuse environment on the
-direct exporter, and `CLINE_LANGFUSE_TAGS` (comma-separated) plus
-`CLINE_LANGFUSE_METADATA` (JSON object or `key=value,...`) add trace-level tags
+direct exporter, and `INDUSCODE_LANGFUSE_TAGS` (comma-separated) plus
+`INDUSCODE_LANGFUSE_METADATA` (JSON object or `key=value,...`) add trace-level tags
 and metadata to every trace the process emits, on both the direct and relay paths.
 
-Scope on every path, Cline providers included: streamed language requests only.
+Scope on every path, IndusCode providers included: streamed language requests only.
 Dedicated image-generation requests use the AI SDK's `generateImage`, which has
 no telemetry option and no Langfuse integration hook, so they emit no trace.
 
@@ -120,11 +120,11 @@ spans, asserts a single trace and intact parent IDs, and verifies the dedicated
 scope on every span. Regenerate the infra OTLP JSON fixture from the SDK root:
 
 ```sh
-CLINE_RELAY_FIXTURE_PATH=/tmp/cline-relay-fixture.json \
-  bun -F @cline/llms test src/services/langfuse-telemetry.integration.test.ts
+INDUSCODE_RELAY_FIXTURE_PATH=/tmp/induscode-relay-fixture.json \
+  bun -F @induscode/llms test src/services/langfuse-telemetry.integration.test.ts
 ```
 
-Copy the output to `cline/infra`'s `tests/fixtures/langfuse-relay-spans.json` and
+Copy the output to `induscode/infra`'s `tests/fixtures/langfuse-relay-spans.json` and
 refresh its provenance. The fixture preserves real span IDs, timestamps, names,
 scope and string attributes; non-routing numeric/array attributes, events and
 resource metadata are omitted. It contains synthetic data only. Frozen fixtures

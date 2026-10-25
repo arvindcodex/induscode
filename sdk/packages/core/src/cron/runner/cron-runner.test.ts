@@ -12,7 +12,7 @@ import type {
 	ChatStartSessionRequest,
 	CronOneOffSpec,
 	ITelemetryService,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { DefaultToolNames } from "../../extensions/tools/constants";
 import type {
@@ -87,7 +87,7 @@ describe("CronRunner", () => {
 	let materializer: CronMaterializer;
 
 	beforeEach(() => {
-		dir = mkdtempSync(join(tmpdir(), "cline-runner-"));
+		dir = mkdtempSync(join(tmpdir(), "induscode-runner-"));
 		workspaceRoot = join(dir, "ws");
 		cronDir = join(dir, "cron-specs");
 		mkdirSync(workspaceRoot, { recursive: true });

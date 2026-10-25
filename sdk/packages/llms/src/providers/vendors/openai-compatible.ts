@@ -4,8 +4,8 @@ import type { LanguageModelV4 } from "@ai-sdk/provider";
 import type {
 	GatewayProviderContext,
 	GatewayResolvedProviderConfig,
-} from "@cline/shared";
-import { modelProducesImages } from "@cline/shared";
+} from "@induscode/shared";
+import { modelProducesImages } from "@induscode/shared";
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { wrapLanguageModel } from "ai";
 import { ensureFetch, resolveApiKey } from "../http";
@@ -286,7 +286,7 @@ export async function createOpenAICompatibleProviderModule(
 		// middleware operates on the typed `LanguageModelV4Prompt` BEFORE
 		// the converter runs, so the converter sees only text-only tool
 		// messages with adjacent multimodal user messages — the wire
-		// pattern that classic Cline used in production for years (see
+		// pattern that classic IndusCode used in production for years (see
 		// `convertToOpenAiMessages` in `src/core/api/transform/openai-format.ts`
 		// on origin/main).
 		operations: {

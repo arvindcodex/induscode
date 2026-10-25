@@ -1,5 +1,5 @@
-import type { CloudTaskTargetChoice } from "@shared/proto/cline/cloud"
-import { Empty } from "@shared/proto/cline/common"
+import type { CloudTaskTargetChoice } from "@shared/proto/induscode/cloud"
+import { Empty } from "@shared/proto/induscode/common"
 import type { Controller } from "../index"
 
 /** Records the one choice the user just made about where new tasks run. */

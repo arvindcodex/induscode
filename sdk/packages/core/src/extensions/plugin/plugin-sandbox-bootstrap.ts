@@ -18,7 +18,7 @@ import {
 	type AutomationEventEnvelope,
 	normalizePluginManifest,
 	type PluginManifest,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { installParentDisconnectGuard } from "../../runtime/tools/subprocess-sandbox-lifecycle";
 import { importPluginModule } from "./plugin-module-import";
 import {
@@ -49,7 +49,7 @@ interface PluginCommand {
 	) => Promise<PluginCommandResult> | PluginCommandResult;
 }
 
-// Keep this local mirror in sync with AgentExtensionCommandResult from @cline/shared.
+// Keep this local mirror in sync with AgentExtensionCommandResult from @induscode/shared.
 // The sandbox bootstrap runs in an isolated process and avoids host package imports.
 type PluginCommandResult =
 	| string
@@ -445,8 +445,8 @@ function emitEvent(name: string, payload?: unknown): void {
  * tool call, and the end of a plugin's import so the host can tell an import
  * failure from a setup failure. Keep in sync with plugin-sandbox.ts.
  */
-const TOOL_UPDATE_EVENT = "__cline_tool_update";
-const SETUP_STARTED_EVENT = "__cline_setup_started";
+const TOOL_UPDATE_EVENT = "__induscode_tool_update";
+const SETUP_STARTED_EVENT = "__induscode_setup_started";
 
 /** A tool's definition fields as plain data (functions dropped). */
 function toolDefinitionData(tool: PluginTool): Record<string, unknown> {
@@ -477,14 +477,14 @@ function withTimeout<T>(
 }
 
 // Expose event emitter to plugins.
-(globalThis as Record<string, unknown>).__clinePluginHost = { emitEvent };
+(globalThis as Record<string, unknown>).__induscodePluginHost = { emitEvent };
 
 /**
  * Session workspace env — populated by `initialize()` and available to any
  * plugin code that executes before the setup hook, or cannot use hook context.
  * Prefer using PluginSetupCtx from the setup function when possible.
  */
-(globalThis as Record<string, unknown>).__clineSessionEnv = {
+(globalThis as Record<string, unknown>).__induscodeSessionEnv = {
 	cwd: undefined as string | undefined,
 	workspaceInfo: undefined as unknown,
 };
@@ -898,7 +898,7 @@ async function initialize(args: {
 
 	// Keep the global escape-hatch in sync with the active session.
 	const sessionEnv = (globalThis as Record<string, unknown>)
-		.__clineSessionEnv as Record<string, unknown>;
+		.__induscodeSessionEnv as Record<string, unknown>;
 	if (sessionEnv) {
 		sessionEnv.cwd = args.cwd;
 		sessionEnv.workspaceInfo = args.workspaceInfo;

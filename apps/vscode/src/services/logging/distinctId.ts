@@ -11,7 +11,7 @@ let _distinctId = ""
 
 /*
  * Deterministic identifier for the device, resolved once at initialization.
- * Unlike the distinct ID, this is never replaced by the Cline User ID on auth,
+ * Unlike the distinct ID, this is never replaced by the IndusCode User ID on auth,
  * so every session on this device reports the same value.
  */
 let _deviceId = ""
@@ -20,7 +20,7 @@ let _deviceId = ""
  * Some environments don't return a value for the machine ID. For these situations we generated
  * a unique ID and store it locally.
  */
-export const _GENERATED_MACHINE_ID_KEY = "cline.generatedMachineId"
+export const _GENERATED_MACHINE_ID_KEY = "induscode.generatedMachineId"
 
 export async function initializeDistinctId(storage: StorageContext, uuid: () => string = uuidv4) {
 	// Try to read the ID from storage.
@@ -64,7 +64,7 @@ async function getMachineId(): Promise<string | undefined> {
 
 /*
  * Set the distinct ID for logging and telemetry.
- * This is updated to Cline User ID when authenticated.
+ * This is updated to IndusCode User ID when authenticated.
  */
 export function setDistinctId(newId: string) {
 	if (_distinctId && _distinctId !== newId) {
@@ -75,7 +75,7 @@ export function setDistinctId(newId: string) {
 
 /*
  * Unique identifier for the current user
- * If authenticated, this will be the Cline User ID.
+ * If authenticated, this will be the IndusCode User ID.
  * Else, this will be the machine ID, or the anonymous ID as a fallback.
  */
 export function getDistinctId() {

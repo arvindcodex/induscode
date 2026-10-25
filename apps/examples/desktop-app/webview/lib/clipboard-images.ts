@@ -1,4 +1,4 @@
-import { SUPPORTED_IMAGE_MEDIA_TYPES } from "@cline/shared/browser";
+import { SUPPORTED_IMAGE_MEDIA_TYPES } from "@induscode/shared/browser";
 
 // Restricted to the media types message serialization accepts
 // (SUPPORTED_IMAGE_MEDIA_TYPES); anything else would render an attachment

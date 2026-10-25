@@ -644,7 +644,7 @@ export function mixColors(base: string, top: string, amount: number): string {
 
 export type MermaidColorMode = "dark" | "light";
 
-/** Resolved Cline design tokens the diagram theme is derived from. */
+/** Resolved IndusCode design tokens the diagram theme is derived from. */
 export interface MermaidThemeTokens {
 	/** Diagram surface (`--card`); also the PNG background fill. */
 	background: string;
@@ -815,7 +815,7 @@ export function buildMermaidThemeVariables(
 }
 
 /**
- * Site-level Mermaid config for the Cline theme. User `%%{init}%%`, frontmatter
+ * Site-level Mermaid config for the IndusCode theme. User `%%{init}%%`, frontmatter
  * `config:`, `classDef` and `style` layer on top of this inside Mermaid, so
  * nothing here is forced per node. `htmlLabels: false` keeps labels as SVG
  * `<text>` instead of `<foreignObject>`, which taints canvases in WebKit and
@@ -924,7 +924,7 @@ export function resolvePngDesiredScale(
 }
 /**
  * Attached images are validated on their base64 length, capped at 5 MiB
- * (`DEFAULT_MAX_IMAGE_ENCODED_BYTES` in `@cline/shared`'s `llms/media.ts`).
+ * (`DEFAULT_MAX_IMAGE_ENCODED_BYTES` in `@induscode/shared`'s `llms/media.ts`).
  */
 export const PNG_MAX_ENCODED_BYTES = 5 * 1024 * 1024;
 /** Each retry re-encodes at this fraction of the previous scale. */
@@ -1096,7 +1096,7 @@ export function prepareSvgForRaster(svg: string): PreparedSvg {
  * Carries a diagram link's original destination once the navigable href has
  * been removed, so hosts can offer their own vetted way to open it.
  */
-export const DIAGRAM_LINK_HREF_ATTRIBUTE = "data-cline-diagram-href";
+export const DIAGRAM_LINK_HREF_ATTRIBUTE = "data-induscode-diagram-href";
 
 /** Attributes that would let an anchor navigate on its own. */
 const NAVIGABLE_LINK_ATTRIBUTES = ["href", "xlink:href"] as const;

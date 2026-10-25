@@ -12,7 +12,7 @@ on:
           - latest
         default: next
       confirm_publish:
-        description: 'Type "publish" to publish @cline/ui to npm'
+        description: 'Type "publish" to publish @induscode/ui to npm'
         required: true
         type: string
 
@@ -46,29 +46,29 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      # @cline/ui imports @cline/shared/browser (generated-media), which
+      # @induscode/ui imports @induscode/shared/browser (generated-media), which
       # resolves to dist output — build it before anything typechecks or
       # builds the ui package.
       - name: Build shared package
-        run: bun -F @cline/shared build
+        run: bun -F @induscode/shared build
 
       - name: Typecheck UI
-        run: bun -F @cline/ui typecheck
+        run: bun -F @induscode/ui typecheck
 
       - name: Test UI
-        run: bun -F @cline/ui test
+        run: bun -F @induscode/ui test
 
       - name: Build Storybook
-        run: bun -F @cline/ui build-storybook
+        run: bun -F @induscode/ui build-storybook
 
       - name: Build UI package
-        run: bun -F @cline/ui build
+        run: bun -F @induscode/ui build
 
       - name: Build LLM package for desktop chat tests
-        run: bun -F @cline/llms build
+        run: bun -F @induscode/llms build
 
       - name: Test desktop chat integration
-        run: bun -F @cline/code test:chat-ui
+        run: bun -F @induscode/code test:chat-ui
 
       - name: Pack publish artifact
         id: pack
@@ -97,10 +97,10 @@ jobs:
           retention-days: 7
 
   publish:
-    name: Publish @cline/ui
+    name: Publish @induscode/ui
     if: >-
       github.event_name == 'workflow_dispatch' &&
-      github.repository == 'cline/cline' &&
+      github.repository == 'induscode/induscode' &&
       github.ref == 'refs/heads/main' &&
       inputs.confirm_publish == 'publish' &&
       !endsWith(github.actor, '[bot]')
@@ -144,10 +144,10 @@ jobs:
           fi
 
           version=$(tar -xOf "$archive" package/package.json | node -e 'let input=""; process.stdin.on("data", chunk => input += chunk); process.stdin.on("end", () => process.stdout.write(JSON.parse(input).version))')
-          if npm view "@cline/ui@${version}" version >/dev/null 2>&1; then
-            echo "@cline/ui@${version} already exists; bump sdk/packages/ui/package.json before publishing"
+          if npm view "@induscode/ui@${version}" version >/dev/null 2>&1; then
+            echo "@induscode/ui@${version} already exists; bump sdk/packages/ui/package.json before publishing"
             exit 1
           fi
 
           npm publish "$archive" --tag "$NPM_TAG" --access public
-          echo "Published @cline/ui@${version} with npm tag '${NPM_TAG}'"
+          echo "Published @induscode/ui@${version} with npm tag '${NPM_TAG}'"

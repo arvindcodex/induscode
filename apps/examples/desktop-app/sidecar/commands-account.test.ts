@@ -2,11 +2,11 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { isClineAccountNotAuthenticatedResult } from "../webview/lib/cline-account-state";
+import { isIndusCodeAccountNotAuthenticatedResult } from "../webview/lib/induscode-account-state";
 import type { SidecarContext } from "./types";
 
-const clineAccountServiceCtorMock = vi.hoisted(() => vi.fn());
-const executeClineAccountActionMock = vi.hoisted(() => vi.fn());
+const induscodeAccountServiceCtorMock = vi.hoisted(() => vi.fn());
+const executeIndusCodeAccountActionMock = vi.hoisted(() => vi.fn());
 const getProviderSettingsMock = vi.hoisted(() => vi.fn());
 const saveProviderSettingsMock = vi.hoisted(() => vi.fn());
 const persistProviderSettingsMock = vi.hoisted(() => vi.fn());
@@ -24,17 +24,17 @@ vi.mock("./legacy-provider-credentials", () => ({
 	clearLegacyProviderCredentials: clearLegacyProviderCredentialsMock,
 }));
 
-vi.mock("@cline/core", async () => {
+vi.mock("@induscode/core", async () => {
 	const actual =
-		await vi.importActual<typeof import("@cline/core")>("@cline/core");
+		await vi.importActual<typeof import("@induscode/core")>("@induscode/core");
 	return {
 		...actual,
-		ClineAccountService: class {
+		IndusCodeAccountService: class {
 			constructor(options: unknown) {
-				clineAccountServiceCtorMock(options);
+				induscodeAccountServiceCtorMock(options);
 			}
 		},
-		executeClineAccountAction: executeClineAccountActionMock,
+		executeIndusCodeAccountAction: executeIndusCodeAccountActionMock,
 		ProviderSettingsManager: class {
 			getProviderSettings = getProviderSettingsMock;
 			saveProviderSettings = persistProviderSettingsMock;
@@ -60,23 +60,23 @@ function createContext() {
 }
 
 const FETCH_ME_ARGS = {
-	action: "clineAccount",
+	action: "induscodeAccount",
 	operation: "fetchMe",
 } as const;
 
-async function runClineAccountCommand(ctx: SidecarContext) {
+async function runIndusCodeAccountCommand(ctx: SidecarContext) {
 	const { handleCommand } = await import("./commands");
-	return handleCommand(ctx, "cline_account", { ...FETCH_ME_ARGS });
+	return handleCommand(ctx, "induscode_account", { ...FETCH_ME_ARGS });
 }
 
 beforeEach(() => {
 	// Account context is persisted across launches; never hydrate the developer's
 	// signed-in identity when a test expects an anonymous device identity.
 	testDataDir = mkdtempSync(join(tmpdir(), "commands-account-test-"));
-	vi.stubEnv("CLINE_DATA_DIR", testDataDir);
-	vi.stubEnv("CLINE_DIR", testDataDir);
-	clineAccountServiceCtorMock.mockReset();
-	executeClineAccountActionMock.mockReset();
+	vi.stubEnv("INDUSCODE_DATA_DIR", testDataDir);
+	vi.stubEnv("INDUSCODE_DIR", testDataDir);
+	induscodeAccountServiceCtorMock.mockReset();
+	executeIndusCodeAccountActionMock.mockReset();
 	getProviderSettingsMock.mockReset();
 	saveProviderSettingsMock.mockReset();
 	persistProviderSettingsMock.mockReset();
@@ -89,10 +89,10 @@ beforeEach(() => {
 
 describe("provider settings cloud session lifecycle", () => {
 	it.each([
-		["cline", false, true],
-		["cline-pass", false, true],
+		["induscode", false, true],
+		["induscode-pass", false, true],
 		["openai-codex", false, false],
-		["cline-pass", true, false],
+		["induscode-pass", true, false],
 	] as const)("handles %s login (failed: %s, resets cloud: %s)", async (provider, failed, resets) => {
 		const { ctx } = createContext();
 		const dispose = vi.fn().mockResolvedValue(undefined);
@@ -143,11 +143,11 @@ describe("provider settings cloud session lifecycle", () => {
 				...update,
 				auth: { accessToken: "token", accountId: "acct-1" },
 			});
-			return { providerId: "cline", enabled: true };
+			return { providerId: "induscode", enabled: true };
 		});
 		const { handleCommand } = await import("./commands");
 		await handleCommand(ctx, "save_provider_settings", {
-			provider: "cline",
+			provider: "induscode",
 			...update,
 		});
 		expect(ctx.cloudSessionManager).toBe(cloudManager);
@@ -181,11 +181,11 @@ describe("provider settings cloud session lifecycle", () => {
 							},
 						},
 			);
-			return { providerId: "cline", enabled: update.enabled !== false };
+			return { providerId: "induscode", enabled: update.enabled !== false };
 		});
 		const { handleCommand } = await import("./commands");
 		await handleCommand(ctx, "save_provider_settings", {
-			provider: "cline",
+			provider: "induscode",
 			...update,
 		});
 		expect(ctx.cloudSessionManager).toBeNull();
@@ -198,22 +198,22 @@ afterEach(() => {
 	rmSync(testDataDir, { recursive: true, force: true });
 });
 
-describe("cline_account command auth states", () => {
+describe("induscode_account command auth states", () => {
 	it("returns a typed not-authenticated result and restores anonymous telemetry when signed out", async () => {
 		const { ctx, capture, setDistinctId, updateCommonProperties } =
 			createContext();
 		resolveProviderApiKeyMock.mockResolvedValue(null);
 		getProviderSettingsMock.mockReturnValue(undefined);
 
-		const result = await runClineAccountCommand(ctx);
+		const result = await runIndusCodeAccountCommand(ctx);
 
 		expect(result).toEqual({
 			signedIn: false,
 			code: "ACCOUNT_NOT_AUTHENTICATED",
 		});
-		expect(isClineAccountNotAuthenticatedResult(result)).toBe(true);
-		expect(executeClineAccountActionMock).not.toHaveBeenCalled();
-		expect(clineAccountServiceCtorMock).not.toHaveBeenCalled();
+		expect(isIndusCodeAccountNotAuthenticatedResult(result)).toBe(true);
+		expect(executeIndusCodeAccountActionMock).not.toHaveBeenCalled();
+		expect(induscodeAccountServiceCtorMock).not.toHaveBeenCalled();
 		expect(capture).not.toHaveBeenCalled();
 		expect(setDistinctId).toHaveBeenCalledWith(expect.any(String));
 		expect(updateCommonProperties).toHaveBeenCalledWith(
@@ -232,17 +232,17 @@ describe("cline_account command auth states", () => {
 			refreshed: true,
 		});
 		getProviderSettingsMock.mockReturnValue(undefined);
-		const user = { id: "user-1", email: "beatrix@cline.bot" };
-		executeClineAccountActionMock.mockResolvedValue(user);
+		const user = { id: "user-1", email: "beatrix@induscode.bot" };
+		executeIndusCodeAccountActionMock.mockResolvedValue(user);
 
-		const result = await runClineAccountCommand(ctx);
+		const result = await runIndusCodeAccountCommand(ctx);
 
 		expect(result).toBe(user);
-		expect(executeClineAccountActionMock).toHaveBeenCalledWith(
+		expect(executeIndusCodeAccountActionMock).toHaveBeenCalledWith(
 			expect.objectContaining(FETCH_ME_ARGS),
 			expect.anything(),
 		);
-		const serviceOptions = clineAccountServiceCtorMock.mock.calls[0][0] as {
+		const serviceOptions = induscodeAccountServiceCtorMock.mock.calls[0][0] as {
 			getAuthToken: () => Promise<string | undefined>;
 		};
 		await expect(serviceOptions.getAuthToken()).resolves.toBe("fresh-token");
@@ -257,15 +257,15 @@ describe("cline_account command auth states", () => {
 		getProviderSettingsMock.mockReturnValue({
 			auth: { accessToken: "persisted-token" },
 		});
-		executeClineAccountActionMock.mockResolvedValue({ id: "user-1" });
+		executeIndusCodeAccountActionMock.mockResolvedValue({ id: "user-1" });
 
-		await runClineAccountCommand(ctx);
+		await runIndusCodeAccountCommand(ctx);
 
-		const serviceOptions = clineAccountServiceCtorMock.mock.calls[0][0] as {
+		const serviceOptions = induscodeAccountServiceCtorMock.mock.calls[0][0] as {
 			getAuthToken: () => Promise<string | undefined>;
 		};
 		// Persisted OAuth tokens gain the `workos:` prefix required by
-		// core-platform (see cline-auth.ts).
+		// core-platform (see induscode-auth.ts).
 		await expect(serviceOptions.getAuthToken()).resolves.toBe(
 			"workos:persisted-token",
 		);
@@ -277,38 +277,38 @@ describe("cline_account command auth states", () => {
 		// which rendered an error card whose Retry failed the same way.
 		const { ctx } = createContext();
 		const { OAuthReauthRequiredError } =
-			await vi.importActual<typeof import("@cline/core")>("@cline/core");
+			await vi.importActual<typeof import("@induscode/core")>("@induscode/core");
 		resolveProviderApiKeyMock.mockRejectedValue(
-			new OAuthReauthRequiredError("cline"),
+			new OAuthReauthRequiredError("induscode"),
 		);
 		getProviderSettingsMock.mockReturnValue({
 			auth: { accessToken: "persisted-token" },
 		});
 
-		const result = await runClineAccountCommand(ctx);
+		const result = await runIndusCodeAccountCommand(ctx);
 
-		expect(isClineAccountNotAuthenticatedResult(result)).toBe(true);
-		expect(executeClineAccountActionMock).not.toHaveBeenCalled();
+		expect(isIndusCodeAccountNotAuthenticatedResult(result)).toBe(true);
+		expect(executeIndusCodeAccountActionMock).not.toHaveBeenCalled();
 	});
 
 	it("reports one auth refresh soft-failure event when the refresh fails and no fallback token exists", async () => {
 		const { ctx, capture } = createContext();
 		const refreshError = new Error(
-			'OAuth credentials for provider "cline" are no longer valid. Re-run authentication for this provider.',
+			'OAuth credentials for provider "induscode" are no longer valid. Re-run authentication for this provider.',
 		);
 		refreshError.name = "OAuthReauthRequiredError";
 		resolveProviderApiKeyMock.mockRejectedValue(refreshError);
 		getProviderSettingsMock.mockReturnValue(undefined);
 
-		const result = await runClineAccountCommand(ctx);
+		const result = await runIndusCodeAccountCommand(ctx);
 
-		expect(isClineAccountNotAuthenticatedResult(result)).toBe(true);
-		expect(executeClineAccountActionMock).not.toHaveBeenCalled();
+		expect(isIndusCodeAccountNotAuthenticatedResult(result)).toBe(true);
+		expect(executeIndusCodeAccountActionMock).not.toHaveBeenCalled();
 		expect(capture).toHaveBeenCalledTimes(1);
 		expect(capture).toHaveBeenCalledWith({
 			event: "user.auth_refresh_soft_failure",
 			properties: expect.objectContaining({
-				provider: "cline",
+				provider: "induscode",
 				errorName: "OAuthReauthRequiredError",
 				errorCode: "desktop_refresh_failed_no_fallback_token",
 			}),
@@ -321,7 +321,7 @@ describe("cline_account command auth states", () => {
  * cover the mid-session transitions that would otherwise keep evaluating flags
  * against a stale account (or the device).
  */
-describe("cline_account keeps feature-flag identity in sync", () => {
+describe("induscode_account keeps feature-flag identity in sync", () => {
 	async function currentFlagsUserId(): Promise<string | undefined> {
 		const { getDesktopFeatureFlagsContext } = await import("./feature-flags");
 		return getDesktopFeatureFlagsContext().userId ?? undefined;
@@ -329,8 +329,8 @@ describe("cline_account keeps feature-flag identity in sync", () => {
 
 	async function runOperation(ctx: SidecarContext, operation: string) {
 		const { handleCommand } = await import("./commands");
-		return handleCommand(ctx, "cline_account", {
-			action: "clineAccount",
+		return handleCommand(ctx, "induscode_account", {
+			action: "induscodeAccount",
 			operation,
 		});
 	}
@@ -346,7 +346,7 @@ describe("cline_account keeps feature-flag identity in sync", () => {
 		const { ctx, setDistinctId, updateCommonProperties } = createContext();
 		resolveProviderApiKeyMock.mockResolvedValue({ apiKey: "token" });
 		getProviderSettingsMock.mockReturnValue({});
-		executeClineAccountActionMock.mockResolvedValue({
+		executeIndusCodeAccountActionMock.mockResolvedValue({
 			id: "acct-1",
 			email: "dev@example.com",
 		});
@@ -370,10 +370,10 @@ describe("cline_account keeps feature-flag identity in sync", () => {
 		const { ctx, updateCommonProperties } = createContext();
 		resolveProviderApiKeyMock.mockResolvedValue({ apiKey: "token" });
 		getProviderSettingsMock.mockReturnValue({
-			provider: "cline",
+			provider: "induscode",
 			auth: { accountId: "acct-1", accessToken: "token" },
 		});
-		executeClineAccountActionMock.mockResolvedValue({
+		executeIndusCodeAccountActionMock.mockResolvedValue({
 			id: "acct-1",
 			email: "dev@example.com",
 			organizations: [
@@ -416,11 +416,11 @@ describe("cline_account keeps feature-flag identity in sync", () => {
 		const { ctx } = createContext();
 		resolveProviderApiKeyMock.mockResolvedValue({ apiKey: "token" });
 		getProviderSettingsMock.mockReturnValue({});
-		executeClineAccountActionMock.mockResolvedValue({ id: "acct-1" });
+		executeIndusCodeAccountActionMock.mockResolvedValue({ id: "acct-1" });
 		await runOperation(ctx, "fetchMe");
 		expect(await currentFlagsUserId()).toBe("acct-1");
 
-		executeClineAccountActionMock.mockResolvedValue(undefined);
+		executeIndusCodeAccountActionMock.mockResolvedValue(undefined);
 		getProviderSettingsMock.mockReturnValue({
 			auth: { accountId: "stale-acct" },
 		});
@@ -434,13 +434,13 @@ describe("cline_account keeps feature-flag identity in sync", () => {
 		const { ctx } = createContext();
 		resolveProviderApiKeyMock.mockResolvedValue({ apiKey: "token" });
 		getProviderSettingsMock.mockReturnValue({});
-		executeClineAccountActionMock.mockResolvedValue({ id: "acct-1" });
+		executeIndusCodeAccountActionMock.mockResolvedValue({ id: "acct-1" });
 		await runOperation(ctx, "fetchMe");
 
-		executeClineAccountActionMock.mockResolvedValue(undefined);
+		executeIndusCodeAccountActionMock.mockResolvedValue(undefined);
 		await runOperation(ctx, "switchAccount");
 
-		executeClineAccountActionMock.mockResolvedValue({ id: "acct-2" });
+		executeIndusCodeAccountActionMock.mockResolvedValue({ id: "acct-2" });
 		await runOperation(ctx, "fetchMe");
 
 		expect(await currentFlagsUserId()).toBe("acct-2");
@@ -450,7 +450,7 @@ describe("cline_account keeps feature-flag identity in sync", () => {
 		const { ctx, setDistinctId, updateCommonProperties } = createContext();
 		resolveProviderApiKeyMock.mockResolvedValue({ apiKey: "token" });
 		getProviderSettingsMock.mockReturnValue({});
-		executeClineAccountActionMock.mockResolvedValue({ id: "acct-1" });
+		executeIndusCodeAccountActionMock.mockResolvedValue({ id: "acct-1" });
 		await runOperation(ctx, "fetchMe");
 		expect(await currentFlagsUserId()).toBe("acct-1");
 
@@ -481,11 +481,11 @@ describe("cline_account keeps feature-flag identity in sync", () => {
 		);
 	});
 
-	it("clears the identity when sign-out blanks the cline auth settings", async () => {
+	it("clears the identity when sign-out blanks the induscode auth settings", async () => {
 		const { ctx, setDistinctId, updateCommonProperties } = createContext();
 		resolveProviderApiKeyMock.mockResolvedValue({ apiKey: "token" });
 		getProviderSettingsMock.mockReturnValue({});
-		executeClineAccountActionMock.mockResolvedValue({ id: "acct-1" });
+		executeIndusCodeAccountActionMock.mockResolvedValue({ id: "acct-1" });
 		await runOperation(ctx, "fetchMe");
 		expect(await currentFlagsUserId()).toBe("acct-1");
 
@@ -493,13 +493,13 @@ describe("cline_account keeps feature-flag identity in sync", () => {
 		// the auth block. No account command is involved.
 		getProviderSettingsMock.mockReturnValue({ auth: { accountId: "" } });
 		saveProviderSettingsMock.mockReturnValue({
-			providerId: "cline",
+			providerId: "induscode",
 			enabled: true,
 			settingsPath: "/tmp/settings.json",
 		});
 		const { handleCommand } = await import("./commands");
 		await handleCommand(ctx, "save_provider_settings", {
-			provider: "cline",
+			provider: "induscode",
 			api_key: "",
 			settings: { auth: { accessToken: "", refreshToken: "", accountId: "" } },
 		});
@@ -523,7 +523,7 @@ describe("cline_account keeps feature-flag identity in sync", () => {
 		);
 	});
 
-	it("signs out of the shared cline entry and legacy secrets when cline-pass is disabled", async () => {
+	it("signs out of the shared induscode entry and legacy secrets when induscode-pass is disabled", async () => {
 		const { ctx } = createContext();
 		const dispose = vi.fn().mockResolvedValue(undefined);
 		ctx.cloudSessionManager = { dispose } as unknown as NonNullable<
@@ -534,7 +534,7 @@ describe("cline_account keeps feature-flag identity in sync", () => {
 		});
 		saveProviderSettingsMock.mockImplementation(
 			(_manager: unknown, request: { providerId: string }) => {
-				if (request.providerId === "cline") {
+				if (request.providerId === "induscode") {
 					getProviderSettingsMock.mockReturnValue(undefined);
 				}
 				return {
@@ -546,17 +546,17 @@ describe("cline_account keeps feature-flag identity in sync", () => {
 		);
 		const { handleCommand } = await import("./commands");
 		await handleCommand(ctx, "save_provider_settings", {
-			provider: "cline-pass",
+			provider: "induscode-pass",
 			enabled: false,
 		});
 
-		// Cline Pass stores its credentials under "cline", so both entries go,
+		// IndusCode Pass stores its credentials under "induscode", so both entries go,
 		// and the legacy secrets are cleared for the storage provider.
 		expect(saveProviderSettingsMock.mock.calls.map(([, r]) => r)).toEqual([
-			expect.objectContaining({ providerId: "cline-pass", enabled: false }),
-			{ providerId: "cline", enabled: false },
+			expect.objectContaining({ providerId: "induscode-pass", enabled: false }),
+			{ providerId: "induscode", enabled: false },
 		]);
-		expect(clearLegacyProviderCredentialsMock).toHaveBeenCalledWith("cline");
+		expect(clearLegacyProviderCredentialsMock).toHaveBeenCalledWith("induscode");
 		expect(dispose).toHaveBeenCalledOnce();
 		expect(ctx.cloudSessionManager).toBeNull();
 	});
@@ -565,7 +565,7 @@ describe("cline_account keeps feature-flag identity in sync", () => {
 		const { ctx } = createContext();
 		resolveProviderApiKeyMock.mockResolvedValue({ apiKey: "token" });
 		getProviderSettingsMock.mockReturnValue({});
-		executeClineAccountActionMock.mockResolvedValue({ id: "acct-1" });
+		executeIndusCodeAccountActionMock.mockResolvedValue({ id: "acct-1" });
 		await runOperation(ctx, "fetchMe");
 
 		saveProviderSettingsMock.mockReturnValue({
@@ -579,7 +579,7 @@ describe("cline_account keeps feature-flag identity in sync", () => {
 			api_key: "sk-test",
 		});
 
-		// Saving an unrelated provider must not disturb the Cline identity.
+		// Saving an unrelated provider must not disturb the IndusCode identity.
 		expect(await currentFlagsUserId()).toBe("acct-1");
 	});
 
@@ -590,7 +590,7 @@ describe("cline_account keeps feature-flag identity in sync", () => {
 
 		resolveProviderApiKeyMock.mockResolvedValue({ apiKey: "token" });
 		getProviderSettingsMock.mockReturnValue({});
-		executeClineAccountActionMock.mockResolvedValue({ id: "acct-1" });
+		executeIndusCodeAccountActionMock.mockResolvedValue({ id: "acct-1" });
 		await runOperation(ctx, "fetchMe");
 		expect(getDesktopFeatureFlagsContext().distinctId).toBe("acct-1");
 

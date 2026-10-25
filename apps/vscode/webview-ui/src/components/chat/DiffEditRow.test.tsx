@@ -5,7 +5,7 @@ const openFileRelativePath = vi.fn().mockResolvedValue(undefined)
 vi.mock("@/services/grpc-client", () => ({
 	FileServiceClient: { openFileRelativePath: (request: unknown) => openFileRelativePath(request) },
 }))
-vi.mock("@shared/proto/cline/common", () => ({
+vi.mock("@shared/proto/induscode/common", () => ({
 	StringRequest: { create: (x: unknown) => x },
 }))
 

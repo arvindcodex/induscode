@@ -22,7 +22,7 @@ const pluginDataPlaceholder = ["$", "{PLUGIN_DATA}"].join("");
 
 async function createTemporaryRoot(): Promise<string> {
 	const root = await realpath(
-		await mkdtemp(join(tmpdir(), "cline-agent-plugin-")),
+		await mkdtemp(join(tmpdir(), "induscode-agent-plugin-")),
 	);
 	temporaryRoots.push(root);
 	return root;

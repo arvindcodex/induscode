@@ -10,9 +10,9 @@ const mocks = vi.hoisted(() => ({
 	settings: new Map<string, Record<string, unknown>>(),
 	refresh: vi.fn(),
 }));
-vi.mock("@cline/core", async () => {
+vi.mock("@induscode/core", async () => {
 	const actual =
-		await vi.importActual<typeof import("@cline/core")>("@cline/core");
+		await vi.importActual<typeof import("@induscode/core")>("@induscode/core");
 	return {
 		...actual,
 		ProviderSettingsManager: class {
@@ -30,8 +30,8 @@ vi.mock("@cline/core", async () => {
 
 beforeEach(() => {
 	mocks.settings.clear();
-	mocks.settings.set("cline", {
-		provider: "cline",
+	mocks.settings.set("induscode", {
+		provider: "induscode",
 		model: "model-a",
 		auth: { accessToken: "expired", refreshToken: "private-refresh" },
 	});
@@ -44,7 +44,7 @@ beforeEach(() => {
 	mocks.refresh
 		.mockReset()
 		.mockImplementation(async ({ providerId }: { providerId: string }) => {
-			if (providerId !== "cline") return null;
+			if (providerId !== "induscode") return null;
 			return { apiKey: "fresh-token" };
 		});
 });
@@ -64,7 +64,7 @@ function runtime() {
 		})),
 		get: vi.fn(async () => ({
 			sessionId: "shared-id",
-			provider: "cline",
+			provider: "induscode",
 			model: "model-a",
 			cwd: "/remote/workspace",
 			metadata: { title: "Remote conversation" },
@@ -86,7 +86,7 @@ function runtime() {
 	} as unknown as SessionRuntimeBinding);
 	const config = {
 		environmentId: "remote",
-		provider: "cline",
+		provider: "induscode",
 		model: "model-a",
 		cwd: "/remote/workspace",
 	};
@@ -197,7 +197,7 @@ describe("SSH session credentials and history", () => {
 				apiKey: "old-provider-key",
 				baseUrl: "https://old-provider.example",
 				headers: { Authorization: "old-secret" },
-				providerConfig: { providerId: "cline", apiKey: "old-provider-key" },
+				providerConfig: { providerId: "induscode", apiKey: "old-provider-key" },
 			},
 		});
 		await handleChatSessionCommand(ctx, {
@@ -224,8 +224,8 @@ describe("SSH session credentials and history", () => {
 	});
 
 	it("never reads a same-ID local transcript when starting or forking remotely", async () => {
-		const directory = mkdtempSync(join(tmpdir(), "cline-remote-fork-"));
-		vi.stubEnv("CLINE_SESSION_DATA_DIR", directory);
+		const directory = mkdtempSync(join(tmpdir(), "induscode-remote-fork-"));
+		vi.stubEnv("INDUSCODE_SESSION_DATA_DIR", directory);
 		try {
 			mkdirSync(join(directory, "shared-id"));
 			writeFileSync(

@@ -9,9 +9,9 @@ import {
 	resolveGeneratedProviderIdForModelsDevKey,
 } from "../providers/provider-keys";
 import {
-	fetchClineRecommendedModelsPayload,
-	normalizeClineRecommendedProviderModels,
-} from "./catalog-cline-recommended";
+	fetchIndusCodeRecommendedModelsPayload,
+	normalizeIndusCodeRecommendedProviderModels,
+} from "./catalog-induscode-recommended";
 import {
 	resolveCatalogModelOperation,
 	resolveCatalogModelOperationModes,
@@ -540,18 +540,18 @@ export async function fetchModelsDevCatalog(
 export async function fetchLiveProviderModels(
 	modelsDevUrl: string,
 	fetcher: typeof fetch = fetch,
-	options: { includeClineCloudModels?: boolean } = {},
+	options: { includeIndusCodeCloudModels?: boolean } = {},
 ): Promise<Record<string, Record<string, ModelInfo>>> {
 	const emptyProviderModels: Record<string, Record<string, ModelInfo>> = {};
-	const [providerModels, clineRecommendedPayload] = await Promise.all([
+	const [providerModels, induscodeRecommendedPayload] = await Promise.all([
 		fetchModelsDevProviderModels(modelsDevUrl, fetcher).catch(
 			() => emptyProviderModels,
 		),
-		fetchClineRecommendedModelsPayload(fetcher).catch(() => undefined),
+		fetchIndusCodeRecommendedModelsPayload(fetcher).catch(() => undefined),
 	]);
-	const clineRecommended = clineRecommendedPayload
-		? normalizeClineRecommendedProviderModels(
-				clineRecommendedPayload,
+	const induscodeRecommended = induscodeRecommendedPayload
+		? normalizeIndusCodeRecommendedProviderModels(
+				induscodeRecommendedPayload,
 				providerModels.openrouter ?? {},
 				options,
 			)
@@ -559,6 +559,6 @@ export async function fetchLiveProviderModels(
 
 	return {
 		...providerModels,
-		...clineRecommended,
+		...induscodeRecommended,
 	};
 }

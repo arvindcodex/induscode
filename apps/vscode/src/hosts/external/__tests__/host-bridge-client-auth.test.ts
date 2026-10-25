@@ -16,7 +16,7 @@ type SeenCall = { method: string; token: string | undefined }
  * fails here instead of silently shipping unauthenticated calls.
  *
  * Tokens enter the way they do in production — set in the environment by the
- * host, then captured and scrubbed by the same bootstrap function cline-core
+ * host, then captured and scrubbed by the same bootstrap function induscode-core
  * runs — so this also covers the startup-to-receiver path, not just the
  * middleware in isolation.
  *
@@ -24,7 +24,7 @@ type SeenCall = { method: string; token: string | undefined }
  * template, so the wiring is identical per service.
  */
 describe("generated host bridge clients (end to end)", () => {
-	const originalToken = process.env.CLINE_CORE_CONNECTION_TOKEN
+	const originalToken = process.env.INDUSCODE_CORE_CONNECTION_TOKEN
 	let server: Server
 	let address: string
 	let seen: SeenCall[]
@@ -49,9 +49,9 @@ describe("generated host bridge clients (end to end)", () => {
 		setToken("e2e-token")
 		// The startup-to-receiver path: by the time any bridge call is made the
 		// variable is gone, so the header can only come from the retained copy.
-		expect(process.env.CLINE_CORE_CONNECTION_TOKEN).to.equal(undefined)
+		expect(process.env.INDUSCODE_CORE_CONNECTION_TOKEN).to.equal(undefined)
 
-		await new EnvServiceClientImpl(address).getHostVersion(proto.cline.EmptyRequest.create({}))
+		await new EnvServiceClientImpl(address).getHostVersion(proto.induscode.EmptyRequest.create({}))
 
 		expect(seen).to.deep.equal([{ method: "getHostVersion", token: "e2e-token" }])
 	})
@@ -63,7 +63,7 @@ describe("generated host bridge clients (end to end)", () => {
 		const client = new EnvServiceClientImpl(address)
 
 		await new Promise<void>((resolve, reject) => {
-			client.subscribeToTelemetrySettings(proto.cline.EmptyRequest.create({}), {
+			client.subscribeToTelemetrySettings(proto.induscode.EmptyRequest.create({}), {
 				onResponse: () => resolve(),
 				onError: reject,
 			})
@@ -75,7 +75,7 @@ describe("generated host bridge clients (end to end)", () => {
 	it("omits the header when the core was spawned without a token", async () => {
 		setToken(undefined)
 
-		await new EnvServiceClientImpl(address).getHostVersion(proto.cline.EmptyRequest.create({}))
+		await new EnvServiceClientImpl(address).getHostVersion(proto.induscode.EmptyRequest.create({}))
 
 		expect(seen).to.deep.equal([{ method: "getHostVersion", token: undefined }])
 	})
@@ -84,9 +84,9 @@ describe("generated host bridge clients (end to end)", () => {
 /** The bootstrap step a spawned core runs: capture the host's token, scrub the environment. */
 function setToken(token: string | undefined) {
 	if (token === undefined) {
-		delete process.env.CLINE_CORE_CONNECTION_TOKEN
+		delete process.env.INDUSCODE_CORE_CONNECTION_TOKEN
 	} else {
-		process.env.CLINE_CORE_CONNECTION_TOKEN = token
+		process.env.INDUSCODE_CORE_CONNECTION_TOKEN = token
 	}
 	captureHostBridgeTokenFromEnvironment()
 }

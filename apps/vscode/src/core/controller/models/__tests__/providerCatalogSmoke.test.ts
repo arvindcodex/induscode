@@ -6,8 +6,8 @@ import { StateManager } from "@/core/storage/StateManager"
 import { createProviderCatalog } from "@/sdk/model-catalog/catalog"
 import type { ProviderCatalog, ProviderConfigStore } from "@/sdk/model-catalog/contracts"
 import { createProviderConfigStore } from "@/sdk/model-catalog/store"
-import { Empty, StringRequest } from "@/shared/proto/cline/common"
-import { CommitModelSelectionRequest } from "@/shared/proto/cline/models"
+import { Empty, StringRequest } from "@/shared/proto/induscode/common"
+import { CommitModelSelectionRequest } from "@/shared/proto/induscode/models"
 import { createStorageContext } from "@/shared/storage/storage-context"
 import { commitModelSelection } from "../commitModelSelection"
 import { listProviders } from "../listProviders"
@@ -20,17 +20,17 @@ vi.mock("@/services/logging/distinctId", () => ({
 }))
 
 describe("provider model catalog backend smoke", () => {
-	let clineDir: string
+	let induscodeDir: string
 	let store: ProviderConfigStore
 	let catalog: ProviderCatalog
 	let controller: ProviderCatalogController
-	let originalClineDir: string | undefined
+	let originalIndusCodeDir: string | undefined
 
 	beforeAll(async () => {
-		clineDir = await fs.mkdtemp(path.join(os.tmpdir(), "cline-provider-catalog-smoke-"))
-		originalClineDir = process.env.CLINE_DIR
-		process.env.CLINE_DIR = clineDir
-		await StateManager.initialize(createStorageContext({ clineDir, workspacePath: clineDir }))
+		induscodeDir = await fs.mkdtemp(path.join(os.tmpdir(), "induscode-provider-catalog-smoke-"))
+		originalIndusCodeDir = process.env.INDUSCODE_DIR
+		process.env.INDUSCODE_DIR = induscodeDir
+		await StateManager.initialize(createStorageContext({ induscodeDir, workspacePath: induscodeDir }))
 		store = createProviderConfigStore()
 		catalog = createProviderCatalog(store)
 		controller = {
@@ -41,13 +41,13 @@ describe("provider model catalog backend smoke", () => {
 
 	afterAll(async () => {
 		await StateManager.get().flushPendingState()
-		if (originalClineDir === undefined) {
-			delete process.env.CLINE_DIR
+		if (originalIndusCodeDir === undefined) {
+			delete process.env.INDUSCODE_DIR
 		} else {
-			process.env.CLINE_DIR = originalClineDir
+			process.env.INDUSCODE_DIR = originalIndusCodeDir
 		}
 		await StateManager.get().reInitialize()
-		await fs.rm(clineDir, { recursive: true, force: true })
+		await fs.rm(induscodeDir, { recursive: true, force: true })
 	})
 
 	it("lists providers, resolves DeepSeek models, and round-trips committed selection", async () => {

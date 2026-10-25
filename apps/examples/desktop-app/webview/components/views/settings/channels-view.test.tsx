@@ -274,11 +274,11 @@ describe("ChannelsContent", () => {
 					...initialResponse,
 					active: [
 						{
-							id: "gchat:cline-bot",
+							id: "gchat:induscode-bot",
 							type: "gchat",
 							pid: 43,
 							hubUrl: "ws://127.0.0.1:4317",
-							userName: "cline-bot",
+							userName: "induscode-bot",
 						},
 					],
 				};

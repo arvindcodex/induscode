@@ -3,11 +3,11 @@ import { featureFlagsService } from "@/services/feature-flags"
 import { FeatureFlag } from "@/shared/services/feature-flags/feature-flags"
 
 /**
- * `CLINE_CLOUD_SESSIONS=1` forces cloud sessions on (and `0` off) for local
+ * `INDUSCODE_CLOUD_SESSIONS=1` forces cloud sessions on (and `0` off) for local
  * development and testing, bypassing both the flag and the Settings toggle.
  */
 function readCloudSessionsOverride(): boolean | undefined {
-	const override = process.env.CLINE_CLOUD_SESSIONS?.trim().toLowerCase()
+	const override = process.env.INDUSCODE_CLOUD_SESSIONS?.trim().toLowerCase()
 	if (override === "1" || override === "true") {
 		return true
 	}

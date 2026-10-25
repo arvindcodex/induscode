@@ -1,4 +1,4 @@
-import * as LlmsModels from "@cline/llms";
+import * as LlmsModels from "@induscode/llms";
 import { isOAuthProvider } from "../../auth/provider-auth-registry";
 
 export type ProviderConfigFieldKey =
@@ -208,7 +208,7 @@ function shouldExposeBaseUrlField(
  * a synthetic SDK failure. UIs may still require fields client-side if they
  * want, but the runtime does not.
  *
- * - OAuth providers (`cline`, `oca`, `openai-codex`) return `authMethod:
+ * - OAuth providers (`induscode`, `oca`, `openai-codex`) return `authMethod:
  *   "oauth"` with no fields; the configure UI should route to the OAuth
  *   login flow instead.
  * - Local auth providers return `authMethod: "local"` with no fields. The
@@ -227,7 +227,7 @@ function shouldExposeBaseUrlField(
  * or an OAuth flow.
  *
  * Read from the provider registry's `local-auth` capability rather than a
- * hardcoded id list, so tagging a provider in `@cline/llms` is all it takes
+ * hardcoded id list, so tagging a provider in `@induscode/llms` is all it takes
  * for configure UIs to route it to their local-readiness flow. Mirrors
  * `isOAuthProvider` for the OAuth side.
  */

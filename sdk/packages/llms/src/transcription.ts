@@ -4,9 +4,9 @@ import { detectMediaType } from "@ai-sdk/provider-utils";
 import type {
 	GatewayProviderMetadata,
 	StreamingAudioTranscriptionSession,
-} from "@cline/shared";
+} from "@induscode/shared";
 
-export type { StreamingAudioTranscriptionSession } from "@cline/shared";
+export type { StreamingAudioTranscriptionSession } from "@induscode/shared";
 
 import { type TranscriptionResult, transcribe } from "ai";
 import { BUILTIN_PROVIDER_MANIFESTS_BY_ID } from "./providers/builtins";

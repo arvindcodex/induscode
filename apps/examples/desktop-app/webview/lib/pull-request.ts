@@ -26,4 +26,4 @@ export type PullRequestStatus = {
 export {
 	getAgentPullRequestMergeStatus as getMergeStatus,
 	summarizeAgentPullRequestChecks as summarizeChecks,
-} from "@cline/ui";
+} from "@induscode/ui";

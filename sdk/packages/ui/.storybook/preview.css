@@ -15,7 +15,7 @@ body,
 	min-height: 100%;
 }
 
-.cline-storybook-surface {
+.induscode-storybook-surface {
 	min-height: 100vh;
 	box-sizing: border-box;
 	background: var(--background);
@@ -23,6 +23,6 @@ body,
 }
 
 /* Inline docs examples should size to their content, not the browser viewport. */
-.cline-storybook-surface[data-view-mode="docs"] {
+.induscode-storybook-surface[data-view-mode="docs"] {
 	min-height: 0;
 }

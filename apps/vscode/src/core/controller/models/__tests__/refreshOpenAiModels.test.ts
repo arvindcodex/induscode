@@ -1,4 +1,4 @@
-import { OpenAiModelsRequest } from "@shared/proto/cline/models"
+import { OpenAiModelsRequest } from "@shared/proto/induscode/models"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { refreshOpenAiModels } from "../refreshOpenAiModels"
 

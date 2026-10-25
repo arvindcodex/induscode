@@ -9,8 +9,8 @@
 		"module": "commonjs",
 		"moduleResolution": "node",
 		// Classic "node" moduleResolution (required for the CommonJS mocha test
-		// runner) does not read the `exports` subpath maps in @cline/* package
-		// manifests, so bare subpath imports like `@cline/shared/storage` fail to
+		// runner) does not read the `exports` subpath maps in @induscode/* package
+		// manifests, so bare subpath imports like `@induscode/shared/storage` fail to
 		// resolve (TS2307) even though the built declarations exist. The base
 		// tsconfig uses `Bundler` resolution and is unaffected. We re-declare the
 		// inherited `paths` (TS replaces, not merges, `paths`) and add explicit
@@ -47,11 +47,11 @@
 			"@utils/*": [
 				"./src/utils/*"
 			],
-			"@cline/shared/*": [
-				"./node_modules/@cline/shared/dist/*"
+			"@induscode/shared/*": [
+				"./node_modules/@induscode/shared/dist/*"
 			],
-			"@cline/core/cloud": [
-				"./node_modules/@cline/core/dist/cloud/index.d.ts"
+			"@induscode/core/cloud": [
+				"./node_modules/@induscode/core/dist/cloud/index.d.ts"
 			]
 		},
 		"types": [

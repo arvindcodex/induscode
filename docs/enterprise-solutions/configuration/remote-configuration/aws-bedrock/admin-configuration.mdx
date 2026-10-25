@@ -1,22 +1,22 @@
 ---
 title: "Configure AWS Bedrock Provider (Admin)"
 sidebarTitle: "Configure AWS Bedrock (Admin)"
-description: "This guide explains how administrators configure AWS Bedrock as the organization-wide LLM provider for Cline."
+description: "This guide explains how administrators configure AWS Bedrock as the organization-wide LLM provider for IndusCode."
 ---
 
 
-As an administrator, you can add AWS Bedrock as the organization-wide LLM provider for all Cline users through the hosted admin console. This centralized approach ensures consistent access to Amazon's AI models while maintaining your organization's security and compliance requirements through region controls and basic configuration options.
+As an administrator, you can add AWS Bedrock as the organization-wide LLM provider for all IndusCode users through the hosted admin console. This centralized approach ensures consistent access to Amazon's AI models while maintaining your organization's security and compliance requirements through region controls and basic configuration options.
 
 ## Before You Begin
 
 To get started with setting up AWS Bedrock as your organization's LLM provider, you'll need a few items in place. 
 
-**Administrator access to the Cline Admin console**  
-You need admin privileges to enforce provider settings across your organization. If you can navigate to **Settings → Cline Settings** in the admin console at [app.cline.bot](https://app.cline.bot), you have the right access level.
+**Administrator access to the IndusCode Admin console**  
+You need admin privileges to enforce provider settings across your organization. If you can navigate to **Settings → IndusCode Settings** in the admin console at [app.induscode.bot](https://app.induscode.bot), you have the right access level.
 
 
 **AWS Bedrock account with the right permissions**  
-Your AWS account needs specific Bedrock permissions to work with Cline. 
+Your AWS account needs specific Bedrock permissions to work with IndusCode. 
 
 <Note>
 If you don't have direct AWS access, coordinate with your cloud team to get these permissions set up before proceeding.
@@ -31,15 +31,15 @@ Check which models are available in your region first. Some newer models might n
 
 <Frame>
 	<img
-		src="https://assets.int.cline.bot/assets/AWS%20Remote%20Config.gif"
+		src="https://assets.int.induscode.bot/assets/AWS%20Remote%20Config.gif"
 	/>
 </Frame>
 
 ## Configuration Steps
 
 <Steps>
-<Step title="Access Cline Settings">
-Navigate to [app.cline.bot](https://app.cline.bot) and sign in with your administrator account. Go to **Settings → Cline Settings**.
+<Step title="Access IndusCode Settings">
+Navigate to [app.induscode.bot](https://app.induscode.bot) and sign in with your administrator account. Go to **Settings → IndusCode Settings**.
 
 <Info>
 You should see the provider configuration options if you have the correct admin access level.
@@ -95,10 +95,10 @@ Enable prompt caching to reduce costs and latency. Bedrock caches portions of pr
 <Step title="Save Configuration">
 After configuring your settings, close the provider configuration panel and click **Save** on the settings page to persist your changes.
 
-Once saved, all organization members signed into the Cline extension will automatically use AWS Bedrock with your configured settings. In the VS Code and JetBrains extensions, they can't select other providers or switch to their personal Cline accounts.
+Once saved, all organization members signed into the IndusCode extension will automatically use AWS Bedrock with your configured settings. In the VS Code and JetBrains extensions, they can't select other providers or switch to their personal IndusCode accounts.
 
 <Warning>
-In the VS Code and JetBrains extensions, members can't switch to personal Cline accounts or other organizations while remote configuration is enabled. Cline Desktop and the CLI don't enforce these restrictions. See [which products support each control](/enterprise-solutions/configuration/remote-configuration/overview#which-products-support-each-control).
+In the VS Code and JetBrains extensions, members can't switch to personal IndusCode accounts or other organizations while remote configuration is enabled. IndusCode Desktop and the CLI don't enforce these restrictions. See [which products support each control](/enterprise-solutions/configuration/remote-configuration/overview#which-products-support-each-control).
 </Warning>
 </Step>
 </Steps>

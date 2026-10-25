@@ -46,7 +46,7 @@ async function render(element: React.ReactNode) {
 	await act(async () => root.render(element));
 }
 
-describe("@cline/ui agent chat primitives", () => {
+describe("@induscode/ui agent chat primitives", () => {
 	it("uses the inert prop form supported by each React major", () => {
 		expect(getInertAttributeValue(false, "18.3.1")).toBe("");
 		expect(getInertAttributeValue(false, "19.2.4")).toBe(true);
@@ -57,13 +57,13 @@ describe("@cline/ui agent chat primitives", () => {
 	it("marks message roles without requiring a runtime message schema", async () => {
 		await render(
 			<Message from="assistant">
-				<MessageContent>Hello from Cline</MessageContent>
+				<MessageContent>Hello from IndusCode</MessageContent>
 			</Message>,
 		);
 
-		const message = container.querySelector(".cline-chat-message");
+		const message = container.querySelector(".induscode-chat-message");
 		expect(message?.getAttribute("data-role")).toBe("assistant");
-		expect(message?.textContent).toContain("Hello from Cline");
+		expect(message?.textContent).toContain("Hello from IndusCode");
 	});
 
 	it("gives the scrollable conversation log accessible defaults", async () => {
@@ -76,7 +76,7 @@ describe("@cline/ui agent chat primitives", () => {
 		);
 
 		const viewport = container.querySelector(
-			".cline-chat-conversation-viewport",
+			".induscode-chat-conversation-viewport",
 		);
 		expect(viewport?.getAttribute("aria-label")).toBe("Agent conversation");
 		expect(viewport?.getAttribute("role")).toBe("log");
@@ -121,7 +121,7 @@ describe("@cline/ui agent chat primitives", () => {
 			</ToolActivity>,
 		);
 
-		const summary = container.querySelector(".cline-chat-tool-trigger");
+		const summary = container.querySelector(".induscode-chat-tool-trigger");
 		expect(summary?.tagName).toBe("DIV");
 		expect(summary?.closest("button")).toBeNull();
 	});
@@ -137,7 +137,7 @@ describe("@cline/ui agent chat primitives", () => {
 			</ToolActivity>,
 		);
 
-		expect(container.querySelector(".cline-chat-tool-progress")).not.toBeNull();
+		expect(container.querySelector(".induscode-chat-tool-progress")).not.toBeNull();
 		expect(container.querySelector("[data-testid='tool-icon']")).toBeNull();
 
 		await render(
@@ -150,7 +150,7 @@ describe("@cline/ui agent chat primitives", () => {
 			</ToolActivity>,
 		);
 
-		expect(container.querySelector(".cline-chat-tool-progress")).toBeNull();
+		expect(container.querySelector(".induscode-chat-tool-progress")).toBeNull();
 		expect(container.querySelector("[data-testid='tool-icon']")).not.toBeNull();
 	});
 
@@ -169,7 +169,7 @@ describe("@cline/ui agent chat primitives", () => {
 		expect(panel?.getAttribute("data-state")).toBe("closed");
 		expect(panel?.getAttribute("inert")).toBe("");
 		expect(
-			container.querySelector(".cline-chat-disclosure-icon"),
+			container.querySelector(".induscode-chat-disclosure-icon"),
 		).not.toBeNull();
 
 		await act(async () => trigger?.click());
@@ -191,7 +191,7 @@ describe("@cline/ui agent chat primitives", () => {
 		);
 
 		const trigger = container.querySelector("button");
-		expect(container.querySelector(".cline-chat-disclosure-icon")).toBeNull();
+		expect(container.querySelector(".induscode-chat-disclosure-icon")).toBeNull();
 
 		await act(async () => trigger?.click());
 		expect(trigger?.getAttribute("aria-expanded")).toBe("true");
@@ -214,7 +214,7 @@ describe("@cline/ui agent chat primitives", () => {
 		);
 		let trigger = container.querySelector("button") as HTMLButtonElement;
 		expect(trigger.textContent).toContain("Thinking");
-		expect(trigger.querySelector(".cline-chat-streaming-title")).not.toBeNull();
+		expect(trigger.querySelector(".induscode-chat-streaming-title")).not.toBeNull();
 
 		await render(
 			<ThinkingBlock durationMilliseconds={4_000}>
@@ -223,7 +223,7 @@ describe("@cline/ui agent chat primitives", () => {
 		);
 		trigger = container.querySelector("button") as HTMLButtonElement;
 		expect(trigger.textContent).toContain("Thought for 4s");
-		expect(trigger.querySelector(".cline-chat-streaming-title")).toBeNull();
+		expect(trigger.querySelector(".induscode-chat-streaming-title")).toBeNull();
 
 		await act(async () => trigger.click());
 		const panel = document.getElementById(
@@ -232,7 +232,7 @@ describe("@cline/ui agent chat primitives", () => {
 		expect(panel?.textContent).toContain("Considering the options.");
 		expect(
 			panel?.querySelector(
-				".cline-chat-thinking-content.cline-chat-panel-rail",
+				".induscode-chat-thinking-content.induscode-chat-panel-rail",
 			),
 		).not.toBeNull();
 	});
@@ -275,7 +275,7 @@ describe("@cline/ui agent chat primitives", () => {
 		);
 
 		const trigger = container.querySelector(
-			"button.cline-chat-work-trigger",
+			"button.induscode-chat-work-trigger",
 		) as HTMLButtonElement;
 		expect(trigger.textContent).toContain(
 			"Worked for 1m 5s and made 2 tool calls",
@@ -293,9 +293,9 @@ describe("@cline/ui agent chat primitives", () => {
 		expect(panel?.getAttribute("data-state")).toBe("open");
 		expect(panel?.textContent).toContain("Ran tests, edited theme.css");
 		// Expanded rows sit at transcript level — no rail or extra indent.
-		const content = panel?.querySelector(".cline-chat-work-content");
+		const content = panel?.querySelector(".induscode-chat-work-content");
 		expect(content).not.toBeNull();
-		expect(content?.classList.contains("cline-chat-panel-rail")).toBe(false);
+		expect(content?.classList.contains("induscode-chat-panel-rail")).toBe(false);
 
 		await act(async () => trigger.click());
 		expect(panel?.getAttribute("data-state")).toBe("closed");
@@ -312,7 +312,7 @@ describe("@cline/ui agent chat primitives", () => {
 		);
 
 		const viewport = container.querySelector(
-			".cline-chat-conversation-viewport",
+			".induscode-chat-conversation-viewport",
 		) as HTMLDivElement;
 		const scrollTo = vi.fn();
 		Object.defineProperties(viewport, {
@@ -358,7 +358,7 @@ describe("@cline/ui agent chat primitives", () => {
 		await render(transcript("session-a"));
 
 		const firstViewport = container.querySelector(
-			".cline-chat-conversation-viewport",
+			".induscode-chat-conversation-viewport",
 		) as HTMLDivElement;
 		Object.defineProperties(firstViewport, {
 			clientHeight: { configurable: true, value: 100 },
@@ -374,7 +374,7 @@ describe("@cline/ui agent chat primitives", () => {
 		await render(transcript("session-b"));
 
 		const nextViewport = container.querySelector(
-			".cline-chat-conversation-viewport",
+			".induscode-chat-conversation-viewport",
 		);
 		expect(nextViewport).not.toBe(firstViewport);
 		expect(

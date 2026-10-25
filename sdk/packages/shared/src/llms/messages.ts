@@ -24,7 +24,7 @@ export interface TextContent {
 }
 
 /**
- * File content block for Cline
+ * File content block for IndusCode
  */
 export interface FileContent {
 	type: "file";

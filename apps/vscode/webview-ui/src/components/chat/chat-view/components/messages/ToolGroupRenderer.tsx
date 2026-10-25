@@ -1,5 +1,5 @@
-import { ClineMessage, ClineSayTool } from "@shared/ExtensionMessage"
-import { StringRequest } from "@shared/proto/cline/common"
+import { IndusCodeMessage, IndusCodeSayTool } from "@shared/ExtensionMessage"
+import { StringRequest } from "@shared/proto/induscode/common"
 import { memo, useCallback, useMemo, useState } from "react"
 import { TypewriterText } from "@/components/chat/TypewriterText"
 import { cleanPathPrefix } from "@/components/common/CodeAccordian"
@@ -9,14 +9,14 @@ import { FileServiceClient } from "@/services/grpc-client"
 import { getIconByToolName, getToolsNotInCurrentActivities, isLowStakesTool } from "../../utils/messageUtils"
 
 interface ToolGroupRendererProps {
-	messages: ClineMessage[]
-	allMessages: ClineMessage[]
+	messages: IndusCodeMessage[]
+	allMessages: IndusCodeMessage[]
 	isLastGroup: boolean
 }
 
 interface ToolWithReasoning {
-	tool: ClineMessage
-	parsedTool: ClineSayTool
+	tool: IndusCodeMessage
+	parsedTool: IndusCodeSayTool
 	reasoning?: string
 	isActive?: boolean
 	activityText?: string
@@ -25,7 +25,7 @@ interface ToolWithReasoning {
 const EXPANDABLE_TOOLS = new Set(["listFilesTopLevel", "listFilesRecursive", "listCodeDefinitionNames", "searchFiles"])
 
 // Helper to format activity text for active items (from RequestStartRow logic)
-const getActivityText = (tool: ClineSayTool): string | null => {
+const getActivityText = (tool: IndusCodeSayTool): string | null => {
 	const cleanedPath = cleanPathPrefix(tool.path || "")
 	const formatSearchRegex = (regex: string, path: string, filePattern?: string): string => {
 		const cleanedPath = cleanPathPrefix(path)
@@ -64,7 +64,7 @@ const getActivityText = (tool: ClineSayTool): string | null => {
 }
 
 // Calculate current activities (from RequestStartRow logic)
-const getCurrentActivities = (allMessages: ClineMessage[]): ClineMessage[] => {
+const getCurrentActivities = (allMessages: IndusCodeMessage[]): IndusCodeMessage[] => {
 	// Find current api_req
 	let currentApiReqIndex = -1
 	for (let i = allMessages.length - 1; i >= 0; i--) {
@@ -88,7 +88,7 @@ const getCurrentActivities = (allMessages: ClineMessage[]): ClineMessage[] => {
 	}
 
 	// Collect tools AFTER the current api_req_started
-	const activities: ClineMessage[] = []
+	const activities: IndusCodeMessage[] = []
 	for (let i = currentApiReqIndex + 1; i < allMessages.length; i++) {
 		const msg = allMessages[i]
 		// Only collect tools that are currently executing (ask === "tool")
@@ -243,7 +243,7 @@ export const ToolGroupRenderer = memo(({ messages, allMessages, isLastGroup }: T
  * Build tool items WITHOUT reasoning.
  * Reasoning should not be displayed in file lists - only file/folder content.
  */
-export function buildToolsWithReasoning(messages: ClineMessage[]): ToolWithReasoning[] {
+export function buildToolsWithReasoning(messages: IndusCodeMessage[]): ToolWithReasoning[] {
 	const result: ToolWithReasoning[] = []
 
 	for (const msg of messages) {
@@ -285,18 +285,18 @@ export function buildToolsWithReasoning(messages: ClineMessage[]): ToolWithReaso
 /**
  * Safely parse tool JSON, returning empty tool on failure.
  */
-function parseToolSafe(text: string | undefined): ClineSayTool {
+function parseToolSafe(text: string | undefined): IndusCodeSayTool {
 	try {
-		return JSON.parse(text || "{}") as ClineSayTool
+		return JSON.parse(text || "{}") as IndusCodeSayTool
 	} catch {
-		return {} as ClineSayTool
+		return {} as IndusCodeSayTool
 	}
 }
 
 /**
  * Get display info for a tool.
  */
-function getToolDisplayInfo(tool: ClineSayTool) {
+function getToolDisplayInfo(tool: IndusCodeSayTool) {
 	const icon = getIconByToolName(tool.tool)
 	const filePath = tool.path || ""
 	const folderPath = filePath + "/"
@@ -357,7 +357,7 @@ function formatSearchDisplay(regex: string, path: string, filePattern?: string):
 /**
  * Get summary label for a tool group - shows what's been added to context.
  */
-export function getToolGroupSummaryFromParsedTools(tools: ClineSayTool[]): string {
+export function getToolGroupSummaryFromParsedTools(tools: IndusCodeSayTool[]): string {
 	const counts = { read: 0, list: 0, search: 0, def: 0 }
 
 	for (const tool of tools) {
@@ -394,5 +394,5 @@ export function getToolGroupSummaryFromParsedTools(tools: ClineSayTool[]): strin
 		parts.push(`performed ${counts.search} search${counts.search > 1 ? "es" : ""}`)
 	}
 
-	return parts.length === 0 ? "Context" : "Cline" + action + parts.join(", ")
+	return parts.length === 0 ? "Context" : "IndusCode" + action + parts.join(", ")
 }

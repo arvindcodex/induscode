@@ -4,7 +4,7 @@ import type {
 } from "@ai-sdk/provider";
 
 export const MINIMAX_THINKING_DISABLED_HEADER =
-	"x-cline-minimax-thinking-disabled";
+	"x-induscode-minimax-thinking-disabled";
 
 type FetchWithOptionalPreconnect = typeof fetch & {
 	preconnect?: (...args: unknown[]) => unknown;

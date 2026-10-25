@@ -2,7 +2,7 @@ import {
 	type BasicLogger,
 	createPluginCommandService,
 	type PluginSlashCommand,
-} from "@cline/core";
+} from "@induscode/core";
 import { type ChatCommandHost, chatCommandHost } from "./chat-commands";
 
 export type { PluginSlashCommand };

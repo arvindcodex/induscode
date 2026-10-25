@@ -1,4 +1,4 @@
-import { Empty, EmptyRequest } from "@shared/proto/cline/common"
+import { Empty, EmptyRequest } from "@shared/proto/induscode/common"
 import { refreshWorkflowToggles } from "@/core/context/instructions/user-instructions/workflows"
 import { telemetryService } from "@/services/telemetry"
 import { Logger } from "@/shared/services/Logger"
@@ -22,7 +22,7 @@ export async function initializeWebview(controller: Controller, _request: EmptyR
 	try {
 		// The webview calls this once on mount, on every host. The VS Code-only
 		// "sidebar_resolved"/"sidebar_visible" sources never fire for JetBrains, so
-		// this is the only host-neutral signal that the Cline UI actually rendered.
+		// this is the only host-neutral signal that the IndusCode UI actually rendered.
 		telemetryService.capturePanelOpened("webview_initialized")
 
 		// Sync workflow toggles with the files on disk so the chat input's slash

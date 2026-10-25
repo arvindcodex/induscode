@@ -1,12 +1,12 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { remoteHelperBinaryFilename } from "@cline/core";
+import { remoteHelperBinaryFilename } from "@induscode/core";
 import { expect, it } from "vitest";
 import { resolveDesktopRemoteHelper } from "./remote-helper";
 
 it("finds SSH helpers in the installed Windows resource layout", () => {
-	const root = mkdtempSync(join(tmpdir(), "cline-packaged-helpers-"));
+	const root = mkdtempSync(join(tmpdir(), "induscode-packaged-helpers-"));
 	try {
 		const target = { platform: "linux", arch: "x64" } as const;
 		const directory = join(root, "bin", "remote-helpers");
@@ -15,7 +15,7 @@ it("finds SSH helpers in the installed Windows resource layout", () => {
 		writeFileSync(helper, "helper");
 		expect(
 			resolveDesktopRemoteHelper(target, {
-				execPath: join(root, "cline-cli.exe"),
+				execPath: join(root, "induscode-cli.exe"),
 				cwd: tmpdir(),
 				env: {},
 			}),
@@ -30,11 +30,11 @@ const FAT_MACHO_HEADER = Buffer.from("cafebabe00000002", "hex");
 const THIN_ARM64_MACHO_HEADER = Buffer.from("cffaedfe0c000001", "hex");
 
 it("uses the bundled universal macOS CLI for Mac remotes", () => {
-	const root = mkdtempSync(join(tmpdir(), "cline-packaged-helpers-"));
+	const root = mkdtempSync(join(tmpdir(), "induscode-packaged-helpers-"));
 	try {
-		const macOS = join(root, "Cline.app", "Contents", "MacOS");
+		const macOS = join(root, "IndusCode.app", "Contents", "MacOS");
 		mkdirSync(macOS, { recursive: true });
-		const cli = join(macOS, "cline-cli");
+		const cli = join(macOS, "induscode-cli");
 		writeFileSync(cli, FAT_MACHO_HEADER);
 		for (const arch of ["arm64", "x64"] as const) {
 			expect(
@@ -43,7 +43,7 @@ it("uses the bundled universal macOS CLI for Mac remotes", () => {
 					{
 						execPath: cli,
 						cwd: tmpdir(),
-						env: { CLINE_DESKTOP_CLI_PATH: cli },
+						env: { INDUSCODE_DESKTOP_CLI_PATH: cli },
 						platform: "darwin",
 					},
 				),
@@ -55,7 +55,7 @@ it("uses the bundled universal macOS CLI for Mac remotes", () => {
 				{
 					execPath: cli,
 					cwd: tmpdir(),
-					env: { CLINE_DESKTOP_CLI_PATH: cli },
+					env: { INDUSCODE_DESKTOP_CLI_PATH: cli },
 					platform: "darwin",
 				},
 			),
@@ -66,16 +66,16 @@ it("uses the bundled universal macOS CLI for Mac remotes", () => {
 });
 
 it("only offers a thin bundled macOS CLI to Mac remotes of its own architecture", () => {
-	const root = mkdtempSync(join(tmpdir(), "cline-packaged-helpers-"));
+	const root = mkdtempSync(join(tmpdir(), "induscode-packaged-helpers-"));
 	try {
-		const macOS = join(root, "Cline.app", "Contents", "MacOS");
+		const macOS = join(root, "IndusCode.app", "Contents", "MacOS");
 		mkdirSync(macOS, { recursive: true });
-		const cli = join(macOS, "cline-cli");
+		const cli = join(macOS, "induscode-cli");
 		writeFileSync(cli, THIN_ARM64_MACHO_HEADER);
 		const options = {
 			execPath: cli,
 			cwd: tmpdir(),
-			env: { CLINE_DESKTOP_CLI_PATH: cli },
+			env: { INDUSCODE_DESKTOP_CLI_PATH: cli },
 			platform: "darwin" as const,
 		};
 		expect(
@@ -93,11 +93,11 @@ it("only offers a thin bundled macOS CLI to Mac remotes of its own architecture"
 });
 
 it("uses the compiled CLI for Mac remotes under tauri dev on macOS", () => {
-	const root = mkdtempSync(join(tmpdir(), "cline-dev-helpers-"));
+	const root = mkdtempSync(join(tmpdir(), "induscode-dev-helpers-"));
 	try {
 		const bin = join(root, "src-tauri", "bin");
 		mkdirSync(bin, { recursive: true });
-		const cli = join(bin, "cline-cli-aarch64-apple-darwin");
+		const cli = join(bin, "induscode-cli-aarch64-apple-darwin");
 		writeFileSync(cli, "cli");
 		const options = {
 			execPath: "/usr/local/bin/bun",
@@ -120,14 +120,14 @@ it("uses the compiled CLI for Mac remotes under tauri dev on macOS", () => {
 });
 
 it("selects only the running Linux channels SSH helpers", () => {
-	const root = mkdtempSync(join(tmpdir(), "cline-packaged-helpers-"));
+	const root = mkdtempSync(join(tmpdir(), "induscode-packaged-helpers-"));
 	try {
 		const target = { platform: "linux", arch: "arm64" } as const;
 		const directory = join(
 			root,
 			"usr",
 			"lib",
-			"Cline Beta",
+			"IndusCode Beta",
 			"bin",
 			"remote-helpers",
 		);
@@ -138,7 +138,7 @@ it("selects only the running Linux channels SSH helpers", () => {
 			root,
 			"usr",
 			"lib",
-			"Cline",
+			"IndusCode",
 			"bin",
 			"remote-helpers",
 		);
@@ -149,18 +149,18 @@ it("selects only the running Linux channels SSH helpers", () => {
 		);
 		expect(
 			resolveDesktopRemoteHelper(target, {
-				execPath: join(root, "usr", "bin", "cline-cli"),
+				execPath: join(root, "usr", "bin", "induscode-cli"),
 				cwd: tmpdir(),
-				env: { CLINE_REMOTE_HELPER_DIRECTORY: directory },
+				env: { INDUSCODE_REMOTE_HELPER_DIRECTORY: directory },
 			}),
 		).toBe(helper);
 		// A missing binary in this channel must not fall back to another app.
 		rmSync(helper);
 		expect(
 			resolveDesktopRemoteHelper(target, {
-				execPath: join(root, "usr", "bin", "cline-cli"),
+				execPath: join(root, "usr", "bin", "induscode-cli"),
 				cwd: tmpdir(),
-				env: { CLINE_REMOTE_HELPER_DIRECTORY: directory },
+				env: { INDUSCODE_REMOTE_HELPER_DIRECTORY: directory },
 			}),
 		).toBeUndefined();
 	} finally {

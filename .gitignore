@@ -12,10 +12,10 @@ tmp
 
 pnpm-lock.yaml
 
-.clineignore
-.cline/enterprise
-.cline/remote-config
-**/.cline/remote-config
+.induscodeignore
+.induscode/enterprise
+.induscode/remote-config
+**/.induscode/remote-config
 .venv
 .actrc
 CLAUDE.local.md
@@ -77,13 +77,13 @@ apps/vscode/webview-ui/src/**/*.js.map
 
 
 # SDK Session files / User data
-.cline/data
-.cline/tmp
+.induscode/data
+.induscode/tmp
 *.db
 *.db-shm
 *.db-wal
-.cline/**/managed.json
-.cline/**/bundle.json
+.induscode/**/managed.json
+.induscode/**/bundle.json
 apps/vscode/tsconfig.test.generated.json
 .next/dev/static
 **/.next
@@ -100,3 +100,13 @@ androidapp/node_modules
 # Next.js generated type shim (churns between dev and build)
 apps/examples/desktop-app/webview/next-env.d.ts
 apps/examples/desktop-app/.cursor/settings.json
+
+# Non-software projects and temporary assets
+aiwebsite/
+aiwebsite.zip
+androidapp/
+image.png
+main.js
+newclo/
+.agents/design-systems/
+

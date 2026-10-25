@@ -1,4 +1,4 @@
-import type { ConnectSlackOptions } from "@cline/shared";
+import type { ConnectSlackOptions } from "@induscode/shared";
 import { type Message, ThreadImpl } from "chat";
 import { describe, expect, it } from "vitest";
 import { __test__, slackConnector } from "./slack";
@@ -346,7 +346,7 @@ describe("slack binding lookup", () => {
 			__test__.stripSlackBotMention("<@U0B8E8H3U1F> hi", "U0B8E8H3U1F"),
 		).toBe("hi");
 		expect(
-			__test__.stripSlackBotMention("<@U0B8E8H3U1F|cline> hi", "U0B8E8H3U1F"),
+			__test__.stripSlackBotMention("<@U0B8E8H3U1F|induscode> hi", "U0B8E8H3U1F"),
 		).toBe("hi");
 		expect(
 			__test__.stripSlackBotMention("  @U0B8E8H3U1F: hi", "U0B8E8H3U1F"),
@@ -366,8 +366,8 @@ describe("slack binding lookup", () => {
 		expect(__test__.stripSlackBotMention("@U999999 hi", "U0B8E8H3U1F")).toBe(
 			"@U999999 hi",
 		);
-		expect(__test__.stripSlackBotMention("@cline hi", "U0B8E8H3U1F")).toBe(
-			"@cline hi",
+		expect(__test__.stripSlackBotMention("@induscode hi", "U0B8E8H3U1F")).toBe(
+			"@induscode hi",
 		);
 		expect(__test__.stripSlackBotMention("@U0B8E8H3U1F hi", undefined)).toBe(
 			"@U0B8E8H3U1F hi",
@@ -443,9 +443,9 @@ describe("slack legacy connector state", () => {
 		const { tmpdir } = await import("node:os");
 		const { join } = await import("node:path");
 
-		const previousDataDir = process.env.CLINE_DATA_DIR;
+		const previousDataDir = process.env.INDUSCODE_DATA_DIR;
 		const dataDir = mkdtempSync(join(tmpdir(), "slack-legacy-state-"));
-		process.env.CLINE_DATA_DIR = dataDir;
+		process.env.INDUSCODE_DATA_DIR = dataDir;
 		const child = spawn(
 			process.execPath,
 			["-e", "setInterval(() => {}, 1000)"],
@@ -475,9 +475,9 @@ describe("slack legacy connector state", () => {
 		} finally {
 			child.kill("SIGKILL");
 			if (previousDataDir === undefined) {
-				delete process.env.CLINE_DATA_DIR;
+				delete process.env.INDUSCODE_DATA_DIR;
 			} else {
-				process.env.CLINE_DATA_DIR = previousDataDir;
+				process.env.INDUSCODE_DATA_DIR = previousDataDir;
 			}
 			rmSync(dataDir, { recursive: true, force: true });
 		}

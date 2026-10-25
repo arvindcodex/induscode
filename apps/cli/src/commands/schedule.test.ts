@@ -12,9 +12,9 @@ const mockProviderSettings = vi.hoisted(() => ({
 	providers: {} as Record<string, { provider?: string; model?: string }>,
 }));
 
-vi.mock("@cline/core", async () => {
+vi.mock("@induscode/core", async () => {
 	const actual =
-		await vi.importActual<typeof import("@cline/core")>("@cline/core");
+		await vi.importActual<typeof import("@induscode/core")>("@induscode/core");
 	return {
 		...actual,
 		NodeHubClient: class {
@@ -222,7 +222,7 @@ describe("runScheduleCommand create", () => {
 
 	it("uses an explicit provider with that provider's configured model", async () => {
 		mockProviderSettings.lastUsed = {
-			provider: "cline",
+			provider: "induscode",
 			model: "openai/gpt-5.3-codex",
 		};
 		mockProviderSettings.providers.anthropic = {
@@ -744,7 +744,7 @@ describe("runScheduleCommand import", () => {
 		});
 		const sourcePath = join(
 			tmpdir(),
-			`cline-schedule-import-delivery-${Date.now()}.json`,
+			`induscode-schedule-import-delivery-${Date.now()}.json`,
 		);
 		await writeFile(
 			sourcePath,
@@ -793,7 +793,7 @@ describe("runScheduleCommand import", () => {
 
 		const sourcePath = join(
 			tmpdir(),
-			`cline-schedule-import-${Date.now()}.json`,
+			`induscode-schedule-import-${Date.now()}.json`,
 		);
 		await writeFile(
 			sourcePath,
@@ -863,7 +863,7 @@ describe("runScheduleCommand export", () => {
 
 		const targetPath = join(
 			tmpdir(),
-			`cline-schedule-export-${Date.now()}-${Math.random()
+			`induscode-schedule-export-${Date.now()}-${Math.random()
 				.toString(36)
 				.slice(2)}.json`,
 		);
@@ -921,7 +921,7 @@ describe("runScheduleCommand export", () => {
 
 		const targetPath = join(
 			tmpdir(),
-			`cline-schedule-export-${Date.now()}-${Math.random()
+			`induscode-schedule-export-${Date.now()}-${Math.random()
 				.toString(36)
 				.slice(2)}.yaml`,
 		);

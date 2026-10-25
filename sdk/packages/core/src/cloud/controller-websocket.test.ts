@@ -20,8 +20,8 @@ describe("cloud REST and WebSocket integration", () => {
 			port: 0,
 			host: "127.0.0.1",
 			handleProtocols: (protocols) =>
-				protocols.has("cline-hub-auth.fixture")
-					? "cline-hub-auth.fixture"
+				protocols.has("induscode-hub-auth.fixture")
+					? "induscode-hub-auth.fixture"
 					: false,
 		});
 		await new Promise<void>((resolve) => upstream.once("listening", resolve));
@@ -46,7 +46,7 @@ describe("cloud REST and WebSocket integration", () => {
 		};
 		upstream.on("connection", (socket, request) => {
 			expect(request.headers["sec-websocket-protocol"]).toBe(
-				"cline-hub-auth.fixture",
+				"induscode-hub-auth.fixture",
 			);
 			socket.on("message", (data) => {
 				const frame = JSON.parse(data.toString());
@@ -146,7 +146,7 @@ describe("cloud REST and WebSocket integration", () => {
 			id: "ses-fixture",
 			status: "ready",
 			sandboxUrl: "",
-			repoContext: { repoUrl: "https://github.com/cline/test" },
+			repoContext: { repoUrl: "https://github.com/induscode/test" },
 			metadata: { modelId: "model", taskId: "inner" },
 			createdAt: new Date().toISOString(),
 			updatedAt: new Date().toISOString(),
@@ -183,7 +183,7 @@ describe("cloud REST and WebSocket integration", () => {
 				return;
 			}
 			front.handleUpgrade(req, socket, head, (client) => {
-				const backend = new WebSocket(upstreamUrl, ["cline-hub-auth.fixture"]);
+				const backend = new WebSocket(upstreamUrl, ["induscode-hub-auth.fixture"]);
 				const waiting: string[] = [];
 				client.on("message", (data) => {
 					if (backend.readyState === WebSocket.OPEN)

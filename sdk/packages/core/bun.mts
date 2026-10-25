@@ -23,19 +23,19 @@ const runtimeBuildId = resolveSdkRuntimeBuildId(
 // Keep declared runtime packages external so they are not duplicated inside each
 // bundled entrypoint and installed again from package.json.
 const external = [
-	"@cline/core/hub/daemon-entry",
+	"@induscode/core/hub/daemon-entry",
 	// Preserve the optional provider boundary; bundling it hoists posthog-node
 	// into every runtime entrypoint even when the local import is dynamic.
-	"@cline/core/services/feature-flags/posthog",
+	"@induscode/core/services/feature-flags/posthog",
 	...Object.keys({
 		...(packageJson.dependencies ?? {}),
 		...(packageJson.peerDependencies ?? {}),
 	}),
 ];
 
-const sourcemap = Bun.env.CLINE_SOURCEMAPS === "1" ? "linked" : "none";
+const sourcemap = Bun.env.INDUSCODE_SOURCEMAPS === "1" ? "linked" : "none";
 // minify: true keeps identifier mangling active even when sourcemaps are enabled.
-const minify = Bun.env.CLINE_SOURCEMAPS !== "1";
+const minify = Bun.env.INDUSCODE_SOURCEMAPS !== "1";
 
 const buildConfig = {
 	target: "node",
@@ -45,11 +45,11 @@ const buildConfig = {
 	sourcemap,
 	external,
 	define: {
-		__CLINE_CORE_RUNTIME_BUILD_ID__: JSON.stringify(runtimeBuildId),
+		__INDUSCODE_CORE_RUNTIME_BUILD_ID__: JSON.stringify(runtimeBuildId),
 		// Unlike the deterministic fingerprint above, the epoch orders builds in
 		// time so managed-Hub compatibility can tell a newer daemon from a stale
 		// one. Consulted only when fingerprints already differ.
-		__CLINE_CORE_RUNTIME_BUILD_EPOCH_MS__: JSON.stringify(Date.now()),
+		__INDUSCODE_CORE_RUNTIME_BUILD_EPOCH_MS__: JSON.stringify(Date.now()),
 	},
 } as const;
 

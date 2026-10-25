@@ -1,4 +1,4 @@
-import type { ToolApprovalRequest } from "@cline/shared";
+import type { ToolApprovalRequest } from "@induscode/shared";
 import { describe, expect, it } from "vitest";
 import type { Config } from "../../utils/types";
 import { createInteractiveApprovalController } from "./approvals";
@@ -6,7 +6,7 @@ import { createInteractiveApprovalController } from "./approvals";
 function makeConfig(autoApprove = true): Config {
 	return {
 		apiKey: "",
-		providerId: "cline",
+		providerId: "induscode",
 		modelId: "openai/gpt-5.3-codex",
 		verbose: false,
 		sandbox: false,

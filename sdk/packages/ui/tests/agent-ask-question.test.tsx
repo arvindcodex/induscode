@@ -56,7 +56,7 @@ describe("AgentAskQuestion", () => {
 		expect(onAnswer).toHaveBeenCalledWith("request-1", "Stop");
 		expect(container.textContent).toContain("Request request-1 · Iteration 2");
 		const meta = container.querySelector<HTMLElement>(
-			".cline-ui-agent-ask-question__meta",
+			".induscode-ui-agent-ask-question__meta",
 		);
 		expect(meta?.dataset.slot).toBe("badge");
 	});
@@ -79,10 +79,10 @@ describe("AgentAskQuestion", () => {
 		);
 
 		const input = container.querySelector<HTMLInputElement>(
-			".cline-ui-agent-ask-question__custom",
+			".induscode-ui-agent-ask-question__custom",
 		);
 		const submit = container.querySelector<HTMLButtonElement>(
-			".cline-ui-agent-ask-question__submit",
+			".induscode-ui-agent-ask-question__submit",
 		);
 		expect(input).not.toBeNull();
 		expect(submit?.disabled).toBe(true);
@@ -128,7 +128,7 @@ describe("AgentAskQuestion", () => {
 		);
 
 		expect(
-			container.querySelector(".cline-ui-agent-ask-question__custom"),
+			container.querySelector(".induscode-ui-agent-ask-question__custom"),
 		).toBeNull();
 	});
 
@@ -156,7 +156,7 @@ describe("AgentAskQuestion", () => {
 		expect(buttons[2]?.textContent).toContain("Sending…");
 		expect(
 			container.querySelector<HTMLInputElement>(
-				".cline-ui-agent-ask-question__custom",
+				".induscode-ui-agent-ask-question__custom",
 			)?.disabled,
 		).toBe(true);
 		expect(container.textContent).toContain("Could not send answer");
@@ -165,7 +165,7 @@ describe("AgentAskQuestion", () => {
 		);
 		expect(
 			container
-				.querySelector(".cline-ui-agent-ask-question__item")
+				.querySelector(".induscode-ui-agent-ask-question__item")
 				?.getAttribute("aria-busy"),
 		).toBe("true");
 	});
@@ -260,16 +260,16 @@ describe("AgentAskQuestion", () => {
 		);
 
 		const optionButtons = container.querySelectorAll<HTMLButtonElement>(
-			".cline-ui-agent-ask-question__option",
+			".induscode-ui-agent-ask-question__option",
 		);
 		expect(
 			optionButtons[25]?.querySelector(
-				".cline-ui-agent-ask-question__option-key",
+				".induscode-ui-agent-ask-question__option-key",
 			)?.textContent,
 		).toBe("Z");
 		expect(
 			optionButtons[26]?.querySelector(
-				".cline-ui-agent-ask-question__option-key",
+				".induscode-ui-agent-ask-question__option-key",
 			),
 		).toBeNull();
 	});

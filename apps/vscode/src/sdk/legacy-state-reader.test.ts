@@ -26,7 +26,7 @@ import {
 let tempDir: string
 
 beforeEach(() => {
-	tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "cline-legacy-state-"))
+	tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "induscode-legacy-state-"))
 })
 
 afterEach(() => {
@@ -47,51 +47,51 @@ describe("resolveDataDir", () => {
 		expect(resolveDataDir("/custom/path")).toBe("/custom/path")
 	})
 
-	it("falls back to CLINE_DATA_DIR env", () => {
-		const original = process.env.CLINE_DATA_DIR
-		process.env.CLINE_DATA_DIR = "/env/data"
+	it("falls back to INDUSCODE_DATA_DIR env", () => {
+		const original = process.env.INDUSCODE_DATA_DIR
+		process.env.INDUSCODE_DATA_DIR = "/env/data"
 		try {
 			expect(resolveDataDir()).toBe("/env/data")
 		} finally {
-			process.env.CLINE_DATA_DIR = original
+			process.env.INDUSCODE_DATA_DIR = original
 		}
 	})
 
-	it("trims a whitespace-padded CLINE_DATA_DIR like createStorageContext", () => {
-		const original = process.env.CLINE_DATA_DIR
-		process.env.CLINE_DATA_DIR = "  /env/data  "
+	it("trims a whitespace-padded INDUSCODE_DATA_DIR like createStorageContext", () => {
+		const original = process.env.INDUSCODE_DATA_DIR
+		process.env.INDUSCODE_DATA_DIR = "  /env/data  "
 		try {
 			expect(resolveDataDir()).toBe("/env/data")
 		} finally {
-			process.env.CLINE_DATA_DIR = original
+			process.env.INDUSCODE_DATA_DIR = original
 		}
 	})
 
-	it("falls back to CLINE_DIR/data", () => {
-		const originalData = process.env.CLINE_DATA_DIR
-		const originalDir = process.env.CLINE_DIR
-		delete process.env.CLINE_DATA_DIR
-		process.env.CLINE_DIR = "/cline"
+	it("falls back to INDUSCODE_DIR/data", () => {
+		const originalData = process.env.INDUSCODE_DATA_DIR
+		const originalDir = process.env.INDUSCODE_DIR
+		delete process.env.INDUSCODE_DATA_DIR
+		process.env.INDUSCODE_DIR = "/induscode"
 		try {
 			// path.join keeps the platform separator (\ on Windows), so compare
 			// against a joined path rather than a hardcoded POSIX string.
-			expect(resolveDataDir()).toBe(path.join("/cline", "data"))
+			expect(resolveDataDir()).toBe(path.join("/induscode", "data"))
 		} finally {
-			process.env.CLINE_DATA_DIR = originalData
-			process.env.CLINE_DIR = originalDir
+			process.env.INDUSCODE_DATA_DIR = originalData
+			process.env.INDUSCODE_DIR = originalDir
 		}
 	})
 
-	it("falls back to ~/.cline/data", () => {
-		const originalData = process.env.CLINE_DATA_DIR
-		const originalDir = process.env.CLINE_DIR
-		delete process.env.CLINE_DATA_DIR
-		delete process.env.CLINE_DIR
+	it("falls back to ~/.induscode/data", () => {
+		const originalData = process.env.INDUSCODE_DATA_DIR
+		const originalDir = process.env.INDUSCODE_DIR
+		delete process.env.INDUSCODE_DATA_DIR
+		delete process.env.INDUSCODE_DIR
 		try {
-			expect(resolveDataDir()).toBe(path.join(os.homedir(), ".cline", "data"))
+			expect(resolveDataDir()).toBe(path.join(os.homedir(), ".induscode", "data"))
 		} finally {
-			process.env.CLINE_DATA_DIR = originalData
-			process.env.CLINE_DIR = originalDir
+			process.env.INDUSCODE_DATA_DIR = originalData
+			process.env.INDUSCODE_DIR = originalDir
 		}
 	})
 })
@@ -355,7 +355,7 @@ describe("readMcpSettings", () => {
 		expect(readMcpSettings(tempDir)).toEqual({ mcpServers: {} })
 	})
 
-	it("reads cline_mcp_settings.json from settings/ subdirectory", () => {
+	it("reads induscode_mcp_settings.json from settings/ subdirectory", () => {
 		const settings: McpSettingsFile = {
 			mcpServers: {
 				"my-server": {
@@ -370,7 +370,7 @@ describe("readMcpSettings", () => {
 				},
 			},
 		}
-		writeJson(path.join(tempDir, "settings", "cline_mcp_settings.json"), settings)
+		writeJson(path.join(tempDir, "settings", "induscode_mcp_settings.json"), settings)
 
 		const result = readMcpSettings(tempDir)
 		expect(Object.keys(result.mcpServers)).toHaveLength(2)
@@ -380,7 +380,7 @@ describe("readMcpSettings", () => {
 	})
 
 	it("returns empty mcpServers for corrupt JSON", () => {
-		const filePath = path.join(tempDir, "settings", "cline_mcp_settings.json")
+		const filePath = path.join(tempDir, "settings", "induscode_mcp_settings.json")
 		fs.mkdirSync(path.dirname(filePath), { recursive: true })
 		fs.writeFileSync(filePath, "NOT JSON")
 
@@ -435,7 +435,7 @@ describe("readAllLegacyState", () => {
 		writeJson(path.join(tempDir, "state", "taskHistory.json"), [
 			{ id: "task-1", ts: Date.now(), task: "Test", tokensIn: 0, tokensOut: 0, totalCost: 0 },
 		])
-		writeJson(path.join(tempDir, "settings", "cline_mcp_settings.json"), {
+		writeJson(path.join(tempDir, "settings", "induscode_mcp_settings.json"), {
 			mcpServers: {
 				"test-server": { command: "node", args: ["mcp.js"] },
 			},

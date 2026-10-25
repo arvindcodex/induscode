@@ -1,16 +1,16 @@
 import type {
 	AgentToolContext,
 	BasicLogger,
-	ClineCore,
+	IndusCodeCore,
 	ITelemetryService,
 	ManagedHubBuildMismatchEvent,
 	NodeHubClient,
 	RemoteEnvironmentConnection,
 	RemoteEnvironmentService,
 	ToolApprovalResult,
-} from "@cline/core";
-import type { MessageWithMetadata } from "@cline/llms";
-import type { UserContext } from "@cline/shared";
+} from "@induscode/core";
+import type { MessageWithMetadata } from "@induscode/llms";
+import type { UserContext } from "@induscode/shared";
 
 export const LOCAL_ENVIRONMENT_ID = "local";
 
@@ -85,7 +85,7 @@ export type SessionRuntimeBinding = {
 	environmentId: string;
 	kind: "local" | "ssh";
 	workspaceRoot: string;
-	sessionManager: ClineCore;
+	sessionManager: IndusCodeCore;
 	hubClient: NodeHubClient;
 	unsubscribeSessionEvents: () => void;
 	remote?: RemoteEnvironmentConnection;
@@ -173,9 +173,9 @@ export type BunRuntimeApi = {
 
 export const BunRuntime = (globalThis as { Bun?: BunRuntimeApi }).Bun;
 
-export const SIDECAR_PORT = Number(process.env.CLINE_SIDECAR_PORT) || 3126;
-// Loopback-only by default. Set CLINE_SIDECAR_HOST=0.0.0.0 to accept
+export const SIDECAR_PORT = Number(process.env.INDUSCODE_SIDECAR_PORT) || 3126;
+// Loopback-only by default. Set INDUSCODE_SIDECAR_HOST=0.0.0.0 to accept
 // connections from outside the local host (e.g. Docker port publishing).
 export const SIDECAR_HOST =
-	process.env.CLINE_SIDECAR_HOST?.trim() || "127.0.0.1";
+	process.env.INDUSCODE_SIDECAR_HOST?.trim() || "127.0.0.1";
 export const SIDECAR_MODE = "sidecar";

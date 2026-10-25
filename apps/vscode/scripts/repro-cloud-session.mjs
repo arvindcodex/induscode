@@ -1,13 +1,13 @@
-const accessToken = process.env.CLINE_OAUTH_TOKEN?.trim()
+const accessToken = process.env.INDUSCODE_OAUTH_TOKEN?.trim()
 if (!accessToken) {
-	throw new Error("Set CLINE_OAUTH_TOKEN to a Cline OAuth access token.")
+	throw new Error("Set INDUSCODE_OAUTH_TOKEN to a IndusCode OAuth access token.")
 }
 
-const apiBaseUrl = (process.env.CLINE_API_BASE_URL ?? "https://api.cline.bot").replace(/\/+$/, "")
-const repositoryUrl = process.env.CLINE_REPO_URL ?? "https://github.com/cline/cline"
-const branch = process.env.CLINE_BRANCH
-const modelId = process.env.CLINE_MODEL_ID ?? "openai/gpt-5.6-sol"
-const organizationId = process.env.CLINE_ORGANIZATION_ID
+const apiBaseUrl = (process.env.INDUSCODE_API_BASE_URL ?? "https://api.induscode.bot").replace(/\/+$/, "")
+const repositoryUrl = process.env.INDUSCODE_REPO_URL ?? "https://github.com/induscode/induscode"
+const branch = process.env.INDUSCODE_BRANCH
+const modelId = process.env.INDUSCODE_MODEL_ID ?? "openai/gpt-5.6-sol"
+const organizationId = process.env.INDUSCODE_ORGANIZATION_ID
 
 async function request(path, init = {}) {
 	const response = await fetch(`${apiBaseUrl}${path}`, {

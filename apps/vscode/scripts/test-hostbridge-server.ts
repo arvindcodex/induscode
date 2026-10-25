@@ -172,7 +172,7 @@ async function simulateOAuthBrowserCallback(urlString: string): Promise<void> {
 	}
 
 	callback.searchParams.set("code", "test-personal-token")
-	callback.searchParams.set("provider", "cline")
+	callback.searchParams.set("provider", "induscode")
 
 	const response = await fetch(callback.toString())
 	if (!response.ok) {

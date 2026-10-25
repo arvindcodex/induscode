@@ -4,7 +4,7 @@ import { join } from "node:path";
 import {
 	ONE_TIME_SCHEDULE_CRON_PATTERN,
 	ONE_TIME_SCHEDULE_RUN_AT_METADATA_KEY,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { SqliteCronStore } from "../store/sqlite-cron-store";
 import { CronMaterializer } from "./cron-materializer";
@@ -14,7 +14,7 @@ describe("CronMaterializer", () => {
 	let store: SqliteCronStore;
 
 	beforeEach(() => {
-		dir = mkdtempSync(join(tmpdir(), "cline-materializer-"));
+		dir = mkdtempSync(join(tmpdir(), "induscode-materializer-"));
 		store = new SqliteCronStore({ dbPath: join(dir, "cron.db") });
 	});
 	afterEach(() => {

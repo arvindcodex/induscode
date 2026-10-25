@@ -4,9 +4,9 @@ import {
 	resolveDisabledToolNames,
 	resolveModelToolSettings,
 	type ToolCatalogEntry,
-} from "@cline/core";
+} from "@induscode/core";
 
-export type { ToolCatalogEntry } from "@cline/core";
+export type { ToolCatalogEntry } from "@induscode/core";
 
 export function getToolCatalog(
 	availabilityContext?: BuiltinToolAvailabilityContext,

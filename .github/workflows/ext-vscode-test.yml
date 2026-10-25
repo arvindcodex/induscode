@@ -48,7 +48,7 @@ jobs:
                           - 'apps/vscode/webview-ui/package.json'
                           # Root bun lockfile is authoritative for the whole workspace (incl. apps/vscode).
                           - 'bun.lock'
-                          # SDK source packages are local workspace symlinks (@cline/*), so SDK changes affect the build.
+                          # SDK source packages are local workspace symlinks (@induscode/*), so SDK changes affect the build.
                           - 'sdk/packages/**'
                           - 'apps/vscode/buf.yaml'
                           - 'apps/vscode/tsconfig*.json'
@@ -71,7 +71,7 @@ jobs:
                           - 'apps/vscode/package.json'
                           # Root bun lockfile is authoritative for the whole workspace (incl. apps/vscode).
                           - 'bun.lock'
-                          # SDK source packages are local workspace symlinks (@cline/*), so SDK changes affect the build.
+                          # SDK source packages are local workspace symlinks (@induscode/*), so SDK changes affect the build.
                           - 'sdk/packages/**'
                           - 'apps/vscode/buf.yaml'
                           - 'apps/vscode/tsconfig*.json'
@@ -98,7 +98,7 @@ jobs:
                   bun-version: "1.4.2"
 
             # Single root install resolves the entire bun workspace (apps/vscode,
-            # webview-ui, testing-platform and the @cline/* SDK symlinks) at once,
+            # webview-ui, testing-platform and the @induscode/* SDK symlinks) at once,
             # so the previous per-package `npm ci` steps collapse into one.
             - name: Install workspace dependencies
               working-directory: ${{ github.workspace }}
@@ -106,7 +106,7 @@ jobs:
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-            # @cline/* are local workspace symlinks to source packages; their dist/
+            # @induscode/* are local workspace symlinks to source packages; their dist/
             # output must be built before the extension can type-check/compile.
             - name: Build SDK packages
               working-directory: ${{ github.workspace }}
@@ -157,7 +157,7 @@ jobs:
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-            # @cline/* are local workspace symlinks to source packages; build dist/
+            # @induscode/* are local workspace symlinks to source packages; build dist/
             # before compiling/testing the extension.
             - name: Build SDK packages
               working-directory: ${{ github.workspace }}
@@ -177,7 +177,7 @@ jobs:
             # removed. Scripts are now launched with `bun run`, which uses Bun's own
             # built-in cross-platform shell rather than npm's configured script-shell,
             # so that npm-specific Windows workaround no longer applies. Bash-dependent
-            # scripts (e.g. scripts/proto-lint.sh, standalone/runclinecore.sh) are
+            # scripts (e.g. scripts/proto-lint.sh, standalone/runinduscodecore.sh) are
             # invoked explicitly via `bash ...` from within the package scripts, and
             # this job's `defaults.run.shell: bash` (Git Bash on Windows) still covers
             # the workflow `run:` blocks below.
@@ -306,7 +306,7 @@ jobs:
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-            # @cline/* are local workspace symlinks to source packages; build dist/
+            # @induscode/* are local workspace symlinks to source packages; build dist/
             # before compiling the standalone core.
             - name: Build SDK packages
               working-directory: ${{ github.workspace }}

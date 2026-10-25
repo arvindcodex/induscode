@@ -20,7 +20,7 @@ import type {
 	BasicLogMetadata,
 	ConsecutiveMistakeLimitContext,
 	ConsecutiveMistakeLimitDecision,
-} from "@cline/shared";
+} from "@induscode/shared";
 
 /**
  * Legacy-agents-style leveled log function. The sdk-re `BasicLogger`

@@ -1,6 +1,6 @@
 import { readFileSync, rmSync } from "node:fs";
 import { dirname } from "node:path";
-import type { AgentEvent, TeamEvent } from "@cline/core";
+import type { AgentEvent, TeamEvent } from "@induscode/core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
 	handleEvent,
@@ -242,21 +242,21 @@ describe("handleEvent text formatting", () => {
 		expect(output).toContain("── aborted (2 iterations) ──");
 	});
 
-	it("formats ClinePass limit agent errors before writing to stderr", () => {
+	it("formats IndusCodePass limit agent errors before writing to stderr", () => {
 		handleEvent(
 			{
 				type: "error",
 				error: new Error(
-					"Error: You have reached your 5-hour Clinepass limit. The limit resets in 5h, please try again later.",
+					"Error: You have reached your 5-hour IndusCodepass limit. The limit resets in 5h, please try again later.",
 				),
 				recoverable: false,
 			} as unknown as AgentEvent,
 			{} as Config,
 		);
 
-		expect(errorOutput).toContain("ClinePass limit reached");
-		expect(errorOutput).toContain("Switch to Cline usage-based billing");
-		expect(errorOutput).toContain("--provider cline");
+		expect(errorOutput).toContain("IndusCodePass limit reached");
+		expect(errorOutput).toContain("Switch to IndusCode usage-based billing");
+		expect(errorOutput).toContain("--provider induscode");
 	});
 
 	it("formats daily free model limit agent errors before writing to stderr", () => {
@@ -283,7 +283,7 @@ describe("handleEvent text formatting", () => {
 				error: new Error("Error 404: model not found"),
 				recoverable: false,
 			} as unknown as AgentEvent,
-			{ modelId: "cline-free/retired-model" } as Config,
+			{ modelId: "induscode-free/retired-model" } as Config,
 		);
 
 		expect(errorOutput).toContain("Free model promotion ended");

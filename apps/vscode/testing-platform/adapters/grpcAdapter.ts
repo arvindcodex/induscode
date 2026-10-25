@@ -1,31 +1,31 @@
-import { AccountServiceClient } from "@cline-grpc/account"
-import { BrowserServiceClient } from "@cline-grpc/browser"
-import { CheckpointsServiceClient } from "@cline-grpc/checkpoints"
-import { CommandsServiceClient } from "@cline-grpc/commands"
-import { FileServiceClient } from "@cline-grpc/file"
-import { McpServiceClient } from "@cline-grpc/mcp"
-import { ModelsServiceClient } from "@cline-grpc/models"
-import { SlashServiceClient } from "@cline-grpc/slash"
-import { StateServiceClient } from "@cline-grpc/state"
-import { TaskServiceClient } from "@cline-grpc/task"
-import { UiServiceClient } from "@cline-grpc/ui"
-import { WebServiceClient } from "@cline-grpc/web"
+import { AccountServiceClient } from "@induscode-grpc/account"
+import { BrowserServiceClient } from "@induscode-grpc/browser"
+import { CheckpointsServiceClient } from "@induscode-grpc/checkpoints"
+import { CommandsServiceClient } from "@induscode-grpc/commands"
+import { FileServiceClient } from "@induscode-grpc/file"
+import { McpServiceClient } from "@induscode-grpc/mcp"
+import { ModelsServiceClient } from "@induscode-grpc/models"
+import { SlashServiceClient } from "@induscode-grpc/slash"
+import { StateServiceClient } from "@induscode-grpc/state"
+import { TaskServiceClient } from "@induscode-grpc/task"
+import { UiServiceClient } from "@induscode-grpc/ui"
+import { WebServiceClient } from "@induscode-grpc/web"
 import { credentials } from "@grpc/grpc-js"
 import { promisify } from "util"
 
 const serviceRegistry = {
-	"cline.AccountService": AccountServiceClient,
-	"cline.BrowserService": BrowserServiceClient,
-	"cline.CheckpointsService": CheckpointsServiceClient,
-	"cline.CommandsService": CommandsServiceClient,
-	"cline.FileService": FileServiceClient,
-	"cline.McpService": McpServiceClient,
-	"cline.ModelsService": ModelsServiceClient,
-	"cline.SlashService": SlashServiceClient,
-	"cline.StateService": StateServiceClient,
-	"cline.TaskService": TaskServiceClient,
-	"cline.UiService": UiServiceClient,
-	"cline.WebService": WebServiceClient,
+	"induscode.AccountService": AccountServiceClient,
+	"induscode.BrowserService": BrowserServiceClient,
+	"induscode.CheckpointsService": CheckpointsServiceClient,
+	"induscode.CommandsService": CommandsServiceClient,
+	"induscode.FileService": FileServiceClient,
+	"induscode.McpService": McpServiceClient,
+	"induscode.ModelsService": ModelsServiceClient,
+	"induscode.SlashService": SlashServiceClient,
+	"induscode.StateService": StateServiceClient,
+	"induscode.TaskService": TaskServiceClient,
+	"induscode.UiService": UiServiceClient,
+	"induscode.WebService": WebServiceClient,
 } as const
 
 export type ServiceClients = {

@@ -61,7 +61,7 @@ Loop detection is available through core/session execution settings.
 The SDK integrates with OpenTelemetry for traces, metrics, and logs:
 
 ```typescript
-const cline = await ClineCore.create({
+const induscode = await IndusCodeCore.create({
   clientName: "production-app",
   telemetry: myTelemetryService,
   logger: myLogger,
@@ -302,7 +302,7 @@ async function handleRequest(prompt: string): Promise<string> {
 For long-running services with session management:
 
 ```typescript
-const cline = await ClineCore.create({
+const induscode = await IndusCodeCore.create({
   clientName: "my-service",
   backendMode: "hub",
 })
@@ -311,7 +311,7 @@ const cline = await ClineCore.create({
 // Connectors, schedules, and team state all managed by the hub
 
 process.on("SIGTERM", async () => {
-  await cline.dispose("Shutting down")
+  await induscode.dispose("Shutting down")
   process.exit(0)
 })
 ```

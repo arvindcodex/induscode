@@ -1,4 +1,4 @@
-import type { ConfiguredTelemetryHandle, ITelemetryService } from "@cline/core"
+import type { ConfiguredTelemetryHandle, ITelemetryService } from "@induscode/core"
 import type { Mock } from "vitest"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { Setting } from "@/shared/proto/index.host"
@@ -8,19 +8,19 @@ const coreTelemetryMocks = vi.hoisted(() => ({
 	createHandle: vi.fn(),
 }))
 
-vi.mock("@cline/core", () => ({
-	createClineTelemetryServiceConfig: coreTelemetryMocks.createConfig,
+vi.mock("@induscode/core", () => ({
+	createIndusCodeTelemetryServiceConfig: coreTelemetryMocks.createConfig,
 	createConfiguredTelemetryHandle: coreTelemetryMocks.createHandle,
 }))
 
 const telemetryState = vi.hoisted(() => ({
-	clineTelemetrySetting: "unset" as string | undefined,
+	induscodeTelemetrySetting: "unset" as string | undefined,
 	hostSetting: 1,
 	hostVersion: {
 		platform: "VS Code",
 		version: "1.103.0",
-		clineType: "VSCode Extension",
-	} as { platform?: string; version?: string; clineType?: string; clineVersion?: string },
+		induscodeType: "VSCode Extension",
+	} as { platform?: string; version?: string; induscodeType?: string; induscodeVersion?: string },
 	hostVersionError: undefined as Error | undefined,
 	hostVersionGate: undefined as Promise<void> | undefined,
 	subscribeCallback: undefined as ((event: { isEnabled: number }) => void) | undefined,
@@ -31,7 +31,7 @@ vi.mock("@/core/storage/StateManager", () => ({
 	StateManager: {
 		get: () => ({
 			getGlobalSettingsKey: (key: string) =>
-				key === "telemetrySetting" ? telemetryState.clineTelemetrySetting : undefined,
+				key === "telemetrySetting" ? telemetryState.induscodeTelemetrySetting : undefined,
 		}),
 	},
 }))
@@ -61,12 +61,12 @@ import { createVscodeSdkTelemetryHandle, VscodeTelemetryPolicyService } from "./
 
 describe("VscodeTelemetryPolicyService", () => {
 	beforeEach(() => {
-		telemetryState.clineTelemetrySetting = "unset"
+		telemetryState.induscodeTelemetrySetting = "unset"
 		telemetryState.hostSetting = Setting.ENABLED
 		telemetryState.hostVersion = {
 			platform: "VS Code",
 			version: "1.103.0",
-			clineType: "VSCode Extension",
+			induscodeType: "VSCode Extension",
 		}
 		telemetryState.hostVersionError = undefined
 		telemetryState.hostVersionGate = undefined
@@ -74,7 +74,7 @@ describe("VscodeTelemetryPolicyService", () => {
 		telemetryState.unsubscribe.mockReset()
 		coreTelemetryMocks.createConfig.mockClear()
 		coreTelemetryMocks.createHandle.mockReset()
-		vi.stubEnv("CLINE_ROLLOUT_VARIANT", "")
+		vi.stubEnv("INDUSCODE_ROLLOUT_VARIANT", "")
 	})
 
 	afterEach(() => {
@@ -91,7 +91,7 @@ describe("VscodeTelemetryPolicyService", () => {
 		expect(coreTelemetryMocks.createConfig).toHaveBeenCalledWith(
 			expect.objectContaining({
 				metadata: expect.objectContaining({
-					cline_type: "unknown",
+					induscode_type: "unknown",
 					platform: "unknown",
 					platform_version: "unknown",
 				}),
@@ -112,7 +112,7 @@ describe("VscodeTelemetryPolicyService", () => {
 	})
 
 	it("adds rollout metadata as SDK common properties", () => {
-		vi.stubEnv("CLINE_ROLLOUT_VARIANT", "next")
+		vi.stubEnv("INDUSCODE_ROLLOUT_VARIANT", "next")
 		coreTelemetryMocks.createHandle.mockReturnValue(createHandle())
 
 		createVscodeSdkTelemetryHandle()
@@ -147,7 +147,7 @@ describe("VscodeTelemetryPolicyService", () => {
 		expect(handle.telemetry.capture).not.toHaveBeenCalled()
 	})
 
-	it("allows ordinary events when host telemetry is enabled and Cline telemetry is not disabled", async () => {
+	it("allows ordinary events when host telemetry is enabled and IndusCode telemetry is not disabled", async () => {
 		const handle = createHandle()
 		const service = new VscodeTelemetryPolicyService(handle)
 		await settlePromises()
@@ -157,8 +157,8 @@ describe("VscodeTelemetryPolicyService", () => {
 		expect(handle.telemetry.capture).toHaveBeenCalledWith({ event: "session.started", properties: { sessionId: "s1" } })
 	})
 
-	it("drops ordinary events when Cline telemetry is disabled but allows required events while host telemetry is enabled", async () => {
-		telemetryState.clineTelemetrySetting = "disabled"
+	it("drops ordinary events when IndusCode telemetry is disabled but allows required events while host telemetry is enabled", async () => {
+		telemetryState.induscodeTelemetrySetting = "disabled"
 		const handle = createHandle()
 		const service = new VscodeTelemetryPolicyService(handle)
 		await settlePromises()
@@ -199,7 +199,7 @@ describe("VscodeTelemetryPolicyService", () => {
 	})
 
 	it("gates metrics with the same ordinary/required policy", async () => {
-		telemetryState.clineTelemetrySetting = "disabled"
+		telemetryState.induscodeTelemetrySetting = "disabled"
 		const handle = createHandle()
 		const service = new VscodeTelemetryPolicyService(handle)
 		await settlePromises()
@@ -215,8 +215,8 @@ describe("VscodeTelemetryPolicyService", () => {
 		telemetryState.hostVersion = {
 			platform: "IntelliJ IDEA Ultimate",
 			version: "2026.1.1",
-			clineType: "Cline for JetBrains",
-			clineVersion: "1.1.61",
+			induscodeType: "IndusCode for JetBrains",
+			induscodeVersion: "1.1.61",
 		}
 		const handle = createHandle()
 		const service = new VscodeTelemetryPolicyService(handle)
@@ -226,7 +226,7 @@ describe("VscodeTelemetryPolicyService", () => {
 
 		expect(handle.telemetry.updateMetadata).toHaveBeenCalledWith({
 			host_plugin_version: "1.1.61",
-			cline_type: "Cline for JetBrains",
+			induscode_type: "IndusCode for JetBrains",
 			platform: "IntelliJ IDEA Ultimate",
 			platform_version: "2026.1.1",
 		})
@@ -239,7 +239,7 @@ describe("VscodeTelemetryPolicyService", () => {
 	})
 
 	it("omits the metadata fields the host does not report", async () => {
-		// The default host version has no clineVersion, so host_plugin_version must be absent.
+		// The default host version has no induscodeVersion, so host_plugin_version must be absent.
 		const handle = createHandle()
 		const service = new VscodeTelemetryPolicyService(handle)
 		await settlePromises()
@@ -247,7 +247,7 @@ describe("VscodeTelemetryPolicyService", () => {
 		service.capture({ event: "task.created" })
 
 		expect(handle.telemetry.updateMetadata).toHaveBeenCalledWith({
-			cline_type: "VSCode Extension",
+			induscode_type: "VSCode Extension",
 			platform: "VS Code",
 			platform_version: "1.103.0",
 		})

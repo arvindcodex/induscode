@@ -3,15 +3,15 @@ import { dirname, join } from "node:path";
 import {
 	type RemoteHelperTarget,
 	remoteHelperBinaryFilename,
-} from "@cline/core";
+} from "@induscode/core";
 import { resolveDesktopCliPath } from "./cli-runtime";
 
-/** Base name of the Cline CLI binary the desktop app bundles (Tauri externalBin). */
-export const DESKTOP_CLI_BINARY_NAME = "cline-cli";
+/** Base name of the IndusCode CLI binary the desktop app bundles (Tauri externalBin). */
+export const DESKTOP_CLI_BINARY_NAME = "induscode-cli";
 
 // Tauri's Linux bundles (deb, rpm, AppImage) install binaries under `usr/bin`
 // and resources under `usr/lib/<productName>`. The product name differs per
-// release channel ("Cline", "Cline Beta"), so scan the sibling lib directory.
+// release channel ("IndusCode", "IndusCode Beta"), so scan the sibling lib directory.
 export function linuxResourceCandidates(
 	executableDirectory: string,
 	relativePath: string,
@@ -95,7 +95,7 @@ export function resolveDesktopRemoteHelper(
 	} = {},
 ): string | undefined {
 	const env = options.env ?? process.env;
-	if (env.CLINE_REMOTE_HELPER_BINARY) return env.CLINE_REMOTE_HELPER_BINARY;
+	if (env.INDUSCODE_REMOTE_HELPER_BINARY) return env.INDUSCODE_REMOTE_HELPER_BINARY;
 	const filename = remoteHelperBinaryFilename(target);
 	const execPath = options.execPath ?? process.execPath;
 	const executableDirectory = dirname(execPath);
@@ -103,8 +103,8 @@ export function resolveDesktopRemoteHelper(
 	const platform = options.platform ?? process.platform;
 	const bundledPath = join("bin", "remote-helpers", filename);
 	return [
-		...(env.CLINE_REMOTE_HELPER_DIRECTORY
-			? [join(env.CLINE_REMOTE_HELPER_DIRECTORY, filename)]
+		...(env.INDUSCODE_REMOTE_HELPER_DIRECTORY
+			? [join(env.INDUSCODE_REMOTE_HELPER_DIRECTORY, filename)]
 			: []),
 		...(target.platform === "darwin" && platform === "darwin"
 			? macCliCandidates(target, resolveDesktopCliPath(env), cwd)

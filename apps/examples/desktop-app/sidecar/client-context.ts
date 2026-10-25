@@ -1,25 +1,25 @@
 import * as os from "node:os";
-import { resolveCoreDistinctId } from "@cline/core";
+import { resolveCoreDistinctId } from "@induscode/core";
 import type {
 	ClientContext,
 	ExtensionContext,
 	TelemetryMetadata,
 	UserContext,
-} from "@cline/shared";
+} from "@induscode/shared";
 import { version } from "../package.json";
 
 /** Shared identity for request headers, Hub attribution, and telemetry. */
 export const DESKTOP_CLIENT_CONTEXT = {
-	name: "cline-desktop",
+	name: "induscode-desktop",
 	version,
-	platform: "Cline Desktop",
+	platform: "IndusCode Desktop",
 	platformVersion: version,
 	isMultiRoot: false,
 } as const satisfies ClientContext;
 
 export const DESKTOP_TELEMETRY_METADATA = {
 	extension_version: version,
-	cline_type: "desktop",
+	induscode_type: "desktop",
 	platform: DESKTOP_CLIENT_CONTEXT.platform,
 	platform_version: DESKTOP_CLIENT_CONTEXT.platformVersion,
 	os_type: os.platform(),

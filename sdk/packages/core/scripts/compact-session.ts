@@ -3,7 +3,7 @@
 import { readdir, readFile, stat, writeFile } from "node:fs/promises";
 import { extname, join, resolve } from "node:path";
 import { parseArgs } from "node:util";
-import type { MessageWithMetadata } from "@cline/shared";
+import type { MessageWithMetadata } from "@induscode/shared";
 import { createContextCompactionPrepareTurn } from "../src/extensions/context/compaction";
 import {
 	DEFAULT_SUMMARY_MAX_OUTPUT_TOKENS,
@@ -17,7 +17,7 @@ type StrategySelection = CompactionStrategy | "both";
 
 const PROVIDER_API_KEY_ENV: Record<string, string> = {
 	anthropic: "ANTHROPIC_API_KEY",
-	cline: "CLINE_API_KEY",
+	induscode: "INDUSCODE_API_KEY",
 	gemini: "GOOGLE_API_KEY",
 	mistral: "MISTRAL_API_KEY",
 	openai: "OPENAI_API_KEY",
@@ -26,7 +26,7 @@ const PROVIDER_API_KEY_ENV: Record<string, string> = {
 
 function usage(): never {
 	console.error(`Usage:
-	  bun -F @cline/core test:compaction -- <session-directory> [options]
+	  bun -F @induscode/core test:compaction -- <session-directory> [options]
 
 Options:
 	  --strategy <strategy>       basic, agentic, or both (default: both)
@@ -45,7 +45,7 @@ Options:
 
 The directory must contain messages.json or exactly one *.messages.json file.
 For agentic compaction, provider API key defaults are ANTHROPIC_API_KEY,
-CLINE_API_KEY, OPENAI_API_KEY, GOOGLE_API_KEY, or MISTRAL_API_KEY, according
+INDUSCODE_API_KEY, OPENAI_API_KEY, GOOGLE_API_KEY, or MISTRAL_API_KEY, according
 to --provider.`);
 	process.exit(1);
 }

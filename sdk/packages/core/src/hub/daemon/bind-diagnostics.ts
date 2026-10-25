@@ -7,7 +7,7 @@
  */
 
 import { spawnSync } from "node:child_process";
-import type { TelemetryProperties } from "@cline/shared";
+import type { TelemetryProperties } from "@induscode/shared";
 import { createHubServerUrl, probeHubServer } from "../discovery";
 
 const LOOKUP_TIMEOUT_MS = 5_000;

@@ -4,7 +4,7 @@ import { readdir } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { isMainThread, parentPort, Worker } from "node:worker_threads";
-import { toPosixSeparators } from "@cline/shared";
+import { toPosixSeparators } from "@induscode/shared";
 
 const DEFAULT_INDEX_TTL_MS = 15_000;
 const STALE_CACHE_EVICTION_MS = 10 * 60_000;

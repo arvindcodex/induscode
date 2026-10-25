@@ -2,7 +2,7 @@ import type {
 	AgentMode,
 	HubEventEnvelope,
 	MessageWithMetadata,
-} from "@cline/shared";
+} from "@induscode/shared";
 import type { CloudSessionRecord, CreateCloudSessionInput } from "./api";
 
 export type JsonRecord = Record<string, unknown>;

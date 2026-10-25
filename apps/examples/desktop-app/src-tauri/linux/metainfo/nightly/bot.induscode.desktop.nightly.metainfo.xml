@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+	<id>bot.induscode.desktop.nightly</id>
+	<launchable type="desktop-id">IndusCode Nightly.desktop</launchable>
+	<name>IndusCode Nightly</name>
+	<summary>AI coding agent</summary>
+	<developer id="bot.induscode">
+		<name>IndusCode Inc.</name>
+	</developer>
+	<metadata_license>CC0-1.0</metadata_license>
+	<project_license>Apache-2.0</project_license>
+	<description>
+		<p>IndusCode is an AI coding agent. It reads your code, edits files, runs commands, and works through tasks with you in any project on your machine.</p>
+	</description>
+	<url type="homepage">https://induscode.ai</url>
+	<content_rating type="oars-1.1" />
+</component>

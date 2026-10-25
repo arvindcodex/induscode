@@ -1,5 +1,5 @@
-import type { ModelModalities, ModelOperation, ModelOperationMode } from "@cline/shared"
-import { ApiFormat } from "./proto/cline/models"
+import type { ModelModalities, ModelOperation, ModelOperationMode } from "@induscode/shared"
+import { ApiFormat } from "./proto/induscode/models"
 import type { ApiHandlerSettings } from "./storage/state-keys"
 
 export type ApiProvider =
@@ -22,8 +22,8 @@ export type ApiProvider =
 	| "doubao"
 	| "mistral"
 	| "vscode-lm"
-	| "cline"
-	| "cline-pass"
+	| "induscode"
+	| "induscode-pass"
 	| "litellm"
 	| "moonshot"
 	| "nebius"
@@ -162,8 +162,8 @@ export const openRouterDefaultModelInfo: ModelInfo = {
 		"Claude Sonnet 5.5 is an Anthropic model for coding, agentic search, and AI agent workflows. It supports planning and implementation tasks across the software development lifecycle.\n\nRead more in the [blog post here](https://www.anthropic.com/claude/sonnet)",
 }
 
-export const clinePassDefaultModelId = "cline-pass/glm-5.2"
-export const clinePassModelInfoSaneDefaults: ModelInfo = {
+export const induscodePassDefaultModelId = "induscode-pass/glm-5.2"
+export const induscodePassModelInfoSaneDefaults: ModelInfo = {
 	maxTokens: 8_192,
 	contextWindow: 128_000,
 	supportsImages: false,
@@ -190,8 +190,8 @@ export function buildModelInfoNameMap(models: Record<string, ModelInfo>): Record
 	return nameMap
 }
 
-export function resolveClinePassModelInfo(modelId: string, modelInfoByName?: Record<string, ModelInfo>): ModelInfo {
-	return modelInfoByName?.[getModelSlug(modelId)] ?? clinePassModelInfoSaneDefaults
+export function resolveIndusCodePassModelInfo(modelId: string, modelInfoByName?: Record<string, ModelInfo>): ModelInfo {
+	return modelInfoByName?.[getModelSlug(modelId)] ?? induscodePassModelInfoSaneDefaults
 }
 
 export const openAiModelInfoSafeDefaults: OpenAiCompatibleModelInfo = {
@@ -208,7 +208,7 @@ export const openAiModelInfoSafeDefaults: OpenAiCompatibleModelInfo = {
 // Uses OAuth authentication via ChatGPT, routes to chatgpt.com/backend-api/codex/responses
 // Subscription-based pricing (all costs are $0).
 //
-// The Codex catalog and default model id are sourced from the `@cline/llms`
+// The Codex catalog and default model id are sourced from the `@induscode/llms`
 // SDK.
 // Azure OpenAI
 // https://learn.microsoft.com/en-us/azure/ai-services/openai/api-version-deprecation

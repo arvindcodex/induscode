@@ -416,9 +416,9 @@ beforeEach(async () => {
 		if (command === "get_process_context") {
 			return {
 				environmentId: "local",
-				cwd: "/workspace/cline",
-				workspaceRoot: "/workspace/cline",
-				taskWorktreeRoot: "/home/host/cline-dir/worktrees",
+				cwd: "/workspace/induscode",
+				workspaceRoot: "/workspace/induscode",
+				taskWorktreeRoot: "/home/host/induscode-dir/worktrees",
 			};
 		}
 		return [];
@@ -455,8 +455,8 @@ describe("useChatSession", () => {
 				if (command === "get_process_context") {
 					return {
 						environmentId: "local",
-						cwd: "/workspace/cline",
-						workspaceRoot: "/workspace/cline",
+						cwd: "/workspace/induscode",
+						workspaceRoot: "/workspace/induscode",
 					};
 				}
 				if (command === "chat_session_command") {
@@ -498,7 +498,7 @@ describe("useChatSession", () => {
 	});
 
 	const cloudSessionConfig = {
-		provider: "cline",
+		provider: "induscode",
 		model: "test-model",
 		cwd: "/workspace",
 		workspaceRoot: "/workspace",
@@ -602,7 +602,7 @@ describe("useChatSession", () => {
 				sessionId: "old-cloud",
 				origin: "cloud",
 				status: "running",
-				repoUrl: "https://github.com/cline/test",
+				repoUrl: "https://github.com/induscode/test",
 				startedAt: "2026-09-01T00:00:00Z",
 			});
 			await Promise.resolve();
@@ -666,7 +666,7 @@ describe("useChatSession", () => {
 				origin: "cloud",
 				status: failedCommand ? "expired" : "completed",
 				...cloudSessionConfig,
-				repoUrl: "https://github.com/cline/test",
+				repoUrl: "https://github.com/induscode/test",
 				startedAt: "2026-09-01T00:00:00Z",
 			}),
 		);
@@ -698,7 +698,7 @@ describe("useChatSession", () => {
 	it("allows cloud provisioning to outlive the default desktop command timeout", async () => {
 		invokeMock.mockImplementation(async (command: string) => {
 			if (command === "get_process_context") {
-				return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+				return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 			}
 			if (command === "chat_session_command") {
 				return {
@@ -714,8 +714,8 @@ describe("useChatSession", () => {
 			current.start({
 				...current.config,
 				executionTarget: "cloud",
-				repoUrl: "https://github.com/cline/test",
-				provider: "cline",
+				repoUrl: "https://github.com/induscode/test",
+				provider: "induscode",
 			}),
 		);
 
@@ -1057,7 +1057,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "chat_session_command") {
 					const request = args?.request as
@@ -1100,8 +1100,8 @@ describe("useChatSession", () => {
 
 		await act(async () => {
 			startResponse.resolve({
-				cwd: "/workspace/cline",
-				workspaceRoot: "/workspace/cline",
+				cwd: "/workspace/induscode",
+				workspaceRoot: "/workspace/induscode",
 			});
 			await sendTask;
 		});
@@ -1122,7 +1122,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "chat_session_command") {
 					const request = args?.request as
@@ -1362,8 +1362,8 @@ describe("useChatSession", () => {
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
 					return {
-						cwd: "/workspace/cline",
-						workspaceRoot: "/workspace/cline",
+						cwd: "/workspace/induscode",
+						workspaceRoot: "/workspace/induscode",
 					};
 				}
 				if (command === "proceed_while_running") {
@@ -1376,8 +1376,8 @@ describe("useChatSession", () => {
 					if (request?.action === "start") {
 						return {
 							sessionId: request.config?.sessionId ?? "session-output",
-							cwd: "/workspace/cline",
-							workspaceRoot: "/workspace/cline",
+							cwd: "/workspace/induscode",
+							workspaceRoot: "/workspace/induscode",
 						};
 					}
 				}
@@ -1461,7 +1461,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "read_session_messages") {
 					expect(args?.environmentId).toBe(environmentId);
@@ -1506,10 +1506,10 @@ describe("useChatSession", () => {
 						return {
 							sessionId: hydratedSessionId,
 							status: "running",
-							provider: "cline",
+							provider: "induscode",
 							model: "test-model",
-							cwd: "/workspace/cline",
-							workspaceRoot: "/workspace/cline",
+							cwd: "/workspace/induscode",
+							workspaceRoot: "/workspace/induscode",
 						};
 					}
 					return { promptsInQueue: [] };
@@ -1527,10 +1527,10 @@ describe("useChatSession", () => {
 					environmentId,
 					sessionId: hydratedSessionId,
 					status: "running",
-					provider: "cline",
+					provider: "induscode",
 					model: "test-model",
-					cwd: "/workspace/cline",
-					workspaceRoot: "/workspace/cline",
+					cwd: "/workspace/induscode",
+					workspaceRoot: "/workspace/induscode",
 					startedAt: "2026-08-12T00:00:00.000Z",
 				});
 			});
@@ -1626,7 +1626,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "read_session_messages") {
 					readCount += 1;
@@ -1650,10 +1650,10 @@ describe("useChatSession", () => {
 						return {
 							sessionId: hydratedSessionId,
 							status: "idle",
-							provider: "cline",
+							provider: "induscode",
 							model: "test-model",
-							cwd: "/workspace/cline",
-							workspaceRoot: "/workspace/cline",
+							cwd: "/workspace/induscode",
+							workspaceRoot: "/workspace/induscode",
 						};
 					}
 					if (request?.action === "send") {
@@ -1673,10 +1673,10 @@ describe("useChatSession", () => {
 				await current.hydrateSession({
 					sessionId: hydratedSessionId,
 					status: "idle",
-					provider: "cline",
+					provider: "induscode",
 					model: "test-model",
-					cwd: "/workspace/cline",
-					workspaceRoot: "/workspace/cline",
+					cwd: "/workspace/induscode",
+					workspaceRoot: "/workspace/induscode",
 					startedAt: "2026-08-12T00:00:00.000Z",
 				});
 			});
@@ -1710,7 +1710,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "read_session_messages") {
 					return [
@@ -1740,10 +1740,10 @@ describe("useChatSession", () => {
 						return {
 							sessionId: hydratedSessionId,
 							status: "running",
-							provider: "cline",
+							provider: "induscode",
 							model: "test-model",
-							cwd: "/workspace/cline",
-							workspaceRoot: "/workspace/cline",
+							cwd: "/workspace/induscode",
+							workspaceRoot: "/workspace/induscode",
 						};
 					}
 					return { promptsInQueue: [] };
@@ -1756,10 +1756,10 @@ describe("useChatSession", () => {
 			await current.hydrateSession({
 				sessionId: hydratedSessionId,
 				status: "running",
-				provider: "cline",
+				provider: "induscode",
 				model: "test-model",
-				cwd: "/workspace/cline",
-				workspaceRoot: "/workspace/cline",
+				cwd: "/workspace/induscode",
+				workspaceRoot: "/workspace/induscode",
 				startedAt: "2026-08-12T00:00:00.000Z",
 			});
 		});
@@ -1811,7 +1811,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "chat_session_command") {
 					const request = args?.request as
@@ -1820,8 +1820,8 @@ describe("useChatSession", () => {
 					if (request?.action === "start") {
 						return {
 							sessionId: request.config?.sessionId ?? "session-stream-end",
-							cwd: "/workspace/cline",
-							workspaceRoot: "/workspace/cline",
+							cwd: "/workspace/induscode",
+							workspaceRoot: "/workspace/induscode",
 						};
 					}
 				}
@@ -2025,7 +2025,7 @@ describe("useChatSession", () => {
 						request.config?.sessionId ?? "session-pathless",
 					);
 					startedSessionId = sessionId;
-					const workspacePath = "/home/host/.cline/data/workspaces/chat";
+					const workspacePath = "/home/host/.induscode/data/workspaces/chat";
 					return {
 						sessionId,
 						cwd: workspacePath,
@@ -2046,7 +2046,7 @@ describe("useChatSession", () => {
 
 		expect(current.error).toBeNull();
 		expect(startedSessionId).toMatch(/^session_/);
-		const expectedWorkspacePath = "/home/host/.cline/data/workspaces/chat";
+		const expectedWorkspacePath = "/home/host/.induscode/data/workspaces/chat";
 		expect(current.config).toMatchObject({
 			cwd: expectedWorkspacePath,
 			workspaceRoot: expectedWorkspacePath,
@@ -2074,11 +2074,11 @@ describe("useChatSession", () => {
 			current.setWorkspacePath("/repos/demo");
 		});
 		invokeMock.mockClear();
-		const worktreePath = "/home/host/cline-dir/worktrees/ab12c/demo";
+		const worktreePath = "/home/host/induscode-dir/worktrees/ab12c/demo";
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "create_git_worktree") {
-					return { path: worktreePath, branch: "cline/ab12c" };
+					return { path: worktreePath, branch: "induscode/ab12c" };
 				}
 				if (command !== "chat_session_command") return [];
 				const request = args?.request as
@@ -2128,7 +2128,7 @@ describe("useChatSession", () => {
 
 	it("returns to the remembered repo when a new thread follows a worktree task", async () => {
 		const repo = "/repos/demo";
-		const worktreePath = "/home/host/cline-dir/worktrees/ab12c/demo";
+		const worktreePath = "/home/host/induscode-dir/worktrees/ab12c/demo";
 		// The page remembers the repo, never the worktree it was cut from.
 		writeWorkspaceSelectionToWindow("local", {
 			lastWorkspace: repo,
@@ -2140,7 +2140,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "create_git_worktree") {
-					return { path: worktreePath, branch: "cline/ab12c" };
+					return { path: worktreePath, branch: "induscode/ab12c" };
 				}
 				if (command !== "chat_session_command") return [];
 				const request = args?.request as { action?: string } | undefined;
@@ -2190,7 +2190,7 @@ describe("useChatSession", () => {
 	it("surfaces a worktree creation failure without starting a session", async () => {
 		invokeMock.mockImplementation(async (command: string) => {
 			if (command === "create_git_worktree") {
-				throw new Error("Not a git repository: /workspace/cline");
+				throw new Error("Not a git repository: /workspace/induscode");
 			}
 			return [];
 		});
@@ -2200,7 +2200,7 @@ describe("useChatSession", () => {
 		);
 
 		expect(current.error).toBe(
-			"Couldn't create a worktree: Not a git repository: /workspace/cline",
+			"Couldn't create a worktree: Not a git repository: /workspace/induscode",
 		);
 		expect(current.status).toBe("error");
 		expect(
@@ -2213,12 +2213,12 @@ describe("useChatSession", () => {
 		expect(current.sessionId).toBeNull();
 		expect(startsNewThread(current.sessionId, current.messages)).toBe(true);
 
-		const worktreePath = "/home/host/cline-dir/worktrees/ab12c/cline";
+		const worktreePath = "/home/host/induscode-dir/worktrees/ab12c/induscode";
 		invokeMock.mockClear();
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "create_git_worktree") {
-					return { path: worktreePath, branch: "cline/ab12c" };
+					return { path: worktreePath, branch: "induscode/ab12c" };
 				}
 				if (command !== "chat_session_command") return [];
 				const request = args?.request as { action?: string } | undefined;
@@ -2245,7 +2245,7 @@ describe("useChatSession", () => {
 		);
 
 		expect(invokeMock).toHaveBeenCalledWith("create_git_worktree", {
-			cwd: "/workspace/cline",
+			cwd: "/workspace/induscode",
 		});
 		expect(current.sessionId).not.toBeNull();
 		expect(current.config).toMatchObject({
@@ -2259,7 +2259,7 @@ describe("useChatSession", () => {
 			current.setWorkspacePath("/repos/demo");
 		});
 		invokeMock.mockClear();
-		const worktreePath = "/home/host/cline-dir/worktrees/ab12c/demo";
+		const worktreePath = "/home/host/induscode-dir/worktrees/ab12c/demo";
 		let releaseWorktree: (() => void) | undefined;
 		const sends: string[] = [];
 		invokeMock.mockImplementation(
@@ -2268,7 +2268,7 @@ describe("useChatSession", () => {
 					await new Promise<void>((resolve) => {
 						releaseWorktree = resolve;
 					});
-					return { path: worktreePath, branch: "cline/ab12c" };
+					return { path: worktreePath, branch: "induscode/ab12c" };
 				}
 				if (command !== "chat_session_command") return [];
 				const request = args?.request as
@@ -2330,11 +2330,11 @@ describe("useChatSession", () => {
 			current.setWorkspacePath("/repos/demo");
 		});
 		invokeMock.mockClear();
-		const worktreePath = "/home/host/cline-dir/worktrees/ab12c/demo";
+		const worktreePath = "/home/host/induscode-dir/worktrees/ab12c/demo";
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "create_git_worktree") {
-					return { path: worktreePath, branch: "cline/ab12c" };
+					return { path: worktreePath, branch: "induscode/ab12c" };
 				}
 				if (command === "remove_git_worktree") return { path: worktreePath };
 				const request = args?.request as { action?: string } | undefined;
@@ -2365,7 +2365,7 @@ describe("useChatSession", () => {
 	it("preserves server validation errors", async () => {
 		invokeMock.mockImplementation(async (command: string) => {
 			if (command === "get_process_context") {
-				return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+				return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 			}
 			if (command === "chat_session_command") {
 				throw new Error(
@@ -2410,8 +2410,8 @@ describe("useChatSession", () => {
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
 					return {
-						cwd: "/workspace/cline",
-						workspaceRoot: "/workspace/cline",
+						cwd: "/workspace/induscode",
+						workspaceRoot: "/workspace/induscode",
 					};
 				}
 				if (command === "chat_session_command") {
@@ -2421,8 +2421,8 @@ describe("useChatSession", () => {
 					if (request?.action === "start") {
 						return {
 							sessionId: request.config?.sessionId ?? "session-test",
-							cwd: "/workspace/cline",
-							workspaceRoot: "/workspace/cline",
+							cwd: "/workspace/induscode",
+							workspaceRoot: "/workspace/induscode",
 						};
 					}
 					if (request?.action === "send") {
@@ -2449,7 +2449,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "read_session_messages") {
 					return [];
@@ -2479,8 +2479,8 @@ describe("useChatSession", () => {
 			current.start({
 				...current.config,
 				executionTarget: "cloud",
-				provider: "cline",
-				repoUrl: "https://github.com/cline/test",
+				provider: "induscode",
+				repoUrl: "https://github.com/induscode/test",
 			}),
 		);
 		await act(async () => current.sendPrompt("Keep working"));
@@ -2494,7 +2494,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "read_session_messages") {
 					return [];
@@ -2528,8 +2528,8 @@ describe("useChatSession", () => {
 			current.setConfig((previous) => ({
 				...previous,
 				executionTarget: "cloud",
-				provider: "cline",
-				repoUrl: "https://github.com/cline/test",
+				provider: "induscode",
+				repoUrl: "https://github.com/induscode/test",
 			}));
 		});
 		// The send itself creates the session, so the optimistic bubble is
@@ -2650,7 +2650,7 @@ describe("useChatSession", () => {
 				await current.hydrateSession({
 					sessionId: "cloud-transition",
 					origin: "cloud",
-					repoUrl: "https://github.com/cline/test",
+					repoUrl: "https://github.com/induscode/test",
 					status: "provisioning",
 					...cloudSessionConfig,
 					startedAt: "2026-08-17T00:00:00.000Z",
@@ -2702,7 +2702,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "read_session_messages") {
 					return [
@@ -2736,8 +2736,8 @@ describe("useChatSession", () => {
 			current.setConfig((previous) => ({
 				...previous,
 				executionTarget: "cloud",
-				provider: "cline",
-				repoUrl: "https://github.com/cline/test",
+				provider: "induscode",
+				repoUrl: "https://github.com/induscode/test",
 			}));
 		});
 		await act(async () =>
@@ -2760,7 +2760,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, _args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "chat_session_command") {
 					return {
@@ -2776,8 +2776,8 @@ describe("useChatSession", () => {
 			await current.start({
 				...current.config,
 				executionTarget: "cloud",
-				provider: "cline",
-				repoUrl: "https://github.com/cline/test",
+				provider: "induscode",
+				repoUrl: "https://github.com/induscode/test",
 			});
 		});
 		const rehydratedHandler = subscribeMock.mock.calls.find(
@@ -2844,7 +2844,7 @@ describe("useChatSession", () => {
 		});
 		invokeMock.mockImplementation(async (command: string) => {
 			if (command === "get_process_context") {
-				return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+				return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 			}
 			if (command === "read_session_messages") {
 				historyRequested();
@@ -2866,7 +2866,7 @@ describe("useChatSession", () => {
 			hydration = current.hydrateSession({
 				sessionId: "ses-cloud",
 				origin: "cloud",
-				repoUrl: "https://github.com/cline/test",
+				repoUrl: "https://github.com/induscode/test",
 				status: "running",
 				...cloudSessionConfig,
 				startedAt: "2026-08-06T00:00:00.000Z",
@@ -2918,7 +2918,7 @@ describe("useChatSession", () => {
 	it("keeps live assistant and tool routing across a running cloud snapshot", async () => {
 		invokeMock.mockImplementation(async (command: string) => {
 			if (command === "get_process_context") {
-				return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+				return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 			}
 			if (command === "chat_session_command") {
 				return {
@@ -2933,8 +2933,8 @@ describe("useChatSession", () => {
 			await current.start({
 				...current.config,
 				executionTarget: "cloud",
-				provider: "cline",
-				repoUrl: "https://github.com/cline/test",
+				provider: "induscode",
+				repoUrl: "https://github.com/induscode/test",
 			});
 		});
 		const rehydratedHandler = handlerFor("cloud_session_rehydrated");
@@ -3053,7 +3053,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "read_session_messages") {
 					return [
@@ -3084,7 +3084,7 @@ describe("useChatSession", () => {
 			await current.hydrateSession({
 				sessionId: "ses-cloud",
 				origin: "cloud",
-				repoUrl: "https://github.com/cline/test",
+				repoUrl: "https://github.com/induscode/test",
 				status: "running",
 				...cloudSessionConfig,
 				startedAt: "2026-08-06T00:00:00.000Z",
@@ -3098,7 +3098,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "read_session_messages") {
 					return [];
@@ -3121,13 +3121,13 @@ describe("useChatSession", () => {
 			await current.hydrateSession({
 				sessionId: "ses-cloud",
 				origin: "cloud",
-				repoUrl: "https://github.com/cline/test",
+				repoUrl: "https://github.com/induscode/test",
 				status: "completed",
 				...cloudSessionConfig,
 				startedAt: "2026-08-05T00:00:00.000Z",
 				metadata: {
 					git: {
-						url: "https://github.com/cline/test",
+						url: "https://github.com/induscode/test",
 						branch: "feature/cloud",
 					},
 				},
@@ -3141,7 +3141,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, _args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "chat_session_command") {
 					return {
@@ -3164,8 +3164,8 @@ describe("useChatSession", () => {
 			await current.start({
 				...current.config,
 				executionTarget: "cloud",
-				repoUrl: "https://github.com/cline/test",
-				provider: "cline",
+				repoUrl: "https://github.com/induscode/test",
+				provider: "induscode",
 			});
 		});
 		const approvalHandler = subscribeMock.mock.calls.find(
@@ -3215,7 +3215,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "chat_session_command") {
 					const request = args?.request as
@@ -3266,7 +3266,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "chat_session_command") {
 					const request = args?.request as
@@ -3354,7 +3354,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "chat_session_command") {
 					const request = args?.request as
@@ -3410,7 +3410,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "chat_session_command") {
 					const request = args?.request as
@@ -3454,7 +3454,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "chat_session_command") {
 					const request = args?.request as
@@ -3541,7 +3541,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "chat_session_command") {
 					const request = args?.request as
@@ -3611,7 +3611,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "chat_session_command") {
 					const request = args?.request as
@@ -3674,7 +3674,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "chat_session_command") {
 					const request = args?.request as
@@ -3727,7 +3727,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "chat_session_command") {
 					const request = args?.request as
@@ -3793,7 +3793,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "chat_session_command") {
 					const request = args?.request as
@@ -3851,7 +3851,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "chat_session_command") {
 					const request = args?.request as
@@ -3915,7 +3915,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "chat_session_command") {
 					const request = args?.request as
@@ -3969,7 +3969,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "chat_session_command") {
 					const request = args?.request as
@@ -4052,7 +4052,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "read_session_messages") {
 					return canonicalAfterFirstTurn;
@@ -4153,7 +4153,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "chat_session_command") {
 					const request = args?.request as { action?: string } | undefined;
@@ -4220,7 +4220,7 @@ describe("useChatSession", () => {
 				sessionId: "remote-session",
 				environmentId: "pi-server",
 				status: "completed",
-				provider: "cline",
+				provider: "induscode",
 				model: "test-model",
 				cwd: "/home/pi/project",
 				workspaceRoot: "/home/pi/project",
@@ -4251,7 +4251,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "chat_session_command") {
 					const request = args?.request as
@@ -4384,7 +4384,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "read_session_messages") {
 					return [
@@ -4422,10 +4422,10 @@ describe("useChatSession", () => {
 						return {
 							sessionId: hydratedSessionId,
 							status: "completed",
-							provider: "cline",
+							provider: "induscode",
 							model: "test-model",
-							cwd: "/workspace/cline",
-							workspaceRoot: "/workspace/cline",
+							cwd: "/workspace/induscode",
+							workspaceRoot: "/workspace/induscode",
 						};
 					}
 					return { promptsInQueue: [] };
@@ -4439,10 +4439,10 @@ describe("useChatSession", () => {
 				sessionId: hydratedSessionId,
 				environmentId: "local",
 				status: "completed",
-				provider: "cline",
+				provider: "induscode",
 				model: "test-model",
-				cwd: "/workspace/cline",
-				workspaceRoot: "/workspace/cline",
+				cwd: "/workspace/induscode",
+				workspaceRoot: "/workspace/induscode",
 				startedAt: "2026-07-31T00:00:00.000Z",
 			});
 		});
@@ -4492,7 +4492,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "poll_ask_questions") {
 					return args?.sessionId === hydratedSessionId ? [pendingQuestion] : [];
@@ -4510,10 +4510,10 @@ describe("useChatSession", () => {
 						return {
 							sessionId: hydratedSessionId,
 							status: "running",
-							provider: "cline",
+							provider: "induscode",
 							model: "test-model",
-							cwd: "/workspace/cline",
-							workspaceRoot: "/workspace/cline",
+							cwd: "/workspace/induscode",
+							workspaceRoot: "/workspace/induscode",
 						};
 					}
 					return { promptsInQueue: [] };
@@ -4526,10 +4526,10 @@ describe("useChatSession", () => {
 			await current.hydrateSession({
 				sessionId: hydratedSessionId,
 				status: "running",
-				provider: "cline",
+				provider: "induscode",
 				model: "test-model",
-				cwd: "/workspace/cline",
-				workspaceRoot: "/workspace/cline",
+				cwd: "/workspace/induscode",
+				workspaceRoot: "/workspace/induscode",
 				startedAt: "2026-08-11T00:00:00.000Z",
 			});
 		});
@@ -4547,8 +4547,8 @@ describe("useChatSession", () => {
 		window.localStorage.setItem(
 			MODEL_SELECTION_STORAGE_KEY,
 			JSON.stringify({
-				lastProvider: "cline",
-				lastModelByProvider: { cline: "remembered-model" },
+				lastProvider: "induscode",
+				lastModelByProvider: { induscode: "remembered-model" },
 			}),
 		);
 		const hydratedSessionId = "session-historical";
@@ -4556,7 +4556,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "read_session_messages") {
 					return [
@@ -4580,8 +4580,8 @@ describe("useChatSession", () => {
 							status: "completed",
 							provider: "openrouter",
 							model: "historical-model",
-							cwd: "/workspace/cline",
-							workspaceRoot: "/workspace/cline",
+							cwd: "/workspace/induscode",
+							workspaceRoot: "/workspace/induscode",
 						};
 					}
 					if (request?.action === "start") {
@@ -4606,8 +4606,8 @@ describe("useChatSession", () => {
 				status: "completed",
 				provider: "openrouter",
 				model: "historical-model",
-				cwd: "/workspace/cline",
-				workspaceRoot: "/workspace/cline",
+				cwd: "/workspace/induscode",
+				workspaceRoot: "/workspace/induscode",
 				startedAt: "2026-07-31T00:00:00.000Z",
 			});
 		});
@@ -4624,14 +4624,14 @@ describe("useChatSession", () => {
 		});
 		expect(current.config.sessionId).toBeUndefined();
 		expect(current.config).toMatchObject({
-			provider: "cline",
+			provider: "induscode",
 			model: "remembered-model",
 		});
 
 		// The next session then starts with the remembered defaults.
 		await act(async () => current.sendPrompt("Start a fresh task"));
 		expect(startConfig).toMatchObject({
-			provider: "cline",
+			provider: "induscode",
 			model: "remembered-model",
 		});
 	});
@@ -4640,7 +4640,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "chat_session_command") {
 					const request = args?.request as
@@ -4706,7 +4706,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "read_session_messages") {
 					expect(args?.environmentId).toBe("local");
@@ -4804,7 +4804,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "read_session_messages") {
 					// Persistence has not caught up yet.
@@ -4879,7 +4879,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "chat_session_command") {
 					const request = args?.request as
@@ -4974,7 +4974,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "chat_session_command") {
 					const request = args?.request as
@@ -5038,7 +5038,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "chat_session_command") {
 					const request = args?.request as
@@ -5108,7 +5108,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "chat_session_command") {
 					const request = args?.request as
@@ -5169,7 +5169,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "chat_session_command") {
 					const request = args?.request as
@@ -5224,7 +5224,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "chat_session_command") {
 					const request = args?.request as
@@ -5287,7 +5287,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "read_session_messages") return [];
 				if (command === "chat_session_command") {
@@ -5313,9 +5313,9 @@ describe("useChatSession", () => {
 			await current.hydrateSession({
 				sessionId: "ses-cloud",
 				origin: "cloud",
-				repoUrl: "https://github.com/cline/test",
+				repoUrl: "https://github.com/induscode/test",
 				status: "completed",
-				provider: "cline",
+				provider: "induscode",
 				model: "test-model",
 				cwd: "/workspace",
 				workspaceRoot: "/workspace",
@@ -5370,7 +5370,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "chat_session_command") {
 					const request = args?.request as
@@ -5450,7 +5450,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "read_session_messages") {
 					return [
@@ -5544,8 +5544,8 @@ describe("useChatSession", () => {
 				status: "idle" as const,
 				provider: "openrouter",
 				model: "test-model",
-				cwd: "/workspace/cline",
-				workspaceRoot: "/workspace/cline",
+				cwd: "/workspace/induscode",
+				workspaceRoot: "/workspace/induscode",
 				startedAt: "2026-09-10T00:00:00.000Z",
 			});
 			await act(async () => {
@@ -5575,7 +5575,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "chat_session_command") {
 					const request = args?.request as
@@ -5626,7 +5626,7 @@ describe("useChatSession", () => {
 				stream: "chat_core_log",
 				chunk: JSON.stringify({
 					level: "error",
-					message: "cline requires re-authentication.",
+					message: "induscode requires re-authentication.",
 				}),
 				ts: Date.now(),
 				index: 2,
@@ -5635,7 +5635,7 @@ describe("useChatSession", () => {
 				ok: true,
 				result: {
 					finishReason: "error",
-					text: "cline requires re-authentication.",
+					text: "induscode requires re-authentication.",
 				},
 			});
 			await sendPromise;
@@ -5646,15 +5646,15 @@ describe("useChatSession", () => {
 		);
 		expect(errorMessages).toHaveLength(1);
 		expect(errorMessages[0]?.content).toContain(
-			"The run failed: cline requires re-authentication.",
+			"The run failed: induscode requires re-authentication.",
 		);
 		expect(errorMessages[0]?.content).not.toContain(
 			"before a response was produced",
 		);
-		// The credential action points at the Cline account page.
+		// The credential action points at the IndusCode account page.
 		expect(errorMessages[0]?.meta).toEqual({
 			reason: "credentials",
-			providerId: "cline",
+			providerId: "induscode",
 		});
 		// The banner-driving error state must match the bubble, or the chat
 		// renders the same failure twice.
@@ -5679,7 +5679,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "chat_session_command") {
 					const request = args?.request as
@@ -5826,11 +5826,11 @@ describe("useChatSession", () => {
 					ok: true,
 					result: {
 						finishReason: "error",
-						text: "cline requires re-authentication.",
+						text: "induscode requires re-authentication.",
 					},
 				});
 			} else {
-				rejectSend?.(new Error("cline requires re-authentication."));
+				rejectSend?.(new Error("induscode requires re-authentication."));
 			}
 			await sendPromise;
 		});
@@ -5841,7 +5841,7 @@ describe("useChatSession", () => {
 		expect(errorMessages).toHaveLength(testSecondFailure ? 2 : 1);
 		if (rpcOutcome === "resolve" && !testSecondFailure) {
 			expect(errorMessages[0]?.content).toContain(
-				"cline requires re-authentication.",
+				"induscode requires re-authentication.",
 			);
 		}
 		expect(current.error).toBe(
@@ -5859,13 +5859,13 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "chat_session_command") {
 					const request = args?.request as { action?: string } | undefined;
 					if (request?.action === "start") {
 						throw new Error(
-							'OAuth credentials for provider "cline" are no longer valid. Re-run authentication for this provider.',
+							'OAuth credentials for provider "induscode" are no longer valid. Re-run authentication for this provider.',
 						);
 					}
 				}
@@ -5888,7 +5888,7 @@ describe("useChatSession", () => {
 		expect(errorMessages[0]?.content).toContain("Settings → Account");
 		expect(errorMessages[0]?.meta).toEqual({
 			reason: "credentials",
-			providerId: "cline",
+			providerId: "induscode",
 		});
 		expect(current.error).toBe(errorMessages[0]?.content);
 	});
@@ -5897,7 +5897,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "chat_session_command") {
 					const request = args?.request as
@@ -5954,7 +5954,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "chat_session_command") {
 					const request = args?.request as
@@ -6021,7 +6021,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "chat_session_command") {
 					const request = args?.request as
@@ -6092,7 +6092,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "read_session_messages") {
 					return history.map((message) => ({
@@ -6178,7 +6178,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "chat_session_command") {
 					const request = args?.request as
@@ -6263,7 +6263,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "chat_session_command") {
 					const request = args?.request as
@@ -6323,7 +6323,7 @@ describe("useChatSession", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "chat_session_command") {
 					const request = args?.request as
@@ -6364,7 +6364,7 @@ describe("useChatSession", () => {
 	it("falls back to process context when the remembered workspace is stale", async () => {
 		await act(async () => root.unmount());
 		window.localStorage.setItem(
-			"cline.code.workspace-selection.v2",
+			"induscode.code.workspace-selection.v2",
 			JSON.stringify({
 				environments: {
 					local: {
@@ -6378,8 +6378,8 @@ describe("useChatSession", () => {
 			if (command === "get_process_context") {
 				return {
 					environmentId: "local",
-					cwd: "/workspace/cline",
-					workspaceRoot: "/workspace/cline",
+					cwd: "/workspace/induscode",
+					workspaceRoot: "/workspace/induscode",
 				};
 			}
 			if (command === "validate_workspace_directory") {
@@ -6391,8 +6391,8 @@ describe("useChatSession", () => {
 		await act(async () => root.render(<HookHarness />));
 
 		await vi.waitFor(() => {
-			expect(current.config.workspaceRoot).toBe("/workspace/cline");
-			expect(current.config.cwd).toBe("/workspace/cline");
+			expect(current.config.workspaceRoot).toBe("/workspace/induscode");
+			expect(current.config.cwd).toBe("/workspace/induscode");
 		});
 		expect(invokeMock).toHaveBeenCalledWith("validate_workspace_directory", {
 			environmentId: "local",
@@ -6411,13 +6411,13 @@ describe("useChatSession", () => {
 				lastProvider: "openrouter",
 				lastModelByProvider: {
 					openrouter: "local-model",
-					cline: "cline-local",
+					induscode: "induscode-local",
 				},
 			}),
 		);
 		writeExecutionTargetToWindow("cloud");
 		writeModelSelectionStorageToWindow(
-			{ lastProvider: "cline", lastModelByProvider: { cline: "cloud-model" } },
+			{ lastProvider: "induscode", lastModelByProvider: { induscode: "cloud-model" } },
 			"cloud",
 		);
 		const hydratedSessionId = "session-local-history";
@@ -6426,8 +6426,8 @@ describe("useChatSession", () => {
 				if (command === "get_process_context") {
 					return {
 						environmentId: "local",
-						cwd: "/workspace/cline",
-						workspaceRoot: "/workspace/cline",
+						cwd: "/workspace/induscode",
+						workspaceRoot: "/workspace/induscode",
 					};
 				}
 				if (command === "read_session_messages") return [];
@@ -6440,8 +6440,8 @@ describe("useChatSession", () => {
 							status: "completed",
 							provider: "openrouter",
 							model: "local-model",
-							cwd: "/workspace/cline",
-							workspaceRoot: "/workspace/cline",
+							cwd: "/workspace/induscode",
+							workspaceRoot: "/workspace/induscode",
 						};
 					}
 					return { promptsInQueue: [] };
@@ -6454,7 +6454,7 @@ describe("useChatSession", () => {
 
 		expect(current.config).toMatchObject({
 			executionTarget: "cloud",
-			provider: "cline",
+			provider: "induscode",
 			model: "cloud-model",
 			repoUrl: undefined,
 		});
@@ -6467,13 +6467,13 @@ describe("useChatSession", () => {
 				status: "completed",
 				provider: "openrouter",
 				model: "local-model",
-				cwd: "/workspace/cline",
-				workspaceRoot: "/workspace/cline",
+				cwd: "/workspace/induscode",
+				workspaceRoot: "/workspace/induscode",
 				startedAt: "2026-09-01T00:00:00Z",
 				...(target === "cloud"
 					? {
 							origin: "cloud",
-							repoUrl: "https://github.com/cline/other",
+							repoUrl: "https://github.com/induscode/other",
 							metadata: { gitBranch: "feature" },
 							...cloudSessionConfig,
 						}
@@ -6489,7 +6489,7 @@ describe("useChatSession", () => {
 		expect(current.config).toMatchObject({
 			sessionId: undefined,
 			executionTarget: "cloud",
-			provider: "cline",
+			provider: "induscode",
 			model: "cloud-model",
 			repoUrl: undefined,
 			branch: undefined,
@@ -6531,7 +6531,7 @@ describe("useChatSession", () => {
 	it("binds process context and remembered workspace to the requested remote environment", async () => {
 		await act(async () => root.unmount());
 		window.localStorage.setItem(
-			"cline.code.workspace-selection.v2",
+			"induscode.code.workspace-selection.v2",
 			JSON.stringify({
 				environments: {
 					local: {
@@ -6613,7 +6613,7 @@ describe("useChatSession", () => {
 			});
 		});
 		window.localStorage.setItem(
-			"cline.code.workspace-selection.v2",
+			"induscode.code.workspace-selection.v2",
 			JSON.stringify({
 				environments: {
 					local: {
@@ -6742,7 +6742,7 @@ describe("coerced-queue first turn vs stale send response", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "chat_session_command") {
 					const request = args?.request as
@@ -7052,8 +7052,8 @@ describe("coerced-queue first turn vs stale send response", () => {
 			current.setConfig((previous) => ({
 				...previous,
 				executionTarget: "cloud",
-				provider: "cline",
-				repoUrl: "https://github.com/cline/test",
+				provider: "induscode",
+				repoUrl: "https://github.com/induscode/test",
 			})),
 		);
 		const { sendPromise } = await dispatchPrompt("First turn");
@@ -7347,7 +7347,7 @@ describe("coerced-queue first turn vs stale send response", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "chat_session_command") {
 					const request = args?.request as { action?: string } | undefined;
@@ -7399,7 +7399,7 @@ describe("coerced-queue first turn vs stale send response", () => {
 		invokeMock.mockImplementation(
 			async (command: string, args?: Record<string, unknown>) => {
 				if (command === "get_process_context") {
-					return { cwd: "/workspace/cline", workspaceRoot: "/workspace/cline" };
+					return { cwd: "/workspace/induscode", workspaceRoot: "/workspace/induscode" };
 				}
 				if (command === "chat_session_command") {
 					const request = args?.request as { action?: string } | undefined;
@@ -7486,8 +7486,8 @@ describe("cloud snapshot replay", () => {
 			current.start({
 				...current.config,
 				executionTarget: "cloud",
-				provider: "cline",
-				repoUrl: "https://github.com/cline/test",
+				provider: "induscode",
+				repoUrl: "https://github.com/induscode/test",
 			}),
 		);
 		await act(async () => current.sendPrompt("Continue"));

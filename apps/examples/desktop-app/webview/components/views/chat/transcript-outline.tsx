@@ -3,7 +3,7 @@
 import {
 	useMessageScroller,
 	useMessageScrollerVisibility,
-} from "@cline/ui/components/message-scroller";
+} from "@induscode/ui/components/message-scroller";
 import {
 	memo,
 	type RefObject,

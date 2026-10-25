@@ -1,13 +1,13 @@
-import { type ClineCoreStartInput, type ITelemetryService, toClineCoreStartInput } from "@cline/core"
+import { type IndusCodeCoreStartInput, type ITelemetryService, toIndusCodeCoreStartInput } from "@induscode/core"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-const mockClineCoreCreate = vi.hoisted(() => vi.fn())
+const mockIndusCodeCoreCreate = vi.hoisted(() => vi.fn())
 const mockCreateVscodeExtraTools = vi.hoisted(() => vi.fn(async () => []))
 const mockInnerStart = vi.hoisted(() => vi.fn())
 
-vi.mock("@cline/core", async () => {
-	const actual = await vi.importActual<typeof import("@cline/core")>("@cline/core")
-	return { ...actual, ClineCore: { create: mockClineCoreCreate } }
+vi.mock("@induscode/core", async () => {
+	const actual = await vi.importActual<typeof import("@induscode/core")>("@induscode/core")
+	return { ...actual, IndusCodeCore: { create: mockIndusCodeCoreCreate } }
 })
 vi.mock("@/services/logging/distinctId", () => ({ getDistinctId: () => "distinct-id" }))
 vi.mock("@/core/storage/StateManager", () => ({
@@ -18,11 +18,11 @@ vi.mock("./vscode-runtime-builder", () => ({ createVscodeExtraTools: mockCreateV
 import { VscodeGitTelemetry } from "./git-telemetry"
 import { VscodeSessionHost } from "./vscode-session-host"
 
-const gitStartInput: ClineCoreStartInput = {
+const gitStartInput: IndusCodeCoreStartInput = {
 	config: {
 		sessionId: "git-task",
 		cwd: "/workspace",
-		providerId: "cline",
+		providerId: "induscode",
 		modelId: "test",
 		systemPrompt: "test",
 		enableTools: true,
@@ -53,7 +53,7 @@ describe("VscodeSessionHost telemetry wiring", () => {
 	beforeEach(() => {
 		vi.restoreAllMocks()
 		mockInnerStart.mockReset().mockResolvedValue({ sessionId: "core-task" })
-		mockClineCoreCreate.mockReset().mockResolvedValue({
+		mockIndusCodeCoreCreate.mockReset().mockResolvedValue({
 			start: mockInnerStart,
 			stop: async () => {},
 			dispose: async () => {},
@@ -65,8 +65,8 @@ describe("VscodeSessionHost telemetry wiring", () => {
 		const telemetry = makeTelemetry()
 		const host = await VscodeSessionHost.create({ mcpHub: {} as never, telemetry })
 		await host.start(gitStartInput)
-		expect(mockClineCoreCreate).toHaveBeenCalledWith(expect.objectContaining({ telemetry }))
-		expect(mockClineCoreCreate.mock.calls[0][0].prepare).toBeUndefined()
+		expect(mockIndusCodeCoreCreate).toHaveBeenCalledWith(expect.objectContaining({ telemetry }))
+		expect(mockIndusCodeCoreCreate.mock.calls[0][0].prepare).toBeUndefined()
 		expect(mockInnerStart.mock.calls[0][0]).toMatchObject({ source: "vscode", config: { telemetry } })
 		await host.dispose()
 	})
@@ -80,7 +80,7 @@ describe("VscodeSessionHost telemetry wiring", () => {
 			telemetry,
 			getRemoteConfigIntegration: () =>
 				({
-					applyToStartSessionInput: (input: ClineCoreStartInput) => ({
+					applyToStartSessionInput: (input: IndusCodeCoreStartInput) => ({
 						...input,
 						config: { ...input.config, telemetry: remoteTelemetry },
 					}),
@@ -92,7 +92,7 @@ describe("VscodeSessionHost telemetry wiring", () => {
 		await host.dispose()
 	})
 
-	it.each(["cline", "cline-pass", "anthropic"])("scopes Git capture to eligible providers: %s", async (providerId) => {
+	it.each(["induscode", "induscode-pass", "anthropic"])("scopes Git capture to eligible providers: %s", async (providerId) => {
 		const host = await VscodeSessionHost.create({ mcpHub: {} as never, telemetry: makeTelemetry() })
 		const fetch = vi.fn() as unknown as typeof globalThis.fetch
 		await host.start({
@@ -114,7 +114,7 @@ describe("VscodeSessionHost telemetry wiring", () => {
 		const capture = vi.spyOn(telemetry, "capture")
 		const dispose = vi.spyOn(VscodeGitTelemetry.prototype, "dispose")
 		const actualId = requestedId?.trim() ?? "core-generated-task"
-		const input: ClineCoreStartInput = {
+		const input: IndusCodeCoreStartInput = {
 			initialMessages: [{ id: "previous", role: "user", content: [{ type: "text", text: "previous turn" }] }],
 			config: {
 				...gitStartInput.config,
@@ -122,19 +122,19 @@ describe("VscodeSessionHost telemetry wiring", () => {
 				extensions: [{ name: "existing-extension", manifest: { capabilities: [] }, setup: vi.fn() }],
 			},
 		}
-		let preparedConfig: ClineCoreStartInput["config"] | undefined
-		const checkPrepared = (prepared: ClineCoreStartInput) => {
+		let preparedConfig: IndusCodeCoreStartInput["config"] | undefined
+		const checkPrepared = (prepared: IndusCodeCoreStartInput) => {
 			expect(prepared.config.sessionId).toBe(requestedId)
 			expect(prepared.initialMessages).toBe(input.initialMessages)
 			expect(prepared.config.extensions).toEqual(input.config.extensions)
 			preparedConfig = prepared.config
 		}
-		mockClineCoreCreate.mockResolvedValue({
-			start: async (start: ClineCoreStartInput) => {
+		mockIndusCodeCoreCreate.mockResolvedValue({
+			start: async (start: IndusCodeCoreStartInput) => {
 				checkPrepared(start)
 				return { sessionId: actualId }
 			},
-			restore: async (restore: { start: ClineCoreStartInput }) => {
+			restore: async (restore: { start: IndusCodeCoreStartInput }) => {
 				checkPrepared(restore.start)
 				return { sessionId: actualId, startResult: { sessionId: actualId } }
 			},
@@ -175,7 +175,7 @@ describe("VscodeSessionHost telemetry wiring", () => {
 		const releaseFirst = Promise.withResolvers<void>()
 		const configure = vi.spyOn(VscodeGitTelemetry.prototype, "configure")
 		const dispose = vi.spyOn(VscodeGitTelemetry.prototype, "dispose")
-		mockInnerStart.mockImplementation(async (input: ClineCoreStartInput) => {
+		mockInnerStart.mockImplementation(async (input: IndusCodeCoreStartInput) => {
 			if (input.config.modelId === "first") {
 				firstPrepared.resolve()
 				await releaseFirst.promise
@@ -212,7 +212,7 @@ describe("VscodeSessionHost telemetry wiring", () => {
 		const dispose = vi.spyOn(VscodeGitTelemetry.prototype, "dispose")
 		const open = vi.spyOn(VscodeGitTelemetry.prototype, "open")
 		const failure = new Error("startup failed")
-		mockClineCoreCreate.mockResolvedValue({
+		mockIndusCodeCoreCreate.mockResolvedValue({
 			start: async () => {
 				throw failure
 			},
@@ -234,7 +234,7 @@ describe("VscodeSessionHost telemetry wiring", () => {
 
 	it("closes a restored observer on host disposal", async () => {
 		const dispose = vi.spyOn(VscodeGitTelemetry.prototype, "dispose")
-		mockClineCoreCreate.mockResolvedValue({
+		mockIndusCodeCoreCreate.mockResolvedValue({
 			restore: async () => ({ sessionId: "git-task", startResult: { sessionId: "git-task" } }),
 			dispose: async () => {},
 		})
@@ -249,7 +249,7 @@ describe("VscodeSessionHost telemetry wiring", () => {
 		const editorExecutor = vi.fn()
 		const applyPatchExecutor = vi.fn()
 		await VscodeSessionHost.create({ mcpHub: {} as never, editorExecutor, applyPatchExecutor })
-		expect(mockClineCoreCreate.mock.calls[0][0].capabilities.toolExecutors).toMatchObject({
+		expect(mockIndusCodeCoreCreate.mock.calls[0][0].capabilities.toolExecutors).toMatchObject({
 			editor: editorExecutor,
 			applyPatch: applyPatchExecutor,
 		})
@@ -257,13 +257,13 @@ describe("VscodeSessionHost telemetry wiring", () => {
 
 	it("leaves default executors in place when no overrides are provided", async () => {
 		await VscodeSessionHost.create({ mcpHub: {} as never })
-		expect(mockClineCoreCreate.mock.calls[0][0].capabilities.toolExecutors).toBeUndefined()
+		expect(mockIndusCodeCoreCreate.mock.calls[0][0].capabilities.toolExecutors).toBeUndefined()
 	})
 
 	it.each(["start", "restore"])("prepares %s once: readiness, remote config, then extra tools", async (method) => {
 		const events: string[] = []
 		const restore = vi.fn(async (_input: unknown) => ({ checkpoint: {} }))
-		mockClineCoreCreate.mockResolvedValue({ start: mockInnerStart, restore })
+		mockIndusCodeCoreCreate.mockResolvedValue({ start: mockInnerStart, restore })
 		mockCreateVscodeExtraTools.mockImplementationOnce(async () => {
 			events.push("tools")
 			return [{ name: "vscode-tool" }] as never
@@ -276,7 +276,7 @@ describe("VscodeSessionHost telemetry wiring", () => {
 			getRemoteConfigIntegration: () => {
 				events.push("select")
 				return {
-					applyToStartSessionInput: (input: ClineCoreStartInput) => {
+					applyToStartSessionInput: (input: IndusCodeCoreStartInput) => {
 						events.push("apply")
 						return { ...input, config: { ...input.config, extraTools: [{ name: "remote-tool" }] } }
 					},
@@ -289,7 +289,7 @@ describe("VscodeSessionHost telemetry wiring", () => {
 		const prepared =
 			method === "start"
 				? mockInnerStart.mock.calls[0][0]
-				: (restore.mock.calls[0][0] as { start: ClineCoreStartInput }).start
+				: (restore.mock.calls[0][0] as { start: IndusCodeCoreStartInput }).start
 		expect(prepared.source).toBe("vscode")
 		expect(prepared.config.extraTools).toEqual([{ name: "remote-tool" }, { name: "vscode-tool" }])
 		expect(prepared.localRuntime.configExtensions).not.toContain("hooks")
@@ -305,14 +305,14 @@ describe("VscodeSessionHost telemetry wiring", () => {
 		const prepared = mockInnerStart.mock.calls[0][0]
 		expect(prepared.config.hooks.afterModel).not.toBe(afterModel)
 		// Core normalizes again: localRuntime must not overwrite the telemetry wrapper.
-		expect(toClineCoreStartInput(prepared).config.hooks?.afterModel).toBe(prepared.config.hooks.afterModel)
+		expect(toIndusCodeCoreStartInput(prepared).config.hooks?.afterModel).toBe(prepared.config.hooks.afterModel)
 		await host.dispose()
 	})
 
 	it("does not prepare a workspace-only restore", async () => {
 		const restore = vi.fn(async () => ({ checkpoint: {} }))
 		const beforeStartSession = vi.fn()
-		mockClineCoreCreate.mockResolvedValue({ restore })
+		mockIndusCodeCoreCreate.mockResolvedValue({ restore })
 		const host = await VscodeSessionHost.create({ mcpHub: {} as never, beforeStartSession })
 		await host.restore({ sessionId: "session-1", checkpointRunCount: 1 })
 		expect(beforeStartSession).not.toHaveBeenCalled()

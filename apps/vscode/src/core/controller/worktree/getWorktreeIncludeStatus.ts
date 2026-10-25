@@ -1,5 +1,5 @@
-import { EmptyRequest } from "@shared/proto/cline/common"
-import { WorktreeIncludeStatus } from "@shared/proto/cline/worktree"
+import { EmptyRequest } from "@shared/proto/induscode/common"
+import { WorktreeIncludeStatus } from "@shared/proto/induscode/worktree"
 import { getWorkspacePath } from "@utils/path"
 import * as fs from "fs/promises"
 import * as path from "path"

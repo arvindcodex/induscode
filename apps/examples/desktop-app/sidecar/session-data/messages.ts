@@ -4,12 +4,12 @@ import {
 	getUserRunSpan,
 	projectSessionMessagesForDisplay,
 	resolveMessageDisplayRole,
-} from "@cline/core";
+} from "@induscode/core";
 import {
 	isGeneratedMedia,
 	type MessageWithMetadata,
 	validateImageMedia,
-} from "@cline/shared";
+} from "@induscode/shared";
 import {
 	readSessionManifest,
 	sharedSessionMessagesPath,

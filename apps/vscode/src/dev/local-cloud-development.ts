@@ -5,8 +5,8 @@ import { type LocalCloudEnvironment, startLocalCloudEnvironment } from "../test/
 
 export async function startLocalCloudDevelopment(options: { port?: number; tempDir?: string } = {}) {
 	const accessToken = "local-cloud-development-token"
-	const clineDir = await mkdtemp(path.join(options.tempDir ?? tmpdir(), "cline-local-cloud-profile-"))
-	const dataDir = path.join(clineDir, "data")
+	const induscodeDir = await mkdtemp(path.join(options.tempDir ?? tmpdir(), "induscode-local-cloud-profile-"))
+	const dataDir = path.join(induscodeDir, "data")
 	let environment: LocalCloudEnvironment | undefined
 	let disposal: Promise<void> | undefined
 	const dispose = (): Promise<void> => {
@@ -14,15 +14,15 @@ export async function startLocalCloudDevelopment(options: { port?: number; tempD
 			try {
 				await environment?.dispose()
 			} finally {
-				await rm(clineDir, { recursive: true, force: true })
+				await rm(induscodeDir, { recursive: true, force: true })
 			}
 		})()
 		return disposal
 	}
 
-	// CLINE_LOCAL_CLOUD_MODEL_DELAY_MS holds every scripted model reply so a
+	// INDUSCODE_LOCAL_CLOUD_MODEL_DELAY_MS holds every scripted model reply so a
 	// person can act (cancel, navigate) while the sandbox is still "thinking".
-	const modelDelayMs = Number(process.env.CLINE_LOCAL_CLOUD_MODEL_DELAY_MS ?? 0)
+	const modelDelayMs = Number(process.env.INDUSCODE_LOCAL_CLOUD_MODEL_DELAY_MS ?? 0)
 	const beforeModelResponse =
 		modelDelayMs > 0
 			? (signal?: AbortSignal | null) =>
@@ -38,25 +38,25 @@ export async function startLocalCloudDevelopment(options: { port?: number; tempD
 						)
 					})
 			: undefined
-	// CLINE_LOCAL_CLOUD_PROVISION_DELAY_MS keeps a new sandbox in `provisioning`
+	// INDUSCODE_LOCAL_CLOUD_PROVISION_DELAY_MS keeps a new sandbox in `provisioning`
 	// for that long, like the hosted control plane, so cancelling during
 	// provisioning can be exercised.
-	const provisioningDelayMs = Number(process.env.CLINE_LOCAL_CLOUD_PROVISION_DELAY_MS ?? 0)
-	// CLINE_LOCAL_CLOUD_SEED_EXPIRED=1 starts with two Personal sessions whose
+	const provisioningDelayMs = Number(process.env.INDUSCODE_LOCAL_CLOUD_PROVISION_DELAY_MS ?? 0)
+	// INDUSCODE_LOCAL_CLOUD_SEED_EXPIRED=1 starts with two Personal sessions whose
 	// sandboxes are already gone, so the read-only transcript view and the
 	// "no history captured" path can be exercised without waiting a day.
-	const seedExpiredSessions = process.env.CLINE_LOCAL_CLOUD_SEED_EXPIRED === "1"
-	// CLINE_LOCAL_CLOUD_INSUFFICIENT_CREDITS=1 makes every model reply the hosted
+	const seedExpiredSessions = process.env.INDUSCODE_LOCAL_CLOUD_SEED_EXPIRED === "1"
+	// INDUSCODE_LOCAL_CLOUD_INSUFFICIENT_CREDITS=1 makes every model reply the hosted
 	// API's 402 insufficient-credits response, so the out-of-credits card can be
 	// exercised without spending anything.
-	const insufficientCredits = process.env.CLINE_LOCAL_CLOUD_INSUFFICIENT_CREDITS === "1"
-	// CLINE_LOCAL_CLOUD_REFUSE_SOCKETS=1 refuses every session socket, so a cloud
+	const insufficientCredits = process.env.INDUSCODE_LOCAL_CLOUD_INSUFFICIENT_CREDITS === "1"
+	// INDUSCODE_LOCAL_CLOUD_REFUSE_SOCKETS=1 refuses every session socket, so a cloud
 	// start fails after its sandbox is ready and the Retry path can be exercised.
-	const refuseSessionSockets = process.env.CLINE_LOCAL_CLOUD_REFUSE_SOCKETS === "1"
-	// CLINE_LOCAL_CLOUD_SUSPEND_IDLE_MS suspends a sandbox that long after its last
+	const refuseSessionSockets = process.env.INDUSCODE_LOCAL_CLOUD_REFUSE_SOCKETS === "1"
+	// INDUSCODE_LOCAL_CLOUD_SUSPEND_IDLE_MS suspends a sandbox that long after its last
 	// client disconnects, like the hosted control plane does to resumable
 	// sandboxes, so reopening and resuming a suspended task can be exercised.
-	const suspendIdleMs = process.env.CLINE_LOCAL_CLOUD_SUSPEND_IDLE_MS
+	const suspendIdleMs = process.env.INDUSCODE_LOCAL_CLOUD_SUSPEND_IDLE_MS
 	const suspendIdleAfterMs = suspendIdleMs ? Number(suspendIdleMs) : undefined
 	try {
 		environment = await startLocalCloudEnvironment({
@@ -77,11 +77,11 @@ export async function startLocalCloudDevelopment(options: { port?: number; tempD
 			path.join(settingsDir, "providers.json"),
 			JSON.stringify({
 				version: 1,
-				lastUsedProvider: "cline",
+				lastUsedProvider: "induscode",
 				providers: {
-					cline: {
+					induscode: {
 						settings: {
-							provider: "cline",
+							provider: "induscode",
 							auth: {
 								accessToken: `workos:${accessToken}`,
 								accountId: "local-cloud-user",
@@ -95,17 +95,17 @@ export async function startLocalCloudDevelopment(options: { port?: number; tempD
 			}),
 		)
 		const launchEnv = {
-			CLINE_ENVIRONMENT: "local",
-			CLINE_ENVIRONMENT_OVERRIDE: "local",
-			CLINE_LOCAL_CLOUD_URL: environment.apiBaseUrl,
-			CLINE_API_BASE_URL: environment.apiBaseUrl,
-			CLINE_CLOUD_SESSIONS: "1",
-			CLINE_DIR: clineDir,
-			CLINE_DATA_DIR: dataDir,
+			INDUSCODE_ENVIRONMENT: "local",
+			INDUSCODE_ENVIRONMENT_OVERRIDE: "local",
+			INDUSCODE_LOCAL_CLOUD_URL: environment.apiBaseUrl,
+			INDUSCODE_API_BASE_URL: environment.apiBaseUrl,
+			INDUSCODE_CLOUD_SESSIONS: "1",
+			INDUSCODE_DIR: induscodeDir,
+			INDUSCODE_DATA_DIR: dataDir,
 		}
 		return {
 			environment,
-			clineDir,
+			induscodeDir,
 			launchEnv,
 			launchEnvironment: Object.entries(launchEnv)
 				.map(([key, value]) => `${key}='${value.replaceAll("'", "'\\''")}'`)

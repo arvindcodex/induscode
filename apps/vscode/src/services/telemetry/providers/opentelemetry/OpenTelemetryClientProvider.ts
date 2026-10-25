@@ -1,4 +1,4 @@
-import { markOtlpTraceRelayProvider, OTLP_TRACE_RELAY_MARKER } from "@cline/shared"
+import { markOtlpTraceRelayProvider, OTLP_TRACE_RELAY_MARKER } from "@induscode/shared"
 import { metrics, trace } from "@opentelemetry/api"
 import { logs } from "@opentelemetry/api-logs"
 import { Resource } from "@opentelemetry/resources"
@@ -63,7 +63,7 @@ export class OpenTelemetryClientProvider {
 
 		// Create resource with service information
 		const resource = new Resource({
-			[ATTR_SERVICE_NAME]: "cline",
+			[ATTR_SERVICE_NAME]: "induscode",
 			[ATTR_SERVICE_VERSION]: ExtensionRegistryInfo.version,
 		})
 

@@ -4,13 +4,13 @@ import {
 	listActiveConnectors,
 	persistConnectorConnection,
 	removePersistedConnectorConnection,
-} from "@cline/core";
+} from "@induscode/core";
 import {
 	isSupervisedConnectorProcess,
 	setStartingConnectorInstance,
-} from "@cline/shared";
+} from "@induscode/shared";
 import {
-	CLINE_CONNECTOR_DETACHED_CHILD_ENV,
+	INDUSCODE_CONNECTOR_DETACHED_CHILD_ENV,
 	CONNECT_ALREADY_RUNNING_EXIT_CODE,
 } from "../connectors/common";
 import { getConnector, listConnectors } from "../connectors/registry";
@@ -275,7 +275,7 @@ async function runConnectAdapterWithResult(
 		},
 		setPersistenceInstanceId: (instanceId) => {
 			persistenceInstanceId = instanceId;
-			// Adapters report their instance id before they build a Cline core, so
+			// Adapters report their instance id before they build a IndusCode core, so
 			// this lands in the environment before the hub daemon is spawned and
 			// inherited by it. Without it the daemon's autostart pass cannot tell
 			// that this instance is mid-startup and launches a second copy of it.
@@ -297,7 +297,7 @@ async function runConnectAdapterWithResult(
 	// it makes the same autostart bookkeeping choices as a detached child: the
 	// process that asked for the start already recorded the intent.
 	const isDetachedChild =
-		process.env[CLINE_CONNECTOR_DETACHED_CHILD_ENV] === "1" ||
+		process.env[INDUSCODE_CONNECTOR_DETACHED_CHILD_ENV] === "1" ||
 		isSupervisedConnectorProcess();
 	if (
 		exitCode === 0 &&
@@ -342,7 +342,7 @@ async function tryDelegateToHub(
 	if (
 		passthroughArgs.some((arg) => HELP_FLAGS.has(arg)) ||
 		passthroughArgs.some((arg) => INTERACTIVE_FLAGS.has(arg)) ||
-		process.env[CLINE_CONNECTOR_DETACHED_CHILD_ENV] === "1" ||
+		process.env[INDUSCODE_CONNECTOR_DETACHED_CHILD_ENV] === "1" ||
 		isSupervisedConnectorProcess()
 	) {
 		return undefined;

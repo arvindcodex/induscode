@@ -1,3 +1,3 @@
-[submodule "evals/cline-bench"]
-	path = evals/cline-bench
-	url = https://github.com/cline/cline-bench.git
+[submodule "evals/induscode-bench"]
+	path = evals/induscode-bench
+	url = https://github.com/induscode/induscode-bench.git

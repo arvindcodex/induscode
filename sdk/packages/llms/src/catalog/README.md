@@ -18,8 +18,8 @@ also owns request options, serialization, and stream parsing. Native providers
 and local CLI providers retain their own transports.
 
 OpenCode Go opts in and sends `x-opencode-session` from request metadata's
-`sessionId`, plus a Cline User-Agent. Direct gateway callers should supply a
-stable `sessionId` per conversation; ClineCore supplies its session identity.
+`sessionId`, plus a IndusCode User-Agent. Direct gateway callers should supply a
+stable `sessionId` per conversation; IndusCodeCore supplies its session identity.
 Go's Qwen entries without an upstream adapter declaration use Anthropic
 Messages, matching [Go's endpoint documentation](https://opencode.ai/docs/go/#endpoints).
 An explicit upstream declaration takes precedence over that narrow fallback.
@@ -53,7 +53,7 @@ limit.output   maximum output tokens reported for generation
 treated as the best available prompt/input ceiling. When it is absent, the
 catalog falls back to `limit.context` for the prompt/input ceiling.
 
-## Cline Fields
+## IndusCode Fields
 
 The catalog maps those source fields into `ModelInfo`:
 
@@ -87,7 +87,7 @@ underlying context budget.
 ## Catalog Data vs Request Limits
 
 The catalog should describe reported model capabilities. It should avoid baking
-in Cline request defaults, product-level safety limits, or provider-specific
+in IndusCode request defaults, product-level safety limits, or provider-specific
 workarounds unless there is no better place to represent a stable fact.
 
 The code that sends a model request is responsible for deciding how many output
@@ -125,7 +125,7 @@ path, not in generated catalog data.
 ## Do Not Invent Output Limits
 
 The catalog generator should not turn ambiguous provider metadata into a new
-Cline output limit.
+IndusCode output limit.
 
 For example, if a provider reports:
 
@@ -142,7 +142,7 @@ maxInputTokens: 202800
 maxTokens:      202800
 ```
 
-Cline may still ask for fewer output tokens on a given request. That belongs in
+IndusCode may still ask for fewer output tokens on a given request. That belongs in
 the request path because only the request path knows the current prompt size and
 the user's configured output cap.
 
@@ -203,10 +203,10 @@ and observable.
 - `../providers/ai-sdk.ts`: conditionally passes `maxOutputTokens` into AI SDK.
 - `../providers/gateway.ts`: resolves per-request/default `maxTokens`.
 
-### Offline Cline featured lists
+### Offline IndusCode featured lists
 
 `bun run build:models` also captures the upstream recommended,
-free, and Cline Pass lists in `cline-recommended.generated.ts`. The SDK uses
+free, and IndusCode Pass lists in `induscode-recommended.generated.ts`. The SDK uses
 this snapshot when the live feed is unavailable, preserving feed order, tags,
 and descriptions and resolving names against the generated model catalog.
 Update these lists by running the generator; do not maintain separate model

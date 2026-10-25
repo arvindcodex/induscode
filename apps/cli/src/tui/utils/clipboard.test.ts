@@ -245,7 +245,7 @@ describe("copyTextToSystemClipboard", () => {
 		expect(spawnMock).not.toHaveBeenCalled();
 	});
 
-	it("re-enables SSH fallback when CLINE_CLIPBOARD_FALLBACK_REMOTE=1", async () => {
+	it("re-enables SSH fallback when INDUSCODE_CLIPBOARD_FALLBACK_REMOTE=1", async () => {
 		const proc = createChildProcessMock();
 		spawnMock.mockReturnValueOnce(proc.child);
 		const { copyTextToSystemClipboard } = await import("./clipboard");
@@ -255,7 +255,7 @@ describe("copyTextToSystemClipboard", () => {
 				platform: "darwin",
 				env: {
 					SSH_TTY: "/dev/pts/0",
-					CLINE_CLIPBOARD_FALLBACK_REMOTE: "1",
+					INDUSCODE_CLIPBOARD_FALLBACK_REMOTE: "1",
 				},
 			}),
 		).resolves.toBe(true);

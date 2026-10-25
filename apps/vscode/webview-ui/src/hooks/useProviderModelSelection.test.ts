@@ -1,4 +1,4 @@
-import { ApiFormat } from "@shared/proto/cline/models"
+import { ApiFormat } from "@shared/proto/induscode/models"
 import { act, renderHook } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 import { useProviderModelSelection } from "./useProviderModelSelection"

@@ -7,12 +7,12 @@ import type {
 	PluginPolicies,
 	ToolApprovalRequest,
 	UserContext,
-} from "@cline/shared";
+} from "@induscode/shared";
 import {
 	createSessionId,
 	parseRuntimeConfigExtensions,
 	ReasoningEffortSchema,
-} from "@cline/shared";
+} from "@induscode/shared";
 import {
 	isCoreBuiltinToolAvailable,
 	resolveToolClientType,

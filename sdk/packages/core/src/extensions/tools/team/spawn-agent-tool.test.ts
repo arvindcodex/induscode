@@ -1,4 +1,4 @@
-import type { AgentConfig } from "@cline/shared";
+import type { AgentConfig } from "@induscode/shared";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createDelegatedAgentConfigProvider } from "./delegated-agent";
 
@@ -231,7 +231,7 @@ describe("createSpawnAgentTool", () => {
 		);
 	});
 
-	it("appends workspace metadata for cline sub-agents when missing", async () => {
+	it("appends workspace metadata for induscode sub-agents when missing", async () => {
 		const { createSpawnAgentTool } = await import("./spawn-agent-tool.js");
 		runMock.mockResolvedValue({
 			text: "ok",
@@ -251,7 +251,7 @@ describe("createSpawnAgentTool", () => {
 
 		const tool = createSpawnAgentTool({
 			configProvider: createDelegatedAgentConfigProvider({
-				providerId: "cline",
+				providerId: "induscode",
 				modelId: "anthropic/claude-sonnet-4.6",
 				cwd: "/repo/demo",
 				workspaceMetadata,
@@ -278,7 +278,7 @@ describe("createSpawnAgentTool", () => {
 		);
 	});
 
-	it("does not duplicate workspace metadata for cline sub-agents", async () => {
+	it("does not duplicate workspace metadata for induscode sub-agents", async () => {
 		const { createSpawnAgentTool } = await import("./spawn-agent-tool.js");
 		runMock.mockResolvedValue({
 			text: "ok",
@@ -300,7 +300,7 @@ describe("createSpawnAgentTool", () => {
 
 		const tool = createSpawnAgentTool({
 			configProvider: createDelegatedAgentConfigProvider({
-				providerId: "cline",
+				providerId: "induscode",
 				modelId: "anthropic/claude-sonnet-4.6",
 				cwd: "/repo/demo",
 				workspaceMetadata: "# Workspace Configuration\n{}",
@@ -337,7 +337,7 @@ describe("createSpawnAgentTool", () => {
 		});
 
 		const configProvider = createDelegatedAgentConfigProvider({
-			providerId: "cline",
+			providerId: "induscode",
 			modelId: "stale-model",
 			apiKey: "oauth-access-old",
 			temperature: 0.3,

@@ -1,4 +1,4 @@
-import { CloudSessionStatusItem, CloudSessionStatusList, type CloudSessionStatusRequest } from "@shared/proto/cline/cloud"
+import { CloudSessionStatusItem, CloudSessionStatusList, type CloudSessionStatusRequest } from "@shared/proto/induscode/cloud"
 import type { Controller } from "../index"
 
 /** Resolves live agent status for only the cloud sessions named by the visible UI surface. */

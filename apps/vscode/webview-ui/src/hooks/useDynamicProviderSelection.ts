@@ -7,7 +7,7 @@ import { useProviderUsageCostDisplay } from "./useProviderUsageCostDisplay"
 /**
  * Reads the `(modelId, modelInfo)` pair that a dynamic-list provider
  * has committed to its provider-specific slot in `ApiConfiguration`.
- * Dynamic-list providers (openrouter, cline, openai-compatible, ollama,
+ * Dynamic-list providers (openrouter, induscode, openai-compatible, ollama,
  * lmstudio, requesty, litellm, hicap, groq, baseten, huggingface,
  * vercel-ai-gateway, aihubmix, oca, huawei-cloud-maas, dify, fireworks,
  * together, vscode-lm) all store the user's commit in their own
@@ -32,7 +32,7 @@ export interface DynamicProviderSelection {
 
 const FALLBACK_INFO_BY_PROVIDER: Partial<Record<string, ModelInfo>> = {
 	openrouter: openRouterDefaultModelInfo,
-	cline: openRouterDefaultModelInfo,
+	induscode: openRouterDefaultModelInfo,
 	"vercel-ai-gateway": openRouterDefaultModelInfo,
 }
 
@@ -59,8 +59,8 @@ export function useDynamicProviderSelection(
 		switch (providerId) {
 			case "openrouter":
 				return resolve(fields.openRouterModelId, fields.openRouterModelInfo)
-			case "cline":
-				return resolve(fields.clineModelId, fields.clineModelInfo)
+			case "induscode":
+				return resolve(fields.induscodeModelId, fields.induscodeModelInfo)
 			case "vercel-ai-gateway":
 				return resolve(fields.vercelAiGatewayModelId, fields.vercelAiGatewayModelInfo)
 			case "openai":

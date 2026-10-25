@@ -16,12 +16,12 @@ import { createConnection, createServer } from "node:net";
 import { homedir } from "node:os";
 import { basename, dirname, join } from "node:path";
 import {
-	CLINE_HUB_LAUNCHER_CLIENT_ENV,
-	CLINE_HUB_LAUNCHER_TRANSPORT_ENV,
-	CLINE_HUB_LAUNCHER_VERSION_ENV,
-	getClineClientIdentity,
-} from "@cline/shared";
-import { resolveClineDataDir } from "@cline/shared/storage";
+	INDUSCODE_HUB_LAUNCHER_CLIENT_ENV,
+	INDUSCODE_HUB_LAUNCHER_TRANSPORT_ENV,
+	INDUSCODE_HUB_LAUNCHER_VERSION_ENV,
+	getIndusCodeClientIdentity,
+} from "@induscode/shared";
+import { resolveIndusCodeDataDir } from "@induscode/shared/storage";
 import { requestHubShutdown } from "../hub/client";
 
 export interface RemoteEnvironmentProfile {
@@ -177,9 +177,9 @@ const DEFAULT_COMMAND_TIMEOUT_MS = 30_000;
 const DEFAULT_UPLOAD_TIMEOUT_MS = 5 * 60_000;
 const DEFAULT_TUNNEL_TIMEOUT_MS = 10_000;
 const DEFAULT_HUB_SHUTDOWN_TIMEOUT_MS = 2_000;
-const REMOTE_HELPER_DIRECTORY = ".cline/remote";
-const REMOTE_DISCOVERY_DIRECTORY = ".cline/data/remote";
-const REMOTE_INSPECTION_SENTINEL = "CLINE_REMOTE_INSPECT_V1";
+const REMOTE_HELPER_DIRECTORY = ".induscode/remote";
+const REMOTE_DISCOVERY_DIRECTORY = ".induscode/data/remote";
+const REMOTE_INSPECTION_SENTINEL = "INDUSCODE_REMOTE_INSPECT_V1";
 
 export class RemoteEnvironmentService {
 	private readonly profilesPath: string;
@@ -202,9 +202,9 @@ export class RemoteEnvironmentService {
 	public constructor(options: RemoteEnvironmentServiceOptions = {}) {
 		const env = options.env ?? process.env;
 		const configuredHelper =
-			options.helperBinaryPath ?? env.CLINE_REMOTE_HELPER_BINARY;
+			options.helperBinaryPath ?? env.INDUSCODE_REMOTE_HELPER_BINARY;
 		const configuredHelperDirectory =
-			options.helperBinaryDirectory ?? env.CLINE_REMOTE_HELPER_DIRECTORY;
+			options.helperBinaryDirectory ?? env.INDUSCODE_REMOTE_HELPER_DIRECTORY;
 		const defaults = createDefaultDependencies(
 			configuredHelper,
 			configuredHelperDirectory,
@@ -212,10 +212,10 @@ export class RemoteEnvironmentService {
 
 		this.profilesPath =
 			options.profilesPath ??
-			join(resolveClineDataDir(), "settings", "remote-environments.json");
-		this.sshPath = options.sshPath ?? env.CLINE_SSH_PATH ?? "ssh";
+			join(resolveIndusCodeDataDir(), "settings", "remote-environments.json");
+		this.sshPath = options.sshPath ?? env.INDUSCODE_SSH_PATH ?? "ssh";
 		this.knownHostsPath =
-			options.knownHostsPath ?? env.CLINE_SSH_KNOWN_HOSTS_FILE;
+			options.knownHostsPath ?? env.INDUSCODE_SSH_KNOWN_HOSTS_FILE;
 		this.connectTimeoutSeconds =
 			options.connectTimeoutSeconds ?? DEFAULT_CONNECT_TIMEOUT_SECONDS;
 		this.commandTimeoutMs =
@@ -533,8 +533,8 @@ export class RemoteEnvironmentService {
 		if (!localHelper || !(await this.dependencies.fileReadable(localHelper))) {
 			throw new Error(
 				`Remote target ${inspection.platform}/${inspection.arch} is unsupported in SSH: ` +
-					"no compatible Cline CLI binary is available. Build the Cline CLI for that target and set " +
-					"CLINE_REMOTE_HELPER_BINARY; network installers are intentionally not used.",
+					"no compatible IndusCode CLI binary is available. Build the IndusCode CLI for that target and set " +
+					"INDUSCODE_REMOTE_HELPER_BINARY; network installers are intentionally not used.",
 			);
 		}
 
@@ -545,7 +545,7 @@ export class RemoteEnvironmentService {
 		);
 		const remoteHelper = joinRemote(
 			remoteDirectory,
-			`cline-${inspection.platform}-${inspection.arch}-${hash.slice(0, 16)}`,
+			`induscode-${inspection.platform}-${inspection.arch}-${hash.slice(0, 16)}`,
 		);
 		await this.installHelper(
 			profile,
@@ -981,7 +981,7 @@ function createDefaultDependencies(
 	};
 }
 
-/** File name of the Cline CLI binary built for `target`, as clients bundle it. */
+/** File name of the IndusCode CLI binary built for `target`, as clients bundle it. */
 export function remoteHelperBinaryFilename(target: RemoteHelperTarget): string {
 	const triple =
 		target.platform === "darwin"
@@ -991,11 +991,11 @@ export function remoteHelperBinaryFilename(target: RemoteHelperTarget): string {
 			: target.arch === "arm64"
 				? "aarch64-unknown-linux-gnu"
 				: "x86_64-unknown-linux-gnu";
-	return `cline-${triple}`;
+	return `induscode-${triple}`;
 }
 
 /**
- * Remote Hubs are CLI-managed: the staged Cline CLI starts (or reuses) a
+ * Remote Hubs are CLI-managed: the staged IndusCode CLI starts (or reuses) a
  * loopback Hub tracked by a discovery record that this client owns, so the
  * user's own CLI Hub on that host is never read or stopped. The discovery
  * path comes last so a stop command can be matched to the ensure it undoes.
@@ -1005,18 +1005,18 @@ function remoteHubEnsureCommand(
 	cwd: string,
 	discoveryPath: string,
 ): RemoteCommandInput {
-	const launcher = getClineClientIdentity();
+	const launcher = getIndusCodeClientIdentity();
 	return {
 		command: "env",
 		args: [
-			"CLINE_NO_AUTO_UPDATE=1",
+			"INDUSCODE_NO_AUTO_UPDATE=1",
 			// The remote daemon's telemetry records who started it; the staged
 			// CLI would otherwise report itself.
-			`${CLINE_HUB_LAUNCHER_CLIENT_ENV}=${launcher?.name?.trim() || "cline"}`,
+			`${INDUSCODE_HUB_LAUNCHER_CLIENT_ENV}=${launcher?.name?.trim() || "induscode"}`,
 			...(launcher?.version?.trim()
-				? [`${CLINE_HUB_LAUNCHER_VERSION_ENV}=${launcher.version.trim()}`]
+				? [`${INDUSCODE_HUB_LAUNCHER_VERSION_ENV}=${launcher.version.trim()}`]
 				: []),
-			`${CLINE_HUB_LAUNCHER_TRANSPORT_ENV}=ssh`,
+			`${INDUSCODE_HUB_LAUNCHER_TRANSPORT_ENV}=ssh`,
 			cli,
 			"hub",
 			"ensure",
@@ -1038,7 +1038,7 @@ function remoteHubEnsureCommand(
 	};
 }
 
-const LEGACY_REMOTE_HELPER_PREFIX = "cline-remote-helper-";
+const LEGACY_REMOTE_HELPER_PREFIX = "induscode-remote-helper-";
 
 function remoteHubStopCommand(
 	cli: string,
@@ -1055,7 +1055,7 @@ function remoteHubStopCommand(
 	return {
 		command: "env",
 		args: [
-			"CLINE_NO_AUTO_UPDATE=1",
+			"INDUSCODE_NO_AUTO_UPDATE=1",
 			cli,
 			"hub",
 			"stop",

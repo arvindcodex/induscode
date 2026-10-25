@@ -1,6 +1,6 @@
 {
-	"name": "@cline/cli",
-	"displayName": "cline",
+	"name": "@induscode/cli",
+	"displayName": "induscode",
 	"version": "3.0.73",
 	"description": "Autonomous coding agent CLI - capable of creating/editing files, running commands, using the browser, and more",
 	"type": "module",
@@ -9,11 +9,11 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/cline/cline.git",
+		"url": "git+https://github.com/induscode/induscode.git",
 		"directory": "apps/cli"
 	},
 	"keywords": [
-		"cline",
+		"induscode",
 		"claude",
 		"dev",
 		"mcp",
@@ -28,15 +28,15 @@
 		"cli"
 	],
 	"author": {
-		"name": "Cline Bot Inc."
+		"name": "IndusCode Bot Inc."
 	},
 	"license": "Apache-2.0",
-	"homepage": "https://cline.bot",
+	"homepage": "https://induscode.bot",
 	"bugs": {
-		"url": "https://github.com/cline/cline/issues"
+		"url": "https://github.com/induscode/induscode/issues"
 	},
 	"bin": {
-		"cline": "src/index.ts"
+		"induscode": "src/index.ts"
 	},
 	"engines": {
 		"node": ">=22"
@@ -56,7 +56,7 @@
 		"prepublishOnly": "bun script/guard-direct-publish.ts",
 		"publish:npm": "bun script/publish-npm.ts",
 		"publish:npm:dry": "bun script/publish-npm.ts --dry-run",
-		"dev": "CLINE_BUILD_ENV=development bun --conditions=development ./src/index.ts",
+		"dev": "INDUSCODE_BUILD_ENV=development bun --conditions=development ./src/index.ts",
 		"typecheck": "tsc --noEmit",
 		"test": "bun run test:unit",
 		"test:unit": "vitest run --config vitest.config.ts",
@@ -76,7 +76,7 @@
 		"@chat-adapter/telegram": "^4.23.0",
 		"@chat-adapter/whatsapp": "^4.23.0",
 		"@clack/prompts": "^1.2.0",
-		"@cline/cline-hub": "workspace:*",
+		"@induscode/induscode-hub": "workspace:*",
 		"@gramio/format": "^0.7.0",
 		"@opentui-ui/dialog": "^0.1.2",
 		"@opentui/core": "0.4.3",
@@ -97,8 +97,8 @@
 		"zod": "^4.1.11"
 	},
 	"devDependencies": {
-		"@cline/core": "workspace:*",
-		"@cline/shared": "workspace:*",
+		"@induscode/core": "workspace:*",
+		"@induscode/shared": "workspace:*",
 		"@microsoft/tui-test": "^0.0.2",
 		"@types/bun": "^1.4.2",
 		"@types/react": "19.2.14",

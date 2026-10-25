@@ -100,13 +100,13 @@ describe("describeOutdatedHubSessions", () => {
 				activeSessionCount: 2,
 				participantClientCount: 1,
 			}),
-		).toBe("2 active sessions from 1 connected Cline client");
+		).toBe("2 active sessions from 1 connected IndusCode client");
 		expect(
 			describeOutdatedHubSessions({
 				activeSessionCount: 1,
 				participantClientCount: 3,
 			}),
-		).toBe("1 active session from 3 connected Cline clients");
+		).toBe("1 active session from 3 connected IndusCode clients");
 	});
 
 	it("omits the client clause when participant ids were unavailable", () => {
@@ -120,7 +120,7 @@ describe("describeOutdatedHubSessions", () => {
 
 	it("falls back to an unquantified phrase when the hub could not answer", () => {
 		expect(describeOutdatedHubSessions({})).toBe(
-			"active sessions from other Cline clients",
+			"active sessions from other IndusCode clients",
 		);
 	});
 });

@@ -1,4 +1,4 @@
-import { isClineProvider } from "@cline/shared";
+import { isIndusCodeProvider } from "@induscode/shared";
 import { OLLAMA_DEFAULT_CONTEXT_WINDOW } from "../builtins";
 import {
 	getModelReasoningControls,
@@ -153,10 +153,10 @@ const routedAnthropicProviderFallbackRule: ProviderOptionRule = {
 	id: "provider.routed-anthropic.fallbacks",
 	phase: "provider",
 	description:
-		"OpenRouter and Cline enable provider failover for Anthropic models.",
+		"OpenRouter and IndusCode enable provider failover for Anthropic models.",
 	applies: (input) =>
 		(input.request.providerId === "openrouter" ||
-			isClineProvider(input.request.providerId)) &&
+			isIndusCodeProvider(input.request.providerId)) &&
 		isAnthropicCompatibleModel({
 			modelId: input.request.modelId,
 			family: resolveModelFamily(input.context),
@@ -229,11 +229,11 @@ const genericProviderFanoutRule: ProviderOptionRule = {
 				}),
 };
 
-const clineGatewayReasoningRule: ProviderOptionRule = {
-	id: "provider.cline.reasoning",
+const induscodeGatewayReasoningRule: ProviderOptionRule = {
+	id: "provider.induscode.reasoning",
 	phase: "provider-reasoning",
-	description: "Cline gateway accepts the shared gateway reasoning shape.",
-	applies: (input) => isClineProvider(input.request.providerId),
+	description: "IndusCode gateway accepts the shared gateway reasoning shape.",
+	applies: (input) => isIndusCodeProvider(input.request.providerId),
 	build: (input) =>
 		buildReasoningPatchForProvider(
 			input,
@@ -255,13 +255,13 @@ const openRouterReasoningRule: ProviderOptionRule = {
 		),
 };
 
-const clineMiniMaxM3GatewayReasoningRule: ProviderOptionRule = {
-	id: "provider.cline.minimax-m3.gateway-reasoning",
+const induscodeMiniMaxM3GatewayReasoningRule: ProviderOptionRule = {
+	id: "provider.induscode.minimax-m3.gateway-reasoning",
 	phase: "provider-reasoning",
 	description:
-		"Cline-routed MiniMax M3 keeps the gateway reasoning shape instead of leaking generic thinking.",
+		"IndusCode-routed MiniMax M3 keeps the gateway reasoning shape instead of leaking generic thinking.",
 	applies: (input) =>
-		isClineProvider(input.request.providerId) && isMiniMaxM3(input),
+		isIndusCodeProvider(input.request.providerId) && isMiniMaxM3(input),
 	suppresses: { genericThinking: true },
 	build: () => undefined,
 };
@@ -393,13 +393,13 @@ const geminiThinkingRule: ProviderOptionRule = {
 	},
 };
 
-const clineReasoningDisabledThinkingRule: ProviderOptionRule = {
-	id: "provider.cline.disable-thinking",
+const induscodeReasoningDisabledThinkingRule: ProviderOptionRule = {
+	id: "provider.induscode.disable-thinking",
 	phase: "provider",
 	description:
-		"Cline-routed non-Kimi-K2.6 Moonshot Kimi models use thinking.type=disabled when reasoning is disabled.",
+		"IndusCode-routed non-Kimi-K2.6 Moonshot Kimi models use thinking.type=disabled when reasoning is disabled.",
 	applies: (input) =>
-		isClineProvider(input.request.providerId) &&
+		isIndusCodeProvider(input.request.providerId) &&
 		isMoonshotKimiModel(input) &&
 		input.request.reasoning?.enabled === false &&
 		!isKimiK26Family(input),
@@ -549,14 +549,14 @@ export const PROVIDER_OPTION_RULES: ReadonlyArray<ProviderOptionRule> = [
 	openAiAdapterRule,
 	openAiCodexRule,
 	genericProviderFanoutRule,
-	clineGatewayReasoningRule,
+	induscodeGatewayReasoningRule,
 	openRouterReasoningRule,
-	clineMiniMaxM3GatewayReasoningRule,
+	induscodeMiniMaxM3GatewayReasoningRule,
 	vercelReasoningRule,
 	directMoonshotReasoningRule,
 	fireworksReasoningRule,
 	geminiThinkingRule,
-	clineReasoningDisabledThinkingRule,
+	induscodeReasoningDisabledThinkingRule,
 	kimiK26ThinkingRule,
 	deepSeekThinkingRule,
 	ollamaNativeOptionsRule,

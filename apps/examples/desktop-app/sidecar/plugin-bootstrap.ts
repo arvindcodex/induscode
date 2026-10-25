@@ -1,6 +1,6 @@
 import { existsSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { CLINE_PLUGIN_BOOTSTRAP_PATH_ENV } from "@cline/core";
+import { INDUSCODE_PLUGIN_BOOTSTRAP_PATH_ENV } from "@induscode/core";
 import { linuxResourceCandidates } from "./remote-helper";
 
 const BUNDLED_BOOTSTRAP = join("bin", "extensions", "plugin-sandbox-bootstrap.js");
@@ -25,7 +25,7 @@ export function resolveDesktopPluginBootstrap(
 
 /** Exposes the bundled bootstrap to core and to the Hub daemon this spawns. */
 export function configurePluginBootstrap(env = process.env): void {
-	if (env[CLINE_PLUGIN_BOOTSTRAP_PATH_ENV]) return;
+	if (env[INDUSCODE_PLUGIN_BOOTSTRAP_PATH_ENV]) return;
 	const bootstrap = resolveDesktopPluginBootstrap();
-	if (bootstrap) env[CLINE_PLUGIN_BOOTSTRAP_PATH_ENV] = bootstrap;
+	if (bootstrap) env[INDUSCODE_PLUGIN_BOOTSTRAP_PATH_ENV] = bootstrap;
 }

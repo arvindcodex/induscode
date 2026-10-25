@@ -1,11 +1,11 @@
 "use client";
 
 import {
-	CLINE_DEFAULT_MODEL_ID,
+	INDUSCODE_DEFAULT_MODEL_ID,
 	ONE_TIME_SCHEDULE_CRON_PATTERN,
 	ONE_TIME_SCHEDULE_RUN_AT_METADATA_KEY,
-} from "@cline/shared/browser";
-import { Switch } from "@cline/ui";
+} from "@induscode/shared/browser";
+import { Switch } from "@induscode/ui";
 import {
 	CheckCircle2,
 	ChevronDown,
@@ -170,7 +170,7 @@ interface ProcessContext {
 }
 
 const FALLBACK_PROVIDER_MODELS: Record<string, string[]> = {
-	cline: [CLINE_DEFAULT_MODEL_ID],
+	induscode: [INDUSCODE_DEFAULT_MODEL_ID],
 	anthropic: ["claude-sonnet-4-6"],
 	"openai-native": ["gpt-5.3-codex"],
 	openrouter: ["anthropic/claude-sonnet-4.6"],
@@ -245,11 +245,11 @@ function getScheduleProviderModel(schedule: RoutineSchedule): {
 		provider:
 			schedule.modelSelection?.providerId?.trim() ||
 			schedule.provider?.trim() ||
-			"cline",
+			"induscode",
 		model:
 			schedule.modelSelection?.modelId?.trim() ||
 			schedule.model?.trim() ||
-			CLINE_DEFAULT_MODEL_ID,
+			INDUSCODE_DEFAULT_MODEL_ID,
 	};
 }
 
@@ -591,8 +591,8 @@ export function RoutineSchedulesContent({
 		scheduleMinute: "0",
 		scheduleDays: ["MON", "TUE", "WED", "THU", "FRI"],
 		prompt: "Review PRs opened yesterday and summarize issues.",
-		provider: "cline",
-		model: CLINE_DEFAULT_MODEL_ID,
+		provider: "induscode",
+		model: INDUSCODE_DEFAULT_MODEL_ID,
 		workspaceRoot: "",
 		systemPrompt: "",
 		timeoutSeconds: "",
@@ -925,7 +925,7 @@ export function RoutineSchedulesContent({
 		const preferredProvider =
 			rememberedProvider && availableProviders.includes(rememberedProvider)
 				? rememberedProvider
-				: (availableProviders[0] ?? "cline");
+				: (availableProviders[0] ?? "induscode");
 		const modelsForProvider = visibleProviderModels[preferredProvider] ?? [];
 		const rememberedModel =
 			lastModelSelection.lastModelByProvider[preferredProvider] ??
@@ -1051,11 +1051,11 @@ export function RoutineSchedulesContent({
 			const provider =
 				normalizeProviderId(asTrimmedFormString(createForm.provider)) ||
 				availableProviders[0] ||
-				"cline";
+				"induscode";
 			const model =
 				asTrimmedFormString(createForm.model) ||
 				(visibleProviderModels[provider] ?? [])[0] ||
-				CLINE_DEFAULT_MODEL_ID;
+				INDUSCODE_DEFAULT_MODEL_ID;
 			const systemPrompt = asTrimmedFormString(createForm.systemPrompt);
 			const timeoutSeconds = parseOptionalPositiveInt(
 				createForm.timeoutSeconds,
@@ -1179,7 +1179,7 @@ export function RoutineSchedulesContent({
 			<PageHeader
 				description="Run agents on cron schedules for recurring automations like daily summaries and code reviews."
 				title="Schedule"
-				meta={<CommandBadge>cline schedule</CommandBadge>}
+				meta={<CommandBadge>induscode schedule</CommandBadge>}
 				actions={
 					<>
 						<Button

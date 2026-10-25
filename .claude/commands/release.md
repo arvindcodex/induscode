@@ -1,1 +1,1 @@
-../../.clinerules/workflows/release.md
+../../.induscoderules/workflows/release.md

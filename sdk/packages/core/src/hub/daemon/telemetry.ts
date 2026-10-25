@@ -1,11 +1,11 @@
 import { release } from "node:os";
 import {
 	claimHubLauncherIdentity,
-	createClineTelemetryServiceConfig,
+	createIndusCodeTelemetryServiceConfig,
 	type HubLauncherIdentity,
 	type ITelemetryService,
 	readHubLauncherIdentity,
-} from "@cline/shared";
+} from "@induscode/shared";
 import type { AuthSettings } from "../../services/llms/provider-settings";
 import { ProviderSettingsManager } from "../../services/storage/provider-settings-manager";
 import {
@@ -30,8 +30,8 @@ export interface HubDaemonTelemetry {
 
 /**
  * Resource attributes that say whose build is hosting the sessions. One hub
- * serves every Cline client on the machine, and a session only carries its
- * own client's name/version (`clientName: cline-desktop`), so without these
+ * serves every IndusCode client on the machine, and a session only carries its
+ * own client's name/version (`clientName: induscode-desktop`), so without these
  * a desktop trace cannot be told apart from "desktop session on a hub the
  * CLI started" - which decides whether a build-specific telemetry gap is the
  * desktop's or the CLI's. Values are low-cardinality identifiers, never paths.
@@ -43,17 +43,17 @@ export function hubDaemonResourceAttributes(
 	const buildId = options.buildId ?? resolveHubBuildId();
 	const execPath = options.execPath ?? process.execPath ?? "";
 	return {
-		"cline.hub.build_id": buildId,
-		// Executable name only: cline-cli (bundled by the desktop), cline
+		"induscode.hub.build_id": buildId,
+		// Executable name only: induscode-cli (bundled by the desktop), induscode
 		// (npm), code-sidecar (older desktop), bun/node (source runs). Split on
 		// both separators so a Windows path read on any platform strips too.
-		"cline.hub.runtime": (execPath.split(/[\\/]/).pop() ?? "").replace(
+		"induscode.hub.runtime": (execPath.split(/[\\/]/).pop() ?? "").replace(
 			/\.exe$/i,
 			"",
 		),
-		"cline.hub.launcher.client": launcher?.client ?? "unknown",
-		"cline.hub.launcher.version": launcher?.version ?? "unknown",
-		"cline.hub.launcher.transport": launcher?.transport ?? "local",
+		"induscode.hub.launcher.client": launcher?.client ?? "unknown",
+		"induscode.hub.launcher.version": launcher?.version ?? "unknown",
+		"induscode.hub.launcher.transport": launcher?.transport ?? "local",
 	};
 }
 
@@ -66,7 +66,7 @@ export function hubDaemonResourceAttributes(
  * reporting nothing to OTel.
  *
  * The daemon is long-lived and frequently starts before the user logs in (or
- * outlives an account switch), so the cached Cline account id is re-resolved
+ * outlives an account switch), so the cached IndusCode account id is re-resolved
  * periodically rather than only once at startup.
  */
 export function createHubDaemonTelemetry(): HubDaemonTelemetry {
@@ -74,20 +74,20 @@ export function createHubDaemonTelemetry(): HubDaemonTelemetry {
 	// inherit its environment, and a hub one of them starts must record its
 	// own launcher, not this one's.
 	const launcher = claimHubLauncherIdentity();
-	const config = createClineTelemetryServiceConfig({
+	const config = createIndusCodeTelemetryServiceConfig({
 		// Spans carry only the OTel resource, not per-event metadata, so the
 		// daemon needs its own service identity: it ships in the same binary
 		// as the CLI, and without this its traces would be indistinguishable
-		// from CLI-local ones (`service.name: cline`).
-		serviceName: "cline-hub-daemon",
+		// from CLI-local ones (`service.name: induscode`).
+		serviceName: "induscode-hub-daemon",
 		serviceVersion: CORE_BUILD_VERSION,
 		metadata: {
 			extension_version: CORE_BUILD_VERSION,
 			// "hub", not "cli": daemon-hosted sessions can be triggered by the
 			// CLI, desktop app, or connectors, so daemon-emitted events must be
 			// distinguishable from the CLI process's own events.
-			cline_type: "hub",
-			platform: "cline-hub-daemon",
+			induscode_type: "hub",
+			platform: "induscode-hub-daemon",
 			platform_version: process.version,
 			os_type: process.platform,
 			os_version: release(),
@@ -102,10 +102,10 @@ export function createHubDaemonTelemetry(): HubDaemonTelemetry {
 	// migration and provider registration side effects, while
 	// getProviderSettings re-reads the file on every call anyway.
 	let settingsManager: ProviderSettingsManager | undefined;
-	const resolveCachedClineAuth = (): AuthSettings | null | undefined => {
+	const resolveCachedIndusCodeAuth = (): AuthSettings | null | undefined => {
 		try {
 			settingsManager ??= new ProviderSettingsManager();
-			return settingsManager.getProviderSettings("cline")?.auth;
+			return settingsManager.getProviderSettings("induscode")?.auth;
 		} catch {
 			// Telemetry identity must never interfere with daemon operation.
 			return null;
@@ -114,7 +114,7 @@ export function createHubDaemonTelemetry(): HubDaemonTelemetry {
 
 	let identifiedKey: string | undefined;
 	const refreshIdentity = (): void => {
-		const auth = resolveCachedClineAuth();
+		const auth = resolveCachedIndusCodeAuth();
 		if (auth === null) {
 			return;
 		}
@@ -138,7 +138,7 @@ export function createHubDaemonTelemetry(): HubDaemonTelemetry {
 		identifiedKey = key;
 		identifyAccount(handle.telemetry, {
 			id: accountId,
-			provider: "cline",
+			provider: "induscode",
 			organizationId: auth.organizationId,
 			organizationName: auth.organizationName,
 			memberId: auth.memberId,

@@ -29,7 +29,7 @@ describe("OAuth refresh across processes", () => {
 		const path = join(dir, "providers.json");
 		const settings = new ProviderSettingsManager({ filePath: path });
 		settings.saveProviderSettings({
-			provider: "cline",
+			provider: "induscode",
 			baseUrl: "https://unused.example",
 			auth: {
 				accessToken: "expired",
@@ -55,14 +55,14 @@ describe("OAuth refresh across processes", () => {
 				return Response.json({ success: true, data: {
 					accessToken: "rotated", refreshToken: "rotated-refresh", tokenType: "Bearer",
 					expiresAt: new Date(Date.now() + 3600000).toISOString(),
-					userInfo: { clineUserId: "account-a", email: "", subject: null, name: "", accounts: [] }
+					userInfo: { induscodeUserId: "account-a", email: "", subject: null, name: "", accounts: [] }
 				} });
 			};
 			const manager = new RuntimeOAuthTokenManager({
 				providerSettingsManager: new ProviderSettingsManager({ filePath: path })
 			});
 			console.log("resolving");
-			const result = await manager.resolveProviderApiKey({ providerId: "cline" });
+			const result = await manager.resolveProviderApiKey({ providerId: "induscode" });
 			console.log(JSON.stringify(result));
 		`;
 		function launch() {
@@ -70,7 +70,7 @@ describe("OAuth refresh across processes", () => {
 				process.execPath,
 				["--input-type=module", "-e", script, path, refreshLog, release],
 				{
-					env: { ...process.env, CLINE_DATA_DIR: dir, CLINE_DIR: dir },
+					env: { ...process.env, INDUSCODE_DATA_DIR: dir, INDUSCODE_DIR: dir },
 					stdio: ["ignore", "pipe", "pipe"],
 				},
 			);
@@ -124,7 +124,7 @@ describe("OAuth refresh across processes", () => {
 		expect(readFileSync(refreshLog, "utf8").trim().split("\n")).toEqual([
 			"refresh",
 		]);
-		expect(settings.getProviderSettings("cline")?.auth?.refreshToken).toBe(
+		expect(settings.getProviderSettings("induscode")?.auth?.refreshToken).toBe(
 			"rotated-refresh",
 		);
 	}, 30_000);

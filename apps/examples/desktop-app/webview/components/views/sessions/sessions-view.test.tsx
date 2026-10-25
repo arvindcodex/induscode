@@ -22,8 +22,8 @@ const thread: SessionThread = {
 	codebase: "ai-data-suite",
 	workspacePath: "/Users/dev/ai-data-suite",
 	time: "1d",
-	provider: "cline-pass",
-	model: "cline-pass/glm-5.2-with-a-very-long-identifier",
+	provider: "induscode-pass",
+	model: "induscode-pass/glm-5.2-with-a-very-long-identifier",
 	inputTokens: 13_837_938,
 	outputTokens: 132_579,
 	status: "completed",
@@ -178,7 +178,7 @@ describe("SessionsView table", () => {
 		const cloudThread: SessionThread = {
 			...thread,
 			origin: "cloud",
-			repoUrl: "https://github.com/cline/cline",
+			repoUrl: "https://github.com/induscode/induscode",
 		};
 		const view = renderView({ threads: [cloudThread] });
 		await view.render();
@@ -186,7 +186,7 @@ describe("SessionsView table", () => {
 		expect(
 			container.querySelector('[aria-label="Cloud session"]'),
 		).not.toBeNull();
-		expect(container.textContent).toContain("https://github.com/cline/cline");
+		expect(container.textContent).toContain("https://github.com/induscode/induscode");
 	});
 
 	it("opens a session on click but not while text is selected", async () => {
@@ -293,13 +293,13 @@ describe("SessionsView table", () => {
 	});
 
 	it("warns that deleting a task-worktree session also removes its worktree", async () => {
-		registerTaskWorktreeRoot("/home/host/cline-dir/worktrees");
+		registerTaskWorktreeRoot("/home/host/induscode-dir/worktrees");
 		try {
 			const view = renderView({
 				threads: [
 					{
 						...thread,
-						workspacePath: "/home/host/cline-dir/worktrees/ab12c/ai-data-suite",
+						workspacePath: "/home/host/induscode-dir/worktrees/ab12c/ai-data-suite",
 					},
 				],
 			});

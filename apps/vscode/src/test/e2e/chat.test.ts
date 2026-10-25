@@ -8,20 +8,20 @@ e2e("Chat - can send messages and switch between modes", async ({ helper, sideba
 	// Submit a message
 	const inputbox = sidebar.getByTestId("chat-input")
 	await expect(inputbox).toBeVisible()
-	await inputbox.fill("Hello, Cline!")
-	await expect(inputbox).toHaveValue("Hello, Cline!")
+	await inputbox.fill("Hello, IndusCode!")
+	await expect(inputbox).toHaveValue("Hello, IndusCode!")
 	await sidebar.getByTestId("send-button").click()
 	await expect(inputbox).toHaveValue("")
 
 	// Wait for the (mock) agent turn to finish before navigating away — the task
 	// is persisted to SDK session history when the turn completes, so clicking
 	// "New Task" mid-turn races the history write and "Recent" may not show.
-	await expect(sidebar.getByText("mock Cline API response")).toBeVisible()
+	await expect(sidebar.getByText("mock IndusCode API response")).toBeVisible()
 
 	// Starting a new task should clear the current chat view and show the recent tasks
 	await sidebar.getByRole("button", { name: "New Task", exact: true }).first().click()
 	await expect(sidebar.getByText("Recent")).toBeVisible()
-	await expect(sidebar.getByText("Hello, Cline!")).toBeVisible()
+	await expect(sidebar.getByText("Hello, IndusCode!")).toBeVisible()
 
 	// Makes sure the act and plan switches are working correctly
 	// Aria-checked state should be true for Act and false for Plan
@@ -90,7 +90,7 @@ e2e.describe("Checkpoint settings", () => {
 
 		await inputbox.fill("message without checkpoints")
 		await sidebar.getByTestId("send-button").click()
-		await expect(sidebar.getByText("mock Cline API response")).toBeVisible({ timeout: 30_000 })
+		await expect(sidebar.getByText("mock IndusCode API response")).toBeVisible({ timeout: 30_000 })
 
 		// A streamed reply becomes visible before its turn ends. Wait for the
 		// footer's Cancel button to go and for the chat input to take focus back
@@ -110,7 +110,7 @@ e2e.describe("Checkpoint settings", () => {
 
 		await inputbox.fill("follow-up without checkpoints")
 		await sidebar.getByTestId("send-button").click()
-		await expect(sidebar.getByText("mock Cline API response")).toHaveCount(2, { timeout: 30_000 })
+		await expect(sidebar.getByText("mock IndusCode API response")).toHaveCount(2, { timeout: 30_000 })
 
 		await openEditor("follow-up without checkpoints")
 		const resetCode = sidebar.getByRole("button", { name: "Reset Code" })
@@ -154,7 +154,7 @@ e2e.describe("Checkpoint settings", () => {
 			await sendButton.click()
 			await expect(sidebar.getByText("queued during checkpoint change")).toBeVisible({ timeout: 30_000 })
 			server.releaseCheckpointProbe()
-			await expect(sidebar.getByText("mock Cline API response")).toHaveCount(3, { timeout: 30_000 })
+			await expect(sidebar.getByText("mock IndusCode API response")).toHaveCount(3, { timeout: 30_000 })
 		} finally {
 			server.releaseCheckpointProbe()
 		}

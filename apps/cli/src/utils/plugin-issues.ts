@@ -1,5 +1,5 @@
-import { formatSessionPluginIssue } from "@cline/core";
-import type { SessionPluginIssue } from "@cline/shared";
+import { formatSessionPluginIssue } from "@induscode/core";
+import type { SessionPluginIssue } from "@induscode/shared";
 
 /**
  * One warning line per plugin the session asked for but could not load.

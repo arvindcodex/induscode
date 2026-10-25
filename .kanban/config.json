@@ -2,7 +2,7 @@
 	"shortcuts": [
 		{
 			"label": "Build & Link CLI",
-			"command": "bun -F @cline/cli build && bun -F @cline/cli link",
+			"command": "bun -F @induscode/cli build && bun -F @induscode/cli link",
 			"icon": "play"
 		}
 	]

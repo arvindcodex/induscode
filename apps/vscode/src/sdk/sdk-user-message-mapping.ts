@@ -1,4 +1,4 @@
-import { normalizeUserInput, stripModeNotices } from "@cline/shared"
+import { normalizeUserInput, stripModeNotices } from "@induscode/shared"
 
 /**
  * Canned prompt SdkModeCoordinator sends to drive the plan -> act

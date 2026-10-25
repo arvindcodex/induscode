@@ -4,7 +4,7 @@ import {
 	type ResolveCronSpecsDirOptions,
 	resolveCronReportsDir,
 	resolveCronSpecsDir,
-} from "@cline/shared/storage";
+} from "@induscode/shared/storage";
 import type {
 	CronEventLogRecord,
 	CronRunRecord,
@@ -14,7 +14,7 @@ import type {
 /**
  * Writes a markdown report for a completed or failed cron run.
  * Reports live under `<cron-specs-dir>/reports/<run-id>.md`.
- * By default that is `~/.cline/cron/reports/<run-id>.md`.
+ * By default that is `~/.induscode/cron/reports/<run-id>.md`.
  * and are derived artifacts — the database is still the operational source
  * of truth.
  */
@@ -38,7 +38,7 @@ export interface CronRunReportData {
 
 export interface WriteReportOptions {
 	/**
-	 * Cron spec source/report location. Defaults to global `~/.cline/cron`.
+	 * Cron spec source/report location. Defaults to global `~/.induscode/cron`.
 	 * Pass `{ scope: "workspace", workspaceRoot }` to write reports beside a
 	 * future workspace-scoped cron specs directory.
 	 */
